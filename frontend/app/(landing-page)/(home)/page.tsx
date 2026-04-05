@@ -92,18 +92,20 @@ const NewsPlaceholderIcon = () => (
   </svg>
 );
 
-const getPath = (link) => {
+type NavLink = "Home" | "About" | "News" | "Contact";
+
+const getPath = (link: NavLink) => {
   switch (link) {
     case "Home":
       return "/";
     case "About":
-      return "/about";
+      return "./about";
     case "News":
-      return "/news";   // ✅ FIXED
+      return "/news";
     case "Contact":
       return "/contact";
     default:
-      return "/";
+      return "/"; // this line is technically unreachable now
   }
 };
 
@@ -238,7 +240,7 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
       {link}
     </Link>
   ))}
-  <Link href="/login" className="navbar__signin">Sign In</Link>
+  <Link href="/member-login" className="navbar__signin">Sign In</Link>
 </div>
 
         {/* Hamburger button (mobile only) */}
