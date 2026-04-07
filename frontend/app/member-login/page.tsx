@@ -5,12 +5,33 @@ import './member-login.css';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGraduationCap } from "../lib/fontawesome-icons";
 import { faCheckCircle, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function MemberLogin() {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSignIn = () => {
+    if (!email || !password) {
+      toast.error("Please fill in all fields!");
+      return;
+    }
+
+    // Optional: basic email format check
+    if (!email.includes("@")) {
+      toast.error("Please enter a valid email!");
+      return;
+    }
+
+    toast.success("Login successful!");
+  };
 
   return (
     <div className="login-container">
+      <ToastContainer position="top-right" autoClose={3000} />
+      
       <div className="login-separation">
 
         {/* LEFT SIDE */}
@@ -36,20 +57,16 @@ export default function MemberLogin() {
 
               {/* CHECKLIST */}
               <div className="login-checklist">
-                <div className="login-check">
-                  <FontAwesomeIcon icon={faCheckCircle} className="check-icon" />
-                  <p>Secure Institutional Access</p>
-                </div>
-
-                <div className="login-check">
-                  <FontAwesomeIcon icon={faCheckCircle} className="check-icon" />
-                  <p>Peer-Reviewed Publication Tools</p>
-                </div>
-
-                <div className="login-check">
-                  <FontAwesomeIcon icon={faCheckCircle} className="check-icon" />
-                  <p>Integrated Research Repositories</p>
-                </div>
+                {[
+                  "Secure Institutional Access",
+                  "Peer-Reviewed Publication Tools",
+                  "Integrated Research Repositories"
+                ].map((item, index) => (
+                  <div className="login-check" key={index}>
+                    <FontAwesomeIcon icon={faCheckCircle} className="check-icon" />
+                    <p>{item}</p>
+                  </div>
+                ))}
               </div>
 
             </div>
@@ -67,20 +84,29 @@ export default function MemberLogin() {
 
               {/* EMAIL */}
               <div className="login-form">
-                <label>INSTITUTIONAL EMAIL</label>
+                <label htmlFor="email">INSTITUTIONAL EMAIL</label>
                 <div className="input-wrapper">
-                  <input type="email" placeholder="name@university.edu" />
+                  <input
+                    type="email"
+                    id="email"
+                    placeholder="name@university.edu"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </div>
               </div>
 
               {/* PASSWORD */}
               <div className="login-form">
-                <label>PASSWORD</label>
+                <label htmlFor="password">PASSWORD</label>
 
                 <div className="input-wrapper">
                   <input
                     type={showPassword ? "text" : "password"}
+                    id="password"
                     placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
 
                   <FontAwesomeIcon
@@ -106,7 +132,9 @@ export default function MemberLogin() {
             </div>
 
             {/* BUTTON */}
-            <button className="login-btn">Sign In</button>
+            <button className="login-btn" onClick={handleSignIn}>
+              Sign In
+            </button>
 
             {/* DIVIDER */}
             <div className="divider">

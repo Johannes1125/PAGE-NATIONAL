@@ -226,6 +226,34 @@
   flex-direction: column;
 }
 
+.icon-header {
+  padding-bottom: 40px;
+}
+
+.shield-icon {
+  background-color: #F4F3F1;
+  padding: 20px;
+  font-size: 20px;
+  border-radius: 10px;
+  border: 2px solid #9e9e9e56;
+}
+
+.Admin-title {
+  font-size:24px;
+}
+
+.admin-subtext {
+  font-size: 14px;
+}
+
+.icon-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 15px;
+}
+
 .login-right-container h2 {
   font-size: 28px;
   font-weight: 800;
@@ -477,4 +505,20 @@ input[type="password"]::-webkit-textfield-decoration-container {
 
 .req-access:hover {
   background-color: #66666657;
+}
+
+.arrow-return {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding-top: 10px;
+}
+
+.arrow-icon {
+  font-size: 12px;
+}
+
+.return-page {
+  font-size: 13px;
 }

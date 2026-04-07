@@ -1,5 +1,10 @@
-import { library } from "@fortawesome/fontawesome-svg-core";
+// Import the FontAwesome library core
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+// Import solid icons
 import {
+  faUserShield,
   faAnglesLeft,
   faAnglesRight,
   faArrowLeft,
@@ -47,17 +52,18 @@ import {
   faUserSlash,
   faUsers,
   faXmark,
-} from "@fortawesome/free-solid-svg-icons";
+} from '@fortawesome/free-solid-svg-icons';
+
+// Import regular icons
 import {
   faCalendar as faCalendarRegular,
   faCircleXmark as faCircleXmarkRegular,
   faClock as faClockRegular,
-  faCircle as faCircleInfo,
   faFile as faFileRegular,
   faFloppyDisk as faFloppyDiskRegular,
   faSquareCheck as faSquareCheckRegular,
   faUser as faUserRegular,
-} from "@fortawesome/free-regular-svg-icons";
+} from '@fortawesome/free-regular-svg-icons';
 
 let hasRegisteredFontAwesomeIcons = false;
 
@@ -67,66 +73,68 @@ export function registerFontAwesomeIcons() {
   }
 
   library.add(
-    faAnglesLeft,
-    faAnglesRight,
-    faArrowLeft,
-    faArrowRight,
-    faAward,
-    faBuildingColumns,
-    faBox,
-    faCalendar,
-    faChalkboardUser,
-    faCheck,
-    faCheckCircle,
-    faCheckDouble,
-    faChevronDown,
-    faChevronUp,
-    faChevronRight,
-    faCircleCheck,
-    faCircleXmark,
-    faEllipsis,
-    faEye,
-    faEyeSlash,
-    faPenToSquare,
-    faFile,
-    faFileArrowUp,
-    faFileCircleXmark,
-    faFilter,
-    faFloppyDisk,
-    faGraduationCap,
-    faHourglassHalf,
-    faInbox,
-    faListCheck,
-    faLock,
-    faMagnifyingGlass,
-    faMedal,
-    faMinus,
-    faPlus,
-    faRotateLeft,
-    faRightFromBracket,
-    faStar,
-    faTableList,
-    faTrash,
-    faBoxArchive,
-    faUser,
-    faUserCircle,
-    faUserGraduate,
-    faUserSlash,
-    faUsers,
-    faXmark,
-    faCalendarRegular,
-    faCircleXmarkRegular,
-    faClockRegular,
-    faFileRegular,
-    faFloppyDiskRegular,
-    faSquareCheckRegular,
-    faUserRegular
-  );
+  faUserShield,
+  faAnglesLeft,
+  faAnglesRight,
+  faArrowLeft,
+  faArrowRight,
+  faAward,
+  faBuildingColumns,
+  faBox,
+  faCalendar,
+  faChalkboardUser,
+  faCheck,
+  faCheckCircle,
+  faCheckDouble,
+  faChevronDown,
+  faChevronUp,
+  faChevronRight,
+  faCircleCheck,
+  faCircleXmark,
+  faEllipsis,
+  faEye,
+  faEyeSlash,
+  faPenToSquare,
+  faFile,
+  faFileArrowUp,
+  faFileCircleXmark,
+  faFilter,
+  faFloppyDisk,
+  faGraduationCap,
+  faHourglassHalf,
+  faInbox,
+  faListCheck,
+  faLock,
+  faMagnifyingGlass,
+  faMedal,
+  faMinus,
+  faPlus,
+  faRotateLeft,
+  faRightFromBracket,
+  faStar,
+  faTableList,
+  faTrash,
+  faBoxArchive,
+  faUser,
+  faUserCircle,
+  faUserGraduate,
+  faUserSlash,
+  faUsers,
+  faXmark,
+  faCalendarRegular,
+  faCircleXmarkRegular,
+  faClockRegular,
+  faFileRegular,
+  faFloppyDiskRegular,
+  faSquareCheckRegular,
+  faUserRegular
+);
 
   hasRegisteredFontAwesomeIcons = true;
 }
 
 export {
+  faUserShield, // add this line
   faAnglesLeft,
   faAnglesRight,
   faArrowLeft,

@@ -2,24 +2,41 @@
 
 import { useState } from "react";
 import './admin-login.css';
+import { useRouter } from "next/navigation";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGraduationCap } from "../lib/fontawesome-icons";
-import { faCheckCircle, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import { faCircleInfo } from '@fortawesome/free-solid-svg-icons'
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
+// Import your icons
+import { faGraduationCap, faUserShield } from "../lib/fontawesome-icons";
+import { faCheckCircle, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 export default function OrgLogin() {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter();
+
+  const handleSignIn = () => {
+    if (!email || !password) {
+      toast.error("Please fill in all fields!");
+      return;
+    }
+    toast.success("Login successful!");
+    // Proceed with login logic here
+  };
 
   return (
     <div className="login-container">
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="login-separation">
 
         {/* LEFT SIDE */}
         <div className="login-left-side">
           <div className="overlay">
             <div className="login-alignment">
-              
+
               {/* ICON + TITLE */}
               <div className="icon-title">
                 <div className="icon-bg">
@@ -27,7 +44,7 @@ export default function OrgLogin() {
                 </div>
                 <h1 className="login-title">PAGE</h1>
               </div>
-              <p  className="login-tagline">Philippine Association for Graduate Education</p>
+              <p className="login-tagline">Philippine Association for Graduate Education</p>
 
               {/* TEXT */}
               <div className="title-page">
@@ -35,39 +52,22 @@ export default function OrgLogin() {
                 <h1 className="title">System Administration Panel</h1>
               </div>
 
-              {/* checklist */}
+              {/* CHECKLIST */}
               <div className="login-checklist">
-                <div className="login-check">
-                  <FontAwesomeIcon icon={faCheckCircle} className="check-icon" />
-                  <div className="checklist-container">
-                    <h3 className="title-container">Post Approval & Publishing</h3>
-                    <p>Verify and curate scholarly contributions.</p>
+                {[
+                  { title: "Post Approval & Publishing", desc: "Verify and curate scholarly contributions." },
+                  { title: "User & Role Management", desc: "Control institutional access and permissions." },
+                  { title: "System-wide Content Control", desc: "Oversee global metadata and taxonomies." },
+                  { title: "Message & Inquiry Management", desc: "Monitor communications and official help desk." }
+                ].map((item, index) => (
+                  <div className="login-check" key={index}>
+                    <FontAwesomeIcon icon={faCheckCircle} className="check-icon" />
+                    <div className="checklist-container">
+                      <h3 className="title-container">{item.title}</h3>
+                      <p>{item.desc}</p>
+                    </div>
                   </div>
-                </div>
-
-                <div className="login-check">
-                  <FontAwesomeIcon icon={faCheckCircle} className="check-icon" />
-                  <div className="checklist-container">
-                    <h3 className="title-container">User & Role Management</h3>
-                    <p>Control institutional access and permissions.</p>
-                  </div>
-                </div>
-
-                <div className="login-check">
-                  <FontAwesomeIcon icon={faCheckCircle} className="check-icon" />
-                  <div className="checklist-container">
-                    <h3 className="title-container">System-wide Content Control</h3>
-                    <p>Oversee global metadata and taxonomies.</p>
-                  </div>
-                </div>
-
-                <div className="login-check">
-                  <FontAwesomeIcon icon={faCheckCircle} className="check-icon" />
-                  <div className="checklist-container">
-                    <h3 className="title-container">Message & Inquiry Management</h3>
-                    <p>Monitor communications and official help desk.</p>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>
@@ -76,27 +76,40 @@ export default function OrgLogin() {
         {/* RIGHT SIDE */}
         <div className="login-right-side">
           <div className="login-right-container">
-            
-            <div className='login-form-container'>
+
+            <div className="icon-header">
+              <FontAwesomeIcon icon={faUserShield} className="shield-icon" />
+              <h3 className="Admin-title">Admin Access</h3>
+              <p className="admin-subtext">Sign in to manage the PAGE system</p>
+            </div>
+
+            <div className="login-form-container">
 
               {/* EMAIL */}
               <div className="login-form">
-                <label>ADMIN EMAIL</label>
+                <label htmlFor="adminEmail">ADMIN EMAIL</label>
                 <div className="input-wrapper">
-                  <input type="email" placeholder="name@university.edu" />
+                  <input
+                    type="email"
+                    id="adminEmail"
+                    placeholder="name@university.edu"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </div>
               </div>
 
               {/* PASSWORD */}
               <div className="login-form">
-                <label>PASSWORD</label>
-
+                <label htmlFor="adminPassword">PASSWORD</label>
                 <div className="input-wrapper">
                   <input
                     type={showPassword ? "text" : "password"}
+                    id="adminPassword"
                     placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
-
                   <FontAwesomeIcon
                     icon={showPassword ? faEyeSlash : faEye}
                     className="eye-icon"
@@ -108,27 +121,34 @@ export default function OrgLogin() {
             </div>
 
             {/* REMEMBER + FORGOT */}
-            <div className='remember-forgot'>
+            <div className="remember-forgot">
               <div className="remember-me">
-                <input type="checkbox" id="rememberMe" className='checkbox' />
+                <input type="checkbox" id="rememberMe" className="checkbox" />
                 <label htmlFor="rememberMe">Remember this device</label>
               </div>
-
-              <div className='remember-me'>
+              <div className="remember-me">
                 <span className="forgot"><a href="#">Forgot Password?</a></span>
               </div>
             </div>
 
             {/* BUTTON */}
-            <button className="login-btn">Sign In</button>
+            <button className="login-btn" onClick={handleSignIn}>Sign In</button>
 
             {/* DIVIDER */}
             <div className="divider">
               <hr />
             </div>
 
-            {/* SIGN UP */}
-            
+            <div className="arrow-return">
+              <FontAwesomeIcon icon={faArrowLeft} className="arrow-icon" />
+              <p 
+                className="return-page"
+                onClick={() => router.push('/member-login')}
+                style={{ cursor: 'pointer' }}
+              >
+                Return to General Login
+              </p>  
+            </div>
           </div>
         </div>
 
