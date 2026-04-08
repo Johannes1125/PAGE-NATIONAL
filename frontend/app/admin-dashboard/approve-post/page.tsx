@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { CalendarDays, FileText, UserRound } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { CalendarDays, UserRound } from "lucide-react";
 import "./approve-post.css";
+
+type PostStatus = "pending" | "approved" | "rejected";
 
 type PendingPost = {
   id: string;
@@ -13,6 +15,11 @@ type PendingPost = {
   author: string;
   organization: string;
   category: string;
+};
+
+type PostModerationState = {
+  status: PostStatus;
+  feedback: string;
 };
 
 const pendingPosts: PendingPost[] = [
@@ -59,12 +66,89 @@ const pendingPosts: PendingPost[] = [
 ];
 
 export default function ApprovePostPage() {
+  const initialPostState = useMemo<Record<string, PostModerationState>>(
+    () => Object.fromEntries(pendingPosts.map((post) => [post.id, { status: "pending", feedback: "" }])),
+    [],
+  );
+
+  const [postStateById, setPostStateById] = useState<Record<string, PostModerationState>>(initialPostState);
   const [selectedPostId, setSelectedPostId] = useState(pendingPosts[0]?.id ?? "");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<PostStatus | "all">("all");
+  const [feedbackInput, setFeedbackInput] = useState("");
+  const [feedbackError, setFeedbackError] = useState("");
+  const [lastNotification, setLastNotification] = useState("");
+
+  const filteredPosts = useMemo(
+    () =>
+      pendingPosts.filter((post) => {
+        const status = postStateById[post.id]?.status ?? "pending";
+        const categoryMatch = categoryFilter === "all" || post.category.toLowerCase() === categoryFilter;
+        const statusMatch = statusFilter === "all" || status === statusFilter;
+        return categoryMatch && statusMatch;
+      }),
+    [categoryFilter, postStateById, statusFilter],
+  );
 
   const selectedPost = useMemo(
-    () => pendingPosts.find((post) => post.id === selectedPostId) ?? pendingPosts[0],
-    [selectedPostId],
+    () => filteredPosts.find((post) => post.id === selectedPostId) ?? filteredPosts[0] ?? null,
+    [filteredPosts, selectedPostId],
   );
+
+  useEffect(() => {
+    if (!selectedPost) {
+      setFeedbackInput("");
+      return;
+    }
+
+    setFeedbackInput(postStateById[selectedPost.id]?.feedback ?? "");
+  }, [postStateById, selectedPost]);
+
+  const handleSelectPost = (postId: string) => {
+    setSelectedPostId(postId);
+    setFeedbackInput(postStateById[postId]?.feedback ?? "");
+    setFeedbackError("");
+  };
+
+  const handleApprove = () => {
+    if (!selectedPost) return;
+
+    setPostStateById((current) => ({
+      ...current,
+      [selectedPost.id]: {
+        ...current[selectedPost.id],
+        status: "approved",
+      },
+    }));
+
+    setFeedbackError("");
+    setLastNotification(
+      `Notification sent to ${selectedPost.organization}: "${selectedPost.title}" has been approved.`,
+    );
+  };
+
+  const handleReject = () => {
+    if (!selectedPost) return;
+
+    const trimmedFeedback = feedbackInput.trim();
+    if (!trimmedFeedback) {
+      setFeedbackError("Rejection feedback is required.");
+      return;
+    }
+
+    setPostStateById((current) => ({
+      ...current,
+      [selectedPost.id]: {
+        status: "rejected",
+        feedback: trimmedFeedback,
+      },
+    }));
+
+    setFeedbackError("");
+    setLastNotification(
+      `Notification sent to ${selectedPost.organization}: "${selectedPost.title}" was rejected with admin feedback.`,
+    );
+  };
 
   return (
     <main className="approve-page">
@@ -100,14 +184,23 @@ export default function ApprovePostPage() {
             </div>
 
             <div className="approve-hero__controls">
-              <select defaultValue="all" aria-label="Category filter">
+              <select
+                value={categoryFilter}
+                aria-label="Category filter"
+                onChange={(event) => setCategoryFilter(event.target.value)}
+              >
                 <option value="all">All Categories</option>
+                <option value="article">Article</option>
                 <option value="research">Research</option>
                 <option value="journal">Journal</option>
               </select>
 
-              <select defaultValue="status" aria-label="Status filter">
-                <option value="status">Status</option>
+              <select
+                value={statusFilter}
+                aria-label="Status filter"
+                onChange={(event) => setStatusFilter(event.target.value as PostStatus | "all")}
+              >
+                <option value="all">All Status</option>
                 <option value="pending">Pending</option>
                 <option value="approved">Approved</option>
                 <option value="rejected">Rejected</option>
@@ -122,12 +215,12 @@ export default function ApprovePostPage() {
         <section className="approve-content">
           <section className="approve-layout">
             <section className="approve-list" aria-label="Pending post list">
-              {pendingPosts.map((post) => (
+              {filteredPosts.map((post) => (
                 <button
                   key={post.id}
                   type="button"
                   className={`approve-card${selectedPost?.id === post.id ? " approve-card--active" : ""}`}
-                  onClick={() => setSelectedPostId(post.id)}
+                  onClick={() => handleSelectPost(post.id)}
                 >
                   <div className="approve-card__date">
                     <CalendarDays size={12} />
@@ -139,12 +232,24 @@ export default function ApprovePostPage() {
                     <UserRound size={12} />
                     <span>{post.author} • {post.organization}</span>
                   </div>
+                  <span className={`approve-status-badge approve-status-badge--${postStateById[post.id]?.status ?? "pending"}`}>
+                    {(postStateById[post.id]?.status ?? "pending").toUpperCase()}
+                  </span>
                 </button>
               ))}
+
+              {filteredPosts.length === 0 && <p className="approve-empty">No posts match the selected filters.</p>}
             </section>
 
             <aside className="approve-detail">
               <h3>Post Details</h3>
+
+              {!selectedPost && (
+                <p className="approve-empty">Select a post from the list to review its details.</p>
+              )}
+
+              {selectedPost && (
+                <>
 
               <div className="approve-detail__block">
                 <p className="approve-detail__label">Title</p>
@@ -172,20 +277,51 @@ export default function ApprovePostPage() {
               </div>
 
               <div className="approve-detail__block">
+                <p className="approve-detail__label">Current Status</p>
+                <p className={`approve-status approve-status--${postStateById[selectedPost.id]?.status ?? "pending"}`}>
+                  {(postStateById[selectedPost.id]?.status ?? "pending").toUpperCase()}
+                </p>
+              </div>
+
+              <div className="approve-detail__block">
                 <p className="approve-detail__label">Excerpt</p>
                 <p>
                   {selectedPost?.summary}
                 </p>
               </div>
 
+              <div className="approve-detail__block">
+                <p className="approve-detail__label">Rejection Feedback</p>
+                <textarea
+                  className="approve-feedback"
+                  placeholder="Enter feedback to organization for rejected posts"
+                  value={feedbackInput}
+                  onChange={(event) => {
+                    setFeedbackInput(event.target.value);
+                    if (feedbackError) setFeedbackError("");
+                  }}
+                  rows={4}
+                />
+                {feedbackError && <p className="approve-error">{feedbackError}</p>}
+                {postStateById[selectedPost.id]?.feedback && (
+                  <p className="approve-saved-feedback">
+                    Saved feedback: {postStateById[selectedPost.id].feedback}
+                  </p>
+                )}
+              </div>
+
               <div className="approve-detail__actions">
-                <button type="button" className="approve-btn approve-btn--accept">
+                <button type="button" className="approve-btn approve-btn--accept" onClick={handleApprove}>
                   Approve
                 </button>
-                <button type="button" className="approve-btn approve-btn--reject">
+                <button type="button" className="approve-btn approve-btn--reject" onClick={handleReject}>
                   Reject
                 </button>
               </div>
+
+              {lastNotification && <p className="approve-notification">{lastNotification}</p>}
+                </>
+              )}
             </aside>
           </section>
         </section>
