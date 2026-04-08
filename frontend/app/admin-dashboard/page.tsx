@@ -192,6 +192,13 @@ export default function AdminDashboardPage() {
       <section className="admin-hero-band">
         <div className="admin-shell">
           <section className="admin-hero">
+            <header className="admin-hero-header">
+              <h1 className="admin-hero-title">Admin Dashboard Overview</h1>
+              <p className="admin-hero-subtitle">
+                View platform metrics, monitor activity, and track approval workflow status in one place.
+              </p>
+            </header>
+
             <section className="admin-hero-metrics">
               {metrics.map((metric) => (
                 <article key={metric.label} className={`admin-hero-card admin-hero-card--${metric.tone}`}>

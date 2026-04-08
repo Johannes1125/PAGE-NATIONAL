@@ -188,6 +188,26 @@ body {
   padding: 34px 0 20px;
 }
 
+.admin-hero-header {
+  margin-bottom: 14px;
+}
+
+.admin-hero-title {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(28px, 3.2vw, 40px);
+  font-weight: 800;
+  line-height: 1.08;
+}
+
+.admin-hero-subtitle {
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 14px;
+  line-height: 1.45;
+  max-width: 760px;
+}
+
 .admin-hero-divider {
   display: block;
   width: 100%;
