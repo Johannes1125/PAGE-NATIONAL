@@ -166,6 +166,7 @@ export default function ApprovePostPage() {
           <nav className="approve-nav">
             <Link href="/" className="approve-nav__link">Main Page</Link>
             <Link href="/admin-dashboard" className="approve-nav__link">Overview</Link>
+            <Link href="/admin-dashboard/create-new-post" className="approve-nav__link">Create New Post</Link>
             <Link href="/admin-dashboard/approve-post" className="approve-nav__link approve-nav__link--active">Approve Posts</Link>
             <Link href="/admin-dashboard/manage-users" className="approve-nav__link">Manage Users</Link>
             <Link href="/admin-dashboard/view-messages" className="approve-nav__link">Messages</Link>

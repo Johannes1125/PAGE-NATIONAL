@@ -182,6 +182,7 @@ export default function AdminDashboardPage() {
           <nav className="admin-nav">
             <Link href="/" className="admin-nav__link">Main Page</Link>
             <Link href="/admin-dashboard" className="admin-nav__link admin-nav__link--active">Overview</Link>
+            <Link href="/admin-dashboard/create-new-post" className="admin-nav__link">Create New Post</Link>
             <Link href="/admin-dashboard/approve-post" className="admin-nav__link">Approve Posts</Link>
             <Link href="/admin-dashboard/manage-users" className="admin-nav__link">Manage Users</Link>
             <Link href="/admin-dashboard/view-messages" className="admin-nav__link">Messages</Link>
