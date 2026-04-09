@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { CalendarDays, Eye, FileUp, Image as ImageIcon, Link2, List, ListOrdered, X } from "lucide-react";
+import AdminNotifications from "../components/AdminNotifications";
 import "./create-new-post.css";
 
 type PublishMode = "now" | "schedule";
@@ -167,6 +168,7 @@ export default function CreateNewPostPage() {
               <div className="cnp-brand__subtitle">Philippine Association for Graduate Education</div>
             </div>
           </div>
+          <AdminNotifications />
 
           <nav className="cnp-nav">
             <Link href="/" className="cnp-nav__link">Main Page</Link>

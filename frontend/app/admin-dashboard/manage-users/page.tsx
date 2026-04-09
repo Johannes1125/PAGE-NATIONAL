@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Clock3, Pencil, Search, X } from "lucide-react";
+import AdminNotifications from "../components/AdminNotifications";
 import "./manage-users.css";
 
 type UserStatus = "active" | "inactive";
@@ -179,6 +180,7 @@ export default function ManageUsersPage() {
               <div className="manage-brand__subtitle">Philippine Association for Graduate Education</div>
             </div>
           </div>
+          <AdminNotifications />
 
           <nav className="manage-nav">
             <Link href="/" className="manage-nav__link">Main Page</Link>

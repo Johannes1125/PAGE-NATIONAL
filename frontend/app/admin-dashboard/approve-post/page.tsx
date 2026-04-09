@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, UserRound } from "lucide-react";
+import AdminNotifications from "../components/AdminNotifications";
 import "./approve-post.css";
 
 type PostStatus = "pending" | "approved" | "rejected";
@@ -162,6 +163,7 @@ export default function ApprovePostPage() {
               <div className="approve-brand__subtitle">Philippine Association for Graduate Education</div>
             </div>
           </div>
+          <AdminNotifications />
 
           <nav className="approve-nav">
             <Link href="/" className="approve-nav__link">Main Page</Link>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Building2, FileClock, Newspaper, Users, type LucideIcon } from "lucide-react";
+import AdminNotifications from "./components/AdminNotifications";
 import "./admin-dashboard.css";
 
 type Metric = {
@@ -178,6 +179,7 @@ export default function AdminDashboardPage() {
               <div className="admin-brand__tagline">Philippine Association for Graduate Education</div>
             </div>
           </div>
+          <AdminNotifications />
 
           <nav className="admin-nav">
             <Link href="/" className="admin-nav__link">Main Page</Link>
