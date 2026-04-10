@@ -146,8 +146,8 @@ body {
 .admin-shell {
   position: relative;
   z-index: 1;
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
   padding: 28px 20px 40px;
 }
 
