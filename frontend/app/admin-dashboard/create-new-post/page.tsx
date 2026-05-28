@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { CalendarDays, Eye, FileUp, Image as ImageIcon, Link2, List, ListOrdered, X } from "lucide-react";
 import AdminNotifications from "../components/AdminNotifications";
 import "./create-new-post.css";
+import "../admin-dashboard.css";
 
 type PublishMode = "now" | "schedule";
 type PostRecordStatus = "draft" | "published" | "scheduled";
@@ -158,39 +159,63 @@ export default function CreateNewPostPage() {
 
   return (
     <main className="cnp-page">
-      <aside className="cnp-sidebar">
-        <div className="cnp-sidebar__inner">
-          <div className="cnp-brand">
-            <div className="cnp-brand__badge">P</div>
-            <div>
-              <div className="cnp-brand__eyebrow">PAGE</div>
-              <div className="cnp-brand__title">Admin Dashboard</div>
-              <div className="cnp-brand__subtitle">Philippine Association for Graduate Education</div>
+      <aside className="admin-navbar">
+        <div className="admin-navbar__inner">
+          <div className="admin-brand">
+            <div className="admin-brand__badge" aria-hidden="true">
+              <span className="admin-brand__badge-text">P</span>
+            </div>
+            <div className="admin-brand__identity">
+              <div className="admin-brand__eyebrow">PAGE</div>
+              <div className="admin-brand__name">Create New Post</div>
+              <div className="admin-brand__tagline">Philippine Association for Graduate Education</div>
             </div>
           </div>
-          <AdminNotifications />
 
-          <nav className="cnp-nav">
-            <Link href="/" className="cnp-nav__link">Main Page</Link>
-            <Link href="/admin-dashboard" className="cnp-nav__link">Overview</Link>
-            <Link href="/admin-dashboard/create-new-post" className="cnp-nav__link cnp-nav__link--active">Create New Post</Link>
-            <Link href="/admin-dashboard/approve-post" className="cnp-nav__link">Approve Posts</Link>
-            <Link href="/admin-dashboard/manage-users" className="cnp-nav__link">Manage Users</Link>
-            <Link href="/admin-dashboard/view-messages" className="cnp-nav__link">Messages</Link>
+          <nav className="admin-nav">
+            <Link href="/" className="admin-nav__link">Main Page</Link>
+            <Link href="/admin-dashboard" className="admin-nav__link">Overview</Link>
+            <Link href="/admin-dashboard/create-new-post" className="admin-nav__link admin-nav__link--active">Create New Post</Link>
+            <Link href="/admin-dashboard/approve-post" className="admin-nav__link">Approve Posts</Link>
+            <Link href="/admin-dashboard/manage-users" className="admin-nav__link">Manage Users</Link>
+            <Link href="/admin-dashboard/view-messages" className="admin-nav__link">Messages</Link>
           </nav>
         </div>
       </aside>
 
       <section className="cnp-main">
-        <section className="cnp-hero" aria-hidden="true">
-          <div className="cnp-hero__inner" aria-hidden="false">
-            <h1 className="cnp-hero__title">Create New Post</h1>
-            <p className="cnp-hero__subtitle">Create and publish instantly without approval</p>
-          </div>
+        <header className="admin-header">
+          <div className="admin-header__bar">
+            <div className="admin-header__brand">
+              <div className="admin-header__brand-mark" aria-hidden="true">
+                <span className="admin-header__brand-mark-text">P</span>
+              </div>
+              <div className="admin-header__brand-copy">
+                <span className="admin-header__brand-name">PAGE</span>
+                <span className="admin-header__brand-subtitle">Admin Dashboard</span>
+              </div>
+            </div>
 
-          <svg className="cnp-hero__wave" viewBox="0 0 1440 120" preserveAspectRatio="none">
-            <path d="M0,50 C220,95 420,12 720,55 C980,92 1185,22 1440,58 L1440,120 L0,120 Z" fill="#eef3f9" />
-          </svg>
+            <div className="admin-header__actions">
+              <AdminNotifications compact />
+
+              <div className="admin-profile">
+                <div className="admin-profile__avatar" aria-hidden="true">
+                  JD
+                </div>
+                <div className="admin-profile__copy">
+                  <span className="admin-profile__name">Dr. Juan Dela Cruz</span>
+                  <span className="admin-profile__role">Admin Panel</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section className="cnp-shell cnp-shell--intro">
+          <p className="cnp-hero__eyebrow">Admin panel</p>
+          <h1 className="cnp-hero__title">Create New Post</h1>
+          <p className="cnp-hero__subtitle">Create and publish instantly without approval</p>
         </section>
 
         <section className="cnp-content">
@@ -421,6 +446,11 @@ export default function CreateNewPostPage() {
               </section>
 
               {notification && <p className="cnp-notice">{notification}</p>}
+
+              <div className="cnp-help-box" role="note" aria-label="Author guidelines">
+                <p>Need help with post formatting? <a href="/author-guidelines">Read</a></p>
+                <a className="cnp-help-link" href="/author-guidelines">Author Guidelines</a>
+              </div>
             </aside>
           </section>
         </section>

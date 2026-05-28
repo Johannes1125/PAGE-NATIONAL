@@ -5,6 +5,7 @@ import { Paperclip, Phone, Search, SendHorizontal, Smile, Video, type LucideIcon
 import { useEffect, useMemo, useRef, useState } from "react";
 import AdminNotifications from "../components/AdminNotifications";
 import "./view-messages.css";
+import "../admin-dashboard.css";
 
 type MessageRole = "admin" | "other";
 
@@ -283,41 +284,62 @@ export default function ViewMessagesPage() {
 
   return (
     <main className="messages-page">
-      <aside className="messages-sidebar">
-        <div className="messages-sidebar__inner">
-          <div className="messages-brand">
-            <div className="messages-brand__badge">P</div>
-            <div>
-              <div className="messages-brand__eyebrow">PAGE</div>
-              <div className="messages-brand__title">Admin Dashboard</div>
-              <div className="messages-brand__subtitle">Philippine Association for Graduate Education</div>
+      <aside className="admin-navbar">
+        <div className="admin-navbar__inner">
+          <div className="admin-brand">
+            <div className="admin-brand__badge" aria-hidden="true">P</div>
+            <div className="admin-brand__identity">
+              <div className="admin-brand__eyebrow">PAGE</div>
+              <div className="admin-brand__name">Admin Dashboard</div>
+              <div className="admin-brand__tagline">Philippine Association for Graduate Education</div>
             </div>
           </div>
-          <AdminNotifications />
 
-          <nav className="messages-nav">
-            <Link href="/" className="messages-nav__link">Main Page</Link>
-            <Link href="/admin-dashboard" className="messages-nav__link">Overview</Link>
-            <Link href="/admin-dashboard/create-new-post" className="messages-nav__link">Create New Post</Link>
-            <Link href="/admin-dashboard/approve-post" className="messages-nav__link">Approve Posts</Link>
-            <Link href="/admin-dashboard/manage-users" className="messages-nav__link">Manage Users</Link>
-            <Link href="/admin-dashboard/view-messages" className="messages-nav__link messages-nav__link--active">Messages</Link>
+          <nav className="admin-nav">
+            <Link href="/" className="admin-nav__link">Main Page</Link>
+            <Link href="/admin-dashboard" className="admin-nav__link">Overview</Link>
+            <Link href="/admin-dashboard/create-new-post" className="admin-nav__link">Create New Post</Link>
+            <Link href="/admin-dashboard/approve-post" className="admin-nav__link">Approve Posts</Link>
+            <Link href="/admin-dashboard/manage-users" className="admin-nav__link">Manage Users</Link>
+            <Link href="/admin-dashboard/view-messages" className="admin-nav__link admin-nav__link--active">Messages</Link>
           </nav>
         </div>
       </aside>
 
       <section className="messages-main">
-        <section className="messages-hero" aria-hidden="true">
-          <div className="messages-hero__inner" aria-hidden="false">
-            <h1 className="messages-hero__title">Messages</h1>
-            <p className="messages-hero__subtitle">Communicate with the admin and respond to general user inquiries.</p>
+        <header className="admin-header">
+          <div className="admin-header__bar">
+            <div className="admin-header__brand">
+              <div className="admin-header__brand-mark" aria-hidden="true">
+                <span className="admin-header__brand-mark-text">P</span>
+              </div>
+              <div className="admin-header__brand-copy">
+                <span className="admin-header__brand-name">PAGE</span>
+                <span className="admin-header__brand-subtitle">Admin Dashboard</span>
+              </div>
+            </div>
+
+            <div className="admin-header__actions">
+              <AdminNotifications compact />
+
+              <div className="admin-profile">
+                <div className="admin-profile__avatar" aria-hidden="true">JD</div>
+                <div className="admin-profile__copy">
+                  <span className="admin-profile__name">Dr. Juan Dela Cruz</span>
+                  <span className="admin-profile__role">Admin Panel</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <svg className="messages-hero__wave" viewBox="0 0 1440 120" preserveAspectRatio="none">
-            <path d="M0,50 C220,95 420,12 720,55 C980,92 1185,22 1440,58 L1440,120 L0,120 Z" fill="#eef3f9" />
-          </svg>
+        </header>
+
+        <section className="admin-shell admin-shell--intro">
+          <p className="admin-header__eyebrow">Admin Panel</p>
+          <h1 className="admin-header__title">Messages</h1>
+          <p className="admin-header__subtitle">Communicate with the Admin and respond to general user inquiries.</p>
         </section>
 
-        <section className="messages-content">
+        <section className="admin-shell admin-shell--main">
           <section className="messages-panel">
             <aside className="messages-list-panel">
               <label className="messages-search" aria-label="Search conversations">

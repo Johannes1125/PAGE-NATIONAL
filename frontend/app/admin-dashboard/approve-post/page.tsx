@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, UserRound } from "lucide-react";
 import AdminNotifications from "../components/AdminNotifications";
 import "./approve-post.css";
+import "../admin-dashboard.css";
 
 type PostStatus = "pending" | "approved" | "rejected";
 
@@ -153,66 +154,83 @@ export default function ApprovePostPage() {
 
   return (
     <main className="approve-page">
-      <aside className="approve-sidebar">
-        <div className="approve-sidebar__inner">
-          <div className="approve-brand">
-            <div className="approve-brand__badge">P</div>
-            <div>
-              <div className="approve-brand__eyebrow">PAGE</div>
-              <div className="approve-brand__title">Admin Dashboard</div>
-              <div className="approve-brand__subtitle">Philippine Association for Graduate Education</div>
+      <aside className="admin-navbar">
+        <div className="admin-navbar__inner">
+          <div className="admin-brand">
+            <div className="admin-brand__badge" aria-hidden="true">P</div>
+            <div className="admin-brand__identity">
+              <div className="admin-brand__eyebrow">PAGE</div>
+              <div className="admin-brand__name">Admin Dashboard</div>
+              <div className="admin-brand__tagline">Philippine Association for Graduate Education</div>
             </div>
           </div>
-          <AdminNotifications />
 
-          <nav className="approve-nav">
-            <Link href="/" className="approve-nav__link">Main Page</Link>
-            <Link href="/admin-dashboard" className="approve-nav__link">Overview</Link>
-            <Link href="/admin-dashboard/create-new-post" className="approve-nav__link">Create New Post</Link>
-            <Link href="/admin-dashboard/approve-post" className="approve-nav__link approve-nav__link--active">Approve Posts</Link>
-            <Link href="/admin-dashboard/manage-users" className="approve-nav__link">Manage Users</Link>
-            <Link href="/admin-dashboard/view-messages" className="approve-nav__link">Messages</Link>
+          <nav className="admin-nav">
+            <Link href="/" className="admin-nav__link">Main Page</Link>
+            <Link href="/admin-dashboard" className="admin-nav__link">Overview</Link>
+            <Link href="/admin-dashboard/create-new-post" className="admin-nav__link">Create New Post</Link>
+            <Link href="/admin-dashboard/approve-post" className="admin-nav__link admin-nav__link--active">Approve Posts</Link>
+            <Link href="/admin-dashboard/manage-users" className="admin-nav__link">Manage Users</Link>
+            <Link href="/admin-dashboard/view-messages" className="admin-nav__link">Messages</Link>
           </nav>
         </div>
       </aside>
 
       <section className="approve-main">
-        <section className="approve-hero" aria-hidden="true">
-          <div className="approve-hero__inner" aria-hidden="false">
-            <div className="approve-hero__lead">
-              <h1 className="approve-hero__title">Post Approval</h1>
-              <p className="approve-hero__subtitle">
-                Review and approve posts submitted by the Post Reviewer (Organization Panel).
-              </p>
+        <header className="admin-header">
+          <div className="admin-header__bar">
+            <div className="admin-header__brand">
+              <div className="admin-header__brand-mark" aria-hidden="true">
+                <span className="admin-header__brand-mark-text">P</span>
+              </div>
+              <div className="admin-header__brand-copy">
+                <span className="admin-header__brand-name">PAGE</span>
+                <span className="admin-header__brand-subtitle">Admin Dashboard</span>
+              </div>
             </div>
 
-            <div className="approve-hero__controls">
-              <select
-                value={categoryFilter}
-                aria-label="Category filter"
-                onChange={(event) => setCategoryFilter(event.target.value)}
-              >
-                <option value="all">All Categories</option>
-                <option value="article">Article</option>
-                <option value="research">Research</option>
-                <option value="journal">Journal</option>
-              </select>
+            <div className="admin-header__actions">
+              <AdminNotifications compact />
 
-              <select
-                value={statusFilter}
-                aria-label="Status filter"
-                onChange={(event) => setStatusFilter(event.target.value as PostStatus | "all")}
-              >
-                <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-              </select>
+              <div className="admin-profile">
+                <div className="admin-profile__avatar" aria-hidden="true">JD</div>
+                <div className="admin-profile__copy">
+                  <span className="admin-profile__name">Dr. Juan Dela Cruz</span>
+                  <span className="admin-profile__role">Admin Panel</span>
+                </div>
+              </div>
             </div>
           </div>
-          <svg className="approve-hero__wave" viewBox="0 0 1440 120" preserveAspectRatio="none">
-            <path d="M0,50 C220,95 420,12 720,55 C980,92 1185,22 1440,58 L1440,120 L0,120 Z" fill="#eef3f9" />
-          </svg>
+        </header>
+
+        <section className="admin-shell admin-shell--intro">
+          <p className="admin-header__eyebrow">Admin Panel</p>
+          <h1 className="admin-header__title">Post Approval</h1>
+          <p className="admin-header__subtitle">Review and approve posts submitted by the Post Reviewer (Organization Panel).</p>
+
+          <div className="approve-hero__controls" style={{ marginTop: 10 }}>
+            <select
+              value={categoryFilter}
+              aria-label="Category filter"
+              onChange={(event) => setCategoryFilter(event.target.value)}
+            >
+              <option value="all">All Categories</option>
+              <option value="article">Article</option>
+              <option value="research">Research</option>
+              <option value="journal">Journal</option>
+            </select>
+
+            <select
+              value={statusFilter}
+              aria-label="Status filter"
+              onChange={(event) => setStatusFilter(event.target.value as PostStatus | "all")}
+            >
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
         </section>
 
         <section className="approve-content">

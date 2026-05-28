@@ -3,21 +3,29 @@
 }
 
 .button {
-  width: 100%;
+  min-height: 42px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  padding: 8px 10px;
+  border: 1px solid #d9e3ee;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #143152;
+  padding: 8px 12px;
   cursor: pointer;
+  box-shadow: 0 8px 18px rgba(11, 28, 48, 0.08);
 }
 
 .button:hover {
-  background: rgba(255, 255, 255, 0.14);
+  background: #f6f9fd;
+}
+
+.buttonCompact {
+  justify-content: center;
+  width: auto;
+  min-width: 44px;
+  padding: 0 12px;
 }
 
 .buttonLabel {
@@ -28,6 +36,10 @@
   font-weight: 700;
 }
 
+.buttonLabelHidden {
+  display: none;
+}
+
 .count {
   min-width: 20px;
   height: 20px;
@@ -36,8 +48,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #ff4c5e;
-  color: #fff;
+  background: #d9364a;
+  color: #ffffff;
   font-size: 10px;
   font-weight: 800;
 }
@@ -146,5 +158,9 @@
   .button {
     width: auto;
     min-width: 130px;
+  }
+
+  .buttonCompact {
+    min-width: 44px;
   }
 }

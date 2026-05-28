@@ -8,6 +8,10 @@ import styles from "./AdminNotifications.module.css";
 
 const READ_KEY = "admin-notification-read-ids";
 
+type AdminNotificationsProps = {
+  compact?: boolean;
+};
+
 function getReadIds(): string[] {
   const raw = window.localStorage.getItem(READ_KEY);
   if (!raw) return [];
@@ -19,7 +23,7 @@ function getReadIds(): string[] {
   }
 }
 
-export default function AdminNotifications() {
+export default function AdminNotifications({ compact = false }: AdminNotificationsProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<AdminNotificationItem[]>([]);
@@ -63,13 +67,13 @@ export default function AdminNotifications() {
     <div className={styles.wrap} ref={containerRef}>
       <button
         type="button"
-        className={styles.button}
+        className={`${styles.button} ${compact ? styles.buttonCompact : ""}`}
         onClick={() => setOpen((current) => !current)}
         aria-label="Open admin notifications"
       >
-        <span className={styles.buttonLabel}>
+        <span className={styles.buttonLabel} aria-hidden={compact}>
           <Bell size={14} />
-          Notifications
+          <span className={compact ? styles.buttonLabelHidden : ""}>Notifications</span>
         </span>
         {unreadCount > 0 && <span className={styles.count}>{unreadCount}</span>}
       </button>

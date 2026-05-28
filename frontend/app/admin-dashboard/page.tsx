@@ -179,7 +179,6 @@ export default function AdminDashboardPage() {
               <div className="admin-brand__tagline">Philippine Association for Graduate Education</div>
             </div>
           </div>
-          <AdminNotifications />
 
           <nav className="admin-nav">
             <Link href="/" className="admin-nav__link">Main Page</Link>
@@ -192,124 +191,154 @@ export default function AdminDashboardPage() {
         </div>
       </aside>
 
-      <section className="admin-hero-band">
-        <div className="admin-shell">
-          <section className="admin-hero">
-            <header className="admin-hero-header">
-              <h1 className="admin-hero-title">Admin Dashboard Overview</h1>
-              <p className="admin-hero-subtitle">
-                View platform metrics, monitor activity, and track approval workflow status in one place.
-              </p>
-            </header>
+      <div className="admin-main">
+        <header className="admin-header">
+          <div className="admin-header__bar">
+            <div className="admin-header__brand">
+              <div className="admin-header__brand-mark" aria-hidden="true">
+                <span className="admin-header__brand-mark-text">P</span>
+              </div>
+              <div className="admin-header__brand-copy">
+                <span className="admin-header__brand-name">PAGE</span>
+                <span className="admin-header__brand-subtitle">Admin Dashboard</span>
+              </div>
+            </div>
 
-            <section className="admin-hero-metrics">
-              {metrics.map((metric) => (
-                <article key={metric.label} className={`admin-hero-card admin-hero-card--${metric.tone}`}>
+            <div className="admin-header__actions">
+              <AdminNotifications compact />
+
+              <div className="admin-profile">
+                <div className="admin-profile__avatar" aria-hidden="true">
+                  JD
+                </div>
+                <div className="admin-profile__copy">
+                  <span className="admin-profile__name">Dr. Juan Dela Cruz</span>
+                  <span className="admin-profile__role">Admin Panel</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section className="admin-shell admin-shell--intro">
+          <p className="admin-header__eyebrow">Admin panel</p>
+          <h1 className="admin-header__title">Dashboard Overview</h1>
+          <p className="admin-header__subtitle">
+            View platform metrics, monitor activity, and track approval workflow status in one place.
+          </p>
+        </section>
+
+        <section className="admin-shell admin-shell--main">
+          <section className="admin-hero-metrics admin-summary-grid">
+            {metrics.map((metric) => (
+              <article key={metric.label} className={`admin-hero-card admin-hero-card--${metric.tone}`}>
+                <div className="admin-hero-card__top">
                   <div className="admin-hero-card__icon" aria-hidden="true">
                     <metric.icon size={15} strokeWidth={2.1} />
                   </div>
                   <p className="admin-hero-card__title">{metric.label}</p>
-                  <p className="admin-hero-card__value">{metric.value.toLocaleString()}</p>
-                </article>
-              ))}
-            </section>
+                </div>
+                <p className="admin-hero-card__value">{metric.value.toLocaleString()}</p>
+                <p className="admin-hero-card__meta">{metric.meta}</p>
+              </article>
+            ))}
           </section>
-        </div>
 
-        <svg className="admin-hero-divider" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M0,50 C220,95 420,12 720,55 C980,92 1185,22 1440,58 L1440,120 L0,120 Z" fill="#eef3f9" />
-        </svg>
-      </section>
-
-      <section className="admin-content">
-      <section className="admin-shell">
-
-        <section className="admin-grid">
-          <section className="admin-dual-layout">
-            <article className="admin-panel">
-            <div className="admin-panel__head">
-              <h2 className="admin-panel__title">Recent Activity Feed</h2>
-              <p className="admin-panel__hint">Registrations, submissions, and messages</p>
-            </div>
-
-            <div className="activity-feed">
-              {activityFeed.map((activity) => (
-                <article key={`${activity.title}-${activity.time}`} className="activity-item">
-                  <p className="activity-item__title">
-                    {activity.title}
-                    <span
-                      className={`activity-pill ${activity.state === "success" ? "activity-pill--success" : "activity-pill--warning"}`}
-                    >
-                      {activity.stateLabel}
-                    </span>
-                  </p>
-                  <p className="activity-item__meta">
-                    {activity.actor} • {activity.time}
-                  </p>
-                </article>
-              ))}
-            </div>
-            </article>
-
-            <article className="admin-panel admin-panel--analytics">
-              <div className="analytics-block">
+          <section className="admin-grid">
+            <section className="admin-dual-layout">
+              <article className="admin-panel activity-panel">
                 <div className="admin-panel__head">
-                  <h2 className="admin-panel__title">Content Trends</h2>
-                  <p className="admin-panel__hint">Monthly submissions</p>
+                  <div className="admin-panel__head-left">
+                    <span className="panel-icon" aria-hidden="true">
+                      <FileClock size={16} />
+                    </span>
+                    <h2 className="admin-panel__title">Recent Activity</h2>
+                  </div>
+                  <p className="admin-panel__hint">Registrations, submissions, and messages</p>
                 </div>
 
-                <div className="trend-chart">
-                  <div className="trend-bars">
-                    {contentTrend.map((point) => {
-                      const heightPercent = Math.max(18, Math.round((point.posts / contentMax) * 100));
+                <div className="activity-feed">
+                  {activityFeed.map((activity) => (
+                    <article key={`${activity.title}-${activity.time}`} className="activity-item">
+                      <div className="activity-item__main">
+                        <p className="activity-item__title">{activity.title}</p>
+                        <p className="activity-item__actor">{activity.actor}</p>
+                      </div>
+                      <div className="activity-item__time">{activity.time}</div>
+                    </article>
+                  ))}
+                </div>
+              </article>
 
-                      return (
-                        <div
-                          key={point.month}
-                          className="trend-bar"
-                          data-label={point.month}
-                          style={{ height: `${heightPercent}%` }}
-                          title={`${point.posts} posts`}
-                        />
-                      );
-                    })}
+              <article className="admin-panel admin-panel--analytics">
+                <div className="analytics-block">
+                  <div className="admin-panel__head">
+                    <div className="admin-panel__head-left">
+                      <span className="panel-icon" aria-hidden="true">
+                        <Newspaper size={16} />
+                      </span>
+                      <h2 className="admin-panel__title">Content Trends</h2>
+                    </div>
+                    <p className="admin-panel__hint">Monthly submissions</p>
+                  </div>
+
+                  <div className="trend-chart">
+                    <div className="trend-bars">
+                      {contentTrend.map((point) => {
+                        const heightPercent = Math.max(18, Math.round((point.posts / contentMax) * 100));
+
+                        return (
+                          <div
+                            key={point.month}
+                            className="trend-bar"
+                            data-label={point.month}
+                            style={{ height: `${heightPercent}%` }}
+                            title={`${point.posts} posts`}
+                          />
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="analytics-block">
+                <div className="analytics-block">
                 <div className="admin-panel__head">
-                  <h2 className="admin-panel__title">User Growth</h2>
+                  <div className="admin-panel__head-left">
+                    <span className="panel-icon" aria-hidden="true">
+                      <Users size={16} />
+                    </span>
+                    <h2 className="admin-panel__title">User Growth</h2>
+                  </div>
                   <p className="admin-panel__hint">New accounts over time</p>
                 </div>
 
-                <svg className="user-line" viewBox="0 0 520 130" role="img" aria-label="User growth chart">
-                  <rect x="0" y="0" width="520" height="130" fill="#f4f8fd" />
-                  <polyline
-                    points={growthPath}
-                    fill="none"
-                    stroke="#1e538e"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  {userGrowth.map((point, index) => {
-                    const x = (520 / (userGrowth.length - 1)) * index;
-                    const minUsers = Math.min(...userGrowth.map((item) => item.users));
-                    const maxUsers = Math.max(...userGrowth.map((item) => item.users));
-                    const range = maxUsers - minUsers || 1;
-                    const normalized = (point.users - minUsers) / range;
-                    const y = 110 - normalized * (110 - 8) - 4;
+                  <svg className="user-line" viewBox="0 0 520 130" role="img" aria-label="User growth chart">
+                    <rect x="0" y="0" width="520" height="130" fill="#f4f8fd" />
+                    <polyline
+                      points={growthPath}
+                      fill="none"
+                      stroke="#1e538e"
+                      strokeWidth="4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    {userGrowth.map((point, index) => {
+                      const x = (520 / (userGrowth.length - 1)) * index;
+                      const minUsers = Math.min(...userGrowth.map((item) => item.users));
+                      const maxUsers = Math.max(...userGrowth.map((item) => item.users));
+                      const range = maxUsers - minUsers || 1;
+                      const normalized = (point.users - minUsers) / range;
+                      const y = 110 - normalized * (110 - 8) - 4;
 
-                    return <circle key={point.month} cx={x} cy={y} r="4" fill="#2a6bb5" />;
-                  })}
-                </svg>
-              </div>
-            </article>
+                      return <circle key={point.month} cx={x} cy={y} r="4" fill="#2a6bb5" />;
+                    })}
+                  </svg>
+                </div>
+              </article>
+            </section>
           </section>
         </section>
-      </section>
-      </section>
+      </div>
     </main>
   );
 }

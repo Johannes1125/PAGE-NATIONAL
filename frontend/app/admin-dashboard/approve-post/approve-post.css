@@ -113,81 +113,6 @@ body {
   min-height: 100vh;
 }
 
-.approve-hero {
-  position: relative;
-  height: 176px;
-  background: linear-gradient(170deg, var(--approve-navy) 0%, rgba(30, 83, 142, 0.96) 58%, #1a3f6a 100%);
-  overflow: hidden;
-}
-
-.approve-hero__inner {
-  position: relative;
-  z-index: 1;
-  height: 100%;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 0 20px 52px;
-}
-
-.approve-hero__title {
-  margin: 0;
-  color: #ffffff;
-  font-size: clamp(28px, 3vw, 38px);
-  font-weight: 800;
-  line-height: 1.1;
-}
-
-.approve-hero__lead {
-  min-width: 0;
-}
-
-.approve-hero__subtitle {
-  margin: 7px 0 0;
-  color: rgba(255, 255, 255, 0.86);
-  font-size: 13px;
-  line-height: 1.4;
-  max-width: 640px;
-}
-
-.approve-hero__controls {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.approve-hero__controls select {
-  border: none;
-  border-radius: 8px;
-  background: #15365b;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 8px 28px 8px 10px;
-}
-
-.approve-hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  opacity: 0.06;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.45) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.45) 1px, transparent 1px);
-  background-size: 52px 52px;
-}
-
-.approve-hero__wave {
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 100%;
-  height: 66px;
-  display: block;
-}
-
 .approve-content {
   padding: 10px 20px 28px;
 }
@@ -202,28 +127,28 @@ body {
 
 .approve-list {
   display: grid;
-  gap: 12px;
+  gap: 18px;
 }
 
 .approve-card {
   width: 100%;
   text-align: left;
   background: #fff;
-  border: 1px solid var(--approve-border);
+  border: 1px solid #e6edf5;
   border-radius: 14px;
-  padding: 16px;
-  box-shadow: 0 8px 22px rgba(16, 36, 61, 0.07);
+  padding: 20px 22px;
+  box-shadow: 0 10px 28px rgba(16, 36, 61, 0.06);
   cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.12s ease;
 }
 
 .approve-status-badge {
   display: inline-flex;
   align-items: center;
-  margin-top: 10px;
+  margin-top: 12px;
   border-radius: 999px;
-  padding: 4px 9px;
-  font-size: 10px;
+  padding: 6px 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.4px;
 }
@@ -233,52 +158,118 @@ body {
   background: #fff4d8;
 }
 
-.approve-status-badge--approved {
-  color: #0b8a59;
-  background: #e3f8ee;
-}
-
-.approve-status-badge--rejected {
-  color: #be2d2d;
-  background: #fee9e9;
-}
-
 .approve-card--active {
   border-color: #204f84;
-  box-shadow: 0 10px 24px rgba(20, 49, 82, 0.16);
+  box-shadow: 0 14px 34px rgba(20, 49, 82, 0.16);
+  transform: translateY(-2px);
 }
 
-.approve-card__date,
-.approve-card__meta {
+.approve-card__date {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 10px;
+  gap: 8px;
+  font-size: 12px;
   color: #6a7d95;
+  margin-bottom: 8px;
 }
 
 .approve-card h2 {
-  margin: 6px 0 6px;
-  font-size: 21px;
+  margin: 6px 0 8px;
+  font-size: 20px;
   color: #0f2b4a;
   line-height: 1.08;
+  font-weight: 800;
 }
 
 .approve-card p {
   margin: 0;
-  color: #4e6279;
+  color: #405568;
   font-size: 13px;
   line-height: 1.5;
 }
 
 .approve-card__meta {
-  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #6a7d95;
+  margin-top: 12px;
+}
+
+/* Styled select buttons in the intro area */
+.approve-hero__controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+
+.approve-hero__controls select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: #12395b; /* dark blue button */
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.08); /* subtle border for separation */
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 13px;
+  min-width: 150px;
+  box-shadow: 0 6px 18px rgba(18,57,91,0.12), 0 1px 0 rgba(255,255,255,0.02) inset;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='8' viewBox='0 0 14 8'><path fill='%23ffffff' d='M7 8L0 0h14z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+  cursor: pointer;
+  transition: background-color 120ms ease, box-shadow 140ms ease, transform 120ms ease;
+}
+
+.approve-hero__controls select:hover {
+  background-color: #154267; /* slightly lighter on hover */
+  box-shadow: 0 8px 22px rgba(18,57,91,0.14);
+}
+
+.approve-hero__controls select:active {
+  background-color: #0f3350; /* darker when active */
+  transform: translateY(0);
+}
+
+.approve-hero__controls select:focus {
+  outline: none;
+  box-shadow: 0 10px 28px rgba(18,57,91,0.18), 0 0 0 4px rgba(30,83,142,0.09);
+}
+
+.approve-hero__controls select option {
+  color: #ffffff;
+  background-color: #12395b;
+  padding: 8px 12px;
+}
+
+/* Improve option visibility in Chromium-based browsers */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  .approve-hero__controls select option {
+    background-color: #12395b;
+    color: #ffffff;
+  }
+  .approve-hero__controls select option:checked,
+  .approve-hero__controls select option[selected] {
+    background-color: #e6eef8;
+    color: #12395b;
+  }
+}
+
+/* Ensure the select control stacks above nearby elements */
+.approve-hero__controls select {
+  position: relative;
+  z-index: 40;
 }
 
 .approve-detail {
   align-self: start;
   background: #fff;
-  border: 1px solid var(--approve-border);
+  border: 1px solid #e6edf5;
   border-radius: 14px;
   padding: 18px;
   box-shadow: 0 10px 26px rgba(16, 36, 61, 0.06);
@@ -410,38 +401,6 @@ body {
     padding-top: 88px;
   }
 
-  .approve-sidebar {
-    bottom: auto;
-    width: 100%;
-    height: 88px;
-    border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  }
-
-  .approve-sidebar__inner {
-    padding: 12px 16px;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .approve-brand {
-    border-bottom: none;
-    padding: 0;
-    align-items: center;
-  }
-
-  .approve-nav {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .approve-nav__link {
-    padding: 8px 10px;
-    font-size: 12px;
-  }
-
   .approve-layout {
     grid-template-columns: 1fr;
   }
@@ -457,15 +416,6 @@ body {
     align-items: flex-start;
     justify-content: flex-end;
     padding-bottom: 42px;
-  }
-
-  .approve-hero__controls {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .approve-hero__controls select {
-    min-width: 150px;
   }
 
   .approve-card h2 {
