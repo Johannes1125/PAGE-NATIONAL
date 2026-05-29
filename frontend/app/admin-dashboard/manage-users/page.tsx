@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Clock3, Pencil, Search, X } from "lucide-react";
-import AdminNotifications from "../components/AdminNotifications";
+import AdminSidebarLayout from "../components/AdminSidebarLayout";
 import "./manage-users.css";
 import "../admin-dashboard.css";
 
@@ -170,66 +169,13 @@ export default function ManageUsersPage() {
   };
 
   return (
-    <main className="manage-page">
-      <aside className="admin-navbar">
-        <div className="admin-navbar__inner">
-          <div className="admin-brand">
-            <div className="admin-brand__badge" aria-hidden="true">P</div>
-            <div className="admin-brand__identity">
-              <div className="admin-brand__eyebrow">PAGE</div>
-              <div className="admin-brand__name">Admin Dashboard</div>
-              <div className="admin-brand__tagline">Philippine Association for Graduate Education</div>
-            </div>
-          </div>
-
-          <nav className="admin-nav">
-            <Link href="/" className="admin-nav__link">Main Page</Link>
-            <Link href="/admin-dashboard" className="admin-nav__link">Overview</Link>
-            <Link href="/admin-dashboard/create-new-post" className="admin-nav__link">Create New Post</Link>
-            <Link href="/admin-dashboard/approve-post" className="admin-nav__link">Approve Posts</Link>
-            <Link href="/admin-dashboard/manage-users" className="admin-nav__link admin-nav__link--active">Manage Users</Link>
-            <Link href="/admin-dashboard/view-messages" className="admin-nav__link">Messages</Link>
-          </nav>
-        </div>
-      </aside>
-
-
-      <section className="manage-main">
-        <header className="admin-header">
-          <div className="admin-header__bar">
-            <div className="admin-header__brand">
-              <div className="admin-header__brand-mark" aria-hidden="true">
-                <span className="admin-header__brand-mark-text">P</span>
-              </div>
-              <div className="admin-header__brand-copy">
-                <span className="admin-header__brand-name">PAGE</span>
-                <span className="admin-header__brand-subtitle">Admin Dashboard</span>
-              </div>
-            </div>
-
-            <div className="admin-header__actions">
-              <AdminNotifications compact />
-
-              <div className="admin-profile">
-                <div className="admin-profile__avatar" aria-hidden="true">JD</div>
-                <div className="admin-profile__copy">
-                  <span className="admin-profile__name">Dr. Juan Dela Cruz</span>
-                  <span className="admin-profile__role">Admin Panel</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <section className="admin-shell admin-shell--intro">
-          <p className="admin-header__eyebrow">Admin Panel</p>
-          <h1 className="admin-header__title">User Management</h1>
-          <p className="admin-header__subtitle">Manage general users and organization members</p>
-
-          <div style={{ marginTop: 12 }} />
-        </section>
-
-        <section className="admin-shell admin-shell--main">
+    <AdminSidebarLayout
+      pageClassName="manage-page"
+      mainClassName="manage-main"
+      title="User Management"
+      subtitle="Manage general users and organization members"
+    >
+      <section className="admin-shell admin-shell--main">
           <section className="manage-toolbar">
             <label className="manage-search" aria-label="Search users">
               <Search size={14} />
@@ -320,9 +266,9 @@ export default function ManageUsersPage() {
               </tbody>
             </table>
           </section>
-        </section>
+      </section>
 
-        {roleModalUser && (
+      {roleModalUser && (
           <section className="manage-modal-backdrop" role="dialog" aria-modal="true" aria-label="Update user role and status">
             <article className="manage-modal">
               <div className="manage-modal__head">
@@ -358,9 +304,9 @@ export default function ManageUsersPage() {
               </div>
             </article>
           </section>
-        )}
+      )}
 
-        {historyModalUser && (
+      {historyModalUser && (
           <section className="manage-modal-backdrop" role="dialog" aria-modal="true" aria-label="User activity history">
             <article className="manage-modal">
               <div className="manage-modal__head">
@@ -385,8 +331,7 @@ export default function ManageUsersPage() {
               )}
             </article>
           </section>
-        )}
-      </section>
-    </main>
+      )}
+    </AdminSidebarLayout>
   );
 }

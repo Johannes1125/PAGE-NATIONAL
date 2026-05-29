@@ -1,8 +1,13 @@
 "use client";
 
-import Link from "next/link";
-import { Building2, FileClock, Newspaper, Users, type LucideIcon } from "lucide-react";
-import AdminNotifications from "./components/AdminNotifications";
+import {
+  Building2,
+  FileClock,
+  Newspaper,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
+import AdminSidebarLayout from "./components/AdminSidebarLayout";
 import "./admin-dashboard.css";
 
 type Metric = {
@@ -166,69 +171,13 @@ export default function AdminDashboardPage() {
   const growthPath = createUserGrowthPath(userGrowth);
 
   return (
-    <main className="admin-dashboard">
-      <aside className="admin-navbar">
-        <div className="admin-navbar__inner">
-          <div className="admin-brand">
-            <div className="admin-brand__badge" aria-hidden="true">
-              <span className="admin-brand__badge-text">P</span>
-            </div>
-            <div className="admin-brand__identity">
-              <div className="admin-brand__eyebrow">PAGE</div>
-              <div className="admin-brand__name">Admin Dashboard</div>
-              <div className="admin-brand__tagline">Philippine Association for Graduate Education</div>
-            </div>
-          </div>
-
-          <nav className="admin-nav">
-            <Link href="/" className="admin-nav__link">Main Page</Link>
-            <Link href="/admin-dashboard" className="admin-nav__link admin-nav__link--active">Overview</Link>
-            <Link href="/admin-dashboard/create-new-post" className="admin-nav__link">Create New Post</Link>
-            <Link href="/admin-dashboard/approve-post" className="admin-nav__link">Approve Posts</Link>
-            <Link href="/admin-dashboard/manage-users" className="admin-nav__link">Manage Users</Link>
-            <Link href="/admin-dashboard/view-messages" className="admin-nav__link">Messages</Link>
-          </nav>
-        </div>
-      </aside>
-
-      <div className="admin-main">
-        <header className="admin-header">
-          <div className="admin-header__bar">
-            <div className="admin-header__brand">
-              <div className="admin-header__brand-mark" aria-hidden="true">
-                <span className="admin-header__brand-mark-text">P</span>
-              </div>
-              <div className="admin-header__brand-copy">
-                <span className="admin-header__brand-name">PAGE</span>
-                <span className="admin-header__brand-subtitle">Admin Dashboard</span>
-              </div>
-            </div>
-
-            <div className="admin-header__actions">
-              <AdminNotifications compact />
-
-              <div className="admin-profile">
-                <div className="admin-profile__avatar" aria-hidden="true">
-                  JD
-                </div>
-                <div className="admin-profile__copy">
-                  <span className="admin-profile__name">Dr. Juan Dela Cruz</span>
-                  <span className="admin-profile__role">Admin Panel</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <section className="admin-shell admin-shell--intro">
-          <p className="admin-header__eyebrow">Admin panel</p>
-          <h1 className="admin-header__title">Dashboard Overview</h1>
-          <p className="admin-header__subtitle">
-            View platform metrics, monitor activity, and track approval workflow status in one place.
-          </p>
-        </section>
-
-        <section className="admin-shell admin-shell--main">
+    <AdminSidebarLayout
+      pageClassName="admin-dashboard"
+      mainClassName="admin-main"
+      title="Dashboard Overview"
+      subtitle="View platform metrics, monitor activity, and track approval workflow status in one place."
+    >
+      <section className="admin-shell admin-shell--main">
           <section className="admin-hero-metrics admin-summary-grid">
             {metrics.map((metric) => (
               <article key={metric.label} className={`admin-hero-card admin-hero-card--${metric.tone}`}>
@@ -337,8 +286,7 @@ export default function AdminDashboardPage() {
               </article>
             </section>
           </section>
-        </section>
-      </div>
-    </main>
+      </section>
+    </AdminSidebarLayout>
   );
 }

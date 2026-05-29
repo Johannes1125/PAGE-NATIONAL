@@ -21,7 +21,8 @@ body {
 .cnp-page {
   min-height: 100vh;
   background: var(--cnp-bg);
-  padding-left: 260px;
+  padding-left: var(--admin-sidebar-width, 260px);
+  transition: padding-left 0.24s ease;
 }
 
 .cnp-sidebar {

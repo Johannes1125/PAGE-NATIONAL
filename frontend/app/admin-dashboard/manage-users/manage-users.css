@@ -21,7 +21,8 @@ body {
 .manage-page {
   min-height: 100vh;
   background: var(--manage-bg);
-  padding-left: 260px;
+  padding-left: var(--admin-sidebar-width, 260px);
+  transition: padding-left 0.24s ease;
 }
 
 .manage-sidebar {

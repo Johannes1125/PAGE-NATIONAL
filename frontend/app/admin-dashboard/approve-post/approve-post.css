@@ -5,6 +5,8 @@
   --approve-muted: #5f738b;
   --approve-border: #d7e1eb;
   --approve-bg: #eef3f9;
+  --approve-sidebar-width: 260px;
+  --approve-sidebar-collapsed-width: 88px;
 }
 
 * {
@@ -21,7 +23,12 @@ body {
 .approve-page {
   min-height: 100vh;
   background: var(--approve-bg);
-  padding-left: 260px;
+  padding-left: var(--admin-sidebar-width, var(--approve-sidebar-width));
+  transition: padding-left 0.24s ease;
+}
+
+.approve-page--sidebar-collapsed {
+  padding-left: var(--approve-sidebar-collapsed-width);
 }
 
 .approve-sidebar {
@@ -399,6 +406,10 @@ body {
   .approve-page {
     padding-left: 0;
     padding-top: 88px;
+  }
+
+  .approve-page--sidebar-collapsed {
+    padding-left: 0;
   }
 
   .approve-layout {

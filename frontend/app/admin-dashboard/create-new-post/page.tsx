@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { CalendarDays, Eye, FileUp, Image as ImageIcon, Link2, List, ListOrdered, X } from "lucide-react";
-import AdminNotifications from "../components/AdminNotifications";
+import AdminSidebarLayout from "../components/AdminSidebarLayout";
 import "./create-new-post.css";
 import "../admin-dashboard.css";
 
@@ -158,67 +157,14 @@ export default function CreateNewPostPage() {
   };
 
   return (
-    <main className="cnp-page">
-      <aside className="admin-navbar">
-        <div className="admin-navbar__inner">
-          <div className="admin-brand">
-            <div className="admin-brand__badge" aria-hidden="true">
-              <span className="admin-brand__badge-text">P</span>
-            </div>
-            <div className="admin-brand__identity">
-              <div className="admin-brand__eyebrow">PAGE</div>
-              <div className="admin-brand__name">Create New Post</div>
-              <div className="admin-brand__tagline">Philippine Association for Graduate Education</div>
-            </div>
-          </div>
-
-          <nav className="admin-nav">
-            <Link href="/" className="admin-nav__link">Main Page</Link>
-            <Link href="/admin-dashboard" className="admin-nav__link">Overview</Link>
-            <Link href="/admin-dashboard/create-new-post" className="admin-nav__link admin-nav__link--active">Create New Post</Link>
-            <Link href="/admin-dashboard/approve-post" className="admin-nav__link">Approve Posts</Link>
-            <Link href="/admin-dashboard/manage-users" className="admin-nav__link">Manage Users</Link>
-            <Link href="/admin-dashboard/view-messages" className="admin-nav__link">Messages</Link>
-          </nav>
-        </div>
-      </aside>
-
-      <section className="cnp-main">
-        <header className="admin-header">
-          <div className="admin-header__bar">
-            <div className="admin-header__brand">
-              <div className="admin-header__brand-mark" aria-hidden="true">
-                <span className="admin-header__brand-mark-text">P</span>
-              </div>
-              <div className="admin-header__brand-copy">
-                <span className="admin-header__brand-name">PAGE</span>
-                <span className="admin-header__brand-subtitle">Admin Dashboard</span>
-              </div>
-            </div>
-
-            <div className="admin-header__actions">
-              <AdminNotifications compact />
-
-              <div className="admin-profile">
-                <div className="admin-profile__avatar" aria-hidden="true">
-                  JD
-                </div>
-                <div className="admin-profile__copy">
-                  <span className="admin-profile__name">Dr. Juan Dela Cruz</span>
-                  <span className="admin-profile__role">Admin Panel</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <section className="cnp-shell cnp-shell--intro">
-          <p className="cnp-hero__eyebrow">Admin panel</p>
-          <h1 className="cnp-hero__title">Create New Post</h1>
-          <p className="cnp-hero__subtitle">Create and publish instantly without approval</p>
-        </section>
-
-        <section className="cnp-content">
+    <>
+    <AdminSidebarLayout
+      pageClassName="cnp-page"
+      mainClassName="cnp-main"
+      title="Create New Post"
+      subtitle="Create and publish instantly without approval"
+    >
+      <section className="cnp-content">
           <section className="cnp-layout">
             <article className="cnp-form-card">
               <label className="cnp-field">
@@ -453,10 +399,10 @@ export default function CreateNewPostPage() {
               </div>
             </aside>
           </section>
-        </section>
       </section>
+    </AdminSidebarLayout>
 
-      {previewOpen && (
+    {previewOpen && (
         <section className="cnp-preview-backdrop" role="dialog" aria-modal="true" aria-label="Post preview">
           <article className="cnp-preview">
             <div className="cnp-preview__head">
@@ -477,6 +423,6 @@ export default function CreateNewPostPage() {
           </article>
         </section>
       )}
-    </main>
+    </>
   );
 }

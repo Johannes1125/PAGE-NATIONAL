@@ -25,7 +25,8 @@ body {
   min-height: 100vh;
   background: var(--messages-page);
   color: var(--messages-text);
-  padding-left: 260px;
+  padding-left: var(--admin-sidebar-width, 260px);
+  transition: padding-left 0.24s ease;
 }
 
 .messages-page a {
