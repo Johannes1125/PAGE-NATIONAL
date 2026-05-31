@@ -8,8 +8,8 @@
   min-height: 42px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  justify-content: center;
+  gap: 6px;
   border: 1px solid #d9e3ee;
   border-radius: 12px;
   background: #ffffff;
@@ -21,6 +21,7 @@
 
 .button:hover {
   background: #f6f9fd;
+  transform: translateY(-2px);
 }
 
 .buttonCompact {
@@ -69,6 +70,23 @@
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, #f8fbff 100%);
   box-shadow: 0 22px 42px rgba(11, 28, 48, 0.18);
   z-index: 200;
+  opacity: 0;
+  transform: translateY(-6px);
+  animation: panelIn 180ms ease forwards;
+}
+
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes panelOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-8px); }
+}
+
+.panel.panelClosing {
+  animation: panelOut 160ms ease forwards;
 }
 
 .head {
@@ -114,6 +132,7 @@
 
 .markRead:hover {
   background: #eef5ff;
+  transform: translateY(-2px);
 }
 
 .toolbar {
@@ -138,10 +157,12 @@
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 8px 16px rgba(11, 28, 48, 0.05);
+  transition: transform 140ms ease, background 140ms ease;
 }
 
 .toolbarButton:hover {
   background: #f4f8fc;
+  transform: translateY(-2px);
 }
 
 .toolbarButtonDisabled {
@@ -174,6 +195,7 @@
 
 .item:hover {
   background: #fbfdff;
+  transform: translateY(-2px);
 }
 
 .itemUnread {
@@ -258,6 +280,15 @@
   color: #2d6ab2;
   font-weight: 700;
   text-decoration: none;
+}
+
+/* delete variant */
+.toolbarButton--danger {
+  border-color: rgba(217, 54, 74, 0.12);
+  color: #d9364a;
+}
+.toolbarButton--danger:hover {
+  background: rgba(217, 54, 74, 0.06);
 }
 
 .meta {
