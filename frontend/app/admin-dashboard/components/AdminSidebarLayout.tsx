@@ -7,10 +7,13 @@ import {
   BadgeCheck,
   ChevronLeft,
   ChevronRight,
+  FileText,
   LayoutDashboard,
   MessageSquareText,
-  Newspaper,
+  LogOut,
   PlusCircle,
+  ShieldCheck,
+  UserRound,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -34,6 +37,7 @@ type AdminSidebarLayoutProps = {
 type ProfileMenuItem = {
   label: string;
   href: string;
+  icon: LucideIcon;
 };
 
 const adminNavItems: AdminNavItem[] = [
@@ -42,14 +46,13 @@ const adminNavItems: AdminNavItem[] = [
   { href: "/admin-dashboard/approve-post", label: "Approve Posts", icon: BadgeCheck },
   { href: "/admin-dashboard/manage-users", label: "Manage Users", icon: Users },
   { href: "/admin-dashboard/view-messages", label: "Messages", icon: MessageSquareText },
-  { href: "/", label: "Main Page", icon: Newspaper },
 ];
 
 const profileMenuItems: ProfileMenuItem[] = [
-  { label: "Edit Profile", href: "/admin-dashboard/manage-users" },
-  { label: "Terms of Use", href: "/about" },
-  { label: "Privacy Policy", href: "/about" },
-  { label: "Log Out", href: "/admin-login" },
+  { label: "Edit Profile", href: "/admin-dashboard/manage-users", icon: UserRound },
+  { label: "Terms of Use", href: "/about", icon: FileText },
+  { label: "Privacy Policy", href: "/about", icon: ShieldCheck },
+  { label: "Log Out", href: "/admin-login", icon: LogOut },
 ];
 
 export default function AdminSidebarLayout({
@@ -116,20 +119,9 @@ export default function AdminSidebarLayout({
             </div>
 
             <div className="admin-brand__identity">
-              <div className="admin-brand__eyebrow">Admin panel</div>
-              <div className="admin-brand__name">PAGE Admin</div>
-              <div className="admin-brand__tagline">Portal controls and moderation tools</div>
+              <div className="admin-brand__name">PAGE</div>
+              <div className="admin-brand__tagline">Admin</div>
             </div>
-
-            <button
-              type="button"
-              className="admin-sidebar-toggle"
-              onClick={() => setIsSidebarCollapsed((current) => !current)}
-              aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-              aria-pressed={isSidebarCollapsed}
-            >
-              {isSidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-            </button>
           </div>
 
           <nav className="admin-nav">
@@ -154,12 +146,22 @@ export default function AdminSidebarLayout({
         </div>
       </aside>
 
-      <section className={mainClassName}>
+      <section className={mainClassName} style={{ paddingTop: 'var(--admin-header-height)' }}>
         <header className="admin-header">
           <div className="admin-header__bar">
+            <button
+              type="button"
+              className="admin-sidebar-toggle admin-header__sidebar-toggle"
+              onClick={() => setIsSidebarCollapsed((current) => !current)}
+              aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-pressed={isSidebarCollapsed}
+            >
+              {isSidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+            </button>
+
             <div className="admin-header__brand">
               <div className="admin-header__brand-mark" aria-hidden="true">
-                <span className="admin-header__brand-mark-text">P</span>
+                <img src="/PAGE-logo.jpg" alt="PAGE" className="admin-header__brand-mark-img" />
               </div>
               <div className="admin-header__brand-copy">
                 <span className="admin-header__brand-name">PAGE</span>
@@ -192,11 +194,14 @@ export default function AdminSidebarLayout({
                     <Link
                       key={item.label}
                       href={item.href}
-                      className="admin-profile-menu__item"
+                      className={`admin-profile-menu__item ${item.label === 'Log Out' ? 'admin-profile-menu__item--danger' : ''}`}
                       role="menuitem"
                       onClick={() => setIsProfileMenuOpen(false)}
                     >
-                      {item.label}
+                      <span className="admin-profile-menu__icon" aria-hidden="true">
+                        <item.icon size={14} strokeWidth={2} />
+                      </span>
+                      <span className="admin-profile-menu__label">{item.label}</span>
                     </Link>
                   ))}
                 </div>

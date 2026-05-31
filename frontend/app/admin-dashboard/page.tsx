@@ -7,7 +7,9 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
+import { useMemo, useState } from "react";
 import AdminSidebarLayout from "./components/AdminSidebarLayout";
+import ChartCard from "./components/ChartCard";
 import "./admin-dashboard.css";
 
 type Metric = {
@@ -19,14 +21,16 @@ type Metric = {
 };
 
 type ContentPoint = {
-  month: string;
+  label: string;
   posts: number;
 };
 
 type UserPoint = {
-  month: string;
+  label: string;
   users: number;
 };
+
+type PeriodFilter = "day" | "month" | "year";
 
 type Activity = {
   title: string;
@@ -46,23 +50,63 @@ const contentSnapshot = {
   publishedContent: 412,
 };
 
-const contentTrend: ContentPoint[] = [
-  { month: "Jan", posts: 30 },
-  { month: "Feb", posts: 38 },
-  { month: "Mar", posts: 52 },
-  { month: "Apr", posts: 46 },
-  { month: "May", posts: 62 },
-  { month: "Jun", posts: 71 },
-];
+const periodOptions: PeriodFilter[] = ["day", "month", "year"];
 
-const userGrowth: UserPoint[] = [
-  { month: "Jan", users: 720 },
-  { month: "Feb", users: 760 },
-  { month: "Mar", users: 812 },
-  { month: "Apr", users: 880 },
-  { month: "May", users: 943 },
-  { month: "Jun", users: 1104 },
-];
+const contentTrendByPeriod: Record<PeriodFilter, ContentPoint[]> = {
+  day: [
+    { label: "Mon", posts: 8 },
+    { label: "Tue", posts: 11 },
+    { label: "Wed", posts: 14 },
+    { label: "Thu", posts: 12 },
+    { label: "Fri", posts: 16 },
+    { label: "Sat", posts: 9 },
+    { label: "Sun", posts: 7 },
+  ],
+  month: [
+    { label: "Jan", posts: 30 },
+    { label: "Feb", posts: 38 },
+    { label: "Mar", posts: 52 },
+    { label: "Apr", posts: 46 },
+    { label: "May", posts: 62 },
+    { label: "Jun", posts: 71 },
+  ],
+  year: [
+    { label: "2021", posts: 380 },
+    { label: "2022", posts: 442 },
+    { label: "2023", posts: 501 },
+    { label: "2024", posts: 546 },
+    { label: "2025", posts: 611 },
+    { label: "2026", posts: 668 },
+  ],
+};
+
+const userGrowthByPeriod: Record<PeriodFilter, UserPoint[]> = {
+  day: [
+    { label: "Mon", users: 1090 },
+    { label: "Tue", users: 1092 },
+    { label: "Wed", users: 1095 },
+    { label: "Thu", users: 1098 },
+    { label: "Fri", users: 1101 },
+    { label: "Sat", users: 1103 },
+    { label: "Sun", users: 1104 },
+  ],
+  month: [
+    { label: "Jan", users: 720 },
+    { label: "Feb", users: 760 },
+    { label: "Mar", users: 812 },
+    { label: "Apr", users: 880 },
+    { label: "May", users: 943 },
+    { label: "Jun", users: 1104 },
+  ],
+  year: [
+    { label: "2021", users: 4310 },
+    { label: "2022", users: 5195 },
+    { label: "2023", users: 6620 },
+    { label: "2024", users: 8128 },
+    { label: "2025", users: 9714 },
+    { label: "2026", users: 11040 },
+  ],
+};
 
 const recentActivityLogs: Activity[] = [
   {
@@ -146,29 +190,20 @@ function maxContentValue(points: ContentPoint[]): number {
   return points.reduce((max, point) => (point.posts > max ? point.posts : max), 0);
 }
 
-function createUserGrowthPath(points: UserPoint[]): string {
-  const width = 520;
-  const height = 110;
-  const xStep = width / (points.length - 1);
-  const minUsers = Math.min(...points.map((point) => point.users));
-  const maxUsers = Math.max(...points.map((point) => point.users));
-  const range = maxUsers - minUsers || 1;
-
-  return points
-    .map((point, index) => {
-      const x = index * xStep;
-      const normalized = (point.users - minUsers) / range;
-      const y = height - normalized * (height - 8) - 4;
-      return `${x.toFixed(2)},${y.toFixed(2)}`;
-    })
-    .join(" ");
-}
-
 export default function AdminDashboardPage() {
+  const [periodFilter, setPeriodFilter] = useState<PeriodFilter>("month");
   const metrics = aggregateSystemMetrics();
   const activityFeed = fetchRecentActivityLogs();
+  const contentTrend = useMemo(() => contentTrendByPeriod[periodFilter], [periodFilter]);
+  const userGrowth = useMemo(() => userGrowthByPeriod[periodFilter], [periodFilter]);
   const contentMax = maxContentValue(contentTrend);
-  const growthPath = createUserGrowthPath(userGrowth);
+
+  const periodHint =
+    periodFilter === "day"
+      ? "Daily"
+      : periodFilter === "month"
+        ? "Monthly"
+        : "Yearly";
 
   return (
     <AdminSidebarLayout
@@ -220,6 +255,24 @@ export default function AdminDashboardPage() {
               </article>
 
               <article className="admin-panel admin-panel--analytics">
+                <div className="analytics-period-filter" role="tablist" aria-label="Analytics period filter">
+                  {periodOptions.map((option) => {
+                    const isActive = option === periodFilter;
+                    return (
+                      <button
+                        key={option}
+                        type="button"
+                        role="tab"
+                        aria-selected={isActive}
+                        className={`analytics-period-filter__button${isActive ? " analytics-period-filter__button--active" : ""}`}
+                        onClick={() => setPeriodFilter(option)}
+                      >
+                        {option.charAt(0).toUpperCase() + option.slice(1)}
+                      </button>
+                    );
+                  })}
+                </div>
+
                 <div className="analytics-block">
                   <div className="admin-panel__head">
                     <div className="admin-panel__head-left">
@@ -228,7 +281,7 @@ export default function AdminDashboardPage() {
                       </span>
                       <h2 className="admin-panel__title">Content Trends</h2>
                     </div>
-                    <p className="admin-panel__hint">Monthly submissions</p>
+                    <p className="admin-panel__hint">{periodHint} submissions</p>
                   </div>
 
                   <div className="trend-chart">
@@ -238,9 +291,9 @@ export default function AdminDashboardPage() {
 
                         return (
                           <div
-                            key={point.month}
+                            key={point.label}
                             className="trend-bar"
-                            data-label={point.month}
+                            data-label={point.label}
                             style={{ height: `${heightPercent}%` }}
                             title={`${point.posts} posts`}
                           />
@@ -258,30 +311,15 @@ export default function AdminDashboardPage() {
                     </span>
                     <h2 className="admin-panel__title">User Growth</h2>
                   </div>
-                  <p className="admin-panel__hint">New accounts over time</p>
+                  <p className="admin-panel__hint">{periodHint} account growth</p>
                 </div>
 
-                  <svg className="user-line" viewBox="0 0 520 130" role="img" aria-label="User growth chart">
-                    <rect x="0" y="0" width="520" height="130" fill="#f4f8fd" />
-                    <polyline
-                      points={growthPath}
-                      fill="none"
-                      stroke="#1e538e"
-                      strokeWidth="4"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    {userGrowth.map((point, index) => {
-                      const x = (520 / (userGrowth.length - 1)) * index;
-                      const minUsers = Math.min(...userGrowth.map((item) => item.users));
-                      const maxUsers = Math.max(...userGrowth.map((item) => item.users));
-                      const range = maxUsers - minUsers || 1;
-                      const normalized = (point.users - minUsers) / range;
-                      const y = 110 - normalized * (110 - 8) - 4;
-
-                      return <circle key={point.month} cx={x} cy={y} r="4" fill="#2a6bb5" />;
-                    })}
-                  </svg>
+                  {/* Reusable chart component */}
+                  <div>
+                    {/* Lazy client component import via dynamic can be added later; simple inline usage for now */}
+                    {/* @ts-ignore Server component can import client ChartCard safely because it uses "use client" */}
+                    <ChartCard title="User Growth" hint={`${periodHint} new accounts`} data={userGrowth.map((p) => ({ label: p.label, value: p.users }))} color="#2a6bb5" />
+                  </div>
                 </div>
               </article>
             </section>
