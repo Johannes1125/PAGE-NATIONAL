@@ -2,20 +2,17 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  BadgeCheck,
+  CalendarDays,
   ChevronLeft,
   ChevronRight,
-  FileClock,
-  LayoutDashboard,
-  MessageSquareText,
-  Newspaper,
-  PlusCircle,
   UserRound,
-  Users,
-  CalendarDays,
-  type LucideIcon,
+  FileText,
+  BookOpen,
+  Check // <-- Added missing import here!
 } from "lucide-react";
 import AdminSidebarLayout from "../components/AdminSidebarLayout";
+import { gooeyToast } from "goey-toast"; 
+import "goey-toast/styles.css";
 import "./approve-post.css";
 import "../admin-dashboard.css";
 
@@ -42,7 +39,7 @@ const pendingPosts: PendingPost[] = [
     date: "February 20, 2026",
     title: "Innovative Approaches to Online Graduate Education",
     summary:
-      "A peer-reviewed study examining mentorship challenges faced by graduate students and proposing institutional support frameworks for online thesis advising.",
+      "A peer-reviewed study examining mentorship challenges faced by graduate students and proposing institutional support frameworks for online thesis advising. This includes a 5-year longitudinal dataset.",
     author: "Dr. Elena Rodriguez",
     organization: "Northern Luzon Graduate Consortium",
     category: "Article",
@@ -77,6 +74,16 @@ const pendingPosts: PendingPost[] = [
     organization: "Mindanao Scholars Association",
     category: "Article",
   },
+  {
+    id: "post-5",
+    date: "March 22, 2026",
+    title: "Methodological Shifts in Post-Pandemic Research",
+    summary:
+      "Analyzes the transition from traditional field gathering to remote data collection methodologies in the social sciences.",
+    author: "Dr. Francis Buena",
+    organization: "Southern Research Institute",
+    category: "Research",
+  }
 ];
 
 export default function ApprovePostPage() {
@@ -90,10 +97,8 @@ export default function ApprovePostPage() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState<PostStatus | "all">("all");
   const [feedbackInput, setFeedbackInput] = useState("");
-  const [feedbackError, setFeedbackError] = useState("");
-  const [lastNotification, setLastNotification] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 3;
+  const pageSize = 4; // 4 items per page
 
   const filteredPosts = useMemo(
     () =>
@@ -124,12 +129,27 @@ export default function ApprovePostPage() {
     return filteredPosts.slice(start, start + pageSize);
   }, [currentPage, filteredPosts]);
 
+  // Logic to limit pagination to exactly 4 visible buttons
+  const visiblePages = useMemo(() => {
+    let start = Math.max(1, currentPage - 1);
+    let end = Math.min(totalPages, start + 3);
+    
+    if (end - start < 3) {
+      start = Math.max(1, end - 3);
+    }
+    
+    const pages = [];
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }, [currentPage, totalPages]);
+
   useEffect(() => {
     if (!selectedPost) {
       setFeedbackInput("");
       return;
     }
-
     setFeedbackInput(postStateById[selectedPost.id]?.feedback ?? "");
   }, [postStateById, selectedPost]);
 
@@ -144,25 +164,6 @@ export default function ApprovePostPage() {
   const handleSelectPost = (postId: string) => {
     setSelectedPostId(postId);
     setFeedbackInput(postStateById[postId]?.feedback ?? "");
-    setFeedbackError("");
-  };
-
-  const handleModeratePost = (postId: string, status: PostStatus) => {
-    const post = pendingPosts.find((item) => item.id === postId);
-    if (!post) return;
-
-    setPostStateById((current) => ({
-      ...current,
-      [postId]: {
-        ...current[postId],
-        status,
-      },
-    }));
-
-    setSelectedPostId(postId);
-    setLastNotification(
-      `Notification sent to ${post.organization}: "${post.title}" has been ${status}.`,
-    );
   };
 
   const handleApprove = () => {
@@ -176,10 +177,7 @@ export default function ApprovePostPage() {
       },
     }));
 
-    setFeedbackError("");
-    setLastNotification(
-      `Notification sent to ${selectedPost.organization}: "${selectedPost.title}" has been approved.`,
-    );
+    gooeyToast.success(`"${selectedPost.title}" approved successfully.`);
   };
 
   const handleReject = () => {
@@ -187,7 +185,7 @@ export default function ApprovePostPage() {
 
     const trimmedFeedback = feedbackInput.trim();
     if (!trimmedFeedback) {
-      setFeedbackError("Rejection feedback is required.");
+      gooeyToast.error("Rejection feedback is required.");
       return;
     }
 
@@ -199,10 +197,7 @@ export default function ApprovePostPage() {
       },
     }));
 
-    setFeedbackError("");
-    setLastNotification(
-      `Notification sent to ${selectedPost.organization}: "${selectedPost.title}" was rejected with admin feedback.`,
-    );
+    gooeyToast.success(`Post rejected. Feedback sent to ${selectedPost.organization}.`);
   };
 
   return (
@@ -210,45 +205,56 @@ export default function ApprovePostPage() {
       pageClassName="approve-page"
       mainClassName="approve-main"
       title="Post Approval"
-      subtitle="Review and approve posts submitted by the Post Reviewer (Organization Panel)."
-      eyebrow="Admin Panel"
+      subtitle="Review and moderate academic submissions prior to publication."
+      eyebrow="Editorial Dashboard"
     >
       <section className="approve-content">
-        <div className="approve-hero">
-          <div className="approve-hero__inner">
-            <div className="approve-hero__controls" role="region" aria-label="Approval filters">
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                aria-label="All Categories"
-              >
-                <option value="all">All Categories</option>
-                {categories.map((c) => (
-                  <option key={c} value={c.toLowerCase()}>{c}</option>
-                ))}
-              </select>
+        
+        {/* Minimal Academic Toolbar */}
+        <div className="approve-toolbar">
+          <div className="approve-toolbar__left">
+            <span className="approve-toolbar__count">
+              Showing <strong>{filteredPosts.length}</strong> submission{filteredPosts.length !== 1 ? 's' : ''}
+            </span>
+          </div>
 
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as PostStatus | "all")}
-                aria-label="Status"
-              >
-                <option value="all">Status</option>
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-              </select>
-            </div>
+          <div className="approve-toolbar__filters" role="region" aria-label="Approval filters">
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              aria-label="Filter by Category"
+              className="approve-select"
+            >
+              <option value="all">All Categories</option>
+              {categories.map((c) => (
+                <option key={c} value={c.toLowerCase()}>{c}</option>
+              ))}
+            </select>
+
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as PostStatus | "all")}
+              aria-label="Filter by Status"
+              className="approve-select"
+            >
+              <option value="all">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
           </div>
         </div>
+
         <section className="approve-layout">
+          
+          {/* Master List (Research Inbox Style) */}
           <section className="approve-list" aria-label="Pending post list">
             {pagedPosts.map((post) => (
               <article
                 key={post.id}
                 role="button"
                 tabIndex={0}
-                className={`approve-card${selectedPost?.id === post.id ? " approve-card--active" : ""}`}
+                className={`approve-card ${selectedPost?.id === post.id ? "approve-card--active" : ""}`}
                 onClick={() => handleSelectPost(post.id)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -257,45 +263,34 @@ export default function ApprovePostPage() {
                   }
                 }}
               >
-                <div className="approve-card__date">
-                  <CalendarDays size={12} />
-                  <span>{post.date}</span>
+                <div className="approve-card__header">
+                  <span className="approve-card__category">{post.category}</span>
+                  <span className={`approve-status-dot approve-status-dot--${postStateById[post.id]?.status ?? "pending"}`} title={postStateById[post.id]?.status}>
+                    {(postStateById[post.id]?.status ?? "pending").toUpperCase()}
+                  </span>
                 </div>
+
                 <h2>{post.title}</h2>
-                <div className="approve-card__actions" aria-label={`Quick actions for ${post.title}`}>
-                  <button
-                    type="button"
-                    className="approve-card__action approve-card__action--accept"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      handleModeratePost(post.id, "approved");
-                    }}
-                  >
-                    Approve
-                  </button>
-                  <button
-                    type="button"
-                    className="approve-card__action approve-card__action--reject"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      handleModeratePost(post.id, "rejected");
-                    }}
-                  >
-                    Reject
-                  </button>
+                <p className="approve-card__summary">{post.summary}</p>
+                
+                <div className="approve-card__footer">
+                  <div className="approve-card__meta">
+                    <UserRound size={13} />
+                    <span>{post.author}</span>
+                    <span className="approve-card__divider">•</span>
+                    <CalendarDays size={13} />
+                    <span>{post.date}</span>
+                  </div>
                 </div>
-                <p>{post.summary}</p>
-                <div className="approve-card__meta">
-                  <UserRound size={12} />
-                  <span>{post.author} • {post.organization}</span>
-                </div>
-                <span className={`approve-status-badge approve-status-badge--${postStateById[post.id]?.status ?? "pending"}`}>
-                  {(postStateById[post.id]?.status ?? "pending").toUpperCase()}
-                </span>
               </article>
             ))}
 
-            {filteredPosts.length === 0 && <p className="approve-empty">No posts match the selected filters.</p>}
+            {filteredPosts.length === 0 && (
+              <div className="approve-empty-state">
+                <BookOpen size={32} className="approve-empty-icon" />
+                <p>No submissions found in this queue.</p>
+              </div>
+            )}
 
             {filteredPosts.length > 0 && (
               <nav className="approve-pagination" aria-label="Approve post pagination">
@@ -310,20 +305,17 @@ export default function ApprovePostPage() {
                 </button>
 
                 <div className="approve-pagination__pages">
-                  {Array.from({ length: totalPages }).map((_, index) => {
-                    const page = index + 1;
-                    return (
-                      <button
-                        key={page}
-                        type="button"
-                        className={`approve-pagination__page${page === currentPage ? " approve-pagination__page--active" : ""}`}
-                        onClick={() => setCurrentPage(page)}
-                        aria-current={page === currentPage ? "page" : undefined}
-                      >
-                        {page}
-                      </button>
-                    );
-                  })}
+                  {visiblePages.map((page) => (
+                    <button
+                      key={page}
+                      type="button"
+                      className={`approve-pagination__page ${page === currentPage ? "approve-pagination__page--active" : ""}`}
+                      onClick={() => setCurrentPage(page)}
+                      aria-current={page === currentPage ? "page" : undefined}
+                    >
+                      {page}
+                    </button>
+                  ))}
                 </div>
 
                 <button
@@ -339,87 +331,87 @@ export default function ApprovePostPage() {
             )}
           </section>
 
+          {/* Detail Panel (Manuscript Review Style) */}
           <aside className="approve-detail">
-            <h3>Post Details</h3>
+            <div className="approve-detail__inner">
+              <div className="approve-detail__header">
+                <h3>Manuscript Details</h3>
+                {selectedPost && (
+                  <span className={`approve-status-badge approve-status-badge--${postStateById[selectedPost.id]?.status ?? "pending"}`}>
+                    {(postStateById[selectedPost.id]?.status ?? "pending").toUpperCase()}
+                  </span>
+                )}
+              </div>
 
-            {!selectedPost && (
-              <p className="approve-empty">Select a post from the list to review its details.</p>
-            )}
+              {!selectedPost && (
+                <div className="approve-empty-text">
+                  Select a manuscript from the queue to review and moderate.
+                </div>
+              )}
 
-            {selectedPost && (
-              <>
+              {selectedPost && (
+                <div className="approve-detail__body">
+                  <div className="approve-detail__block">
+                    <p className="approve-detail__label">Title</p>
+                    <p className="approve-detail__title-value">{selectedPost.title}</p>
+                  </div>
 
-            <div className="approve-detail__block">
-              <p className="approve-detail__label">Title</p>
-              <p>{selectedPost?.title}</p>
-            </div>
+                  <div className="approve-detail__row">
+                    <div className="approve-detail__block">
+                      <p className="approve-detail__label">Category</p>
+                      <p className="approve-detail__value capitalize">{selectedPost.category}</p>
+                    </div>
+                    <div className="approve-detail__block">
+                      <p className="approve-detail__label">Submission Date</p>
+                      <p className="approve-detail__value">{selectedPost.date}</p>
+                    </div>
+                  </div>
 
-            <div className="approve-detail__block">
-              <p className="approve-detail__label">Category</p>
-              <p>{selectedPost?.category}</p>
-            </div>
+                  <div className="approve-detail__row">
+                    <div className="approve-detail__block">
+                      <p className="approve-detail__label">Primary Author</p>
+                      <p className="approve-detail__value">{selectedPost.author}</p>
+                    </div>
+                    <div className="approve-detail__block">
+                      <p className="approve-detail__label">Institution / Organization</p>
+                      <p className="approve-detail__value">{selectedPost.organization}</p>
+                    </div>
+                  </div>
 
-            <div className="approve-detail__block">
-              <p className="approve-detail__label">Submitted by</p>
-              <p>{selectedPost?.author}</p>
-            </div>
+                  <div className="approve-detail__block">
+                    <p className="approve-detail__label">Abstract</p>
+                    <p className="approve-detail__abstract">
+                      {selectedPost.summary}
+                    </p>
+                  </div>
 
-            <div className="approve-detail__block">
-              <p className="approve-detail__label">Date</p>
-              <p>{selectedPost?.date}</p>
-            </div>
+                  <div className="approve-detail__block approve-detail__feedback-block">
+                    <p className="approve-detail__label">Editorial Feedback <span className="approve-required">*</span></p>
+                    <textarea
+                      className="approve-feedback"
+                      placeholder="Required if rejecting. Provide actionable feedback to the author/institution."
+                      value={feedbackInput}
+                      onChange={(event) => setFeedbackInput(event.target.value)}
+                      rows={4}
+                    />
+                    {postStateById[selectedPost.id]?.feedback && (
+                      <div className="approve-saved-feedback">
+                        <strong>Previous Feedback:</strong> {postStateById[selectedPost.id].feedback}
+                      </div>
+                    )}
+                  </div>
 
-            <div className="approve-detail__block">
-              <p className="approve-detail__label">Organization</p>
-              <p>{selectedPost?.organization}</p>
-            </div>
-
-            <div className="approve-detail__block">
-              <p className="approve-detail__label">Current Status</p>
-              <p className={`approve-status approve-status--${postStateById[selectedPost.id]?.status ?? "pending"}`}>
-                {(postStateById[selectedPost.id]?.status ?? "pending").toUpperCase()}
-              </p>
-            </div>
-
-            <div className="approve-detail__block">
-              <p className="approve-detail__label">Excerpt</p>
-              <p>
-                {selectedPost?.summary}
-              </p>
-            </div>
-
-            <div className="approve-detail__block">
-              <p className="approve-detail__label">Rejection Feedback</p>
-              <textarea
-                className="approve-feedback"
-                placeholder="Enter feedback to organization for rejected posts"
-                value={feedbackInput}
-                onChange={(event) => {
-                  setFeedbackInput(event.target.value);
-                  if (feedbackError) setFeedbackError("");
-                }}
-                rows={4}
-              />
-              {feedbackError && <p className="approve-error">{feedbackError}</p>}
-              {postStateById[selectedPost.id]?.feedback && (
-                <p className="approve-saved-feedback">
-                  Saved feedback: {postStateById[selectedPost.id].feedback}
-                </p>
+                  <div className="approve-detail__actions">
+                    <button type="button" className="approve-btn approve-btn--accept" onClick={handleApprove}>
+                      <Check size={16} /> Approve Manuscript
+                    </button>
+                    <button type="button" className="approve-btn approve-btn--reject" onClick={handleReject}>
+                      Request Revisions (Reject)
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
-
-            <div className="approve-detail__actions">
-              <button type="button" className="approve-btn approve-btn--accept" onClick={handleApprove}>
-                Approve
-              </button>
-              <button type="button" className="approve-btn approve-btn--reject" onClick={handleReject}>
-                Reject
-              </button>
-            </div>
-
-            {lastNotification && <p className="approve-notification">{lastNotification}</p>}
-              </>
-            )}
           </aside>
         </section>
       </section>
