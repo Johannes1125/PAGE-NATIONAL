@@ -92,6 +92,8 @@ export default function ApprovePostPage() {
   const [feedbackInput, setFeedbackInput] = useState("");
   const [feedbackError, setFeedbackError] = useState("");
   const [lastNotification, setLastNotification] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 3;
 
   const filteredPosts = useMemo(
     () =>
@@ -109,6 +111,19 @@ export default function ApprovePostPage() {
     [filteredPosts, selectedPostId],
   );
 
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    pendingPosts.forEach((p) => set.add(p.category));
+    return Array.from(set);
+  }, []);
+
+  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / pageSize));
+
+  const pagedPosts = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredPosts.slice(start, start + pageSize);
+  }, [currentPage, filteredPosts]);
+
   useEffect(() => {
     if (!selectedPost) {
       setFeedbackInput("");
@@ -118,10 +133,36 @@ export default function ApprovePostPage() {
     setFeedbackInput(postStateById[selectedPost.id]?.feedback ?? "");
   }, [postStateById, selectedPost]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [categoryFilter, statusFilter]);
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, totalPages));
+  }, [totalPages]);
+
   const handleSelectPost = (postId: string) => {
     setSelectedPostId(postId);
     setFeedbackInput(postStateById[postId]?.feedback ?? "");
     setFeedbackError("");
+  };
+
+  const handleModeratePost = (postId: string, status: PostStatus) => {
+    const post = pendingPosts.find((item) => item.id === postId);
+    if (!post) return;
+
+    setPostStateById((current) => ({
+      ...current,
+      [postId]: {
+        ...current[postId],
+        status,
+      },
+    }));
+
+    setSelectedPostId(postId);
+    setLastNotification(
+      `Notification sent to ${post.organization}: "${post.title}" has been ${status}.`,
+    );
   };
 
   const handleApprove = () => {
@@ -173,20 +214,76 @@ export default function ApprovePostPage() {
       eyebrow="Admin Panel"
     >
       <section className="approve-content">
+        <div className="approve-hero">
+          <div className="approve-hero__inner">
+            <div className="approve-hero__controls" role="region" aria-label="Approval filters">
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                aria-label="All Categories"
+              >
+                <option value="all">All Categories</option>
+                {categories.map((c) => (
+                  <option key={c} value={c.toLowerCase()}>{c}</option>
+                ))}
+              </select>
+
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as PostStatus | "all")}
+                aria-label="Status"
+              >
+                <option value="all">Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+          </div>
+        </div>
         <section className="approve-layout">
           <section className="approve-list" aria-label="Pending post list">
-            {filteredPosts.map((post) => (
-              <button
+            {pagedPosts.map((post) => (
+              <article
                 key={post.id}
-                type="button"
+                role="button"
+                tabIndex={0}
                 className={`approve-card${selectedPost?.id === post.id ? " approve-card--active" : ""}`}
                 onClick={() => handleSelectPost(post.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleSelectPost(post.id);
+                  }
+                }}
               >
                 <div className="approve-card__date">
                   <CalendarDays size={12} />
                   <span>{post.date}</span>
                 </div>
                 <h2>{post.title}</h2>
+                <div className="approve-card__actions" aria-label={`Quick actions for ${post.title}`}>
+                  <button
+                    type="button"
+                    className="approve-card__action approve-card__action--accept"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleModeratePost(post.id, "approved");
+                    }}
+                  >
+                    Approve
+                  </button>
+                  <button
+                    type="button"
+                    className="approve-card__action approve-card__action--reject"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleModeratePost(post.id, "rejected");
+                    }}
+                  >
+                    Reject
+                  </button>
+                </div>
                 <p>{post.summary}</p>
                 <div className="approve-card__meta">
                   <UserRound size={12} />
@@ -195,10 +292,51 @@ export default function ApprovePostPage() {
                 <span className={`approve-status-badge approve-status-badge--${postStateById[post.id]?.status ?? "pending"}`}>
                   {(postStateById[post.id]?.status ?? "pending").toUpperCase()}
                 </span>
-              </button>
+              </article>
             ))}
 
             {filteredPosts.length === 0 && <p className="approve-empty">No posts match the selected filters.</p>}
+
+            {filteredPosts.length > 0 && (
+              <nav className="approve-pagination" aria-label="Approve post pagination">
+                <button
+                  type="button"
+                  className="approve-pagination__nav"
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                  disabled={currentPage === 1}
+                  aria-label="Previous page"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+
+                <div className="approve-pagination__pages">
+                  {Array.from({ length: totalPages }).map((_, index) => {
+                    const page = index + 1;
+                    return (
+                      <button
+                        key={page}
+                        type="button"
+                        className={`approve-pagination__page${page === currentPage ? " approve-pagination__page--active" : ""}`}
+                        onClick={() => setCurrentPage(page)}
+                        aria-current={page === currentPage ? "page" : undefined}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  type="button"
+                  className="approve-pagination__nav"
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                  disabled={currentPage === totalPages}
+                  aria-label="Next page"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </nav>
+            )}
           </section>
 
           <aside className="approve-detail">

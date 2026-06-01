@@ -40,9 +40,9 @@ body {
   bottom: 0;
   width: 260px;
   z-index: 100;
-  background: rgba(20, 49, 82, 0.97);
+  background: #143152;
   border-right: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 6px 0 28px rgba(0, 0, 0, 0.2);
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.16);
 }
 
 .messages-sidebar__inner {
@@ -66,13 +66,13 @@ body {
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  background: linear-gradient(145deg, #5d93d3 0%, #cfdcec 100%);
+  background: #dfeaf6;
   color: #0e2a46;
   font-weight: 800;
   font-size: 16px;
   display: grid;
   place-items: center;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.24);
+  box-shadow: none;
 }
 
 .messages-brand__eyebrow {
@@ -128,7 +128,7 @@ body {
 .messages-hero {
   position: relative;
   height: 176px;
-  background: linear-gradient(170deg, var(--messages-navy) 0%, rgba(30, 83, 142, 0.96) 58%, #1a3f6a 100%);
+  background: var(--messages-navy);
   overflow: hidden;
 }
 
@@ -179,8 +179,8 @@ body {
   min-height: calc(100vh - 228px);
   background: var(--messages-card);
   border: 1px solid var(--messages-border);
-  border-radius: 14px;
-  box-shadow: 0 12px 28px rgba(16, 36, 61, 0.08);
+  border-radius: 10px;
+  box-shadow: none;
   display: grid;
   grid-template-columns: 340px 1fr;
   overflow: hidden;
@@ -188,7 +188,7 @@ body {
 
 .messages-list-panel {
   border-right: 1px solid var(--messages-border);
-  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  background: #ffffff;
   padding: 12px;
 }
 
@@ -272,7 +272,7 @@ body {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: linear-gradient(165deg, #dbe9f8, #9fbfe2);
+  background: #dfeaf6;
   color: #143152;
   font-size: 11px;
   font-weight: 700;
@@ -404,12 +404,12 @@ body {
   flex-direction: column;
   gap: 10px;
   overflow-y: auto;
-  background: linear-gradient(180deg, #fcfeff 0%, #f7fbff 100%);
+  background: #ffffff;
 }
 
 .message-bubble {
   max-width: 75%;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 10px 12px;
   border: 1px solid transparent;
   cursor: pointer;
@@ -435,7 +435,7 @@ body {
 }
 
 .message-bubble--selected {
-  box-shadow: 0 0 0 2px rgba(39, 90, 151, 0.2);
+  box-shadow: 0 0 0 1px rgba(39, 90, 151, 0.18);
 }
 
 .message-bubble__files {
@@ -488,7 +488,7 @@ body {
 
 .messages-composer input {
   border: 1px solid #d8e4f0;
-  border-radius: 7px;
+  border-radius: 6px;
   padding: 8px 10px;
   font-size: 12px;
   outline: none;
@@ -503,7 +503,7 @@ body {
   width: 36px;
   height: 30px;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   background: #153f6b;
   color: #ffffff;
   display: grid;
@@ -525,7 +525,7 @@ body {
   border-top: 1px solid #e5ecf4;
   border-bottom: 1px solid #e5ecf4;
   padding: 8px 12px;
-  background: #f9fbfe;
+  background: #f8fbfe;
 }
 
 .messages-detail p {
