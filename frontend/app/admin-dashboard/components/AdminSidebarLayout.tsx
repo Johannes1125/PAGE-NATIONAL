@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import {
   BadgeCheck,
-  ChevronLeft,
-  ChevronRight,
+  ClipboardList,
   FileText,
   LayoutDashboard,
+  Menu,
   MessageSquareText,
   LogOut,
   PlusCircle,
@@ -44,6 +44,7 @@ const adminNavItems: AdminNavItem[] = [
   { href: "/admin-dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/admin-dashboard/create-new-post", label: "Create New Post", icon: PlusCircle },
   { href: "/admin-dashboard/approve-post", label: "Approve Posts", icon: BadgeCheck },
+  { href: "/admin-dashboard/audit-log", label: "Audit Log", icon: ClipboardList },
   { href: "/admin-dashboard/manage-users", label: "Manage Users", icon: Users },
   { href: "/admin-dashboard/view-messages", label: "Messages", icon: MessageSquareText },
 ];
@@ -156,7 +157,7 @@ export default function AdminSidebarLayout({
               aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
               aria-pressed={isSidebarCollapsed}
             >
-              {isSidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+              <Menu size={20} />
             </button>
 
             <div className="admin-header__brand">
