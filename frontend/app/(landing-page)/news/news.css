@@ -114,13 +114,14 @@ ul { list-style: none; }
   width: 48px;
   height: 48px;
   border-radius: 10px;
+
+  background-image: url('../../public/PAGE.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
   overflow: hidden;
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.14);
 }
 
 .navbar__logo-mark img {
@@ -968,14 +969,15 @@ ul { list-style: none; }
 .footer__logo-mark {
   width: 48px;
   height: 48px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 10px;
+
+  background-image: url('../../public/PAGE.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  flex-shrink: 0; 
 }
 
 .footer__logo-mark img {

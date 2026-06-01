@@ -220,19 +220,19 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
         {/* Logo */}
         <div className="navbar__logo">
           <div className="navbar__logo-mark">
-            <Image
-              src="/PAGE.jpg"
-              width={50}
-              height={50}
-              alt="PAGE Logo"
-              onError={(e) => {
-                const target = e.currentTarget as HTMLImageElement;
-                target.style.display = "none";
-                const fallback = target.nextElementSibling as HTMLElement;
-                if (fallback) fallback.style.display = "flex";
-              }}
-            />
-            <span className="navbar__logo-mark-fallback" style={{ display: "none" }}>PAGE</span>
+              <Image
+                src="/PAGE.jpg"
+                width={50}
+                height={50}
+                alt="PAGE Logo"
+                onError={(e) => {
+                  const target = e.currentTarget as HTMLImageElement;
+                  target.style.display = "none";
+                  const fallback = target.nextElementSibling as HTMLElement;
+                  if (fallback) fallback.style.display = "flex";
+                }}
+              />
+              <span className="navbar__logo-mark-fallback" style={{ display: "none" }}>PAGE</span>
           </div>
           <div className="navbar__logo-text">
             <div className="navbar__logo-name">PAGE</div>
@@ -439,16 +439,6 @@ function Footer() {
           <div>
             <div className="footer__brand-logo">
               <div className="footer__logo-mark">
-                <img
-                  src="/PAGE.jpg"
-                  alt="PAGE Logo"
-                  onError={(e) => {
-                    const target = e.currentTarget as HTMLImageElement;
-                    target.style.display = "none";
-                    const fallback = target.nextElementSibling as HTMLElement;
-                    if (fallback) fallback.style.display = "flex";
-                  }}
-                />
                 <span className="navbar__logo-mark-fallback" style={{ display: "none" }}>PAGE</span>
               </div>
               <div>

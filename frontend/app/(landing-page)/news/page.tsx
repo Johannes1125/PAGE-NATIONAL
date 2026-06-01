@@ -350,7 +350,6 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
                 if (fallback) fallback.style.display = "flex";
               }}
             />
-            <span className="navbar__logo-mark-fallback" style={{ display: "none" }}>PAGE</span>
           </div>
           <div className="navbar__logo-text">
             <div className="navbar__logo-name">PAGE</div>
@@ -727,7 +726,6 @@ function Footer() {
               <div className="footer__logo-mark">
                 <img
                   src="/PAGE.jpg"
-                  alt="PAGE Logo"
                   onError={(e) => {
                     const target = e.currentTarget as HTMLImageElement;
                     target.style.display = "none";
@@ -735,7 +733,6 @@ function Footer() {
                     if (fallback) fallback.style.display = "flex";
                   }}
                 />
-                <span className="navbar__logo-mark-fallback" style={{ display: "none" }}>PAGE</span>
               </div>
               <div>
                 <div className="footer__logo-name">PAGE</div>
