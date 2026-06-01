@@ -2,7 +2,7 @@
 
 // Link intentionally removed: expanded info shows descriptive text
 import { Bell, CheckSquare, ChevronDown, Square, Trash2 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type AdminNotificationItem, fetchAllAdminNotifications } from "../lib/adminNotifications";
 import styles from "./AdminNotifications.module.css";
 
@@ -11,6 +11,8 @@ const DELETED_KEY = "admin-notification-deleted-ids";
 
 type AdminNotificationsProps = {
   compact?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  closeSignal?: number;
 };
 
 function getReadIds(): string[] {
@@ -35,7 +37,11 @@ function getDeletedIds(): string[] {
   }
 }
 
-export default function AdminNotifications({ compact = false }: AdminNotificationsProps) {
+export default function AdminNotifications({
+  compact = false,
+  onOpenChange,
+  closeSignal = 0,
+}: AdminNotificationsProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<AdminNotificationItem[]>([]);
@@ -46,6 +52,8 @@ export default function AdminNotifications({ compact = false }: AdminNotificatio
   const [mountedPanel, setMountedPanel] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const closeTimerRef = useRef<number | null>(null);
+  const prevCloseSignalRef = useRef(closeSignal);
+  const closePanelRef = useRef<() => void>(() => undefined);
 
   useEffect(() => {
     fetchAllAdminNotifications().then((response) => setItems(response));
@@ -61,26 +69,46 @@ export default function AdminNotifications({ compact = false }: AdminNotificatio
     window.localStorage.setItem(DELETED_KEY, JSON.stringify(deletedIds));
   }, [deletedIds]);
 
+  const closePanel = useCallback(() => {
+    if (!mountedPanel) return;
+
+    setOpen(false);
+    setIsClosing(true);
+    onOpenChange?.(false);
+
+    if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = window.setTimeout(() => {
+      setIsClosing(false);
+      setMountedPanel(false);
+      closeTimerRef.current = null;
+    }, 180);
+  }, [mountedPanel, onOpenChange]);
+
+  closePanelRef.current = closePanel;
+
+  useEffect(() => {
+    if (closeSignal === prevCloseSignalRef.current) return;
+
+    prevCloseSignalRef.current = closeSignal;
+    closePanelRef.current();
+  }, [closeSignal]);
+
   useEffect(() => {
     const onClickOutside = (event: MouseEvent) => {
       if (!containerRef.current) return;
-      if (event.target instanceof Node && !containerRef.current.contains(event.target)) {
-        // close with animation
-        if (mountedPanel && open) {
-          setOpen(false);
-          setIsClosing(true);
-          if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
-          closeTimerRef.current = window.setTimeout(() => {
-            setIsClosing(false);
-            setMountedPanel(false);
-            closeTimerRef.current = null;
-          }, 180);
-        }
+
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (containerRef.current.contains(target)) return;
+
+      if (mountedPanel && open) {
+        closePanel();
       }
     };
+
     document.addEventListener("mousedown", onClickOutside);
     return () => document.removeEventListener("mousedown", onClickOutside);
-  }, []);
+  }, [closePanel, mountedPanel, open]);
 
   useEffect(() => {
     return () => {
@@ -138,37 +166,16 @@ export default function AdminNotifications({ compact = false }: AdminNotificatio
 
   const handleOpenItem = (notificationId: string) => {
     setReadIds((current) => (current.includes(notificationId) ? current : [...current, notificationId]));
-    // close using animated path
     if (mountedPanel && open) {
-      setOpen(false);
-      setIsClosing(true);
-      if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
-      closeTimerRef.current = window.setTimeout(() => {
-        setIsClosing(false);
-        setMountedPanel(false);
-        closeTimerRef.current = null;
-      }, 180);
+      closePanel();
     }
   };
 
   const openPanel = () => {
     if (!mountedPanel) setMountedPanel(true);
-    // ensure we give a tick for mount then open, but setOpen immediately is fine
     setIsClosing(false);
     setOpen(true);
-  };
-
-  const closePanel = () => {
-    if (mountedPanel && open) {
-      setOpen(false);
-      setIsClosing(true);
-      if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
-      closeTimerRef.current = window.setTimeout(() => {
-        setIsClosing(false);
-        setMountedPanel(false);
-        closeTimerRef.current = null;
-      }, 180);
-    }
+    onOpenChange?.(true);
   };
 
   function formatSourceLabel(src?: string) {
@@ -182,10 +189,11 @@ export default function AdminNotifications({ compact = false }: AdminNotificatio
   }
 
   return (
-    <div className={styles.wrap} ref={containerRef}>
+    <div className={styles.wrap} ref={containerRef} data-admin-notifications>
       <button
         type="button"
-        className={`${styles.button} ${compact ? styles.buttonCompact : ""}`}
+        className={`${styles.button} ${compact ? styles.buttonCompact : ""} ${open ? styles.buttonOpen : ""}`}
+        onMouseDown={(event) => event.stopPropagation()}
         onClick={() => {
           if (!mountedPanel) {
             openPanel();
@@ -195,13 +203,20 @@ export default function AdminNotifications({ compact = false }: AdminNotificatio
             closePanel();
             return;
           }
-          // if mounted but closed, open
           openPanel();
         }}
-        aria-label="Open admin notifications"
+        aria-label={
+          unreadCount > 0
+            ? `Open admin notifications, ${unreadCount} unread`
+            : "Open admin notifications"
+        }
+        aria-expanded={open}
+        aria-haspopup="dialog"
       >
-        <Bell size={18} />
-        {unreadCount > 0 && <span className={styles.count} aria-hidden="true">{unreadCount}</span>}
+        <span className={styles.buttonIcon} aria-hidden="true">
+          <Bell size={18} strokeWidth={2} />
+        </span>
+        {unreadCount > 0 && <span className={styles.count}>{unreadCount}</span>}
       </button>
 
       {mountedPanel && (
