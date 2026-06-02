@@ -8,24 +8,47 @@ import { faCheckCircle, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-ic
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import { useRouter } from "next/navigation";
+import { api } from "../lib/api-client";
+
 export default function MemberLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     if (!email || !password) {
       toast.error("Please fill in all fields!");
       return;
     }
 
-    // Optional: basic email format check
     if (!email.includes("@")) {
       toast.error("Please enter a valid email!");
       return;
     }
 
-    toast.success("Login successful!");
+    setIsLoading(true);
+    try {
+      const data = await api.post('/login', { email, password });
+      
+      if (data.user.role !== 'member') {
+        toast.error("Access Denied: Please use the appropriate organizational or admin login page.");
+        setIsLoading(false);
+        return;
+      }
+      
+      localStorage.setItem('page_user_token', data.token);
+      localStorage.setItem('page_user_payload', JSON.stringify(data.user));
+      
+      toast.success("Login successful!");
+      router.push('/');
+    } catch (err: any) {
+      toast.error(err.message || "Authentication failed. Please verify your credentials.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -132,8 +155,8 @@ export default function MemberLogin() {
             </div>
 
             {/* BUTTON */}
-            <button className="login-btn" onClick={handleSignIn}>
-              Sign In
+            <button className="login-btn" onClick={handleSignIn} disabled={isLoading}>
+              {isLoading ? "Signing In..." : "Sign In"}
             </button>
 
             {/* DIVIDER */}

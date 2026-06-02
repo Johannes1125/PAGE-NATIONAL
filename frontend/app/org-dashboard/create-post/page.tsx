@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Eye, FileImage, Link2, List, ListOrdered, Send, X } from "lucide-react";
+import { api } from "../../lib/api-client";
 import "./create-post.css";
 
 type OrgPostStatus = "draft" | "pending";
@@ -18,18 +19,6 @@ type OrgPostRecord = {
   createdAt: string;
 };
 
-const STORAGE_KEY = "org-dashboard-post-records";
-
-function timestampLabel(): string {
-  return new Date().toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
 export default function OrgCreatePostPage() {
   const editorRef = useRef<HTMLDivElement | null>(null);
 
@@ -42,66 +31,105 @@ export default function OrgCreatePostPage() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    try {
-      const parsed = JSON.parse(raw) as OrgPostRecord[];
-      if (Array.isArray(parsed)) setRecords(parsed);
-    } catch {
-      window.localStorage.removeItem(STORAGE_KEY);
-    }
+    const fetchMyPosts = async () => {
+      try {
+        const response = await api.get('/posts');
+        const mapped: OrgPostRecord[] = response.data.map((post: any) => ({
+          id: post.id.toString(),
+          title: post.title,
+          category: post.category,
+          contentHtml: post.content_html,
+          imageNames: post.attachments?.filter((a: any) => a.file_type !== 'pdf' && a.file_type !== 'docx').map((a: any) => a.file_name) || [],
+          mediaNames: post.attachments?.filter((a: any) => a.file_type === 'pdf' || a.file_type === 'docx').map((a: any) => a.file_name) || [],
+          status: post.status,
+          createdAt: new Date(post.created_at).toLocaleString(),
+        }));
+        setRecords(mapped);
+      } catch (err) {
+        console.error("Failed to load institutional posts", err);
+      }
+    };
+    fetchMyPosts();
   }, []);
-
-  useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-  }, [records]);
 
   const applyFormat = (command: string, value?: string) => {
     document.execCommand(command, false, value);
     setContentHtml(editorRef.current?.innerHTML ?? "");
   };
 
-  const createRecord = (status: OrgPostStatus): OrgPostRecord | null => {
+  const handlePostSubmit = async (status: OrgPostStatus) => {
     if (!title.trim()) {
       setError("Post title is required.");
-      return null;
+      return;
     }
-
     if (!contentHtml.trim()) {
       setError("Post content is required.");
-      return null;
+      return;
     }
-
     setError("");
+    setIsLoading(true);
+    setNotice("");
 
-    return {
-      id: `org-post-${Date.now()}`,
-      title: title.trim(),
-      category,
-      contentHtml,
-      imageNames: imageFiles.map((file) => file.name),
-      mediaNames: mediaFiles.map((file) => file.name),
-      status,
-      createdAt: timestampLabel(),
-    };
-  };
+    try {
+      const formData = new FormData();
+      formData.append("title", title.trim());
+      formData.append("category", category);
+      formData.append("content_html", contentHtml);
+      formData.append("status", status);
 
-  const handleSaveDraft = () => {
-    const record = createRecord("draft");
-    if (!record) return;
-    setRecords((current) => [record, ...current]);
-    setNotice(`Draft saved. Organization copy stored at ${record.createdAt}.`);
-  };
+      // Auto-extract textual excerpt
+      const textOnly = contentHtml.replace(/<[^>]*>/g, "");
+      const excerpt = textOnly.slice(0, 160) + (textOnly.length > 160 ? "..." : "");
+      formData.append("excerpt", excerpt);
 
-  const handleSubmitForApproval = () => {
-    const record = createRecord("pending");
-    if (!record) return;
-    setRecords((current) => [record, ...current]);
-    setNotice(
-      `Submission sent for admin approval. Notifications sent to admin and organization queue at ${record.createdAt}.`,
-    );
+      // Append image files
+      imageFiles.forEach((file) => {
+        formData.append("attachments[]", file);
+      });
+
+      // Append documents
+      mediaFiles.forEach((file) => {
+        formData.append("attachments[]", file);
+      });
+
+      const response = await api.postMultipart('/posts', formData);
+
+      const newRecord: OrgPostRecord = {
+        id: response.post.id.toString(),
+        title: response.post.title,
+        category: response.post.category,
+        contentHtml: response.post.content_html,
+        imageNames: imageFiles.map(f => f.name),
+        mediaNames: mediaFiles.map(f => f.name),
+        status: response.post.status,
+        createdAt: new Date(response.post.created_at).toLocaleString(),
+      };
+
+      setRecords((current) => [newRecord, ...current]);
+      
+      // Clear inputs
+      setTitle("");
+      setCategory("article");
+      setContentHtml("");
+      if (editorRef.current) {
+        editorRef.current.innerHTML = "";
+      }
+      setImageFiles([]);
+      setMediaFiles([]);
+
+      setNotice(
+        status === "pending"
+          ? "Submission sent to PAGE system administrator for approval queue."
+          : "Draft successfully saved in your institutional account."
+      );
+    } catch (err: any) {
+      setError(err.message || "Failed to submit post.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const pendingCount = records.filter((record) => record.status === "pending").length;
@@ -235,13 +263,13 @@ export default function OrgCreatePostPage() {
               </section>
 
               <section className="ocp-actions">
-                <button type="button" className="ocp-btn ocp-btn--primary" onClick={handleSubmitForApproval}>
-                  <Send size={13} /> Submit for Approval
+                <button type="button" className="ocp-btn ocp-btn--primary" onClick={() => handlePostSubmit("pending")} disabled={isLoading}>
+                  <Send size={13} /> {isLoading ? "Submitting..." : "Submit for Approval"}
                 </button>
-                <button type="button" className="ocp-btn ocp-btn--secondary" onClick={handleSaveDraft}>
-                  Save as Draft
+                <button type="button" className="ocp-btn ocp-btn--secondary" onClick={() => handlePostSubmit("draft")} disabled={isLoading}>
+                  {isLoading ? "Saving..." : "Save as Draft"}
                 </button>
-                <button type="button" className="ocp-btn ocp-btn--outline" onClick={() => setPreviewOpen(true)}>
+                <button type="button" className="ocp-btn ocp-btn--outline" onClick={() => setPreviewOpen(true)} disabled={isLoading}>
                   <Eye size={13} /> Preview
                 </button>
               </section>

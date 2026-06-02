@@ -5,6 +5,8 @@ import { FileText, UploadCloud } from "lucide-react";
 import { useEffect, useState } from "react";
 import "./article-submission.css";
 
+import { api } from "../../lib/api-client";
+
 type ArticleSubmissionStatus = "pending";
 
 type ArticleSubmissionRecord = {
@@ -18,18 +20,6 @@ type ArticleSubmissionRecord = {
   submittedAt: string;
 };
 
-const STORAGE_KEY = "org-article-submissions";
-
-function nowLabel(): string {
-  return new Date().toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
 export default function ArticleSubmissionPage() {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
@@ -39,23 +29,31 @@ export default function ArticleSubmissionPage() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [records, setRecords] = useState<ArticleSubmissionRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    try {
-      const parsed = JSON.parse(raw) as ArticleSubmissionRecord[];
-      if (Array.isArray(parsed)) setRecords(parsed);
-    } catch {
-      window.localStorage.removeItem(STORAGE_KEY);
-    }
+    const fetchSubmissions = async () => {
+      try {
+        const response = await api.get('/articles');
+        const mapped: ArticleSubmissionRecord[] = response.data.map((sub: any) => ({
+          id: sub.id.toString(),
+          title: sub.title,
+          author: sub.author,
+          abstract: sub.abstract,
+          keywords: sub.keywords || [],
+          fileName: sub.file_name,
+          status: sub.status,
+          submittedAt: new Date(sub.created_at).toLocaleString(),
+        }));
+        setRecords(mapped);
+      } catch (err) {
+        console.error("Failed to load submissions", err);
+      }
+    };
+    fetchSubmissions();
   }, []);
 
-  useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-  }, [records]);
-
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!title.trim() || !author.trim() || !abstract.trim() || !articleFile) {
       setError("Please complete all required fields and upload a file.");
       return;
@@ -67,30 +65,52 @@ export default function ArticleSubmissionPage() {
       return;
     }
 
+    setError("");
+    setIsLoading(true);
+    setNotice("");
+
     const keywords = keywordsInput
       .split(",")
       .map((keyword) => keyword.trim())
       .filter(Boolean);
 
-    const record: ArticleSubmissionRecord = {
-      id: `article-${Date.now()}`,
-      title: title.trim(),
-      author: author.trim(),
-      abstract: abstract.trim(),
-      keywords,
-      fileName: articleFile.name,
-      status: "pending",
-      submittedAt: nowLabel(),
-    };
+    try {
+      const formData = new FormData();
+      formData.append("title", title.trim());
+      formData.append("author", author.trim());
+      formData.append("abstract", abstract.trim());
+      formData.append("file", articleFile);
+      
+      keywords.forEach((keyword) => {
+        formData.append("keywords[]", keyword);
+      });
 
-    setRecords((current) => [record, ...current]);
-    setNotice(`Article submitted as pending: ${record.title}`);
-    setError("");
-    setTitle("");
-    setAuthor("");
-    setAbstract("");
-    setKeywordsInput("");
-    setArticleFile(null);
+      const response = await api.postMultipart('/articles', formData);
+
+      const record: ArticleSubmissionRecord = {
+        id: response.submission.id.toString(),
+        title: response.submission.title,
+        author: response.submission.author,
+        abstract: response.submission.abstract,
+        keywords: response.submission.keywords || [],
+        fileName: response.submission.file_name,
+        status: response.submission.status,
+        submittedAt: new Date(response.submission.created_at).toLocaleString(),
+      };
+
+      setRecords((current) => [record, ...current]);
+      setNotice(`Article submitted successfully: ${record.title}`);
+      
+      setTitle("");
+      setAuthor("");
+      setAbstract("");
+      setKeywordsInput("");
+      setArticleFile(null);
+    } catch (err: any) {
+      setError(err.message || "Failed to submit article.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -180,8 +200,8 @@ export default function ArticleSubmissionPage() {
                 <small>{articleFile ? articleFile.name : "No file selected"}</small>
               </label>
 
-              <button type="button" className="oas-submit-btn" onClick={handleSubmit}>
-                Save as Pending Submission
+              <button type="button" className="oas-submit-btn" onClick={handleSubmit} disabled={isLoading}>
+                {isLoading ? "Saving Submission..." : "Save as Pending Submission"}
               </button>
 
               {error && <p className="oas-error">{error}</p>}

@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Clock3, Pencil, Search, X } from "lucide-react";
 import AdminSidebarLayout from "../components/AdminSidebarLayout";
+import { api } from "../../lib/api-client";
 import "./manage-users.css";
 import "../admin-dashboard.css";
 
@@ -24,74 +25,40 @@ type UserActivity = {
   action: string;
 };
 
-const users: ManagedUser[] = [
-  {
-    id: "u-1",
-    name: "Juan Dela Cruz",
-    role: "Organization",
-    university: "Gordon College",
-    position: "President",
-    joinDate: "February 29, 2026",
-    status: "active",
-  },
-  {
-    id: "u-2",
-    name: "Maria Santos",
-    role: "Organization",
-    university: "Gordon College",
-    position: "Secretary",
-    joinDate: "March 2, 2026",
-    status: "active",
-  },
-  {
-    id: "u-3",
-    name: "Jose Reyes",
-    role: "Organization",
-    university: "Gordon College",
-    position: "Treasurer",
-    joinDate: "March 3, 2026",
-    status: "inactive",
-  },
-  {
-    id: "u-4",
-    name: "Ana Lim",
-    role: "Organization",
-    university: "Gordon College",
-    position: "Vice President",
-    joinDate: "March 5, 2026",
-    status: "active",
-  },
-];
-
-const initialActivityByUserId: Record<string, UserActivity[]> = {
-  "u-1": [
-    { id: "a-1", timestamp: "April 8, 2026 10:21 AM", action: "User account created" },
-    { id: "a-2", timestamp: "April 8, 2026 11:03 AM", action: "Role updated to Organization" },
-  ],
-  "u-2": [{ id: "a-3", timestamp: "April 8, 2026 09:48 AM", action: "User account created" }],
-  "u-3": [{ id: "a-4", timestamp: "April 8, 2026 08:12 AM", action: "Status set to Inactive" }],
-  "u-4": [{ id: "a-5", timestamp: "April 8, 2026 12:06 PM", action: "User account created" }],
-};
-
-function getNowTimestamp(): string {
-  return new Date().toLocaleString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
 export default function ManageUsersPage() {
-  const [usersState, setUsersState] = useState<ManagedUser[]>(users);
-  const [activityByUserId, setActivityByUserId] = useState<Record<string, UserActivity[]>>(initialActivityByUserId);
+  const [usersState, setUsersState] = useState<ManagedUser[]>([]);
+  const [activityByUserId, setActivityByUserId] = useState<Record<string, UserActivity[]>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [editRole, setEditRole] = useState("Organization");
   const [editStatus, setEditStatus] = useState<UserStatus>("active");
   const [roleModalUserId, setRoleModalUserId] = useState<string | null>(null);
   const [historyModalUserId, setHistoryModalUserId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await api.get('/admin/users');
+      const mapped: ManagedUser[] = response.users.map((u: any) => ({
+        id: u.id.toString(),
+        name: u.name,
+        role: u.role.charAt(0).toUpperCase() + u.role.slice(1),
+        university: u.university || "N/A",
+        position: u.position || "N/A",
+        joinDate: new Date(u.created_at).toLocaleDateString(),
+        status: u.status as UserStatus,
+      }));
+      setUsersState(mapped);
+    } catch (err) {
+      console.error("Failed to fetch users", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const filteredUsers = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -101,7 +68,7 @@ export default function ManageUsersPage() {
         user.name.toLowerCase().includes(query) ||
         user.university.toLowerCase().includes(query) ||
         user.position.toLowerCase().includes(query);
-      const matchesRole = roleFilter === "all" || user.role.toLowerCase() === roleFilter;
+      const matchesRole = roleFilter === "all" || user.role.toLowerCase() === roleFilter.toLowerCase();
       return matchesQuery && matchesRole;
     });
   }, [roleFilter, searchQuery, usersState]);
@@ -118,54 +85,69 @@ export default function ManageUsersPage() {
 
   const historyModalActivities = historyModalUser ? activityByUserId[historyModalUser.id] ?? [] : [];
 
-  const appendActivity = (userId: string, action: string) => {
-    const entry: UserActivity = {
-      id: `${userId}-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      timestamp: getNowTimestamp(),
-      action,
-    };
-
-    setActivityByUserId((current) => ({
-      ...current,
-      [userId]: [entry, ...(current[userId] ?? [])],
-    }));
-  };
-
-  const updateUser = (userId: string, updates: Partial<ManagedUser>, logAction: string) => {
-    setUsersState((current) => current.map((user) => (user.id === userId ? { ...user, ...updates } : user)));
-    appendActivity(userId, logAction);
+  const handleOpenHistoryModal = async (user: ManagedUser) => {
+    setHistoryModalUserId(user.id);
+    try {
+      const response = await api.get(`/admin/users/${user.id}/activities`);
+      const mappedActs: UserActivity[] = response.activities.map((act: any) => ({
+        id: act.id.toString(),
+        timestamp: act.timestamp,
+        action: act.action,
+      }));
+      setActivityByUserId((current) => ({
+        ...current,
+        [user.id]: mappedActs,
+      }));
+    } catch (err) {
+      console.error("Failed to load user activities", err);
+    }
   };
 
   const handleOpenRoleModal = (user: ManagedUser) => {
     setRoleModalUserId(user.id);
     setEditRole(user.role);
     setEditStatus(user.status);
-    appendActivity(user.id, "Opened profile for editing");
   };
 
-  const handleSaveChanges = () => {
+  const handleSaveChanges = async () => {
     if (!roleModalUser) return;
 
-    const roleChanged = roleModalUser.role !== editRole;
-    const statusChanged = roleModalUser.status !== editStatus;
+    try {
+      setIsLoading(true);
+      await api.patch(`/admin/users/${roleModalUser.id}`, {
+        role: editRole.toLowerCase(),
+        status: editStatus,
+      });
 
-    if (!roleChanged && !statusChanged) {
-      appendActivity(roleModalUser.id, "Profile reviewed (no changes)");
+      setUsersState((current) =>
+        current.map((u) =>
+          u.id === roleModalUser.id ? { ...u, role: editRole, status: editStatus } : u
+        )
+      );
       setRoleModalUserId(null);
-      return;
+    } catch (err) {
+      console.error("Failed to save user role update", err);
+    } finally {
+      setIsLoading(false);
     }
-
-    updateUser(
-      roleModalUser.id,
-      { role: editRole, status: editStatus },
-      `Updated role to ${editRole} and status to ${editStatus}`,
-    );
-    setRoleModalUserId(null);
   };
 
-  const handleDeactivate = (user: ManagedUser) => {
+  const handleDeactivate = async (user: ManagedUser) => {
     if (user.status === "inactive") return;
-    updateUser(user.id, { status: "inactive" }, "Account deactivated by admin");
+    try {
+      setIsLoading(true);
+      await api.delete(`/admin/users/${user.id}`);
+      
+      setUsersState((current) =>
+        current.map((u) =>
+          u.id === user.id ? { ...u, status: "inactive" as UserStatus } : u
+        )
+      );
+    } catch (err) {
+      console.error("Failed to deactivate user", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -241,7 +223,7 @@ export default function ManageUsersPage() {
                           type="button"
                           className="manage-icon-btn manage-icon-btn--history"
                           aria-label={`View ${user.name} activity history`}
-                          onClick={() => setHistoryModalUserId(user.id)}
+                          onClick={() => handleOpenHistoryModal(user)}
                         >
                           <Clock3 size={13} />
                         </button>

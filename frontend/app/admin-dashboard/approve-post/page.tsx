@@ -19,6 +19,8 @@ import AdminSidebarLayout from "../components/AdminSidebarLayout";
 import "./approve-post.css";
 import "../admin-dashboard.css";
 
+import { api } from "../../lib/api-client";
+
 type PostStatus = "pending" | "approved" | "rejected";
 
 type PendingPost = {
@@ -36,62 +38,54 @@ type PostModerationState = {
   feedback: string;
 };
 
-const pendingPosts: PendingPost[] = [
-  {
-    id: "post-1",
-    date: "February 20, 2026",
-    title: "Innovative Approaches to Online Graduate Education",
-    summary:
-      "A peer-reviewed study examining mentorship challenges faced by graduate students and proposing institutional support frameworks for online thesis advising.",
-    author: "Dr. Elena Rodriguez",
-    organization: "Northern Luzon Graduate Consortium",
-    category: "Article",
-  },
-  {
-    id: "post-2",
-    date: "March 3, 2026",
-    title: "Assessment Framework for Hybrid Capstone Programs",
-    summary:
-      "This submission proposes a rubric-driven framework for evaluating hybrid capstone projects with emphasis on outcomes, stakeholder feedback, and program alignment.",
-    author: "Prof. Marianne Dela Cruz",
-    organization: "Metro Academic Alliance",
-    category: "Research",
-  },
-  {
-    id: "post-3",
-    date: "March 12, 2026",
-    title: "Graduate Student Well-Being in High-Load Semesters",
-    summary:
-      "An evidence-based report on advising load, burnout signals, and intervention checkpoints that can be integrated into graduate student support offices.",
-    author: "Dr. Jose Miguel Santos",
-    organization: "Visayas University Network",
-    category: "Journal",
-  },
-  {
-    id: "post-4",
-    date: "March 18, 2026",
-    title: "AI-Assisted Literature Mapping for Thesis Writing",
-    summary:
-      "Explores guided AI workflows for early-stage literature mapping while preserving citation integrity, research ethics, and faculty supervision standards.",
-    author: "Dr. Angela Reyes",
-    organization: "Mindanao Scholars Association",
-    category: "Article",
-  },
-];
-
 export default function ApprovePostPage() {
-  const initialPostState = useMemo<Record<string, PostModerationState>>(
-    () => Object.fromEntries(pendingPosts.map((post) => [post.id, { status: "pending", feedback: "" }])),
-    [],
-  );
-
-  const [postStateById, setPostStateById] = useState<Record<string, PostModerationState>>(initialPostState);
-  const [selectedPostId, setSelectedPostId] = useState(pendingPosts[0]?.id ?? "");
+  const [pendingPosts, setPendingPosts] = useState<PendingPost[]>([]);
+  const [postStateById, setPostStateById] = useState<Record<string, PostModerationState>>({});
+  const [selectedPostId, setSelectedPostId] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState<PostStatus | "all">("all");
   const [feedbackInput, setFeedbackInput] = useState("");
   const [feedbackError, setFeedbackError] = useState("");
   const [lastNotification, setLastNotification] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPending = async () => {
+      try {
+        const response = await api.get('/posts?status=pending');
+        const postsList: PendingPost[] = response.posts.map((post: any) => ({
+          id: post.id.toString(),
+          date: new Date(post.created_at).toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric"
+          }),
+          title: post.title,
+          summary: post.excerpt || "No summary provided.",
+          author: post.author || "Institutional Writer",
+          organization: post.user?.university || "Graduate Council Affiliate",
+          category: post.category.charAt(0).toUpperCase() + post.category.slice(1),
+        }));
+        
+        setPendingPosts(postsList);
+        
+        const initialStates: Record<string, PostModerationState> = {};
+        postsList.forEach((post) => {
+          initialStates[post.id] = { status: "pending", feedback: "" };
+        });
+        setPostStateById(initialStates);
+
+        if (postsList.length > 0) {
+          setSelectedPostId(postsList[0].id);
+        }
+      } catch (err) {
+        console.error("Failed to fetch pending moderation posts", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPending();
+  }, []);
 
   const filteredPosts = useMemo(
     () =>
@@ -101,7 +95,7 @@ export default function ApprovePostPage() {
         const statusMatch = statusFilter === "all" || status === statusFilter;
         return categoryMatch && statusMatch;
       }),
-    [categoryFilter, postStateById, statusFilter],
+    [categoryFilter, pendingPosts, postStateById, statusFilter],
   );
 
   const selectedPost = useMemo(
@@ -124,24 +118,35 @@ export default function ApprovePostPage() {
     setFeedbackError("");
   };
 
-  const handleApprove = () => {
+  const handleApprove = async () => {
     if (!selectedPost) return;
-
-    setPostStateById((current) => ({
-      ...current,
-      [selectedPost.id]: {
-        ...current[selectedPost.id],
-        status: "approved",
-      },
-    }));
-
+    setIsLoading(true);
     setFeedbackError("");
-    setLastNotification(
-      `Notification sent to ${selectedPost.organization}: "${selectedPost.title}" has been approved.`,
-    );
+    setLastNotification("");
+    try {
+      await api.post(`/posts/${selectedPost.id}/approve`, {});
+      
+      setPostStateById((current) => ({
+        ...current,
+        [selectedPost.id]: {
+          ...current[selectedPost.id],
+          status: "approved",
+        },
+      }));
+
+      setLastNotification(
+        `Success: "${selectedPost.title}" has been approved and published.`
+      );
+      
+      setPendingPosts((prev) => prev.filter((p) => p.id !== selectedPost.id));
+    } catch (err: any) {
+      setFeedbackError(err.message || "Failed to approve post.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleReject = () => {
+  const handleReject = async () => {
     if (!selectedPost) return;
 
     const trimmedFeedback = feedbackInput.trim();
@@ -150,18 +155,30 @@ export default function ApprovePostPage() {
       return;
     }
 
-    setPostStateById((current) => ({
-      ...current,
-      [selectedPost.id]: {
-        status: "rejected",
-        feedback: trimmedFeedback,
-      },
-    }));
-
+    setIsLoading(true);
     setFeedbackError("");
-    setLastNotification(
-      `Notification sent to ${selectedPost.organization}: "${selectedPost.title}" was rejected with admin feedback.`,
-    );
+    setLastNotification("");
+    try {
+      await api.post(`/posts/${selectedPost.id}/reject`, { feedback: trimmedFeedback });
+
+      setPostStateById((current) => ({
+        ...current,
+        [selectedPost.id]: {
+          status: "rejected",
+          feedback: trimmedFeedback,
+        },
+      }));
+
+      setLastNotification(
+        `Returned to organization: "${selectedPost.title}" rejected with feedback.`
+      );
+
+      setPendingPosts((prev) => prev.filter((p) => p.id !== selectedPost.id));
+    } catch (err: any) {
+      setFeedbackError(err.message || "Failed to reject post.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

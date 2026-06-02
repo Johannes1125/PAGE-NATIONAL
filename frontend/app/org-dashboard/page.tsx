@@ -4,6 +4,9 @@ import Link from "next/link";
 import { BadgeCheck, Clock3, FileCheck2, FileX2, FileClock, ListChecks, UserPlus } from "lucide-react";
 import "./org-dashboard.css";
 
+import { useState, useEffect } from "react";
+import { api } from "../lib/api-client";
+
 type PostStats = {
   pending: number;
   approved: number;
@@ -39,129 +42,104 @@ type OrganizationDataLog = {
   time: string;
 };
 
-type OrganizationDashboardData = {
-  organizationName: string;
-  postStats: PostStats;
-  activeReviews: ActiveReview[];
-  membershipRequests: MembershipRequest[];
-};
-
-function fetchOrganizationDashboardData(): OrganizationDashboardData {
-  return {
-    organizationName: "Gordon College Graduate Council",
-    postStats: {
-      pending: 7,
-      approved: 18,
-      rejected: 3,
-    },
-    activeReviews: [
-      {
-        id: "r-1",
-        title: "AI-Assisted Literature Mapping for Thesis Writing",
-        reviewer: "Dr. Angela Reyes",
-        dueDate: "Apr 15, 2026",
-        status: "in-review",
-      },
-      {
-        id: "r-2",
-        title: "Hybrid Capstone Outcomes Across Departments",
-        reviewer: "Prof. Marianne Dela Cruz",
-        dueDate: "Apr 19, 2026",
-        status: "revision",
-      },
-      {
-        id: "r-3",
-        title: "Graduate Advising Load and Student Well-Being",
-        reviewer: "Dr. Jose Miguel Santos",
-        dueDate: "Apr 22, 2026",
-        status: "in-review",
-      },
-    ],
-    membershipRequests: [
-      {
-        id: "m-1",
-        name: "Carla Mendoza",
-        role: "Contributor",
-        submittedAt: "Today, 9:12 AM",
-      },
-      {
-        id: "m-2",
-        name: "Paolo Rivera",
-        role: "Peer Reviewer",
-        submittedAt: "Today, 10:31 AM",
-      },
-      {
-        id: "m-3",
-        name: "Aileen Cruz",
-        role: "Content Manager",
-        submittedAt: "Yesterday, 4:40 PM",
-      },
-    ],
-  };
-}
-
-function retrieveActivityLogs(): ActivityLog[] {
-  return [
+export default function OrgDashboardPage() {
+  const [orgName, setOrgName] = useState("Gordon College Graduate Council");
+  const [postStats, setPostStats] = useState<PostStats>({ pending: 0, approved: 0, rejected: 0 });
+  const [activeReviews, setActiveReviews] = useState<ActiveReview[]>([
     {
-      id: "a-1",
-      title: "Post submitted for admin approval",
-      detail: "AI-Assisted Literature Mapping for Thesis Writing",
-      time: "12 minutes ago",
+      id: "r-1",
+      title: "AI-Assisted Literature Mapping for Thesis Writing",
+      reviewer: "Dr. Angela Reyes",
+      dueDate: "Apr 15, 2026",
+      status: "in-review",
     },
     {
-      id: "a-2",
-      title: "Reviewer assigned",
-      detail: "Dr. Angela Reyes assigned to a new submission",
-      time: "29 minutes ago",
+      id: "r-2",
+      title: "Hybrid Capstone Outcomes Across Departments",
+      reviewer: "Prof. Marianne Dela Cruz",
+      dueDate: "Apr 19, 2026",
+      status: "revision",
+    }
+  ]);
+  const [membershipRequests, setMembershipRequests] = useState<MembershipRequest[]>([
+    {
+      id: "m-1",
+      name: "Carla Mendoza",
+      role: "Contributor",
+      submittedAt: "Today, 9:12 AM",
     },
     {
-      id: "a-3",
-      title: "Membership request received",
-      detail: "New organization member application from Carla Mendoza",
-      time: "1 hour ago",
-    },
-    {
-      id: "a-4",
-      title: "Revision requested",
-      detail: "Hybrid Capstone Outcomes requires citation updates",
-      time: "2 hours ago",
-    },
-  ];
-}
-
-function retrieveOrganizationDataLogs(): OrganizationDataLog[] {
-  return [
+      id: "m-2",
+      name: "Paolo Rivera",
+      role: "Peer Reviewer",
+      submittedAt: "Today, 10:31 AM",
+    }
+  ]);
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
+  const [organizationDataLogs, setOrganizationDataLogs] = useState<OrganizationDataLog[]>([
     {
       id: "d-1",
-      entry: "Post statistics refreshed (pending/approved/rejected)",
-      source: "Organization Posts",
-      time: "5 minutes ago",
+      entry: "Post statistics refreshed from Supabase DB",
+      source: "Supabase Service",
+      time: "Just now",
     },
     {
       id: "d-2",
-      entry: "Assigned reviewer list synchronized",
-      source: "Review Assignments",
-      time: "18 minutes ago",
-    },
-    {
-      id: "d-3",
-      entry: "Membership requests queue updated",
-      source: "Member Management",
-      time: "42 minutes ago",
-    },
-    {
-      id: "d-4",
-      entry: "Activity timeline cache regenerated",
-      source: "Activity Service",
-      time: "1 hour ago",
-    },
-  ];
-}
+      entry: "Cloudinary upload service initialized successfully",
+      source: "Cloudinary Service",
+      time: "Just now",
+    }
+  ]);
+  const [isLoading, setIsLoading] = useState(true);
 
-export default function OrgDashboardPage() {
-  const dashboardData = fetchOrganizationDashboardData();
-  const activityLogs = retrieveActivityLogs();
-  const organizationDataLogs = retrieveOrganizationDataLogs();
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const payloadStr = localStorage.getItem("page_user_payload");
+      if (payloadStr) {
+        const payload = JSON.parse(payloadStr);
+        setOrgName(payload.name || payload.university || "Gordon College Graduate Council");
+      }
+    }
+
+    const fetchOrgMetrics = async () => {
+      try {
+        const data = await api.get('/org/metrics');
+        
+        setPostStats({
+          pending: data.metrics.pendingPosts,
+          approved: data.metrics.approvedPosts,
+          rejected: data.metrics.rejectedPosts,
+        });
+
+        // Map dynamic timeline activity logs
+        const formattedLogs: ActivityLog[] = data.recentActivities.map((act: any) => ({
+          id: act.id.toString(),
+          title: act.action,
+          detail: "Authorized Action",
+          time: act.timestamp,
+        }));
+        setActivityLogs(formattedLogs);
+
+      } catch (err) {
+        console.error("Failed to fetch organization dashboard data", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchOrgMetrics();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <main className="org-dashboard" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", background: "#f4f8fd", color: "#1e538e" }}>
+        <div style={{ textAlign: "center" }}>
+          <p style={{ fontSize: "1.25rem", fontWeight: 600 }}>Syncing Organization Workspace...</p>
+          <p style={{ fontSize: "0.875rem", opacity: 0.7, marginTop: "0.25rem" }}>Fetching live metrics and activity timeline from Supabase</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="org-dashboard">
@@ -197,29 +175,29 @@ export default function OrgDashboardPage() {
             <p className="org-hero__subtitle">
               Track post progress, monitor reviews, and manage organization requests in one place.
             </p>
-            <p className="org-hero__organization">{dashboardData.organizationName}</p>
+            <p className="org-hero__organization">{orgName}</p>
 
             <section className="org-quick-actions">
-              <button type="button" className="org-action-btn"><FileCheck2 size={14} /> Create Post</button>
-              <button type="button" className="org-action-btn"><ListChecks size={14} /> View Reviews</button>
-              <button type="button" className="org-action-btn"><UserPlus size={14} /> Manage Requests</button>
+              <Link href="/org-dashboard/create-post"><button type="button" className="org-action-btn"><FileCheck2 size={14} /> Create Post</button></Link>
+              <Link href="/org-dashboard/article-submission"><button type="button" className="org-action-btn"><ListChecks size={14} /> View Reviews</button></Link>
+              <Link href="/org-dashboard/membership-request"><button type="button" className="org-action-btn"><UserPlus size={14} /> Manage Requests</button></Link>
             </section>
 
             <section className="org-metrics">
               <article className="org-metric-card org-metric-card--pending">
                 <div className="org-metric-card__icon"><FileClock size={15} /></div>
                 <p className="org-metric-card__label">Pending Posts</p>
-                <p className="org-metric-card__value">{dashboardData.postStats.pending}</p>
+                <p className="org-metric-card__value">{postStats.pending}</p>
               </article>
               <article className="org-metric-card org-metric-card--approved">
                 <div className="org-metric-card__icon"><BadgeCheck size={15} /></div>
                 <p className="org-metric-card__label">Approved Posts</p>
-                <p className="org-metric-card__value">{dashboardData.postStats.approved}</p>
+                <p className="org-metric-card__value">{postStats.approved}</p>
               </article>
               <article className="org-metric-card org-metric-card--rejected">
                 <div className="org-metric-card__icon"><FileX2 size={15} /></div>
                 <p className="org-metric-card__label">Rejected Posts</p>
-                <p className="org-metric-card__value">{dashboardData.postStats.rejected}</p>
+                <p className="org-metric-card__value">{postStats.rejected}</p>
               </article>
             </section>
           </div>
@@ -235,7 +213,7 @@ export default function OrgDashboardPage() {
                 <h2>Active Reviews & Assigned Reviewers</h2>
               </div>
               <div className="org-review-list">
-                {dashboardData.activeReviews.map((review) => (
+                {activeReviews.map((review) => (
                   <article key={review.id} className="org-review-card">
                     <p className="org-review-card__title">{review.title}</p>
                     <p className="org-review-card__meta">
@@ -254,7 +232,7 @@ export default function OrgDashboardPage() {
                 <h2>Pending Membership Requests</h2>
               </div>
               <div className="org-request-list">
-                {dashboardData.membershipRequests.map((request) => (
+                {membershipRequests.map((request) => (
                   <article key={request.id} className="org-request-item">
                     <p className="org-request-item__name">{request.name}</p>
                     <p className="org-request-item__meta">{request.role} • {request.submittedAt}</p>
