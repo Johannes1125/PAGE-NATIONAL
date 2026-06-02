@@ -35,6 +35,8 @@ export default function ManageUsersPage() {
   const [roleModalUserId, setRoleModalUserId] = useState<string | null>(null);
   const [historyModalUserId, setHistoryModalUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(10);
 
   const fetchUsers = async () => {
     try {
@@ -72,6 +74,22 @@ export default function ManageUsersPage() {
       return matchesQuery && matchesRole;
     });
   }, [roleFilter, searchQuery, usersState]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, roleFilter, usersState]);
+
+  const totalItems = filteredUsers.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+
+  const pagedUsers = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredUsers.slice(start, start + pageSize);
+  }, [filteredUsers, currentPage, pageSize]);
+
+  useEffect(() => {
+    setCurrentPage((current) => Math.min(current, totalPages));
+  }, [totalPages]);
 
   const roleModalUser = useMemo(
     () => usersState.find((user) => user.id === roleModalUserId) ?? null,
@@ -150,6 +168,24 @@ export default function ManageUsersPage() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <AdminSidebarLayout
+        pageClassName="manage-page"
+        mainClassName="manage-main"
+        title="User Management"
+        subtitle="Manage general users and organization members"
+      >
+        <section className="admin-shell admin-shell--main" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+          <div style={{ color: '#1e538e', textAlign: 'center' }}>
+            <p style={{ fontSize: '1.25rem', fontWeight: 600 }}>Syncing Member Directories...</p>
+            <p style={{ fontSize: '0.875rem', opacity: 0.7, marginTop: '0.25rem' }}>Fetching live accounts from Supabase DB</p>
+          </div>
+        </section>
+      </AdminSidebarLayout>
+    );
+  }
+
   return (
     <AdminSidebarLayout
       pageClassName="manage-page"
@@ -158,7 +194,7 @@ export default function ManageUsersPage() {
       subtitle="Manage general users and organization members"
     >
       <section className="admin-shell admin-shell--main">
-          <section className="manage-toolbar">
+        <section className="manage-toolbar">
             <label className="manage-search" aria-label="Search users">
               <Search size={14} />
               <input
@@ -181,9 +217,9 @@ export default function ManageUsersPage() {
               <option value="reviewer">Reviewer</option>
               <option value="admin">Admin</option>
             </select>
-          </section>
+        </section>
 
-          <section className="manage-table-wrap">
+        <section className="manage-table-wrap">
             <table className="manage-table">
               <thead>
                 <tr>
@@ -197,7 +233,7 @@ export default function ManageUsersPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredUsers.map((user) => (
+                {pagedUsers.map((user) => (
                   <tr key={user.id}>
                     <td>{user.name}</td>
                     <td>
@@ -247,6 +283,96 @@ export default function ManageUsersPage() {
                 )}
               </tbody>
             </table>
+            <div className="manage-table-footer">
+              <div className="manage-table-footer__meta">
+                <div className="manage-page-size">
+                  <span>Rows per page</span>
+                  <select
+                    className="manage-page-size__select"
+                    value={pageSize}
+                    onChange={(event) => {
+                      setPageSize(Number(event.target.value));
+                      setCurrentPage(1);
+                    }}
+                    aria-label="Rows per page"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                  </select>
+                </div>
+
+                <p className="manage-table-footer__summary" aria-live="polite">
+                  {totalItems === 0
+                    ? "No users to display"
+                    : `Showing ${(currentPage - 1) * pageSize + 1} - ${Math.min(currentPage * pageSize, totalItems)} of ${totalItems}`}
+                </p>
+              </div>
+
+              <nav className="pagination" role="navigation" aria-label="User list pagination">
+                <button
+                  type="button"
+                  className="pagination__nav"
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                  disabled={currentPage === 1}
+                  aria-label="Previous page"
+                >
+                  ‹
+                </button>
+
+                <ul className="pagination__list">
+                  {Array.from({ length: totalPages }).map((_, index) => {
+                    const page = index + 1;
+                    const isVisible =
+                      totalPages <= 6 || page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1;
+
+                    if (!isVisible) {
+                      if (page === 2 && currentPage > 4) {
+                        return (
+                          <li key="dots-start" className="pagination__item pagination__item--dots" aria-hidden="true">
+                            …
+                          </li>
+                        );
+                      }
+
+                      if (page === totalPages - 1 && currentPage < totalPages - 3) {
+                        return (
+                          <li key="dots-end" className="pagination__item pagination__item--dots" aria-hidden="true">
+                            …
+                          </li>
+                        );
+                      }
+
+                      return null;
+                    }
+
+                    return (
+                      <li key={page} className="pagination__item">
+                        <button
+                          type="button"
+                          className={`pagination__link ${page === currentPage ? "pagination__link--active" : ""}`}
+                          onClick={() => setCurrentPage(page)}
+                          aria-current={page === currentPage ? "page" : undefined}
+                        >
+                          {page}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+
+                <button
+                  type="button"
+                  className="pagination__nav"
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                  disabled={currentPage === totalPages}
+                  aria-label="Next page"
+                >
+                  ›
+                </button>
+              </nav>
+            </div>
           </section>
       </section>
 

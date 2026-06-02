@@ -252,15 +252,15 @@ export default function AdminDashboardPage() {
                 </div>
  
                 <div className="analytics-block">
-                <div className="admin-panel__head">
-                  <div className="admin-panel__head-left">
-                    <span className="panel-icon" aria-hidden="true">
-                      <Users size={16} />
-                    </span>
-                    <h2 className="admin-panel__title">User Growth</h2>
+                  <div className="admin-panel__head">
+                    <div className="admin-panel__head-left">
+                      <span className="panel-icon" aria-hidden="true">
+                        <Users size={16} />
+                      </span>
+                      <h2 className="admin-panel__title">User Growth</h2>
+                    </div>
+                    <p className="admin-panel__hint">New accounts over time</p>
                   </div>
-                  <p className="admin-panel__hint">New accounts over time</p>
-                </div>
  
                   <svg className="user-line" viewBox="0 0 520 130" role="img" aria-label="User growth chart">
                     <rect x="0" y="0" width="520" height="130" fill="#f4f8fd" />

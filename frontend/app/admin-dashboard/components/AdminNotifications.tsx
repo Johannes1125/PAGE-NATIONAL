@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
+// Link intentionally removed: expanded info shows descriptive text
 import { Bell, CheckSquare, ChevronDown, Square, Trash2 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type AdminNotificationItem, fetchAllAdminNotifications } from "../lib/adminNotifications";
 import styles from "./AdminNotifications.module.css";
 
@@ -11,6 +11,8 @@ const DELETED_KEY = "admin-notification-deleted-ids";
 
 type AdminNotificationsProps = {
   compact?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  closeSignal?: number;
 };
 
 function getReadIds(): string[] {
@@ -35,7 +37,11 @@ function getDeletedIds(): string[] {
   }
 }
 
-export default function AdminNotifications({ compact = false }: AdminNotificationsProps) {
+export default function AdminNotifications({
+  compact = false,
+  onOpenChange,
+  closeSignal = 0,
+}: AdminNotificationsProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<AdminNotificationItem[]>([]);
@@ -43,6 +49,11 @@ export default function AdminNotifications({ compact = false }: AdminNotificatio
   const [deletedIds, setDeletedIds] = useState<string[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
+  const [mountedPanel, setMountedPanel] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const closeTimerRef = useRef<number | null>(null);
+  const prevCloseSignalRef = useRef(closeSignal);
+  const closePanelRef = useRef<() => void>(() => undefined);
 
   useEffect(() => {
     fetchAllAdminNotifications().then((response) => setItems(response));
@@ -58,15 +69,51 @@ export default function AdminNotifications({ compact = false }: AdminNotificatio
     window.localStorage.setItem(DELETED_KEY, JSON.stringify(deletedIds));
   }, [deletedIds]);
 
+  const closePanel = useCallback(() => {
+    if (!mountedPanel) return;
+
+    setOpen(false);
+    setIsClosing(true);
+    onOpenChange?.(false);
+
+    if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = window.setTimeout(() => {
+      setIsClosing(false);
+      setMountedPanel(false);
+      closeTimerRef.current = null;
+    }, 180);
+  }, [mountedPanel, onOpenChange]);
+
+  closePanelRef.current = closePanel;
+
+  useEffect(() => {
+    if (closeSignal === prevCloseSignalRef.current) return;
+
+    prevCloseSignalRef.current = closeSignal;
+    closePanelRef.current();
+  }, [closeSignal]);
+
   useEffect(() => {
     const onClickOutside = (event: MouseEvent) => {
       if (!containerRef.current) return;
-      if (event.target instanceof Node && !containerRef.current.contains(event.target)) {
-        setOpen(false);
+
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (containerRef.current.contains(target)) return;
+
+      if (mountedPanel && open) {
+        closePanel();
       }
     };
+
     document.addEventListener("mousedown", onClickOutside);
     return () => document.removeEventListener("mousedown", onClickOutside);
+  }, [closePanel, mountedPanel, open]);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
+    };
   }, []);
 
   const unreadCount = useMemo(
@@ -119,26 +166,61 @@ export default function AdminNotifications({ compact = false }: AdminNotificatio
 
   const handleOpenItem = (notificationId: string) => {
     setReadIds((current) => (current.includes(notificationId) ? current : [...current, notificationId]));
-    setOpen(false);
+    if (mountedPanel && open) {
+      closePanel();
+    }
   };
 
+  const openPanel = () => {
+    if (!mountedPanel) setMountedPanel(true);
+    setIsClosing(false);
+    setOpen(true);
+    onOpenChange?.(true);
+  };
+
+  function formatSourceLabel(src?: string) {
+    if (!src) return "System";
+    const map: Record<string, string> = {
+      posts: "Post service",
+      users: "User service",
+      auth: "Authentication",
+    };
+    return map[src] ?? src.charAt(0).toUpperCase() + src.slice(1);
+  }
+
   return (
-    <div className={styles.wrap} ref={containerRef}>
+    <div className={styles.wrap} ref={containerRef} data-admin-notifications>
       <button
         type="button"
-        className={`${styles.button} ${compact ? styles.buttonCompact : ""}`}
-        onClick={() => setOpen((current) => !current)}
-        aria-label="Open admin notifications"
+        className={`${styles.button} ${compact ? styles.buttonCompact : ""} ${open ? styles.buttonOpen : ""}`}
+        onMouseDown={(event) => event.stopPropagation()}
+        onClick={() => {
+          if (!mountedPanel) {
+            openPanel();
+            return;
+          }
+          if (open) {
+            closePanel();
+            return;
+          }
+          openPanel();
+        }}
+        aria-label={
+          unreadCount > 0
+            ? `Open admin notifications, ${unreadCount} unread`
+            : "Open admin notifications"
+        }
+        aria-expanded={open}
+        aria-haspopup="dialog"
       >
-        <span className={styles.buttonLabel} aria-hidden={compact}>
-          <Bell size={14} />
-          <span className={compact ? styles.buttonLabelHidden : ""}>Notifications</span>
+        <span className={styles.buttonIcon} aria-hidden="true">
+          <Bell size={18} strokeWidth={2} />
         </span>
         {unreadCount > 0 && <span className={styles.count}>{unreadCount}</span>}
       </button>
 
-      {open && (
-        <section className={styles.panel} aria-label="Admin notifications menu">
+      {mountedPanel && (
+        <section className={`${styles.panel} ${isClosing ? styles['panelClosing'] || styles['panel--closing'] || '' : ''}`} aria-label="Admin notifications menu">
           <header className={styles.head}>
             <div>
               <p className={styles.title}>Notifications</p>
@@ -159,9 +241,10 @@ export default function AdminNotifications({ compact = false }: AdminNotificatio
 
             <button
               type="button"
-              className={`${styles.toolbarButton} ${selectedCount === 0 ? styles.toolbarButtonDisabled : ""}`}
+              className={`${styles.toolbarButton} ${selectedCount === 0 ? styles.toolbarButtonDisabled : ""} ${styles['toolbarButton--danger'] || ""}`}
               onClick={handleDeleteSelected}
               disabled={selectedCount === 0}
+              aria-label={selectedCount === 0 ? "Delete selected (disabled)" : `Delete ${selectedCount} selected`}
             >
               <span className={styles.toolbarIcon} aria-hidden="true">
                 <Trash2 size={14} />
@@ -212,11 +295,11 @@ export default function AdminNotifications({ compact = false }: AdminNotificatio
                   {isExpanded && (
                     <div className={styles.expanded}>
                       <div className={styles.meta}>
-                        <span>{item.source}</span>
+                        <span>{formatSourceLabel(item.source)}</span>
                         <span>{item.timeLabel}</span>
                       </div>
                       <p className={styles.expandedText}>
-                        Related page: <Link href={item.href} onClick={() => handleOpenItem(item.id)}>{item.href}</Link>
+                        <strong>{item.title}</strong> — {item.description}
                       </p>
                     </div>
                   )}
