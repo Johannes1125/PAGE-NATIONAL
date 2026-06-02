@@ -213,6 +213,7 @@ export default function AdminDashboardPage() {
     }
   }, [periodFilter]);
 
+<<<<<<< HEAD
   // Adjust Trend and Growth points based on selected PeriodFilter (simulated filter options)
   const filteredContentTrend = useMemo(() => {
     if (periodFilter === "day") {
@@ -233,6 +234,28 @@ export default function AdminDashboardPage() {
     }
     return userGrowth;
   }, [userGrowth, periodFilter]);
+=======
+function maxContentValue(points: ContentPoint[]): number {
+  return points.reduce(
+    (max, point) => (point.posts > max ? point.posts : max),
+    0
+  );
+}
+
+export default function AdminDashboardPage() {
+  const [periodFilter, setPeriodFilter] = useState<PeriodFilter>("month");
+  const metrics = aggregateSystemMetrics();
+  const activityFeed = fetchRecentActivityLogs();
+  const contentTrend = useMemo(
+    () => contentTrendByPeriod[periodFilter],
+    [periodFilter]
+  );
+  const userGrowth = useMemo(
+    () => userGrowthByPeriod[periodFilter],
+    [periodFilter]
+  );
+  const contentMax = maxContentValue(contentTrend);
+>>>>>>> dev
 
   const contentMax = useMemo(() => {
     return filteredContentTrend.reduce((max, point) => (point.posts > max ? point.posts : max), 1);
@@ -268,6 +291,7 @@ export default function AdminDashboardPage() {
       subtitle="View platform metrics, monitor activity, and track approval workflow status in one place."
     >
       <section className="admin-shell admin-shell--main">
+<<<<<<< HEAD
         <section className="admin-hero-metrics admin-summary-grid">
           {metrics.map((metric) => (
             <article key={metric.label} className={`admin-hero-card admin-hero-card--${metric.tone}`}>
@@ -285,6 +309,38 @@ export default function AdminDashboardPage() {
 
         <section className="admin-grid">
           <section className="admin-dual-layout">
+=======
+
+        {/* ── Metric cards ── */}
+        <section className="admin-hero-metrics admin-summary-grid">
+          {metrics.map((metric) => (
+            <article
+              key={metric.label}
+              className={`admin-hero-card admin-hero-card--${metric.tone}`}
+            >
+              <div className="admin-hero-card__top">
+                <div
+                  className="admin-hero-card__icon"
+                  aria-hidden="true"
+                >
+                  <metric.icon size={16} strokeWidth={2} />
+                </div>
+                <p className="admin-hero-card__title">{metric.label}</p>
+              </div>
+              <p className="admin-hero-card__value">
+                {metric.value.toLocaleString()}
+              </p>
+              <p className="admin-hero-card__meta">{metric.meta}</p>
+            </article>
+          ))}
+        </section>
+
+        {/* ── Main panels ── */}
+        <section className="admin-grid">
+          <section className="admin-dual-layout">
+
+            {/* Activity feed */}
+>>>>>>> dev
             <article className="admin-panel activity-panel">
               <div className="admin-panel__head">
                 <div className="admin-panel__head-left">
@@ -292,10 +348,77 @@ export default function AdminDashboardPage() {
                     <FileClock size={16} />
                   </span>
                   <h2 className="admin-panel__title">Recent Activity</h2>
+<<<<<<< HEAD
+=======
+                </div>
+                <p className="admin-panel__hint">
+                  Registrations, submissions, and messages
+                </p>
+              </div>
+
+              <div className="activity-feed">
+                {activityFeed.map((activity) => (
+                  <article
+                    key={`${activity.title}-${activity.time}`}
+                    className="activity-item"
+                  >
+                    <div className="activity-item__main">
+                      <p className="activity-item__title">{activity.title}</p>
+                      <p className="activity-item__actor">{activity.actor}</p>
+                    </div>
+                    <div className="activity-item__time">{activity.time}</div>
+                  </article>
+                ))}
+              </div>
+            </article>
+
+            {/* Analytics panel */}
+            <article className="admin-panel admin-panel--analytics">
+              {/* Period filter */}
+              <div
+                className="analytics-period-filter"
+                role="tablist"
+                aria-label="Analytics period filter"
+              >
+                {periodOptions.map((option) => {
+                  const isActive = option === periodFilter;
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      role="tab"
+                      aria-selected={isActive}
+                      className={`analytics-period-filter__button${
+                        isActive
+                          ? " analytics-period-filter__button--active"
+                          : ""
+                      }`}
+                      onClick={() => setPeriodFilter(option)}
+                    >
+                      {option.charAt(0).toUpperCase() + option.slice(1)}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Content trends */}
+              <div className="analytics-block">
+                <div className="admin-panel__head">
+                  <div className="admin-panel__head-left">
+                    <span className="panel-icon" aria-hidden="true">
+                      <Newspaper size={16} />
+                    </span>
+                    <h2 className="admin-panel__title">Content Trends</h2>
+                  </div>
+                  <p className="admin-panel__hint">
+                    {periodHint} submissions
+                  </p>
+>>>>>>> dev
                 </div>
                 <p className="admin-panel__hint">Registrations, submissions, and messages</p>
               </div>
 
+<<<<<<< HEAD
               <div className="activity-feed">
                 {activities.length === 0 ? (
                   <p style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>No recent activity logged.</p>
@@ -353,6 +476,20 @@ export default function AdminDashboardPage() {
                           key={point.month}
                           className="trend-bar"
                           data-label={point.month}
+=======
+                <div className="trend-chart">
+                  <div className="trend-bars">
+                    {contentTrend.map((point) => {
+                      const heightPercent = Math.max(
+                        18,
+                        Math.round((point.posts / contentMax) * 100)
+                      );
+                      return (
+                        <div
+                          key={point.label}
+                          className="trend-bar"
+                          data-label={point.label}
+>>>>>>> dev
                           style={{ height: `${heightPercent}%` }}
                           title={`${point.posts} posts`}
                         />
@@ -362,6 +499,10 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
+<<<<<<< HEAD
+=======
+              {/* User growth */}
+>>>>>>> dev
               <div className="analytics-block">
                 <div className="admin-panel__head">
                   <div className="admin-panel__head-left">
@@ -370,9 +511,12 @@ export default function AdminDashboardPage() {
                     </span>
                     <h2 className="admin-panel__title">User Growth</h2>
                   </div>
-                  <p className="admin-panel__hint">{periodHint} account growth</p>
+                  <p className="admin-panel__hint">
+                    {periodHint} account growth
+                  </p>
                 </div>
 
+<<<<<<< HEAD
                 <svg className="user-line" viewBox="0 0 520 130" role="img" aria-label="User growth chart">
                   <rect x="0" y="0" width="520" height="130" fill="#f4f8fd" />
                   <polyline
@@ -398,6 +542,27 @@ export default function AdminDashboardPage() {
             </article>
           </section>
         </section>
+=======
+                {/* Reusable chart component */}
+                <div>
+                  {/* @ts-ignore Server component can import client ChartCard safely */}
+                  <ChartCard
+                    title="User Growth"
+                    hint={`${periodHint} new accounts`}
+                    data={userGrowth.map((p) => ({
+                      label: p.label,
+                      value: p.users,
+                    }))}
+                    color="#1E538E"
+                  />
+                </div>
+              </div>
+            </article>
+
+          </section>
+        </section>
+
+>>>>>>> dev
       </section>
     </AdminSidebarLayout>
   );
