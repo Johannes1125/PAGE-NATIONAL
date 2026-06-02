@@ -2,11 +2,15 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, Loader2, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGraduationCap } from '../lib/fontawesome-icons';
+import { gooeyToast } from "goey-toast";
+import "goey-toast/styles.css";
 import './member-login.css';
+import { api } from "../lib/api-client";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -25,7 +29,7 @@ const containerVariants = {
 
 const lineVariants = {
   hidden: { opacity: 0, x: -30 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.55, ease: 'easeOut' } },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.55, ease: 'easeOut' as any } },
 };
 
 const checkItemVariants = {
@@ -33,16 +37,14 @@ const checkItemVariants = {
   visible: (i: number) => ({
     opacity: 1,
     x: 0,
-    transition: { duration: 0.45, ease: 'easeOut', delay: 0.6 + i * 0.12 },
+    transition: { duration: 0.45, ease: 'easeOut' as any, delay: 0.6 + i * 0.12 },
   }),
 };
 
 const rightPanelVariants = {
   hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut', delay: 0.2 } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' as any, delay: 0.2 } },
 };
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function MemberLogin() {
   const router = useRouter();
@@ -76,104 +78,94 @@ export default function MemberLogin() {
       return;
     }
 
-    setErrors({});
     setIsLoading(true);
-
-    // TODO: connect to API — POST /api/auth/member/login
-    // Expected payload: { email, password, remember_me: rememberMe }
-    // Expected response: { token, user: { id, name, role } }
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    setIsLoading(false);
-    router.push('/member-dashboard');
+    try {
+      const data = await api.post('/login', { email, password });
+      
+      if (data.user.role !== 'member') {
+        gooeyToast.error("Access Denied: Please use the appropriate organizational or admin login page.");
+        setIsLoading(false);
+        return;
+      }
+      
+      localStorage.setItem('page_user_token', data.token);
+      localStorage.setItem('page_user_payload', JSON.stringify(data.user));
+      
+      gooeyToast.success("Login successful!");
+      router.push('/');
+    } catch (err: any) {
+      gooeyToast.error(err.message || "Authentication failed. Please verify your credentials.");
+      setErrors({ general: err.message || "Authentication failed." });
+      setFormShake(true);
+    } finally {
+      setIsLoading(false);
+    }
   };
-
-  const features = [
-    'Secure Institutional Access',
-    'Peer-Reviewed Publication Tools',
-    'Integrated Research Repositories',
-  ];
 
   return (
     <div className="ml-container">
-      {/* ── SPLIT LAYOUT ── */}
-      <div className="ml-split">
+      {/* Back button */}
+      <Link href="/" className="ml-back-link" aria-label="Go back to home page">
+        <ArrowLeft size={16} />
+        <span>Back to Portal</span>
+      </Link>
 
-        {/* ── LEFT PANEL ── */}
+      <div className="ml-workspace">
+        {/* ── LEFT PANEL (Branding & Copy) ── */}
         <div className="ml-left">
-          <div className="ml-left-overlay" />
-
-          <div className="ml-left-content">
-            {/* Back to Home Button */}
-            <motion.button
-              className="ml-back-home"
-              onClick={() => router.push('/')}
-              initial={{ opacity: 0, x: -12 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-            >
-              <ArrowLeft size={16} strokeWidth={2.5} />
-              <span>Back to Home</span>
-            </motion.button>
-
-            {/* Logo */}
+          <div className="ml-branding">
             <motion.div
               className="ml-logo-badge"
-              initial={{ opacity: 0, y: -12 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
             >
-              <div className="ml-logo-icon-wrap">
-                <FontAwesomeIcon icon={faGraduationCap} className="ml-grad-icon" />
-              </div>
-              <span className="ml-logo-wordmark">PAGE</span>
+              <FontAwesomeIcon icon={faGraduationCap} size="lg" className="ml-icon" />
             </motion.div>
+            <span className="ml-brand-text">PAGE</span>
+          </div>
 
-            {/* Headline */}
+          <div className="ml-intro-block">
             <motion.div
-              className="ml-headline-wrap"
               variants={containerVariants}
               initial="hidden"
               animate="visible"
+              className="ml-typography"
             >
-              {['Advancing', 'Graduate', 'Education', 'Excellence'].map((word) => (
-                <motion.span key={word} className="ml-headline-line" variants={lineVariants}>
-                  {word}
-                </motion.span>
-              ))}
+              <motion.h1 variants={lineVariants} className="ml-title">
+                Expanding Horizons in
+              </motion.h1>
+              <motion.h1 variants={lineVariants} className="ml-title ml-title--bold">
+                Graduate Education.
+              </motion.h1>
+              <motion.p variants={lineVariants} className="ml-subtitle-left">
+                Join a nationwide community of scholars, researchers, and educational pioneers.
+              </motion.p>
             </motion.div>
 
-            {/* Descriptor */}
-            <motion.p
-              className="ml-descriptor"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-            >
-              The Academic Curator is a premier institutional portal designed to unify
-              scholarly research, faculty collaboration, and graduate student development.
-            </motion.p>
-
-            {/* Feature Bullets */}
-            <div className="ml-checklist">
-              {features.map((item, i) => (
+            {/* Micro value props */}
+            <div className="ml-benefits">
+              {[
+                'Access peer-reviewed research materials and archives',
+                'Connect with academic cohorts and organizations',
+                'Participate in national development programs',
+              ].map((text, i) => (
                 <motion.div
-                  key={item}
-                  className="ml-check-item"
+                  key={i}
                   custom={i}
                   variants={checkItemVariants}
                   initial="hidden"
                   animate="visible"
+                  className="ml-benefit-item"
                 >
-                  <CheckCircle size={18} className="ml-check-icon" strokeWidth={2.5} />
-                  <span>{item}</span>
+                  <CheckCircle size={16} className="ml-check-icon" strokeWidth={2.5} />
+                  <span>{text}</span>
                 </motion.div>
               ))}
             </div>
 
-            {/* Bottom tagline */}
             <motion.p
-              className="ml-tagline-bottom"
+              className="ml-footer-tag"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.2, duration: 0.5 }}
@@ -292,7 +284,7 @@ export default function MemberLogin() {
                 />
                 Remember me
               </label>
-              <a href="#" className="ml-forgot">Forgot Password?</a>
+              <Link href="/forgot-password" className="ml-forgot">Forgot Password?</Link>
             </div>
 
             {/* Sign In Button */}
@@ -319,7 +311,7 @@ export default function MemberLogin() {
             {/* Create Account */}
             <p className="ml-create-account">
               New to the platform?{' '}
-              <a href="#" className="ml-create-link">Create Account</a>
+              <Link href="/create-account" className="ml-create-link">Create Account</Link>
             </p>
           </motion.div>
         </motion.div>

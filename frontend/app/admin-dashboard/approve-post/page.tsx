@@ -8,13 +8,15 @@ import {
   UserRound,
   FileText,
   BookOpen,
-  Check // <-- Added missing import here!
+  Check
 } from "lucide-react";
 import AdminSidebarLayout from "../components/AdminSidebarLayout";
 import { gooeyToast } from "goey-toast"; 
 import "goey-toast/styles.css";
 import "./approve-post.css";
 import "../admin-dashboard.css";
+
+import { api } from "../../lib/api-client";
 
 type PostStatus = "pending" | "approved" | "rejected";
 
@@ -33,82 +35,69 @@ type PostModerationState = {
   feedback: string;
 };
 
-const pendingPosts: PendingPost[] = [
-  {
-    id: "post-1",
-    date: "February 20, 2026",
-    title: "Innovative Approaches to Online Graduate Education",
-    summary:
-      "A peer-reviewed study examining mentorship challenges faced by graduate students and proposing institutional support frameworks for online thesis advising. This includes a 5-year longitudinal dataset.",
-    author: "Dr. Elena Rodriguez",
-    organization: "Northern Luzon Graduate Consortium",
-    category: "Article",
-  },
-  {
-    id: "post-2",
-    date: "March 3, 2026",
-    title: "Assessment Framework for Hybrid Capstone Programs",
-    summary:
-      "This submission proposes a rubric-driven framework for evaluating hybrid capstone projects with emphasis on outcomes, stakeholder feedback, and program alignment.",
-    author: "Prof. Marianne Dela Cruz",
-    organization: "Metro Academic Alliance",
-    category: "Research",
-  },
-  {
-    id: "post-3",
-    date: "March 12, 2026",
-    title: "Graduate Student Well-Being in High-Load Semesters",
-    summary:
-      "An evidence-based report on advising load, burnout signals, and intervention checkpoints that can be integrated into graduate student support offices.",
-    author: "Dr. Jose Miguel Santos",
-    organization: "Visayas University Network",
-    category: "Journal",
-  },
-  {
-    id: "post-4",
-    date: "March 18, 2026",
-    title: "AI-Assisted Literature Mapping for Thesis Writing",
-    summary:
-      "Explores guided AI workflows for early-stage literature mapping while preserving citation integrity, research ethics, and faculty supervision standards.",
-    author: "Dr. Angela Reyes",
-    organization: "Mindanao Scholars Association",
-    category: "Article",
-  },
-  {
-    id: "post-5",
-    date: "March 22, 2026",
-    title: "Methodological Shifts in Post-Pandemic Research",
-    summary:
-      "Analyzes the transition from traditional field gathering to remote data collection methodologies in the social sciences.",
-    author: "Dr. Francis Buena",
-    organization: "Southern Research Institute",
-    category: "Research",
-  }
-];
-
 export default function ApprovePostPage() {
-  const initialPostState = useMemo<Record<string, PostModerationState>>(
-    () => Object.fromEntries(pendingPosts.map((post) => [post.id, { status: "pending", feedback: "" }])),
-    [],
-  );
-
-  const [postStateById, setPostStateById] = useState<Record<string, PostModerationState>>(initialPostState);
-  const [selectedPostId, setSelectedPostId] = useState(pendingPosts[0]?.id ?? "");
+  const [pendingPosts, setPendingPosts] = useState<PendingPost[]>([]);
+  const [postStateById, setPostStateById] = useState<Record<string, PostModerationState>>({});
+  const [selectedPostId, setSelectedPostId] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState<PostStatus | "all">("all");
   const [feedbackInput, setFeedbackInput] = useState("");
+  const [feedbackError, setFeedbackError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 4; // 4 items per page
+
+  useEffect(() => {
+    const fetchPending = async () => {
+      try {
+        const response = await api.get('/posts?status=pending');
+        const postsList: PendingPost[] = (response.posts || []).map((post: any) => {
+          const cat = post.category || "general";
+          return {
+            id: post.id.toString(),
+            date: new Date(post.created_at).toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric"
+            }),
+            title: post.title,
+            summary: post.excerpt || "No summary provided.",
+            author: post.author || "Institutional Writer",
+            organization: post.user?.university || "Graduate Council Affiliate",
+            category: cat.charAt(0).toUpperCase() + cat.slice(1),
+          };
+        });
+        
+        setPendingPosts(postsList);
+        
+        const initialStates: Record<string, PostModerationState> = {};
+        postsList.forEach((post) => {
+          initialStates[post.id] = { status: "pending", feedback: "" };
+        });
+        setPostStateById(initialStates);
+
+        if (postsList.length > 0) {
+          setSelectedPostId(postsList[0].id);
+        }
+      } catch (err) {
+        console.error("Failed to fetch pending moderation posts", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPending();
+  }, []);
 
   const filteredPosts = useMemo(
     () =>
       pendingPosts.filter((post) => {
         const status = postStateById[post.id]?.status ?? "pending";
-        const categoryMatch = categoryFilter === "all" || post.category.toLowerCase() === categoryFilter;
+        const categoryMatch = categoryFilter === "all" || post.category.toLowerCase() === categoryFilter.toLowerCase();
         const statusMatch = statusFilter === "all" || status === statusFilter;
         return categoryMatch && statusMatch;
       }),
-    [categoryFilter, postStateById, statusFilter],
+    [categoryFilter, pendingPosts, postStateById, statusFilter],
   );
 
   const selectedPost = useMemo(
@@ -120,14 +109,14 @@ export default function ApprovePostPage() {
     const set = new Set<string>();
     pendingPosts.forEach((p) => set.add(p.category));
     return Array.from(set);
-  }, []);
+  }, [pendingPosts]);
 
   const totalPages = Math.max(1, Math.ceil(filteredPosts.length / pageSize));
 
   const pagedPosts = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredPosts.slice(start, start + pageSize);
-  }, [currentPage, filteredPosts]);
+  }, [currentPage, filteredPosts, pageSize]);
 
   // Logic to limit pagination to exactly 4 visible buttons
   const visiblePages = useMemo(() => {
@@ -164,41 +153,87 @@ export default function ApprovePostPage() {
   const handleSelectPost = (postId: string) => {
     setSelectedPostId(postId);
     setFeedbackInput(postStateById[postId]?.feedback ?? "");
+    setFeedbackError("");
   };
 
-  const handleApprove = () => {
-    if (!selectedPost) return;
+  const handleApprove = async () => {
+    if (!selectedPost || isSubmitting) return;
+    setIsSubmitting(true);
+    setFeedbackError("");
+    try {
+      await api.post(`/posts/${selectedPost.id}/approve`, {});
+      
+      setPostStateById((current) => ({
+        ...current,
+        [selectedPost.id]: {
+          status: "approved",
+          feedback: "",
+        },
+      }));
 
-    setPostStateById((current) => ({
-      ...current,
-      [selectedPost.id]: {
-        ...current[selectedPost.id],
-        status: "approved",
-      },
-    }));
-
-    gooeyToast.success(`"${selectedPost.title}" approved successfully.`);
+      gooeyToast.success(`"${selectedPost.title}" approved successfully.`);
+      
+      setPendingPosts((prev) => prev.filter((p) => p.id !== selectedPost.id));
+    } catch (err: any) {
+      setFeedbackError(err.message || "Failed to approve post.");
+      gooeyToast.error(err.message || "Failed to approve post.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleReject = () => {
-    if (!selectedPost) return;
+  const handleReject = async () => {
+    if (!selectedPost || isSubmitting) return;
 
     const trimmedFeedback = feedbackInput.trim();
     if (!trimmedFeedback) {
+      setFeedbackError("Rejection feedback is required.");
       gooeyToast.error("Rejection feedback is required.");
       return;
     }
 
-    setPostStateById((current) => ({
-      ...current,
-      [selectedPost.id]: {
-        status: "rejected",
-        feedback: trimmedFeedback,
-      },
-    }));
+    setIsSubmitting(true);
+    setFeedbackError("");
+    try {
+      await api.post(`/posts/${selectedPost.id}/reject`, { feedback: trimmedFeedback });
 
-    gooeyToast.success(`Post rejected. Feedback sent to ${selectedPost.organization}.`);
+      setPostStateById((current) => ({
+        ...current,
+        [selectedPost.id]: {
+          status: "rejected",
+          feedback: trimmedFeedback,
+        },
+      }));
+
+      gooeyToast.success(`Post rejected. Feedback sent to ${selectedPost.organization}.`);
+
+      setPendingPosts((prev) => prev.filter((p) => p.id !== selectedPost.id));
+    } catch (err: any) {
+      setFeedbackError(err.message || "Failed to reject post.");
+      gooeyToast.error(err.message || "Failed to reject post.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <AdminSidebarLayout
+        pageClassName="approve-page"
+        mainClassName="approve-main"
+        title="Post Approval"
+        subtitle="Review and approve posts submitted by the Post Reviewer (Organization Panel)."
+        eyebrow="Admin Panel"
+      >
+        <section className="approve-content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+          <div style={{ color: '#1e538e', textAlign: 'center' }}>
+            <p style={{ fontSize: '1.25rem', fontWeight: 600 }}>Processing Submissions...</p>
+            <p style={{ fontSize: '0.875rem', opacity: 0.7, marginTop: '0.25rem' }}>Syncing with Supabase DB</p>
+          </div>
+        </section>
+      </AdminSidebarLayout>
+    );
+  }
 
   return (
     <AdminSidebarLayout
@@ -208,8 +243,7 @@ export default function ApprovePostPage() {
       subtitle="Review and moderate academic submissions prior to publication."
       eyebrow="Editorial Dashboard"
     >
-      <section className="approve-content">
-        
+      <section className="approve-content" style={{ opacity: isSubmitting ? 0.7 : 1, pointerEvents: isSubmitting ? 'none' : 'auto', transition: 'opacity 0.2s ease' }}>
         {/* Minimal Academic Toolbar */}
         <div className="approve-toolbar">
           <div className="approve-toolbar__left">
@@ -298,7 +332,7 @@ export default function ApprovePostPage() {
                   type="button"
                   className="approve-pagination__nav"
                   onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                  disabled={currentPage === 1}
+                  disabled={currentPage === 1 || isSubmitting}
                   aria-label="Previous page"
                 >
                   <ChevronLeft size={16} />
@@ -311,6 +345,7 @@ export default function ApprovePostPage() {
                       type="button"
                       className={`approve-pagination__page ${page === currentPage ? "approve-pagination__page--active" : ""}`}
                       onClick={() => setCurrentPage(page)}
+                      disabled={isSubmitting}
                       aria-current={page === currentPage ? "page" : undefined}
                     >
                       {page}
@@ -322,7 +357,7 @@ export default function ApprovePostPage() {
                   type="button"
                   className="approve-pagination__nav"
                   onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-                  disabled={currentPage === totalPages}
+                  disabled={currentPage === totalPages || isSubmitting}
                   aria-label="Next page"
                 >
                   <ChevronRight size={16} />
@@ -391,9 +426,14 @@ export default function ApprovePostPage() {
                       className="approve-feedback"
                       placeholder="Required if rejecting. Provide actionable feedback to the author/institution."
                       value={feedbackInput}
-                      onChange={(event) => setFeedbackInput(event.target.value)}
+                      disabled={isSubmitting}
+                      onChange={(event) => {
+                        setFeedbackInput(event.target.value);
+                        if (feedbackError) setFeedbackError("");
+                      }}
                       rows={4}
                     />
+                    {feedbackError && <p className="approve-error" style={{ color: '#ef4444', fontSize: '0.825rem', marginTop: '0.25rem' }}>{feedbackError}</p>}
                     {postStateById[selectedPost.id]?.feedback && (
                       <div className="approve-saved-feedback">
                         <strong>Previous Feedback:</strong> {postStateById[selectedPost.id].feedback}
@@ -402,11 +442,11 @@ export default function ApprovePostPage() {
                   </div>
 
                   <div className="approve-detail__actions">
-                    <button type="button" className="approve-btn approve-btn--accept" onClick={handleApprove}>
-                      <Check size={16} /> Approve Manuscript
+                    <button type="button" className="approve-btn approve-btn--accept" disabled={isSubmitting} onClick={handleApprove}>
+                      <Check size={16} /> {isSubmitting ? "Approving..." : "Approve Manuscript"}
                     </button>
-                    <button type="button" className="approve-btn approve-btn--reject" onClick={handleReject}>
-                      Request Revisions (Reject)
+                    <button type="button" className="approve-btn approve-btn--reject" disabled={isSubmitting} onClick={handleReject}>
+                      {isSubmitting ? "Rejecting..." : "Request Revisions (Reject)"}
                     </button>
                   </div>
                 </div>

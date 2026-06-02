@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { api } from "../../lib/api-client";
 import "./home-page.css";
 import Image from 'next/image';
 
@@ -121,7 +122,8 @@ const getPath = (link: NavLink): string => {
   return map[link];
 };
 
-const NAV_LINKS = ["Home", "About", "News", "Contact"];
+// ── Static Data ────────────────────────────────────────────────────────────
+const NAV_LINKS: NavLink[] = ["Home", "About", "News", "Contact"];
 
 const RESOURCE_CARDS = [
   {
@@ -403,7 +405,37 @@ function NewsCard({ card }: { card: NewsCardType }) {
   );
 }
 
+// ── News Section ───────────────────────────────────────────────────────────
 function NewsSection() {
+  const [posts, setPosts] = useState<NewsCardType[]>([]);
+
+  useEffect(() => {
+    const fetchPublicPosts = async () => {
+      try {
+        const response = await api.get('/public/posts');
+        const mapped = response.posts.map((post: any) => ({
+          date: new Date(post.created_at).toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric"
+          }),
+          author: post.author || "PAGE National",
+          title: post.title,
+          excerpt: post.excerpt || "Browse full content within our publications portal.",
+        }));
+        if (mapped.length > 0) {
+          setPosts(mapped);
+        } else {
+          setPosts(NEWS_CARDS);
+        }
+      } catch (err) {
+        console.error("Failed to fetch public posts", err);
+        setPosts(NEWS_CARDS);
+      }
+    };
+    fetchPublicPosts();
+  }, []);
+
   return (
     <section className="news">
       <div className="container">
@@ -419,7 +451,7 @@ function NewsSection() {
         </div>
 
         <div className="news__grid">
-          {NEWS_CARDS.map(card => (
+          {posts.map((card) => (
             <NewsCard key={card.title} card={card} />
           ))}
         </div>

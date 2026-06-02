@@ -269,7 +269,7 @@ export default function ViewMessagesPage() {
           return {
             ...conversation,
             messages: conversation.messages.map((message, index) =>
-              index === lastAdminIndex ? { ...message, status: "seen" } : message,
+              index === lastAdminIndex ? { ...message, status: "seen" as const } : message,
             ),
           };
         });

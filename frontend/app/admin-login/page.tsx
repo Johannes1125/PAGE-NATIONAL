@@ -3,28 +3,48 @@
 import { useState } from "react";
 import './admin-login.css';
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// Import your icons
 import { faGraduationCap, faUserShield } from "../lib/fontawesome-icons";
 import { faCheckCircle, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { api } from "../lib/api-client";
 
 export default function OrgLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     if (!email || !password) {
       toast.error("Please fill in all fields!");
       return;
     }
-    toast.success("Login successful!");
-    // Proceed with login logic here
+    setIsLoading(true);
+    try {
+      const data = await api.post('/login', { email, password });
+      
+      if (data.user.role !== 'admin') {
+        toast.error("Access Denied: Not an administrator account.");
+        setIsLoading(false);
+        return;
+      }
+      
+      localStorage.setItem('page_user_token', data.token);
+      localStorage.setItem('page_user_payload', JSON.stringify(data.user));
+      
+      toast.success("Login successful!");
+      router.push('/admin-dashboard');
+    } catch (err: any) {
+      toast.error(err.message || "Authentication failed. Invalid email or password.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -127,12 +147,14 @@ export default function OrgLogin() {
                 <label htmlFor="rememberMe">Remember this device</label>
               </div>
               <div className="remember-me">
-                <span className="forgot"><a href="#">Forgot Password?</a></span>
+                <span className="forgot"><Link href="/forgot-password">Forgot Password?</Link></span>
               </div>
             </div>
 
             {/* BUTTON */}
-            <button className="login-btn" onClick={handleSignIn}>Sign In</button>
+            <button className="login-btn" onClick={handleSignIn} disabled={isLoading}>
+              {isLoading ? "Signing In..." : "Sign In"}
+            </button>
 
             {/* DIVIDER */}
             <div className="divider">
