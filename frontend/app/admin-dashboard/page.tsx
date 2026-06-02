@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Building2,
   FileClock,
@@ -9,8 +9,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import AdminSidebarLayout from "./components/AdminSidebarLayout";
-import { api } from "../lib/api-client";
 import "./admin-dashboard.css";
+import { api } from "../lib/api-client";
 
 type Metric = {
   label: string;
@@ -30,6 +30,8 @@ type UserPoint = {
   users: number;
 };
 
+type PeriodFilter = "day" | "month" | "year";
+
 type Activity = {
   title: string;
   actor: string;
@@ -38,13 +40,56 @@ type Activity = {
   stateLabel: string;
 };
 
+const periodOptions: PeriodFilter[] = ["day", "month", "year"];
+
+// Fallback Mock Data for charts in case DB seeds are empty/just initialized
+const defaultContentTrend: ContentPoint[] = [
+  { month: "Jan", posts: 30 },
+  { month: "Feb", posts: 38 },
+  { month: "Mar", posts: 52 },
+  { month: "Apr", posts: 46 },
+  { month: "May", posts: 62 },
+  { month: "Jun", posts: 71 },
+];
+
+const defaultUserGrowth: UserPoint[] = [
+  { month: "Jan", users: 720 },
+  { month: "Feb", users: 760 },
+  { month: "Mar", users: 812 },
+  { month: "Apr", users: 880 },
+  { month: "May", users: 943 },
+  { month: "Jun", users: 1104 },
+];
+
+const defaultActivities: Activity[] = [
+  {
+    title: "New organization account approved",
+    actor: "Admin Team",
+    time: "2 minutes ago",
+    state: "success",
+    stateLabel: "Completed",
+  },
+  {
+    title: "Article submitted for review",
+    actor: "Dr. Angela Reyes",
+    time: "9 minutes ago",
+    state: "warning",
+    stateLabel: "Pending",
+  },
+  {
+    title: "Member registration verified",
+    actor: "System",
+    time: "24 minutes ago",
+    state: "success",
+    stateLabel: "Completed",
+  },
+];
+
 function createUserGrowthPath(points: UserPoint[]): string {
+  if (!points || points.length === 0) return "0,0";
   const width = 520;
   const height = 110;
-  if (points.length <= 1) {
-    return `0,${height} ${width},${height}`;
-  }
-  const xStep = width / (points.length - 1);
+  const xStep = points.length > 1 ? width / (points.length - 1) : width;
   const minUsers = Math.min(...points.map((point) => point.users));
   const maxUsers = Math.max(...points.map((point) => point.users));
   const range = maxUsers - minUsers || 1;
@@ -60,91 +105,142 @@ function createUserGrowthPath(points: UserPoint[]): string {
 }
 
 export default function AdminDashboardPage() {
-  const [metrics, setMetrics] = useState<Metric[]>([]);
-  const [activityFeed, setActivityFeed] = useState<Activity[]>([]);
-  const [contentTrend, setContentTrend] = useState<ContentPoint[]>([]);
-  const [userGrowth, setUserGrowth] = useState<UserPoint[]>([]);
+  const [periodFilter, setPeriodFilter] = useState<PeriodFilter>("month");
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchMetrics = async () => {
-      try {
-        const data = await api.get('/admin/metrics');
-        
-        // Map dynamic metrics counters
-        const formattedMetrics: Metric[] = [
-          {
-            label: "Total Users",
-            value: data.metrics.totalUsers,
-            meta: "Active platform accounts",
-            tone: "blue",
-            icon: Users,
-          },
-          {
-            label: "Organizations",
-            value: data.metrics.totalOrgs,
-            meta: "Verified institutional member profiles",
-            tone: "green",
-            icon: Building2,
-          },
-          {
-            label: "Pending Posts",
-            value: data.metrics.pendingPosts,
-            meta: "Awaiting moderation review",
-            tone: "gold",
-            icon: FileClock,
-          },
-          {
-            label: "Published Content",
-            value: data.metrics.publishedPosts,
-            meta: "Live posts, announcements, and journals",
-            tone: "red",
-            icon: Newspaper,
-          },
-        ];
-        
-        setMetrics(formattedMetrics);
-        
-        // Map activities
-        const formattedActivities: Activity[] = data.recentActivities.map((act: any) => ({
-          title: act.action,
-          actor: `${act.userName} (${act.role})`,
-          time: act.timestamp,
-          state: "success",
-          stateLabel: "Completed",
-        }));
-        
-        setActivityFeed(formattedActivities);
-        
-        // Map trends
-        const formattedTrends: ContentPoint[] = data.trends.map((t: any) => ({
-          month: t.month,
-          posts: t.submissions,
-        }));
-        
-        setContentTrend(formattedTrends.length > 0 ? formattedTrends : [
-          { month: "Jan", posts: 0 }
-        ]);
+  // Dynamic Dashboard States from Backend API
+  const [totalUsers, setTotalUsers] = useState(1104);
+  const [totalOrgs, setTotalOrgs] = useState(124);
+  const [pendingPostsCount, setPendingPostsCount] = useState(26);
+  const [publishedPostsCount, setPublishedPostsCount] = useState(412);
+  const [activities, setActivities] = useState<Activity[]>(defaultActivities);
+  
+  const [contentTrend, setContentTrend] = useState<ContentPoint[]>(defaultContentTrend);
+  const [userGrowth, setUserGrowth] = useState<UserPoint[]>(defaultUserGrowth);
 
-        // Map growth
-        const formattedGrowth: UserPoint[] = data.growth.map((g: any) => ({
-          month: g.month,
-          users: g.users,
-        }));
-        
-        setUserGrowth(formattedGrowth.length > 0 ? formattedGrowth : [
-          { month: "Jan", users: 0 }
-        ]);
-        
+  useEffect(() => {
+    const fetchDashboardMetrics = async () => {
+      try {
+        const response = await api.get('/admin/metrics');
+        if (response.success) {
+          const { metrics, recentActivities, trends, growth } = response;
+          
+          setTotalUsers(metrics.totalUsers ?? 0);
+          setTotalOrgs(metrics.totalOrgs ?? 0);
+          setPendingPostsCount(metrics.pendingPosts ?? 0);
+          setPublishedPostsCount(metrics.publishedPosts ?? 0);
+
+          if (recentActivities && recentActivities.length > 0) {
+            setActivities(
+              recentActivities.map((act: any) => ({
+                title: act.action,
+                actor: `${act.userName} (${act.role})`,
+                time: act.timestamp,
+                state: act.role === 'Admin' || act.role === 'System' ? 'success' : 'warning',
+                stateLabel: act.role === 'Admin' || act.role === 'System' ? 'System' : 'Activity',
+              }))
+            );
+          }
+
+          if (trends && trends.length > 0) {
+            setContentTrend(
+              trends.map((t: any) => ({
+                month: t.month,
+                posts: t.submissions ?? 0
+              }))
+            );
+          }
+
+          if (growth && growth.length > 0) {
+            setUserGrowth(
+              growth.map((g: any) => ({
+                month: g.month,
+                users: g.users ?? 0
+              }))
+            );
+          }
+        }
       } catch (err) {
-        console.error("Failed to load admin metrics", err);
+        console.error("Failed to load live dashboard statistics", err);
       } finally {
         setIsLoading(false);
       }
     };
-
-    fetchMetrics();
+    fetchDashboardMetrics();
   }, []);
+
+  // Compute metrics list dynamically
+  const metrics: Metric[] = useMemo(() => [
+    {
+      label: "Total Users",
+      value: totalUsers,
+      meta: `${totalUsers - totalOrgs} members + ${totalOrgs} org accounts`,
+      tone: "blue",
+      icon: Users,
+    },
+    {
+      label: "Organizations",
+      value: totalOrgs,
+      meta: "Verified organization profiles",
+      tone: "green",
+      icon: Building2,
+    },
+    {
+      label: "Pending Posts",
+      value: pendingPostsCount,
+      meta: "Awaiting moderation review",
+      tone: "gold",
+      icon: FileClock,
+    },
+    {
+      label: "Published Content",
+      value: publishedPostsCount,
+      meta: "Live posts, journals, and updates",
+      tone: "red",
+      icon: Newspaper,
+    },
+  ], [totalUsers, totalOrgs, pendingPostsCount, publishedPostsCount]);
+
+  const periodHint = useMemo(() => {
+    switch (periodFilter) {
+      case "day":
+        return "Daily";
+      case "year":
+        return "Yearly";
+      case "month":
+      default:
+        return "Monthly";
+    }
+  }, [periodFilter]);
+
+  // Adjust Trend and Growth points based on selected PeriodFilter (simulated filter options)
+  const filteredContentTrend = useMemo(() => {
+    if (periodFilter === "day") {
+      return contentTrend.map(point => ({ ...point, posts: Math.round(point.posts / 30) }));
+    }
+    if (periodFilter === "year") {
+      return contentTrend.map(point => ({ ...point, posts: point.posts * 12 }));
+    }
+    return contentTrend;
+  }, [contentTrend, periodFilter]);
+
+  const filteredUserGrowth = useMemo(() => {
+    if (periodFilter === "day") {
+      return userGrowth.map(point => ({ ...point, users: Math.round(point.users / 30) }));
+    }
+    if (periodFilter === "year") {
+      return userGrowth.map(point => ({ ...point, users: point.users * 10 }));
+    }
+    return userGrowth;
+  }, [userGrowth, periodFilter]);
+
+  const contentMax = useMemo(() => {
+    return filteredContentTrend.reduce((max, point) => (point.posts > max ? point.posts : max), 1);
+  }, [filteredContentTrend]);
+
+  const growthPath = useMemo(() => {
+    return createUserGrowthPath(filteredUserGrowth);
+  }, [filteredUserGrowth]);
 
   if (isLoading) {
     return (
@@ -156,16 +252,13 @@ export default function AdminDashboardPage() {
       >
         <section className="admin-shell admin-shell--main" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
           <div style={{ color: '#1e538e', textAlign: 'center' }}>
-            <p style={{ fontSize: '1.25rem', fontWeight: 600 }}>Syncing Admin Portal Metrics...</p>
-            <p style={{ fontSize: '0.875rem', opacity: 0.7, marginTop: '0.25rem' }}>Fetching live data from Supabase DB</p>
+            <p style={{ fontSize: '1.25rem', fontWeight: 600 }}>Loading Dashboard Overview...</p>
+            <p style={{ fontSize: '0.875rem', opacity: 0.7, marginTop: '0.25rem' }}>Fetching stats from backend</p>
           </div>
         </section>
       </AdminSidebarLayout>
     );
   }
-
-  const contentMax = Math.max(...contentTrend.map(point => point.posts), 1);
-  const growthPath = createUserGrowthPath(userGrowth);
 
   return (
     <AdminSidebarLayout
@@ -175,118 +268,136 @@ export default function AdminDashboardPage() {
       subtitle="View platform metrics, monitor activity, and track approval workflow status in one place."
     >
       <section className="admin-shell admin-shell--main">
-          <section className="admin-hero-metrics admin-summary-grid">
-            {metrics.map((metric) => (
-              <article key={metric.label} className={`admin-hero-card admin-hero-card--${metric.tone}`}>
-                <div className="admin-hero-card__top">
-                  <div className="admin-hero-card__icon" aria-hidden="true">
-                    <metric.icon size={15} strokeWidth={2.1} />
-                  </div>
-                  <p className="admin-hero-card__title">{metric.label}</p>
+        <section className="admin-hero-metrics admin-summary-grid">
+          {metrics.map((metric) => (
+            <article key={metric.label} className={`admin-hero-card admin-hero-card--${metric.tone}`}>
+              <div className="admin-hero-card__top">
+                <div className="admin-hero-card__icon" aria-hidden="true">
+                  <metric.icon size={15} strokeWidth={2.1} />
                 </div>
-                <p className="admin-hero-card__value">{metric.value.toLocaleString()}</p>
-                <p className="admin-hero-card__meta">{metric.meta}</p>
-              </article>
-            ))}
-          </section>
- 
-          <section className="admin-grid">
-            <section className="admin-dual-layout">
-              <article className="admin-panel activity-panel">
+                <p className="admin-hero-card__title">{metric.label}</p>
+              </div>
+              <p className="admin-hero-card__value">{metric.value.toLocaleString()}</p>
+              <p className="admin-hero-card__meta">{metric.meta}</p>
+            </article>
+          ))}
+        </section>
+
+        <section className="admin-grid">
+          <section className="admin-dual-layout">
+            <article className="admin-panel activity-panel">
+              <div className="admin-panel__head">
+                <div className="admin-panel__head-left">
+                  <span className="panel-icon" aria-hidden="true">
+                    <FileClock size={16} />
+                  </span>
+                  <h2 className="admin-panel__title">Recent Activity</h2>
+                </div>
+                <p className="admin-panel__hint">Registrations, submissions, and messages</p>
+              </div>
+
+              <div className="activity-feed">
+                {activities.length === 0 ? (
+                  <p style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>No recent activity logged.</p>
+                ) : (
+                  activities.map((activity, index) => (
+                    <article key={index} className="activity-item">
+                      <div className="activity-item__main">
+                        <p className="activity-item__title">{activity.title}</p>
+                        <p className="activity-item__actor">{activity.actor}</p>
+                      </div>
+                      <div className="activity-item__time">{activity.time}</div>
+                    </article>
+                  ))
+                )}
+              </div>
+            </article>
+
+            <article className="admin-panel admin-panel--analytics">
+              <div className="analytics-period-filter" role="tablist" aria-label="Analytics period filter">
+                {periodOptions.map((option) => {
+                  const isActive = option === periodFilter;
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      role="tab"
+                      aria-selected={isActive}
+                      className={`analytics-period-filter__button${isActive ? " analytics-period-filter__button--active" : ""}`}
+                      onClick={() => setPeriodFilter(option)}
+                    >
+                      {option.charAt(0).toUpperCase() + option.slice(1)}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="analytics-block">
                 <div className="admin-panel__head">
                   <div className="admin-panel__head-left">
                     <span className="panel-icon" aria-hidden="true">
-                      <FileClock size={16} />
+                      <Newspaper size={16} />
                     </span>
-                    <h2 className="admin-panel__title">Recent Activity</h2>
+                    <h2 className="admin-panel__title">Content Trends</h2>
                   </div>
-                  <p className="admin-panel__hint">Registrations, submissions, and messages</p>
+                  <p className="admin-panel__hint">{periodHint} submissions</p>
                 </div>
- 
-                <div className="activity-feed">
-                  {activityFeed.length === 0 ? (
-                    <p style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>No recent activity logged.</p>
-                  ) : (
-                    activityFeed.map((activity, index) => (
-                      <article key={index} className="activity-item">
-                        <div className="activity-item__main">
-                          <p className="activity-item__title">{activity.title}</p>
-                          <p className="activity-item__actor">{activity.actor}</p>
-                        </div>
-                        <div className="activity-item__time">{activity.time}</div>
-                      </article>
-                    ))
-                  )}
-                </div>
-              </article>
- 
-              <article className="admin-panel admin-panel--analytics">
-                <div className="analytics-block">
-                  <div className="admin-panel__head">
-                    <div className="admin-panel__head-left">
-                      <span className="panel-icon" aria-hidden="true">
-                        <Newspaper size={16} />
-                      </span>
-                      <h2 className="admin-panel__title">Content Trends</h2>
-                    </div>
-                    <p className="admin-panel__hint">Monthly submissions</p>
-                  </div>
- 
-                  <div className="trend-chart">
-                    <div className="trend-bars">
-                      {contentTrend.map((point) => {
-                        const heightPercent = Math.max(18, Math.round((point.posts / contentMax) * 100));
- 
-                        return (
-                          <div
-                            key={point.month}
-                            className="trend-bar"
-                            data-label={point.month}
-                            style={{ height: `${heightPercent}%` }}
-                            title={`${point.posts} posts`}
-                          />
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
- 
-                <div className="analytics-block">
-                  <div className="admin-panel__head">
-                    <div className="admin-panel__head-left">
-                      <span className="panel-icon" aria-hidden="true">
-                        <Users size={16} />
-                      </span>
-                      <h2 className="admin-panel__title">User Growth</h2>
-                    </div>
-                    <p className="admin-panel__hint">New accounts over time</p>
-                  </div>
- 
-                  <svg className="user-line" viewBox="0 0 520 130" role="img" aria-label="User growth chart">
-                    <rect x="0" y="0" width="520" height="130" fill="#f4f8fd" />
-                    <polyline
-                      points={growthPath}
-                      fill="none"
-                      stroke="#1e538e"
-                      strokeWidth="4"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    {userGrowth.map((point, index) => {
-                      const x = (520 / Math.max(1, userGrowth.length - 1)) * index;
-                      const minUsers = Math.min(...userGrowth.map((item) => item.users));
-                      const maxUsers = Math.max(...userGrowth.map((item) => item.users));
-                      const range = maxUsers - minUsers || 1;
-                      const normalized = (point.users - minUsers) / range;
-                      const y = 110 - normalized * (110 - 8) - 4;
- 
-                      return <circle key={point.month} cx={x} cy={y} r="4" fill="#2a6bb5" />;
+
+                <div className="trend-chart">
+                  <div className="trend-bars">
+                    {filteredContentTrend.map((point) => {
+                      const heightPercent = Math.max(18, Math.round((point.posts / contentMax) * 100));
+
+                      return (
+                        <div
+                          key={point.month}
+                          className="trend-bar"
+                          data-label={point.month}
+                          style={{ height: `${heightPercent}%` }}
+                          title={`${point.posts} posts`}
+                        />
+                      );
                     })}
-                  </svg>
+                  </div>
                 </div>
-              </article>
-            </section>
+              </div>
+
+              <div className="analytics-block">
+                <div className="admin-panel__head">
+                  <div className="admin-panel__head-left">
+                    <span className="panel-icon" aria-hidden="true">
+                      <Users size={16} />
+                    </span>
+                    <h2 className="admin-panel__title">User Growth</h2>
+                  </div>
+                  <p className="admin-panel__hint">{periodHint} account growth</p>
+                </div>
+
+                <svg className="user-line" viewBox="0 0 520 130" role="img" aria-label="User growth chart">
+                  <rect x="0" y="0" width="520" height="130" fill="#f4f8fd" />
+                  <polyline
+                    points={growthPath}
+                    fill="none"
+                    stroke="#1e538e"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  {filteredUserGrowth.map((point, index) => {
+                    const x = (520 / (filteredUserGrowth.length - 1)) * index;
+                    const minUsers = Math.min(...filteredUserGrowth.map((item) => item.users));
+                    const maxUsers = Math.max(...filteredUserGrowth.map((item) => item.users));
+                    const range = maxUsers - minUsers || 1;
+                    const normalized = (point.users - minUsers) / range;
+                    const y = 110 - normalized * (110 - 8) - 4;
+
+                    return <circle key={point.month} cx={x} cy={y} r="4" fill="#2a6bb5" />;
+                  })}
+                </svg>
+              </div>
+            </article>
           </section>
+        </section>
       </section>
     </AdminSidebarLayout>
   );

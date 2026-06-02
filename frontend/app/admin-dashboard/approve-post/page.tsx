@@ -48,6 +48,7 @@ export default function ApprovePostPage() {
   const [feedbackError, setFeedbackError] = useState("");
   const [lastNotification, setLastNotification] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 3;
 
@@ -55,19 +56,22 @@ export default function ApprovePostPage() {
     const fetchPending = async () => {
       try {
         const response = await api.get('/posts?status=pending');
-        const postsList: PendingPost[] = response.posts.map((post: any) => ({
-          id: post.id.toString(),
-          date: new Date(post.created_at).toLocaleDateString("en-US", {
-            month: "long",
-            day: "numeric",
-            year: "numeric"
-          }),
-          title: post.title,
-          summary: post.excerpt || "No summary provided.",
-          author: post.author || "Institutional Writer",
-          organization: post.user?.university || "Graduate Council Affiliate",
-          category: post.category.charAt(0).toUpperCase() + post.category.slice(1),
-        }));
+        const postsList: PendingPost[] = response.posts.map((post: any) => {
+          const cat = post.category || "general";
+          return {
+            id: post.id.toString(),
+            date: new Date(post.created_at).toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric"
+            }),
+            title: post.title,
+            summary: post.excerpt || "No summary provided.",
+            author: post.author || "Institutional Writer",
+            organization: post.user?.university || "Graduate Council Affiliate",
+            category: cat.charAt(0).toUpperCase() + cat.slice(1),
+          };
+        });
         
         setPendingPosts(postsList);
         
@@ -116,7 +120,7 @@ export default function ApprovePostPage() {
   const pagedPosts = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredPosts.slice(start, start + pageSize);
-  }, [currentPage, filteredPosts]);
+  }, [currentPage, filteredPosts, pageSize]);
 
   useEffect(() => {
     if (!selectedPost) {
@@ -143,9 +147,9 @@ export default function ApprovePostPage() {
 
   const handleModeratePost = async (postId: string, status: PostStatus) => {
     const post = pendingPosts.find((item) => item.id === postId);
-    if (!post) return;
+    if (!post || isSubmitting) return;
 
-    setIsLoading(true);
+    setIsSubmitting(true);
     setFeedbackError("");
     setLastNotification("");
     try {
@@ -173,13 +177,13 @@ export default function ApprovePostPage() {
     } catch (err: any) {
       setFeedbackError(err.message || `Failed to ${status} post.`);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   const handleApprove = async () => {
-    if (!selectedPost) return;
-    setIsLoading(true);
+    if (!selectedPost || isSubmitting) return;
+    setIsSubmitting(true);
     setFeedbackError("");
     setLastNotification("");
     try {
@@ -201,12 +205,12 @@ export default function ApprovePostPage() {
     } catch (err: any) {
       setFeedbackError(err.message || "Failed to approve post.");
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   const handleReject = async () => {
-    if (!selectedPost) return;
+    if (!selectedPost || isSubmitting) return;
 
     const trimmedFeedback = feedbackInput.trim();
     if (!trimmedFeedback) {
@@ -214,7 +218,7 @@ export default function ApprovePostPage() {
       return;
     }
 
-    setIsLoading(true);
+    setIsSubmitting(true);
     setFeedbackError("");
     setLastNotification("");
     try {
@@ -236,7 +240,7 @@ export default function ApprovePostPage() {
     } catch (err: any) {
       setFeedbackError(err.message || "Failed to reject post.");
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -267,7 +271,7 @@ export default function ApprovePostPage() {
       subtitle="Review and approve posts submitted by the Post Reviewer (Organization Panel)."
       eyebrow="Admin Panel"
     >
-      <section className="approve-content">
+      <section className="approve-content" style={{ opacity: isSubmitting ? 0.7 : 1, pointerEvents: isSubmitting ? 'none' : 'auto', transition: 'opacity 0.2s ease' }}>
         <div className="approve-hero">
           <div className="approve-hero__inner">
             <div className="approve-hero__controls" role="region" aria-label="Approval filters">
@@ -320,6 +324,7 @@ export default function ApprovePostPage() {
                   <button
                     type="button"
                     className="approve-card__action approve-card__action--accept"
+                    disabled={isSubmitting}
                     onClick={(event) => {
                       event.stopPropagation();
                       handleModeratePost(post.id, "approved");
@@ -330,6 +335,7 @@ export default function ApprovePostPage() {
                   <button
                     type="button"
                     className="approve-card__action approve-card__action--reject"
+                    disabled={isSubmitting}
                     onClick={(event) => {
                       event.stopPropagation();
                       handleModeratePost(post.id, "rejected");
@@ -357,7 +363,7 @@ export default function ApprovePostPage() {
                   type="button"
                   className="approve-pagination__nav"
                   onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                  disabled={currentPage === 1}
+                  disabled={currentPage === 1 || isSubmitting}
                   aria-label="Previous page"
                 >
                   <ChevronLeft size={16} />
@@ -371,6 +377,7 @@ export default function ApprovePostPage() {
                         key={page}
                         type="button"
                         className={`approve-pagination__page${page === currentPage ? " approve-pagination__page--active" : ""}`}
+                        disabled={isSubmitting}
                         onClick={() => setCurrentPage(page)}
                         aria-current={page === currentPage ? "page" : undefined}
                       >
@@ -384,7 +391,7 @@ export default function ApprovePostPage() {
                   type="button"
                   className="approve-pagination__nav"
                   onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-                  disabled={currentPage === totalPages}
+                  disabled={currentPage === totalPages || isSubmitting}
                   aria-label="Next page"
                 >
                   <ChevronRight size={16} />
@@ -445,6 +452,7 @@ export default function ApprovePostPage() {
                     className="approve-feedback"
                     placeholder="Enter feedback to organization for rejected posts"
                     value={feedbackInput}
+                    disabled={isSubmitting}
                     onChange={(event) => {
                       setFeedbackInput(event.target.value);
                       if (feedbackError) setFeedbackError("");
@@ -460,11 +468,11 @@ export default function ApprovePostPage() {
                 </div>
 
                 <div className="approve-detail__actions">
-                  <button type="button" className="approve-btn approve-btn--accept" onClick={handleApprove}>
-                    Approve
+                  <button type="button" className="approve-btn approve-btn--accept" disabled={isSubmitting} onClick={handleApprove}>
+                    {isSubmitting ? "Approving..." : "Approve"}
                   </button>
-                  <button type="button" className="approve-btn approve-btn--reject" onClick={handleReject}>
-                    Reject
+                  <button type="button" className="approve-btn approve-btn--reject" disabled={isSubmitting} onClick={handleReject}>
+                    {isSubmitting ? "Rejecting..." : "Reject"}
                   </button>
                 </div>
 
