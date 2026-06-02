@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import styles from "./ChartCard.module.css";
 
 type Point = {
@@ -16,184 +16,265 @@ type ChartCardProps = {
   color?: string;
 };
 
-export default function ChartCard({ title, hint, data, height = 200, color = "#1e538e" }: ChartCardProps) {
+export default function ChartCard({
+  title,
+  hint,
+  data,
+  height = 180,
+  color = "#1E538E",
+}: ChartCardProps) {
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
   const width = 600;
-  const padding = { top: 25, bottom: 40, left: 45, right: 20 };
+  const padding = { top: 28, bottom: 36, left: 48, right: 24 };
   const innerWidth = width - padding.left - padding.right;
   const innerHeight = height - padding.top - padding.bottom;
-  
-  const minVal = Math.min(...data.map((d) => d.value));
-  const maxVal = Math.max(...data.map((d) => d.value));
-  // Add some padding to the top of the chart for better visibility
-  const range = (maxVal - minVal) * 1.1 || 1;
-  const adjustedMax = minVal + range;
 
-  const getYCoordinate = (value: number) => {
-    const normalized = (value - minVal) / range;
-    return padding.top + (innerHeight - normalized * innerHeight);
-  };
+  const values = data.map((d) => d.value);
+  const minVal = Math.min(...values);
+  const maxVal = Math.max(...values);
+  const range = (maxVal - minVal) || 1;
+  const paddedMin = minVal - range * 0.1;
+  const paddedMax = maxVal + range * 0.15;
+  const paddedRange = paddedMax - paddedMin;
 
-  const getXCoordinate = (index: number) => {
-    return padding.left + (index / (data.length - 1)) * innerWidth;
-  };
+  const getY = (value: number) =>
+    padding.top + innerHeight - ((value - paddedMin) / paddedRange) * innerHeight;
 
-  const points = data
+  const getX = (index: number) =>
+    padding.left + (index / (data.length - 1)) * innerWidth;
+
+  const linePath = data
     .map((point, i) => {
-      const x = getXCoordinate(i);
-      const y = getYCoordinate(point.value);
-      return `${x.toFixed(2)},${y.toFixed(2)}`;
+      const x = getX(i).toFixed(2);
+      const y = getY(point.value).toFixed(2);
+      return `${i === 0 ? "M" : "L"}${x},${y}`;
     })
     .join(" ");
 
-  // Calculate Y-axis ticks with better formatting
-  const yTicks = 5;
-  const yValues = [];
-  for (let i = 0; i <= yTicks; i++) {
-    const value = minVal + (range / yTicks) * i;
-    yValues.push(Math.round(value));
-  }
+  // Smooth area fill
+  const areaPath =
+    linePath +
+    ` L${getX(data.length - 1).toFixed(2)},${(padding.top + innerHeight).toFixed(2)}` +
+    ` L${padding.left},${(padding.top + innerHeight).toFixed(2)} Z`;
 
-  // Format Y-axis labels for better readability
-  const formatYLabel = (value: number) => {
-    if (value >= 1000) {
-      return (value / 1000).toFixed(0) + 'k';
-    }
-    return value.toString();
+  // Y-axis ticks (4 lines)
+  const tickCount = 4;
+  const yTicks = Array.from({ length: tickCount + 1 }, (_, i) => {
+    const ratio = i / tickCount;
+    return paddedMin + paddedRange * ratio;
+  });
+
+  const formatLabel = (v: number) => {
+    if (Math.abs(v) >= 1_000_000) return (v / 1_000_000).toFixed(1) + "M";
+    if (Math.abs(v) >= 1_000) return (v / 1_000).toFixed(0) + "k";
+    return Math.round(v).toString();
   };
+
+  const totalValue = values.reduce((a, b) => a + b, 0);
+  const avgValue = totalValue / values.length;
 
   return (
     <div className={styles.container}>
-      <div className={styles.head}>
-        <div>
+      {/* Header */}
+      <div className={styles.header}>
+        <div className={styles.headerText}>
           <h3 className={styles.title}>{title}</h3>
           {hint && <p className={styles.hint}>{hint}</p>}
         </div>
+        <div className={styles.stats}>
+          <div className={styles.stat}>
+            <span className={styles.statLabel}>Avg</span>
+            <span className={styles.statValue}>{formatLabel(avgValue)}</span>
+          </div>
+          <div className={styles.stat}>
+            <span className={styles.statLabel}>Total</span>
+            <span className={styles.statValue}>{formatLabel(totalValue)}</span>
+          </div>
+        </div>
       </div>
 
-      <div className={styles.chartContainer}>
-        <svg 
-          className={styles.svg} 
-          viewBox={`0 0 ${width} ${height}`} 
-          role="img" 
-          aria-label={title} 
+      {/* Chart */}
+      <div className={styles.chartWrap}>
+        <svg
+          className={styles.svg}
+          viewBox={`0 0 ${width} ${height}`}
+          role="img"
+          aria-label={title}
           preserveAspectRatio="xMidYMid meet"
         >
-          {/* Background */}
-          <rect x="0" y="0" width={width} height={height} fill="#fafcff" rx="8" />
-          
-          {/* Y-axis grid lines and labels */}
-          {yValues.map((value, idx) => {
-            const y = padding.top + (innerHeight / yTicks) * idx;
+          <defs>
+            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={color} stopOpacity="0.12" />
+              <stop offset="100%" stopColor={color} stopOpacity="0.01" />
+            </linearGradient>
+            <clipPath id="chartClip">
+              <rect
+                x={padding.left}
+                y={padding.top}
+                width={innerWidth}
+                height={innerHeight}
+              />
+            </clipPath>
+          </defs>
+
+          {/* Horizontal grid lines */}
+          {yTicks.map((tick, i) => {
+            const y = getY(tick);
             return (
-              <g key={`grid-${idx}`}>
+              <g key={`tick-${i}`}>
                 <line
                   x1={padding.left}
                   y1={y}
                   x2={padding.left + innerWidth}
                   y2={y}
-                  stroke="#e8edf2"
+                  stroke="#E8EDF4"
                   strokeWidth="1"
-                  strokeDasharray="4"
                 />
                 <text
-                  x={padding.left - 12}
+                  x={padding.left - 10}
                   y={y}
                   textAnchor="end"
-                  alignmentBaseline="middle"
-                  fontSize="11"
-                  fill="#5a6e8c"
-                  fontWeight="600"
+                  dominantBaseline="middle"
+                  fontSize="10"
+                  fill="#8B9FB8"
+                  fontFamily="Poppins, sans-serif"
+                  fontWeight="500"
+                  letterSpacing="0.3"
                 >
-                  {formatYLabel(value)}
+                  {formatLabel(tick)}
                 </text>
               </g>
             );
           })}
-          
+
+          {/* Area fill */}
+          <path d={areaPath} fill="url(#areaGrad)" clipPath="url(#chartClip)" />
+
+          {/* Line */}
+          <path
+            d={linePath}
+            fill="none"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            clipPath="url(#chartClip)"
+          />
+
           {/* X-axis labels */}
+          {data.map((point, idx) => (
+            <text
+              key={`xlabel-${idx}`}
+              x={getX(idx)}
+              y={height - 6}
+              textAnchor="middle"
+              fontSize="10"
+              fill={hoveredIdx === idx ? color : "#8B9FB8"}
+              fontFamily="Poppins, sans-serif"
+              fontWeight={hoveredIdx === idx ? "600" : "500"}
+              style={{ transition: "fill 0.15s ease" }}
+            >
+              {point.label}
+            </text>
+          ))}
+
+          {/* Hover areas + dots */}
           {data.map((point, idx) => {
-            const x = getXCoordinate(idx);
+            const x = getX(idx);
+            const y = getY(point.value);
+            const isHovered = hoveredIdx === idx;
             return (
-              <text
-                key={`label-${idx}`}
-                x={x}
-                y={height - padding.bottom + 15}
-                textAnchor="middle"
-                fontSize="11"
-                fill="#5a6e8c"
-                fontWeight="600"
-              >
-                {point.label}
-              </text>
-            );
-          })}
-          
-          {/* X-axis line */}
-          <line
-            x1={padding.left}
-            y1={height - padding.bottom + 2}
-            x2={padding.left + innerWidth}
-            y2={height - padding.bottom + 2}
-            stroke="#dce3e9"
-            strokeWidth="1.5"
-          />
-          
-          {/* Y-axis line */}
-          <line
-            x1={padding.left}
-            y1={padding.top}
-            x2={padding.left}
-            y2={height - padding.bottom + 2}
-            stroke="#dce3e9"
-            strokeWidth="1.5"
-          />
-          
-          {/* Chart line */}
-          <polyline 
-            points={points} 
-            fill="none" 
-            stroke={color} 
-            strokeWidth={3} 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-          />
-          
-          {/* Area under the line */}
-          <polygon
-            points={`${padding.left},${height - padding.bottom} ${points} ${padding.left + innerWidth},${height - padding.bottom}`}
-            fill={`${color}10`}
-          />
-          
-          {/* Data points */}
-          {data.map((point, idx) => {
-            const x = getXCoordinate(idx);
-            const y = getYCoordinate(point.value);
-            return (
-              <g key={point.label}>
-                <circle 
-                  cx={x} 
-                  cy={y} 
-                  r={4.5} 
-                  fill={color} 
-                  stroke="#fff" 
-                  strokeWidth={2.5}
-                  style={{ cursor: 'pointer' }}
+              <g key={`pt-${idx}`}>
+                {/* Invisible hover hit area */}
+                <rect
+                  x={x - 18}
+                  y={padding.top}
+                  width={36}
+                  height={innerHeight}
+                  fill="transparent"
+                  style={{ cursor: "pointer" }}
+                  onMouseEnter={() => setHoveredIdx(idx)}
+                  onMouseLeave={() => setHoveredIdx(null)}
                 />
-                {/* Add value tooltip on hover */}
-                <title>{`${point.label}: ${point.value}`}</title>
+
+                {/* Vertical hover indicator */}
+                {isHovered && (
+                  <line
+                    x1={x}
+                    y1={padding.top}
+                    x2={x}
+                    y2={padding.top + innerHeight}
+                    stroke={color}
+                    strokeWidth="1"
+                    strokeDasharray="3 3"
+                    opacity="0.4"
+                  />
+                )}
+
+                {/* Tooltip */}
+                {isHovered && (
+                  <g>
+                    <rect
+                      x={Math.min(x - 28, width - 72)}
+                      y={y - 30}
+                      width={56}
+                      height={20}
+                      rx="4"
+                      fill="#143152"
+                    />
+                    <text
+                      x={Math.min(x, width - 44)}
+                      y={y - 16}
+                      textAnchor="middle"
+                      fontSize="10"
+                      fill="#FDFDFD"
+                      fontFamily="Poppins, sans-serif"
+                      fontWeight="600"
+                    >
+                      {point.value.toLocaleString()}
+                    </text>
+                  </g>
+                )}
+
+                {/* Data dot */}
+                <circle
+                  cx={x}
+                  cy={y}
+                  r={isHovered ? 5 : 3.5}
+                  fill={isHovered ? "#FDFDFD" : color}
+                  stroke={color}
+                  strokeWidth={isHovered ? 2 : 0}
+                  style={{ transition: "r 0.1s ease" }}
+                  pointerEvents="none"
+                />
               </g>
             );
           })}
         </svg>
       </div>
 
+      {/* Footer sparkline legend */}
       <div className={styles.footer}>
-        {data.map((d) => (
-          <div key={d.label} className={styles.legendItem}>
-            <span className={styles.legendLabel}>{d.label}</span>
-            <span className={styles.legendValue}>{d.value}</span>
-          </div>
-        ))}
+        {data.map((d, i) => {
+          const isMax = d.value === maxVal;
+          const isMin = d.value === minVal;
+          return (
+            <div
+              key={d.label}
+              className={`${styles.legendItem} ${hoveredIdx === i ? styles.legendItemActive : ""}`}
+              onMouseEnter={() => setHoveredIdx(i)}
+              onMouseLeave={() => setHoveredIdx(null)}
+            >
+              <span className={styles.legendLabel}>{d.label}</span>
+              <span
+                className={`${styles.legendValue} ${isMax ? styles.legendMax : ""} ${isMin ? styles.legendMin : ""}`}
+              >
+                {d.value.toLocaleString()}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
