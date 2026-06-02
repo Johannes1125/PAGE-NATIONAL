@@ -3,6 +3,7 @@
 import { useState } from "react";
 import './admin-login.css';
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ToastContainer, toast } from "react-toastify";
@@ -146,7 +147,7 @@ export default function OrgLogin() {
                 <label htmlFor="rememberMe">Remember this device</label>
               </div>
               <div className="remember-me">
-                <span className="forgot"><a href="#">Forgot Password?</a></span>
+                <span className="forgot"><Link href="/forgot-password">Forgot Password?</Link></span>
               </div>
             </div>
 

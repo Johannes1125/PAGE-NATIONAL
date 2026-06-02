@@ -19,6 +19,9 @@ use App\Http\Controllers\MessageController;
 
 // --- PUBLIC PORTS ---
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 // Landing Page: Fetch dynamic published posts (for dynamic homepage articles)
 Route::get('/public/posts', [PostController::class, 'index'])->defaults('status', 'published');

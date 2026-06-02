@@ -9,6 +9,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { api } from "../lib/api-client";
 
 export default function MemberLogin() {
@@ -150,7 +151,7 @@ export default function MemberLogin() {
               </div>
 
               <div className='remember-me'>
-                <span className="forgot"><a href="#">Forgot Password?</a></span>
+                <span className="forgot"><Link href="/forgot-password">Forgot Password?</Link></span>
               </div>
             </div>
 
@@ -168,7 +169,7 @@ export default function MemberLogin() {
 
             {/* SIGN UP */}
             <p className="sign-up">
-              New to the platform? <a href="#">Create Account</a>
+              New to the platform? <Link href="/create-account">Create Account</Link>
             </p>
 
           </div>

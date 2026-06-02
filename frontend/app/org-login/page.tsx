@@ -9,6 +9,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { api } from "../lib/api-client";
 
 export default function OrgLogin() {
@@ -173,7 +174,7 @@ export default function OrgLogin() {
               </div>
 
               <div className='remember-me'>
-                <span className="forgot"><a href="#">Forgot Password?</a></span>
+                <span className="forgot"><Link href="/forgot-password">Forgot Password?</Link></span>
               </div>
             </div>
 

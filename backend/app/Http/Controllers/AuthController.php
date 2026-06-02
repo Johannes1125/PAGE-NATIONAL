@@ -120,4 +120,141 @@ class AuthController extends Controller
             ]
         ]);
     }
+
+    /**
+     * Public Registration Endpoint.
+     */
+    public function register(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6|confirmed',
+            'role' => 'required|string|in:member,organization,reviewer',
+            'university' => 'nullable|string|max:255',
+            'position' => 'nullable|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+                'message' => 'Validation error'
+            ], 422);
+        }
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
+            'university' => $request->university,
+            'position' => $request->position,
+            'status' => 'active',
+        ]);
+
+        // Audit Trail entry
+        UserActivity::create([
+            'user_id' => $user->id,
+            'action' => 'Registered a new account.',
+            'ip_address' => $request->ip(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'university' => $user->university,
+                'position' => $user->position,
+                'status' => $user->status,
+            ],
+            'message' => 'Registration successful! You can now log in.'
+        ], 201);
+    }
+
+    /**
+     * Simulated Forgot Password Request Endpoint.
+     */
+    public function forgotPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+                'message' => 'Validation error'
+            ], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No account found with this email address.'
+            ], 404);
+        }
+
+        $tempToken = bin2hex(random_bytes(16));
+
+        UserActivity::create([
+            'user_id' => $user->id,
+            'action' => 'Requested password reset link.',
+            'ip_address' => $request->ip(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'A password reset link has been successfully simulated and dispatched!',
+            'reset_token' => $tempToken,
+        ]);
+    }
+
+    /**
+     * Simulated Password Reset Action.
+     */
+    public function resetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+                'message' => 'Validation error'
+            ], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No account found with this email address.'
+            ], 404);
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        UserActivity::create([
+            'user_id' => $user->id,
+            'action' => 'Reset password successfully.',
+            'ip_address' => $request->ip(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Your password has been successfully reset. You can now log in with your new password!'
+        ]);
+    }
 }
