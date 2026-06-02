@@ -36,6 +36,8 @@ Route::middleware(['auth.token'])->group(function () {
     // Posts Operations
     Route::get('/posts', [PostController::class, 'index']);
     Route::post('/posts', [PostController::class, 'store']); // Create new post (Draft or Pending)
+    Route::put('/posts/{id}', [PostController::class, 'update']); // Update an existing post
+    Route::delete('/posts/{id}', [PostController::class, 'destroy']); // Delete a post
 
     // Academic Research Submissions
     Route::get('/articles', [ArticleSubmissionController::class, 'index']);

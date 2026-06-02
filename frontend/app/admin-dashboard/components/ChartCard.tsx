@@ -31,32 +31,39 @@ export default function ChartCard({
   const innerHeight = height - padding.top - padding.bottom;
 
   const values = data.map((d) => d.value);
-  const minVal = Math.min(...values);
-  const maxVal = Math.max(...values);
+  const minVal = values.length > 0 ? Math.min(...values) : 0;
+  const maxVal = values.length > 0 ? Math.max(...values) : 0;
   const range = (maxVal - minVal) || 1;
   const paddedMin = minVal - range * 0.1;
   const paddedMax = maxVal + range * 0.15;
-  const paddedRange = paddedMax - paddedMin;
+  const paddedRange = (paddedMax - paddedMin) || 1;
 
   const getY = (value: number) =>
     padding.top + innerHeight - ((value - paddedMin) / paddedRange) * innerHeight;
 
-  const getX = (index: number) =>
-    padding.left + (index / (data.length - 1)) * innerWidth;
+  const getX = (index: number) => {
+    if (data.length <= 1) {
+      return padding.left + innerWidth / 2;
+    }
+    return padding.left + (index / (data.length - 1)) * innerWidth;
+  };
 
-  const linePath = data
-    .map((point, i) => {
-      const x = getX(i).toFixed(2);
-      const y = getY(point.value).toFixed(2);
-      return `${i === 0 ? "M" : "L"}${x},${y}`;
-    })
-    .join(" ");
+  const linePath = data.length > 0
+    ? data
+        .map((point, i) => {
+          const x = getX(i).toFixed(2);
+          const y = getY(point.value).toFixed(2);
+          return `${i === 0 ? "M" : "L"}${x},${y}`;
+        })
+        .join(" ")
+    : "";
 
   // Smooth area fill
-  const areaPath =
-    linePath +
-    ` L${getX(data.length - 1).toFixed(2)},${(padding.top + innerHeight).toFixed(2)}` +
-    ` L${padding.left},${(padding.top + innerHeight).toFixed(2)} Z`;
+  const areaPath = data.length > 0
+    ? linePath +
+      ` L${getX(data.length - 1).toFixed(2)},${(padding.top + innerHeight).toFixed(2)}` +
+      ` L${padding.left},${(padding.top + innerHeight).toFixed(2)} Z`
+    : "";
 
   // Y-axis ticks (4 lines)
   const tickCount = 4;

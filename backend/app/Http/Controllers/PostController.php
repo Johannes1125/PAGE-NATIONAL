@@ -224,4 +224,111 @@ class PostController extends Controller
             'message' => 'Post rejected successfully.'
         ]);
     }
+
+    /**
+     * Update an existing post.
+     */
+    public function update(Request $request, $id)
+    {
+        $user = Auth::user();
+        $post = Post::find($id);
+
+        if (!$post) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Post not found.'
+            ], 404);
+        }
+
+        if ($user->role !== 'admin' && $post->user_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized action.'
+            ], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string|max:255',
+            'category' => 'required|string|in:article,research,journal,announcement',
+            'content_html' => 'required|string',
+            'excerpt' => 'nullable|string',
+            'assigned_members' => 'nullable|string',
+            'status' => 'required|string|in:draft,pending,published',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+                'message' => 'Input validation failed.'
+            ], 422);
+        }
+
+        // Security: Organizations cannot force status to published immediately.
+        $status = $request->status;
+        if ($user->role === 'organization' && $status === 'published') {
+            $status = 'pending';
+        }
+
+        $post->update([
+            'title' => $request->title,
+            'category' => $request->category,
+            'content_html' => $request->content_html,
+            'excerpt' => $request->excerpt,
+            'assigned_members' => $request->assigned_members,
+            'status' => $status,
+            'published_at' => ($status === 'published' && !$post->published_at) ? now() : $post->published_at,
+        ]);
+
+        // Log action in audit trail
+        UserActivity::create([
+            'user_id' => $user->id,
+            'action' => "Updated post: '{$post->title}' (ID: {$post->id}).",
+            'ip_address' => $request->ip(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'post' => $post->load('attachments'),
+            'message' => 'Post updated successfully.'
+        ]);
+    }
+
+    /**
+     * Delete an existing post.
+     */
+    public function destroy(Request $request, $id)
+    {
+        $user = Auth::user();
+        $post = Post::find($id);
+
+        if (!$post) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Post not found.'
+            ], 404);
+        }
+
+        if ($user->role !== 'admin' && $post->user_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized action.'
+            ], 403);
+        }
+
+        $title = $post->title;
+        $post->delete(); // Cascades should delete attachments
+
+        // Log action in audit trail
+        UserActivity::create([
+            'user_id' => $user->id,
+            'action' => "Deleted post: '{$title}' (ID: {$id}).",
+            'ip_address' => $request->ip(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Post deleted successfully.'
+        ]);
+    }
 }
