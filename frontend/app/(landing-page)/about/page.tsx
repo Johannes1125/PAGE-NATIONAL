@@ -312,11 +312,7 @@ function AboutOrganization() {
               About the Organization
             </h2>
             <p className="about-org__body">
-              The Philippine Association for Graduate Education (PAGE) is a distinguished
-              national organization operating as a special project under the Commission on
-              Higher Education (CHED) Program. Established to promote and enhance the quality
-              of graduate education across the Philippines, PAGE serves as a vital bridge
-              connecting graduate schools, researchers, and education professionals nationwide.
+              The Philippine Association for Graduate Education (PAGE) anchors its organizational identity on driving academic excellence and research innovation across higher education institutions in the Philippines.
             </p>
             <p className="about-org__body">
               Our mission is to foster excellence in graduate education through collaborative
@@ -384,10 +380,7 @@ function MissionVision() {
             </div>
             <h3 className="mv-card__title">Our Vision</h3>
             <p className="mv-card__text">
-              To be the leading organization in the Philippines that champions excellence,
-              innovation, and global competitiveness in graduate education, producing
-              world-class researchers and professionals who contribute significantly to
-              national development and international scholarship.
+              To be a premier and globally recognized association of professionals and institutions dedicated to the continuous advancement, internationalization, and transformation of graduate education in the Philippines
             </p>
             <a href="#" className="mv-card__link">
               Learn more <ArrowIcon />
@@ -401,10 +394,7 @@ function MissionVision() {
             </div>
             <h3 className="mv-card__title">Our Mission</h3>
             <p className="mv-card__text">
-              To advance the quality and relevance of graduate education in the Philippines
-              by fostering collaborative research, promoting professional development,
-              facilitating knowledge exchange, and advocating for policies that strengthen
-              graduate programs across all disciplines and institutions.
+              To foster an empowering environment for academic leaders, faculty, and graduate students through impactful research, capacity building, and policy advocacy. PAGE is explicitly committed to partnering with regulatory bodies like the Commission on Higher Education (CHED) to elevate Philippine scholarly publications and educational standards to par with global trends
             </p>
             <a href="#" className="mv-card__link">
               Learn more <ArrowIcon />
