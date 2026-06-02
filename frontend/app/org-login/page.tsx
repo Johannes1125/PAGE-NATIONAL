@@ -2,11 +2,15 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, Loader2, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGraduationCap } from '../lib/fontawesome-icons';
+import { gooeyToast } from "goey-toast";
+import "goey-toast/styles.css";
 import './org-login.css';
+import { api } from "../lib/api-client";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -25,7 +29,7 @@ const containerVariants = {
 
 const lineVariants = {
   hidden: { opacity: 0, x: -30 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.55, ease: 'easeOut' } },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.55, ease: 'easeOut' as any } },
 };
 
 const checkItemVariants = {
@@ -33,20 +37,14 @@ const checkItemVariants = {
   visible: (i: number) => ({
     opacity: 1,
     x: 0,
-    transition: { duration: 0.45, ease: 'easeOut', delay: 0.6 + i * 0.12 },
+    transition: { duration: 0.45, ease: 'easeOut' as any, delay: 0.6 + i * 0.12 },
   }),
 };
 
 const rightPanelVariants = {
   hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut', delay: 0.2 } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' as any, delay: 0.2 } },
 };
-
-// ─── Component ────────────────────────────────────────────────────────────────
-
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { api } from "../lib/api-client";
 
 export default function OrgLogin() {
   const router = useRouter();
@@ -54,17 +52,6 @@ export default function OrgLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-<<<<<<< HEAD
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-
-  const handleSignIn = async () => {
-    if (!email || !password) {
-      toast.error("Please fill in all fields!");
-      return;
-=======
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -76,36 +63,11 @@ export default function OrgLogin() {
       newErrors.email = 'Email address is required.';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       newErrors.email = 'Enter a valid institutional email address.';
->>>>>>> dev
     }
     if (!password) {
       newErrors.password = 'Password is required.';
     }
-<<<<<<< HEAD
-
-    setIsLoading(true);
-    try {
-      const data = await api.post('/login', { email, password });
-      
-      if (data.user.role !== 'organization') {
-        toast.error("Access Denied: Not an institutional organization account.");
-        setIsLoading(false);
-        return;
-      }
-      
-      localStorage.setItem('page_user_token', data.token);
-      localStorage.setItem('page_user_payload', JSON.stringify(data.user));
-      
-      toast.success("Login successful!");
-      router.push('/org-dashboard');
-    } catch (err: any) {
-      toast.error(err.message || "Authentication failed. Please verify your credentials.");
-    } finally {
-      setIsLoading(false);
-    }
-=======
     return newErrors;
->>>>>>> dev
   };
 
   const handleSignIn = async () => {
@@ -116,107 +78,77 @@ export default function OrgLogin() {
       return;
     }
 
-    setErrors({});
     setIsLoading(true);
-
-    // TODO: connect to API — POST /api/auth/org/login
-    // Expected payload: { email, password, remember_me: rememberMe }
-    // Expected response: { token, user: { id, name, role } }
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    setIsLoading(false);
-    router.push('/org-dashboard');
+    try {
+      const data = await api.post('/login', { email, password });
+      
+      if (data.user.role !== 'organization') {
+        gooeyToast.error("Access Denied: Not an institutional organization account.");
+        setIsLoading(false);
+        return;
+      }
+      
+      localStorage.setItem('page_user_token', data.token);
+      localStorage.setItem('page_user_payload', JSON.stringify(data.user));
+      
+      gooeyToast.success("Login successful!");
+      router.push('/org-dashboard');
+    } catch (err: any) {
+      gooeyToast.error(err.message || "Authentication failed. Please verify your credentials.");
+      setErrors({ general: err.message || "Authentication failed." });
+      setFormShake(true);
+    } finally {
+      setIsLoading(false);
+    }
   };
-
-  const features = [
-    'Organization-Wide Access Control',
-    'Journal Submission Management',
-    'Peer Review Coordination Tools',
-  ];
 
   return (
     <div className="ol-container">
-      {/* ── SPLIT LAYOUT ── */}
-      <div className="ol-split">
+      {/* Back button */}
+      <Link href="/" className="ol-back-link" aria-label="Go back to home page">
+        <ArrowLeft size={16} />
+        <span>Back to Portal</span>
+      </Link>
 
-        {/* ── LEFT PANEL ── */}
+      <div className="ol-workspace">
+        {/* ── LEFT PANEL (Branding & Copy) ── */}
         <div className="ol-left">
-          <div className="ol-left-overlay" />
-
-          <div className="ol-left-content">
-            {/* Back to Home Button */}
-            <motion.button
-              className="ol-back-home"
-              onClick={() => router.push('/')}
-              initial={{ opacity: 0, x: -12 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-            >
-              <ArrowLeft size={16} strokeWidth={2.5} />
-              <span>Back to Home</span>
-            </motion.button>
-
-            {/* Logo */}
+          <div className="ol-branding">
             <motion.div
               className="ol-logo-badge"
-              initial={{ opacity: 0, y: -12 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
             >
-              <div className="ol-logo-icon-wrap">
-                <FontAwesomeIcon icon={faGraduationCap} className="ol-grad-icon" />
-              </div>
-              <span className="ol-logo-wordmark">PAGE</span>
+              <FontAwesomeIcon icon={faGraduationCap} size="lg" className="ol-icon" />
             </motion.div>
+            <span className="ol-brand-text">PAGE</span>
+          </div>
 
-            {/* Headline */}
+          <div className="ol-intro-block">
             <motion.div
-              className="ol-headline-wrap"
               variants={containerVariants}
               initial="hidden"
               animate="visible"
+              className="ol-typography"
             >
-              {['Organization', 'Member', 'Workspace'].map((word) => (
-                <motion.span key={word} className="ol-headline-line" variants={lineVariants}>
-                  {word}
-                </motion.span>
-              ))}
+              <motion.h1 variants={lineVariants} className="ol-title">
+                Institutional
+              </motion.h1>
+              <motion.h1 variants={lineVariants} className="ol-title ol-title--bold">
+                Console Portal.
+              </motion.h1>
+              <motion.p variants={lineVariants} className="ol-subtitle-left">
+                Manage your institution's chapter, moderate member submissions, and oversee research cohorts.
+              </motion.p>
             </motion.div>
-
-            {/* Descriptor */}
-            <motion.p
-              className="ol-descriptor"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-            >
-              The definitive hub for scholarly excellence. Submit journals, manage peer
-              reviews, and curate academic progress through our dedicated organization portal.
-            </motion.p>
-
-            {/* Feature Bullets */}
-            <div className="ol-checklist">
-              {features.map((item, i) => (
-                <motion.div
-                  key={item}
-                  className="ol-check-item"
-                  custom={i}
-                  variants={checkItemVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  <CheckCircle size={18} className="ol-check-icon" strokeWidth={2.5} />
-                  <span>{item}</span>
-                </motion.div>
-              ))}
-            </div>
 
             {/* Role Pills */}
             <motion.div
-              className="ol-role-grid"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.0, duration: 0.5 }}
+              className="ol-role-pills"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8, duration: 0.5 }}
             >
               {['Editor-in-Chief', 'Peer Reviewer', 'Content Manager', 'Contributor'].map((role) => (
                 <span key={role} className="ol-role-pill">{role}</span>
@@ -300,17 +232,6 @@ export default function OrgLogin() {
               </AnimatePresence>
             </div>
 
-<<<<<<< HEAD
-            {/* REMEMBER + FORGOT */}
-            <div className='remember-forgot'>
-              <div className="remember-me">
-                <input type="checkbox" id="rememberMe" className='checkbox' />
-                <label htmlFor="rememberMe">Keep me signed in</label>
-              </div>
-
-              <div className='remember-me'>
-                <span className="forgot"><Link href="/forgot-password">Forgot Password?</Link></span>
-=======
             {/* Password Field */}
             <div className="ol-field-group">
               <label htmlFor="ol-password" className="ol-label">Password</label>
@@ -338,7 +259,6 @@ export default function OrgLogin() {
                     ? <EyeOff size={16} strokeWidth={2} />
                     : <Eye size={16} strokeWidth={2} />}
                 </button>
->>>>>>> dev
               </div>
               <AnimatePresence>
                 {errors.password && (
@@ -356,11 +276,6 @@ export default function OrgLogin() {
               </AnimatePresence>
             </div>
 
-<<<<<<< HEAD
-            {/* BUTTON */}
-            <button className="login-btn" onClick={handleSignIn} disabled={isLoading}>
-              {isLoading ? "Signing In..." : "Sign In"}
-=======
             {/* Remember + Forgot */}
             <div className="ol-remember-row">
               <label className="ol-remember-label" htmlFor="ol-remember">
@@ -373,7 +288,7 @@ export default function OrgLogin() {
                 />
                 Keep me signed in
               </label>
-              <a href="#" className="ol-forgot">Forgot Password?</a>
+              <Link href="/forgot-password" className="ol-forgot">Forgot Password?</Link>
             </div>
 
             {/* Sign In Button */}
@@ -384,11 +299,10 @@ export default function OrgLogin() {
               disabled={isLoading}
             >
               {isLoading ? (
-                <Loader2 size={18} className="ol-spinner" />
+                <Loader2 size={18} className="ol-spinner" style={{ display: 'inline-block' }} />
               ) : (
                 'Sign In'
               )}
->>>>>>> dev
             </button>
 
             {/* Divider */}

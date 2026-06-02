@@ -122,12 +122,8 @@ const getPath = (link: NavLink): string => {
   return map[link];
 };
 
-<<<<<<< HEAD
 // ── Static Data ────────────────────────────────────────────────────────────
 const NAV_LINKS: NavLink[] = ["Home", "About", "News", "Contact"];
-=======
-const NAV_LINKS = ["Home", "About", "News", "Contact"];
->>>>>>> dev
 
 const RESOURCE_CARDS = [
   {
@@ -409,11 +405,7 @@ function NewsCard({ card }: { card: NewsCardType }) {
   );
 }
 
-<<<<<<< HEAD
-
 // ── News Section ───────────────────────────────────────────────────────────
-=======
->>>>>>> dev
 function NewsSection() {
   const [posts, setPosts] = useState<NewsCardType[]>([]);
 
