@@ -104,47 +104,45 @@ export default function MemberLogin() {
 
   return (
     <div className="ml-container">
-      {/* Back button */}
-      <Link href="/" className="ml-back-link" aria-label="Go back to home page">
-        <ArrowLeft size={16} />
-        <span>Back to Portal</span>
-      </Link>
-
-      <div className="ml-workspace">
+      <div className="ml-split">
         {/* ── LEFT PANEL (Branding & Copy) ── */}
         <div className="ml-left">
-          <div className="ml-branding">
-            <motion.div
-              className="ml-logo-badge"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-            >
-              <FontAwesomeIcon icon={faGraduationCap} size="lg" className="ml-icon" />
-            </motion.div>
-            <span className="ml-brand-text">PAGE</span>
-          </div>
+          <div className="ml-left-overlay" />
+          <div className="ml-left-content">
+            {/* Back button */}
+            <Link href="/" className="ml-back-home" aria-label="Go back to home page">
+              <ArrowLeft size={16} />
+              <span>Back to Portal</span>
+            </Link>
 
-          <div className="ml-intro-block">
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="ml-typography"
-            >
-              <motion.h1 variants={lineVariants} className="ml-title">
-                Expanding Horizons in
-              </motion.h1>
-              <motion.h1 variants={lineVariants} className="ml-title ml-title--bold">
-                Graduate Education.
-              </motion.h1>
-              <motion.p variants={lineVariants} className="ml-subtitle-left">
-                Join a nationwide community of scholars, researchers, and educational pioneers.
-              </motion.p>
-            </motion.div>
+            <div className="ml-logo-badge">
+              <div className="ml-logo-icon-wrap">
+                <FontAwesomeIcon icon={faGraduationCap} className="ml-grad-icon" />
+              </div>
+              <span className="ml-logo-wordmark">PAGE</span>
+            </div>
+
+            <div className="ml-headline-wrap">
+              <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <motion.span variants={lineVariants} className="ml-headline-line">
+                  Expanding Horizons in
+                </motion.span>
+                <motion.span variants={lineVariants} className="ml-headline-line" style={{ fontWeight: 800 }}>
+                  Graduate Education.
+                </motion.span>
+              </motion.div>
+            </div>
+
+            <p className="ml-descriptor">
+              Join a nationwide community of scholars, researchers, and educational pioneers.
+            </p>
 
             {/* Micro value props */}
-            <div className="ml-benefits">
+            <div className="ml-checklist">
               {[
                 'Access peer-reviewed research materials and archives',
                 'Connect with academic cohorts and organizations',
@@ -156,7 +154,7 @@ export default function MemberLogin() {
                   variants={checkItemVariants}
                   initial="hidden"
                   animate="visible"
-                  className="ml-benefit-item"
+                  className="ml-check-item"
                 >
                   <CheckCircle size={16} className="ml-check-icon" strokeWidth={2.5} />
                   <span>{text}</span>
@@ -164,14 +162,9 @@ export default function MemberLogin() {
               ))}
             </div>
 
-            <motion.p
-              className="ml-footer-tag"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.2, duration: 0.5 }}
-            >
+            <p className="ml-tagline-bottom">
               ESTABLISHED 2026 &nbsp;·&nbsp; INSTITUTIONAL EXCELLENCE
-            </motion.p>
+            </p>
           </div>
         </div>
 
@@ -315,7 +308,6 @@ export default function MemberLogin() {
             </p>
           </motion.div>
         </motion.div>
-
       </div>
     </div>
   );

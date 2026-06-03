@@ -45,51 +45,10 @@ type OrganizationDataLog = {
 export default function OrgDashboardPage() {
   const [orgName, setOrgName] = useState("Gordon College Graduate Council");
   const [postStats, setPostStats] = useState<PostStats>({ pending: 0, approved: 0, rejected: 0 });
-  const [activeReviews, setActiveReviews] = useState<ActiveReview[]>([
-    {
-      id: "r-1",
-      title: "AI-Assisted Literature Mapping for Thesis Writing",
-      reviewer: "Dr. Angela Reyes",
-      dueDate: "Apr 15, 2026",
-      status: "in-review",
-    },
-    {
-      id: "r-2",
-      title: "Hybrid Capstone Outcomes Across Departments",
-      reviewer: "Prof. Marianne Dela Cruz",
-      dueDate: "Apr 19, 2026",
-      status: "revision",
-    }
-  ]);
-  const [membershipRequests, setMembershipRequests] = useState<MembershipRequest[]>([
-    {
-      id: "m-1",
-      name: "Carla Mendoza",
-      role: "Contributor",
-      submittedAt: "Today, 9:12 AM",
-    },
-    {
-      id: "m-2",
-      name: "Paolo Rivera",
-      role: "Peer Reviewer",
-      submittedAt: "Today, 10:31 AM",
-    }
-  ]);
+  const [activeReviews, setActiveReviews] = useState<ActiveReview[]>([]);
+  const [membershipRequests, setMembershipRequests] = useState<MembershipRequest[]>([]);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
-  const [organizationDataLogs, setOrganizationDataLogs] = useState<OrganizationDataLog[]>([
-    {
-      id: "d-1",
-      entry: "Post statistics refreshed from Supabase DB",
-      source: "Supabase Service",
-      time: "Just now",
-    },
-    {
-      id: "d-2",
-      entry: "Cloudinary upload service initialized successfully",
-      source: "Cloudinary Service",
-      time: "Just now",
-    }
-  ]);
+  const [organizationDataLogs, setOrganizationDataLogs] = useState<OrganizationDataLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -119,6 +78,40 @@ export default function OrgDashboardPage() {
           time: act.timestamp,
         }));
         setActivityLogs(formattedLogs);
+
+        // Map active reviews
+        if (data.activeReviewsList) {
+          const reviews = data.activeReviewsList.map((rev: any) => ({
+            id: rev.id,
+            title: rev.title,
+            reviewer: rev.reviewer,
+            dueDate: rev.dueDate,
+            status: rev.status,
+          }));
+          setActiveReviews(reviews);
+        }
+
+        // Map membership requests
+        if (data.membershipRequests) {
+          const reqs = data.membershipRequests.map((req: any) => ({
+            id: req.id,
+            name: req.name,
+            role: req.role,
+            submittedAt: req.submittedAt,
+          }));
+          setMembershipRequests(reqs);
+        }
+
+        // Map organization data logs
+        if (data.organizationDataLogs) {
+          const logs = data.organizationDataLogs.map((log: any) => ({
+            id: log.id,
+            entry: log.entry,
+            source: log.source,
+            time: log.time,
+          }));
+          setOrganizationDataLogs(logs);
+        }
 
       } catch (err) {
         console.error("Failed to fetch organization dashboard data", err);

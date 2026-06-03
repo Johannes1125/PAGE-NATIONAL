@@ -2,6 +2,7 @@
 
 import { Paperclip, Phone, Search, SendHorizontal, Smile, Video, type LucideIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { api } from "../../lib/api-client";
 import AdminSidebarLayout from "../components/AdminSidebarLayout";
 import "./view-messages.css";
 import "../admin-dashboard.css";
@@ -147,34 +148,76 @@ function HeaderIcon({ icon: Icon }: { icon: LucideIcon }) {
 
 export default function ViewMessagesPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [conversationState, setConversationState] = useState<Conversation[]>(conversations);
+  const [conversationState, setConversationState] = useState<Conversation[]>([]);
   const [activeTag, setActiveTag] = useState<ConversationTag>("admin");
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeConversationId, setActiveConversationId] = useState(conversations[0]?.id ?? "");
+  const [activeConversationId, setActiveConversationId] = useState("");
   const [draftMessage, setDraftMessage] = useState("");
   const [draftSubject, setDraftSubject] = useState("Re: Follow-up");
   const [selectedMessageId, setSelectedMessageId] = useState("");
   const [selectedAttachments, setSelectedAttachments] = useState<string[]>([]);
   const [notification, setNotification] = useState("");
 
+  // Load threads on mount or tag change
   useEffect(() => {
-    const stored = window.localStorage.getItem("admin-messages-store");
-    if (stored) {
+    const fetchThreads = async () => {
       try {
-        const parsed = JSON.parse(stored) as Conversation[];
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setConversationState(parsed);
-          setActiveConversationId(parsed[0].id);
+        const response = await api.get('/messages');
+        const mappedThreads: Conversation[] = response.threads.map((t: any) => ({
+          id: t.conversationId,
+          name: t.name,
+          online: t.role === 'admin' || t.role === 'organization',
+          avatarText: t.name ? t.name.split(" ").map((n: string) => n[0]).join("").substring(0, 2).toUpperCase() : "U",
+          tag: t.tag as ConversationTag,
+          messages: [{
+            id: 'last-' + t.conversationId,
+            subject: t.subject,
+            role: t.role === 'admin' ? 'admin' : 'other',
+            text: t.lastMessage,
+            dateLabel: t.timestamp,
+            status: t.unread ? 'unread' : 'read',
+            attachments: []
+          }]
+        }));
+        setConversationState(mappedThreads);
+        if (mappedThreads.length > 0 && !activeConversationId) {
+          const firstOfTag = mappedThreads.find(t => t.tag === activeTag);
+          setActiveConversationId(firstOfTag ? firstOfTag.id : mappedThreads[0].id);
         }
-      } catch {
-        window.localStorage.removeItem("admin-messages-store");
+      } catch (err) {
+        console.error("Failed to load threads", err);
       }
+    };
+    fetchThreads();
+  }, [activeTag]);
+
+  // Load message history when selecting conversation
+  const fetchMessagesForThread = async (id: string) => {
+    try {
+      const response = await api.get(`/messages/${id}`);
+      const mappedMsgs: ChatMessage[] = response.messages.map((m: any) => ({
+        id: m.id.toString(),
+        subject: m.subject || "Message Inquiry",
+        role: m.senderRole === 'admin' ? 'admin' : 'other',
+        text: m.text,
+        dateLabel: m.timestamp,
+        status: m.status === 'read' ? 'read' : (m.status === 'sent' ? 'unread' : m.status),
+        attachments: m.attachments ? m.attachments.map((a: any) => a.fileName) : [],
+      }));
+      
+      setConversationState(current =>
+        current.map(c => c.id === id ? { ...c, messages: mappedMsgs } : c)
+      );
+    } catch (err) {
+      console.error("Failed to load messages", err);
     }
-  }, []);
+  };
 
   useEffect(() => {
-    window.localStorage.setItem("admin-messages-store", JSON.stringify(conversationState));
-  }, [conversationState]);
+    if (activeConversationId) {
+      fetchMessagesForThread(activeConversationId);
+    }
+  }, [activeConversationId]);
 
   const filteredConversations = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -211,7 +254,7 @@ export default function ViewMessagesPage() {
           : {
               ...conversation,
               messages: conversation.messages.map((message) =>
-                message.role === "other" && message.status === "unread" ? { ...message, status: "read" } : message,
+                message.role === "other" && message.status === "unread" ? { ...message, status: "read" as const } : message,
               ),
             },
       ),
@@ -222,64 +265,49 @@ export default function ViewMessagesPage() {
     fileInputRef.current?.click();
   };
 
-  const handleSendReply = () => {
+  const handleSendReply = async () => {
     if (!activeConversation) return;
     const body = draftMessage.trim();
     const subject = draftSubject.trim() || "Re: Message";
     if (!body) return;
 
-    const sentMessage: ChatMessage = {
-      id: `msg-${Date.now()}`,
-      subject,
-      role: "admin",
-      text: body,
-      dateLabel: new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
-      status: "sent",
-      attachments: selectedAttachments,
-    };
-
-    setConversationState((current) =>
-      current.map((conversation) =>
-        conversation.id === activeConversation.id
-          ? {
-              ...conversation,
-              messages: [...conversation.messages, sentMessage],
-            }
-          : conversation,
-      ),
-    );
-
-    setDraftMessage("");
-    setSelectedAttachments([]);
-    setNotification(`Reply sent to ${activeConversation.name}. Recipient status will update when read.`);
-  };
-
-  // Simulate recipient read receipt: sent -> seen after a short delay.
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setConversationState((current) => {
-        let changed = false;
-        const next = current.map((conversation) => {
-          const lastAdminIndex = [...conversation.messages].map((item) => item.role).lastIndexOf("admin");
-          if (lastAdminIndex < 0 || conversation.messages[lastAdminIndex].status !== "sent") {
-            return conversation;
-          }
-
-          changed = true;
-          return {
-            ...conversation,
-            messages: conversation.messages.map((message, index) =>
-              index === lastAdminIndex ? { ...message, status: "seen" as const } : message,
-            ),
-          };
-        });
-
-        return changed ? next : current;
+    try {
+      const res = await api.post('/messages', {
+        conversation_id: activeConversation.id,
+        text: body,
+        subject: subject,
       });
-    }, 2800);
 
-    return () => clearTimeout(timer);
-  }, [conversationState]);
+      if (res.success && res.formatted) {
+        const sentMessage: ChatMessage = {
+          id: res.formatted.id.toString(),
+          subject: res.formatted.subject || subject,
+          role: "admin",
+          text: res.formatted.text,
+          dateLabel: res.formatted.timestamp,
+          status: "sent",
+          attachments: selectedAttachments,
+        };
+
+        setConversationState((current) =>
+          current.map((conversation) =>
+            conversation.id === activeConversation.id
+              ? {
+                  ...conversation,
+                  messages: [...conversation.messages, sentMessage],
+                }
+              : conversation,
+          ),
+        );
+
+        setDraftMessage("");
+        setSelectedAttachments([]);
+        setNotification(`Reply sent to ${activeConversation.name}.`);
+      }
+    } catch (err) {
+      console.error("Failed to send reply", err);
+    }
+  };
 
   return (
     <AdminSidebarLayout
