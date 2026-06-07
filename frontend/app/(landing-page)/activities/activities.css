@@ -3,12 +3,12 @@
    Design system: matches home-page.css / news.css / about-page.css
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Instrument+Serif:ital@0;1&display=swap');
 
 /* ── Reset ──────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
-body { background: #f7f6f3; font-family: 'DM Sans', sans-serif; color: #1a1a1a; }
+body { background: #f7f6f3; font-family: var(--sans); color: #1a1a1a; }
 a { text-decoration: none; }
 ul { list-style: none; }
 
@@ -26,7 +26,7 @@ ul { list-style: none; }
   --white:        #ffffff;
   --rule:         rgba(15,25,35,0.12);
   --serif:        'Instrument Serif', serif;
-  --sans:         'DM Sans', sans-serif;
+  --sans:         'Poppins', sans-serif;
   --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
   --t-fast:       0.14s ease;
   --t-mid:        0.24s ease;
