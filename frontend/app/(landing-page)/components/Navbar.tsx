@@ -133,7 +133,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
   }, []);
 
   useEffect(() => {
-    const onResize = () => { if (window.innerWidth > 768) setMenuOpen(false); };
+    const onResize = () => { if (window.innerWidth > 1200) setMenuOpen(false); };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);

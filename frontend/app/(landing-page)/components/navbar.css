@@ -67,10 +67,10 @@
 
 /* ── Inner layout ───────────────────────────────────────────── */
 .navbar__inner {
-  max-width: 1320px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 0 40px;
-  height: 64px;
+  padding: 0 32px;
+  height: 76px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -159,13 +159,13 @@
 .navbar__links {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 8px;
   /* frosted pill — does NOT stretch; sits between logo and sign in */
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 40px;
-  padding: 4px 6px;
-  flex-shrink: 1;
+  padding: 6px 12px;
+  flex-shrink: 0;
   min-width: 0;
   /* NOTE: NO overflow:hidden here — dropdowns are position:absolute and must escape the pill */
 }
@@ -174,16 +174,17 @@
 .navbar__link {
   position: relative;
   font-family: var(--sans);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.60);
-  padding: 6px 13px;
+  padding: 8px 14px;
   border-radius: 30px;
   letter-spacing: 0.1px;
   transition:
     color     var(--t-fast),
     background var(--t-fast);
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .navbar__link:hover {
@@ -202,13 +203,13 @@
 .navbar__signin {
   flex-shrink: 0;
   font-family: var(--sans);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: #0a121e;
   background: #ffffff;
   border: none;
   border-radius: 30px;
-  padding: 8px 22px;
+  padding: 10px 24px;
   cursor: pointer;
   letter-spacing: 0.1px;
   text-decoration: none;
@@ -221,7 +222,7 @@
     transform  var(--t-fast),
     box-shadow var(--t-fast);
   /* sits outside the pill, to the right */
-  margin-left: 12px;
+  margin-left: 16px;
 }
 
 .navbar__signin:hover {
@@ -240,17 +241,18 @@
    ============================================================ */
 .navbar__dropdown-wrap {
   position: relative;
+  flex-shrink: 0;
 }
 
 .navbar__dropdown-trigger {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   font-family: var(--sans);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   color: rgba(255,255,255,0.60);
-  padding: 6px 13px;
+  padding: 8px 14px;
   border-radius: 30px;
   letter-spacing: 0.1px;
   transition: color var(--t-fast), background var(--t-fast);
@@ -258,6 +260,7 @@
   background: none;
   border: none;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .navbar__dropdown-trigger:hover,
@@ -551,29 +554,39 @@
 /* ============================================================
    RESPONSIVE
    ============================================================ */
-@media (max-width: 1024px) {
+@media (min-width: 1201px) and (max-width: 1350px) {
   .navbar__links {
-    gap: 0;
-    padding: 3px 4px;
+    gap: 6px;
+    padding: 5px 8px;
   }
   .navbar__link,
   .navbar__dropdown-trigger {
     padding: 6px 10px;
-    font-size: 12.5px;
+    font-size: 13px;
+  }
+  .navbar__inner {
+    padding: 0 20px;
+    height: 70px;
+    gap: 12px;
+  }
+  .navbar__signin {
+    padding: 8px 18px;
+    margin-left: 10px;
+    font-size: 13px;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
   .navbar__inner {
-    padding: 0 16px;
-    height: 58px;
+    padding: 0 20px;
+    height: 60px;
   }
   .navbar__links  { display: none; }
   .navbar__signin { display: none; }
   .navbar__hamburger { display: flex; }
 }
 
-@media (min-width: 769px) {
+@media (min-width: 1201px) {
   .navbar__hamburger   { display: none; }
   .navbar__mobile-menu { display: none !important; }
 }

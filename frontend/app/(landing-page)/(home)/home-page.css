@@ -839,10 +839,6 @@ ul { list-style: none; }
 @media (max-width: 768px) {
   .container { padding: 0 24px; }
 
-  .navbar__inner { padding: 0 20px; height: 60px; }
-  .navbar__links { display: none; }
-  .navbar__hamburger { display: flex; }
-
   .hero { padding-top: 60px; }
   .hero__content { padding: 0 24px; }
   .hero__rule-left, .hero__rule-right { display: none; }
@@ -858,11 +854,6 @@ ul { list-style: none; }
   .footer { padding: 56px 0 0; }
   .footer__inner { padding: 0 24px; }
   .footer__columns { grid-template-columns: 1fr; gap: 36px; }
-}
-
-@media (min-width: 769px) {
-  .navbar__hamburger { display: none; }
-  .navbar__mobile-menu { display: none !important; }
 }
 
 @media (max-width: 480px) {
