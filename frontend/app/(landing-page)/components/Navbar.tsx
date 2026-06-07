@@ -45,6 +45,14 @@ const ACTIVITY_DROPDOWN_ITEMS = [
   { label: "Other Events",    type: "other" },
 ];
 
+const JOURNALS_DROPDOWN_ITEMS = [
+  { label: "All Journals",     href: "/journals" },
+  { label: "Humanities",       href: "/journals?discipline=Humanities" },
+  { label: "Social Sciences",  href: "/journals?discipline=Social Sciences" },
+  { label: "Technology",       href: "/journals?discipline=Technology" },
+  { label: "Others",           href: "/journals?discipline=Others" },
+];
+
 const CHAPTERS_MENU_ITEMS = [
   { short: "NCR", slug: "ncr" },
   { short: "CAR", slug: "car" },
@@ -79,11 +87,13 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
   const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false);
   const [chaptersDropdownOpen, setChaptersDropdownOpen] = useState(false);
   const [conventionDropdownOpen, setConventionDropdownOpen] = useState(false);
+  const [journalsDropdownOpen, setJournalsDropdownOpen] = useState(false);
 
   const activitiesRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
   const chaptersRef = useRef<HTMLDivElement>(null);
   const conventionRef = useRef<HTMLDivElement>(null);
+  const journalsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -92,6 +102,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
         setAboutDropdownOpen(false);
         setChaptersDropdownOpen(false);
         setConventionDropdownOpen(false);
+        setJournalsDropdownOpen(false);
         setMenuOpen(false);
       }
     };
@@ -108,6 +119,9 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
       }
       if (conventionRef.current && !conventionRef.current.contains(target)) {
         setConventionDropdownOpen(false);
+      }
+      if (journalsRef.current && !journalsRef.current.contains(target)) {
+        setJournalsDropdownOpen(false);
       }
     };
     document.addEventListener("keydown", onKey);
@@ -130,6 +144,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
   const isActivitiesActive = pathname?.startsWith("/activities");
   const isChaptersActive = pathname?.startsWith("/chapters");
   const isConventionActive = pathname?.startsWith("/convention");
+  const isJournalsActive = pathname?.startsWith("/journals");
   const isContactActive = pathname?.startsWith("/contact");
 
   return (
@@ -174,6 +189,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
                 setActivitiesDropdownOpen(false);
                 setChaptersDropdownOpen(false);
                 setConventionDropdownOpen(false);
+                setJournalsDropdownOpen(false);
               }}
               aria-haspopup="true"
               aria-expanded={aboutDropdownOpen}
@@ -209,6 +225,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
                 setAboutDropdownOpen(false);
                 setActivitiesDropdownOpen(false);
                 setConventionDropdownOpen(false);
+                setJournalsDropdownOpen(false);
               }}
               aria-haspopup="true"
               aria-expanded={chaptersDropdownOpen}
@@ -246,6 +263,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
                 setAboutDropdownOpen(false);
                 setActivitiesDropdownOpen(false);
                 setChaptersDropdownOpen(false);
+                setJournalsDropdownOpen(false);
               }}
               aria-haspopup="true"
               aria-expanded={conventionDropdownOpen}
@@ -268,6 +286,42 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
             </AnimatePresence>
           </div>
 
+          {/* Research Journals Dropdown */}
+          <div className="navbar__dropdown-wrap" ref={journalsRef}>
+            <button
+              id="journals-dropdown-btn"
+              className={`navbar__dropdown-trigger${journalsDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isJournalsActive ? " navbar__dropdown-trigger--active" : ""}`}
+              onClick={() => {
+                setJournalsDropdownOpen(p => !p);
+                setAboutDropdownOpen(false);
+                setActivitiesDropdownOpen(false);
+                setChaptersDropdownOpen(false);
+                setConventionDropdownOpen(false);
+              }}
+              aria-haspopup="true"
+              aria-expanded={journalsDropdownOpen}
+            >
+              Research Journals
+              <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
+            </button>
+            <AnimatePresence>
+              {journalsDropdownOpen && (
+                <motion.div role="menu" className="navbar__dropdown"
+                  variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
+                  {JOURNALS_DROPDOWN_ITEMS.map((item, i) => (
+                    <Link key={item.href}
+                      href={item.href}
+                      role="menuitem"
+                      className={`navbar__dropdown-item${i === 0 ? " navbar__dropdown-item--all" : ""}`}
+                      onClick={() => setJournalsDropdownOpen(false)}>
+                      {item.label}
+                    </Link>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
           {/* News Link */}
           <Link href="/news" className={`navbar__link${isNewsActive ? " navbar__link--active" : ""}`}>
             News
@@ -283,6 +337,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
                 setAboutDropdownOpen(false);
                 setChaptersDropdownOpen(false);
                 setConventionDropdownOpen(false);
+                setJournalsDropdownOpen(false);
               }}
               aria-haspopup="true"
               aria-expanded={activitiesDropdownOpen}
@@ -353,6 +408,17 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
         <Link href="/convention/54th-national-convention" className="navbar__mobile-sublink" onClick={() => setMenuOpen(false)}>
           Latest Convention
         </Link>
+
+        {/* Research Journals mobile */}
+        <div className="navbar__mobile-dropdown-label">Research Journals</div>
+        <Link href="/journals" className="navbar__mobile-sublink" onClick={() => setMenuOpen(false)}>
+          All Journals
+        </Link>
+        {["Humanities", "Social Sciences", "Technology", "Others"].map(disc => (
+          <Link key={disc} href={`/journals?discipline=${disc}`} className="navbar__mobile-sublink" onClick={() => setMenuOpen(false)}>
+            {disc}
+          </Link>
+        ))}
 
         <Link href="/news" className={`navbar__mobile-link${isNewsActive ? " navbar__mobile-link--active" : ""}`} onClick={() => setMenuOpen(false)}>
           News

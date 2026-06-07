@@ -1,23 +1,26 @@
-export type JournalDiscipline = 'Business' | 'Technology' | 'Education' | 'Social Sciences' | 'Others';
+export type JournalDiscipline = 'Humanities' | 'Social Sciences' | 'Technology' | 'Others';
 
-export type JournalAuthor = string;
-
-export interface JournalConventionRef {
-  label: string;
-  slug: string;
+export interface JournalArticle {
+  id: string;
+  title: string;
+  authors: string[];
+  pages: string;
+  download_url: string;
 }
 
 export interface Journal {
   id: string;
   title: string;
-  authors: JournalAuthor[];
+  subtitle: string;
+  description: string;
+  cover_image: string;
   discipline: JournalDiscipline;
-  convention_label: string;
-  convention_slug: string;
-  year: number;
-  abstract: string;
-  download_url: string;
+  publisher: string;
+  issn: string;
+  email: string;
+  phone: string;
   volume: string;
   issue: string;
-  page_range: string;
+  year: number;
+  articles: JournalArticle[];
 }
