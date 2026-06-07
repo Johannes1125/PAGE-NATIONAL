@@ -109,12 +109,29 @@ if (!fs.existsSync(nodeModulesDir)) {
 
 console.log(`\n${colors.aqua}[4/4] Launching Servers...${colors.reset}`);
 
-// Spawning on Windows in separate windows
-console.log(`${colors.green}  🚀 Starting Laravel Backend (PHP Artisan Serve)...${colors.reset}`);
-exec(`start cmd /k "title PAGE Backend && cd /d ${backendDir} && php artisan serve"`);
+// Spawning on Windows in separate windows/tabs
+let useWt = false;
+try {
+  // Check if wt (Windows Terminal) is available in the environment
+  execSync('where wt', { stdio: 'ignore' });
+  useWt = true;
+} catch (e) {
+  // Windows Terminal not available, will fall back
+}
 
-console.log(`${colors.green}  🚀 Starting Next.js Frontend (NPM Run Dev)...${colors.reset}`);
-exec(`start cmd /k "title PAGE Frontend && cd /d ${frontendDir} && npm run dev"`);
+if (useWt) {
+  console.log(`${colors.green}  🚀 Starting Laravel Backend (PHP Artisan Serve) in a new tab...${colors.reset}`);
+  exec(`wt -w 0 new-tab -d "${backendDir}" --title "PAGE Backend" powershell -NoExit -Command "php artisan serve"`);
+
+  console.log(`${colors.green}  🚀 Starting Next.js Frontend (NPM Run Dev) in a new tab...${colors.reset}`);
+  exec(`wt -w 0 new-tab -d "${frontendDir}" --title "PAGE Frontend" powershell -NoExit -Command "npm run dev"`);
+} else {
+  console.log(`${colors.green}  🚀 Starting Laravel Backend (PHP Artisan Serve)...${colors.reset}`);
+  exec(`start cmd /k "title PAGE Backend && cd /d ${backendDir} && php artisan serve"`);
+
+  console.log(`${colors.green}  🚀 Starting Next.js Frontend (NPM Run Dev)...${colors.reset}`);
+  exec(`start cmd /k "title PAGE Frontend && cd /d ${frontendDir} && npm run dev"`);
+}
 
 console.log(`\n${colors.aqua}======================================================================${colors.reset}`);
 console.log(`${colors.green}${colors.bold}            PAGE National is booting up!${colors.reset}`);
