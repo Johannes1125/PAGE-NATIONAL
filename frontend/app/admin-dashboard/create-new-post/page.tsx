@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CalendarDays, Eye, FileUp, Image as ImageIcon, Link2, List, ListOrdered, X, Check } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { CalendarDays, Eye, FileUp, Image as ImageIcon, Link2, List, ListOrdered, X, Check, Loader2 } from "lucide-react";
 import AdminSidebarLayout from "../components/AdminSidebarLayout";
 import { gooeyToast } from "goey-toast"; 
 import "goey-toast/styles.css";
 import "./create-new-post.css";
 import "../admin-dashboard.css";
+import { api } from "../../lib/api-client";
 
 type WizardStepId = 1 | 2 | 3;
 
@@ -29,7 +31,7 @@ const creationSteps = [
 ] as const;
 
 type PublishMode = "now" | "schedule";
-type PostRecordStatus = "draft" | "published" | "scheduled";
+type PostRecordStatus = "draft" | "pending" | "published" | "scheduled";
 
 type PostRecord = {
   id: string;
@@ -54,6 +56,8 @@ function nowLabel(): string {
 }
 
 export default function CreateNewPostPage() {
+  const router = useRouter();
+
   const [activeStep, setActiveStep] = useState<WizardStepId>(1);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("article");
@@ -74,10 +78,11 @@ export default function CreateNewPostPage() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const editorRef = useRef<HTMLDivElement | null>(null);
 
-  const statusLabel = records[0]?.status?.toUpperCase() ?? "DRAFT";
+  const statusLabel = isLoading ? "PROCESSING" : (publishMode === "schedule" ? "SCHEDULED" : "DRAFT");
   const activeStepConfig = creationSteps.find((step) => step.id === activeStep) ?? creationSteps[0];
 
   // ==========================================
@@ -138,36 +143,6 @@ export default function CreateNewPostPage() {
     }
   };
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const now = Date.now();
-      const dueTitles: string[] = [];
-
-      setRecords((current) =>
-        current.map((record) => {
-          if (record.status !== "scheduled" || !record.scheduledAt) return record;
-
-          if (new Date(record.scheduledAt).getTime() <= now) {
-            dueTitles.push(record.title);
-            return {
-              ...record,
-              status: "published",
-              publishedAt: nowLabel(),
-            };
-          }
-
-          return record;
-        }),
-      );
-
-      if (dueTitles.length > 0) {
-        gooeyToast.success(`Scheduled publishing completed: ${dueTitles.join(", ")}`);
-      }
-    }, 4000);
-
-    return () => clearInterval(timer);
-  }, []);
-
   const applyFormat = (command: string, value?: string) => {
     document.execCommand(command, false, value);
     setContentHtml(editorRef.current?.innerHTML ?? "");
@@ -182,69 +157,93 @@ export default function CreateNewPostPage() {
     setPreviewOpen(true);
   };
 
-  const createRecord = (status: PostRecordStatus): PostRecord | null => {
-    const step1Error = validateStep(1);
-    if (step1Error) {
-      gooeyToast.error(`Step 1 Error: ${step1Error}`);
-      return null;
-    }
-    const step2Error = validateStep(2);
-    if (step2Error) {
-      gooeyToast.error(`Step 2 Error: ${step2Error}`);
-      return null;
-    }
-
-    if (status === "scheduled" && !scheduledAt) {
-      gooeyToast.error("Please set a schedule date and time before submitting.");
-      return null;
-    }
-
-    setError("");
-
-    return {
-      id: `post-${Date.now()}`,
-      title: title.trim(),
-      category,
-      author: author.trim() || "Unknown Author",
-      excerpt: excerpt.trim(),
-      contentHtml,
-      status,
-      scheduledAt: status === "scheduled" ? scheduledAt : undefined,
-      publishedAt: status === "published" ? nowLabel() : undefined,
-    };
-  };
-
-  const handleSaveDraft = () => {
+  const handleSaveDraft = async () => {
     if (!title.trim()) {
       gooeyToast.error("A Post Title is required to save a draft.");
       return;
     }
 
-    const record: PostRecord = {
-      id: `post-${Date.now()}`,
-      title: title.trim(),
-      category,
-      author: author.trim() || "Unknown Author",
-      excerpt: excerpt.trim(),
-      contentHtml,
-      status: "draft",
-    };
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("title", title.trim());
+      formData.append("category", category);
+      formData.append("content_html", contentHtml);
+      formData.append("excerpt", excerpt.trim());
+      formData.append("assigned_members", assignedMembers);
+      formData.append("status", "draft");
 
-    setRecords((current) => [record, ...current]);
-    gooeyToast.success(`Draft successfully saved!`);
+      if (featuredImageFiles[0]) {
+        formData.append("featured_image", featuredImageFiles[0]);
+      }
+      if (proofFiles[0] && category === "events") {
+        formData.append("proof_of_payment", proofFiles[0]);
+      }
+      if (supportingFiles[0]) {
+        formData.append("supporting_file", supportingFiles[0]);
+      }
+
+      const res = await api.postMultipart("/posts", formData);
+      gooeyToast.success(res.message || "Draft successfully saved!");
+      router.push("/admin-dashboard");
+    } catch (err: any) {
+      gooeyToast.error(err.message || "Failed to save draft.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleSubmit = () => {
-    const targetStatus: PostRecordStatus = publishMode === "now" ? "published" : "scheduled";
-    const record = createRecord(targetStatus);
-    if (!record) return;
+  const handleSubmit = async () => {
+    const targetStatus = publishMode === "now" ? "published" : "draft"; // Backend default for moderation/schedules
 
-    setRecords((current) => [record, ...current]);
+    const step1Error = validateStep(1);
+    if (step1Error) {
+      gooeyToast.error(`Step 1 Error: ${step1Error}`);
+      return;
+    }
+    const step2Error = validateStep(2);
+    if (step2Error) {
+      gooeyToast.error(`Step 2 Error: ${step2Error}`);
+      return;
+    }
 
-    if (targetStatus === "published") {
-      gooeyToast.success(`Success! "${record.title}" is now live.`);
-    } else {
-      gooeyToast.success(`Post safely scheduled for publishing.`);
+    if (publishMode === "schedule" && !scheduledAt) {
+      gooeyToast.error("Please set a schedule date and time before submitting.");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("title", title.trim());
+      formData.append("category", category);
+      formData.append("content_html", contentHtml);
+      formData.append("excerpt", excerpt.trim());
+      formData.append("assigned_members", assignedMembers);
+      formData.append("status", targetStatus);
+
+      if (publishMode === "schedule" && scheduledAt) {
+        formData.append("scheduled_at", scheduledAt);
+      }
+
+      // Attach single file payloads expected by Laravel API
+      if (featuredImageFiles[0]) {
+        formData.append("featured_image", featuredImageFiles[0]);
+      }
+      if (proofFiles[0] && category === "events") {
+        formData.append("proof_of_payment", proofFiles[0]);
+      }
+      if (supportingFiles[0]) {
+        formData.append("supporting_file", supportingFiles[0]);
+      }
+
+      const res = await api.postMultipart("/posts", formData);
+      gooeyToast.success(res.message || "Post successfully submitted to server!");
+      router.push("/admin-dashboard");
+    } catch (err: any) {
+      gooeyToast.error(err.message || "Failed to submit post.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -505,7 +504,6 @@ export default function CreateNewPostPage() {
                       className="cnp-upload__input"
                       type="file"
                       accept="image/*"
-                      multiple
                       onChange={(event) => {
                         setFeaturedImageFiles(Array.from(event.target.files ?? []));
                         if(error) setError("");
@@ -531,7 +529,6 @@ export default function CreateNewPostPage() {
                       className="cnp-upload__input"
                       type="file"
                       accept=".pdf,image/*"
-                      multiple
                       disabled={category !== "events"}
                       onChange={(event) => {
                         setProofFiles(Array.from(event.target.files ?? []));
@@ -550,11 +547,10 @@ export default function CreateNewPostPage() {
                       id="supporting-files-input"
                       className="cnp-upload__input"
                       type="file"
-                      multiple
                       onChange={(event) => setSupportingFiles(Array.from(event.target.files ?? []))}
                     />
                     <label htmlFor="supporting-files-input" className="cnp-supporting-btn">
-                      Choose Files
+                      Choose File
                     </label>
                     <span className="cnp-supporting-text">
                       {supportingFiles.length > 0 ? `${supportingFiles.length} file(s) selected` : "No additional files"}
@@ -629,7 +625,12 @@ export default function CreateNewPostPage() {
 
             <div className="cnp-step-actions">
               <div className="cnp-step-actions__group">
-                <button type="button" className="cnp-btn cnp-btn--secondary" onClick={goBack} disabled={activeStep === 1}>
+                <button 
+                  type="button" 
+                  className="cnp-btn cnp-btn--secondary" 
+                  onClick={goBack} 
+                  disabled={activeStep === 1 || isLoading}
+                >
                   Back
                 </button>
                 {activeStep < 3 && (
@@ -640,12 +641,26 @@ export default function CreateNewPostPage() {
               </div>
 
               <div className="cnp-step-actions__group">
-                <button type="button" className="cnp-btn cnp-btn--ghost" onClick={handleSaveDraft}>
-                  Save Draft
+                <button 
+                  type="button" 
+                  className="cnp-btn cnp-btn--ghost" 
+                  onClick={handleSaveDraft}
+                  disabled={isLoading}
+                >
+                  {isLoading ? <Loader2 size={16} className="animate-spin" /> : "Save Draft"}
                 </button>
                 {activeStep === 3 && (
-                  <button type="button" className="cnp-btn cnp-btn--primary" onClick={handleSubmit}>
-                    {publishMode === "schedule" ? "Schedule Post" : "Publish Now"}
+                  <button 
+                    type="button" 
+                    className="cnp-btn cnp-btn--primary" 
+                    onClick={handleSubmit}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      publishMode === "schedule" ? "Schedule Post" : "Publish Now"
+                    )}
                   </button>
                 )}
               </div>
@@ -714,7 +729,6 @@ export default function CreateNewPostPage() {
         </section>
       )}
 
-      {/* NEW IMAGE PREVIEW MODAL */}
       {imagePreviewUrl && (
         <section 
           className="cnp-image-modal-backdrop" 

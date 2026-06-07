@@ -1,8 +1,12 @@
 "use client";
-import { useState, useEffect } from "react";
+import Navbar from "../components/Navbar";
+
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import "./contact.css";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 
 // ── Icon Components ────────────────────────────────────────────────────────
 
@@ -114,6 +118,34 @@ const getPath = (link: NavLink): string => {
 
 const NAV_LINKS: NavLink[] = ["Home", "About", "News", "Contact"];
 
+const ABOUT_DROPDOWN_ITEMS = [
+  { label: "About PAGE",        href: "/about" },
+  { label: "PAGE History",      href: "/about/history" },
+  { label: "Set of Officers",   href: "/about/officers" },
+  { label: "Logo Description",  href: "/about/logo" },
+  { label: "CBL Information",   href: "/about/cbl" },
+];
+
+const ACTIVITY_DROPDOWN_ITEMS = [
+  { label: "All Activities",  type: "all"        },
+  { label: "Conferences",     type: "conference" },
+  { label: "Seminars",        type: "seminar"    },
+  { label: "Workshops",       type: "workshop"   },
+  { label: "Other Events",    type: "other"      },
+];
+
+const dropdownVariants: Variants = {
+  hidden:  { opacity: 0, y: -8, scale: 0.96 },
+  visible: { opacity: 1, y: 0,  scale: 1,    transition: { duration: 0.18, ease: "easeOut" } },
+  exit:    { opacity: 0, y: -6, scale: 0.97, transition: { duration: 0.13 } },
+};
+
+const ChevronDownIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 12 15 18 9" />
+  </svg>
+);
+
 const FOOTER_QUICK_LINKS = ["About PAGE", "History", "Officers", "News & Announcements"];
 const FOOTER_RESOURCES    = ["Journals", "Articles", "Upcoming Activities", "Contact Us"];
 const FOOTER_CONTACT_ITEMS = [
@@ -161,65 +193,7 @@ const SUBJECT_OPTIONS = [
 ];
 
 // ── Navbar ─────────────────────────────────────────────────────────────────
-function Navbar({ scrolled }: { scrolled: boolean }) {
-  const [menuOpen, setMenuOpen] = useState(false);
 
-  useEffect(() => {
-    const onResize = () => { if (window.innerWidth > 768) setMenuOpen(false); };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
-  return (
-    <header className={`navbar${scrolled ? " navbar--scrolled" : ""}${menuOpen ? " navbar--open" : ""}`}>
-      <nav className="navbar__inner">
-        <div className="navbar__logo">
-          <div className="navbar__logo-mark">
-            <Image src="/PAGE.jpg" width={50} height={50} alt="PAGE Logo"
-              onError={(e) => {
-                const t = e.currentTarget as HTMLImageElement;
-                t.style.display = "none";
-                const fb = t.nextElementSibling as HTMLElement;
-                if (fb) fb.style.display = "flex";
-              }}
-            />
-          </div>
-          <div className="navbar__logo-text">
-            <div className="navbar__logo-name">PAGE</div>
-            <div className="navbar__logo-sub">Philippine Association for Graduate Education</div>
-          </div>
-        </div>
-
-        <div className="navbar__links">
-          {NAV_LINKS.map((link) => (
-            <Link key={link} href={getPath(link)}
-              className={`navbar__link${link === "Contact" ? " navbar__link--active" : ""}`}>
-              {link}
-            </Link>
-          ))}
-          <Link href="/member-login" className="navbar__signin">Sign In</Link>
-        </div>
-
-        <button className="navbar__hamburger" onClick={() => setMenuOpen(p => !p)} aria-label="Toggle menu">
-          {menuOpen ? <CloseIcon /> : <HamburgerIcon />}
-        </button>
-      </nav>
-
-      <div className={`navbar__mobile-menu${menuOpen ? " navbar__mobile-menu--open" : ""}`}>
-        {NAV_LINKS.map(link => (
-          <Link key={link} href={getPath(link)}
-            className={`navbar__mobile-link${link === "Contact" ? " navbar__mobile-link--active" : ""}`}
-            onClick={() => setMenuOpen(false)}>
-            {link}
-          </Link>
-        ))}
-        <Link href="/member-login" className="navbar__mobile-signin" onClick={() => setMenuOpen(false)}>
-          Sign In
-        </Link>
-      </div>
-    </header>
-  );
-}
 
 // ── Contact Page Hero Banner ───────────────────────────────────────────────
 function ContactHero() {

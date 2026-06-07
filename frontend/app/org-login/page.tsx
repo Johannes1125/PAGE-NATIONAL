@@ -104,66 +104,54 @@ export default function OrgLogin() {
 
   return (
     <div className="ol-container">
-      {/* Back button */}
-      <Link href="/" className="ol-back-link" aria-label="Go back to home page">
-        <ArrowLeft size={16} />
-        <span>Back to Portal</span>
-      </Link>
-
-      <div className="ol-workspace">
+      <div className="ol-split">
         {/* ── LEFT PANEL (Branding & Copy) ── */}
         <div className="ol-left">
-          <div className="ol-branding">
-            <motion.div
-              className="ol-logo-badge"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-            >
-              <FontAwesomeIcon icon={faGraduationCap} size="lg" className="ol-icon" />
-            </motion.div>
-            <span className="ol-brand-text">PAGE</span>
-          </div>
+          <div className="ol-left-overlay" />
+          <div className="ol-left-content">
+            {/* Back button */}
+            <Link href="/" className="ol-back-home" aria-label="Go back to home page">
+              <ArrowLeft size={16} />
+              <span>Back to Portal</span>
+            </Link>
 
-          <div className="ol-intro-block">
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="ol-typography"
-            >
-              <motion.h1 variants={lineVariants} className="ol-title">
-                Institutional
-              </motion.h1>
-              <motion.h1 variants={lineVariants} className="ol-title ol-title--bold">
-                Console Portal.
-              </motion.h1>
-              <motion.p variants={lineVariants} className="ol-subtitle-left">
-                Manage your institution's chapter, moderate member submissions, and oversee research cohorts.
-              </motion.p>
-            </motion.div>
+            <div className="ol-logo-badge">
+              <div className="ol-logo-icon-wrap">
+                <FontAwesomeIcon icon={faGraduationCap} className="ol-grad-icon" />
+              </div>
+              <span className="ol-logo-wordmark">PAGE</span>
+            </div>
+
+            <div className="ol-headline-wrap">
+              <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <motion.span variants={lineVariants} className="ol-headline-line">
+                  Institutional
+                </motion.span>
+                <motion.span variants={lineVariants} className="ol-headline-line" style={{ fontWeight: 800 }}>
+                  Console Portal.
+                </motion.span>
+              </motion.div>
+            </div>
+
+            <p className="ol-descriptor">
+              Manage your institution's chapter, moderate member submissions, and oversee research cohorts.
+            </p>
 
             {/* Role Pills */}
-            <motion.div
-              className="ol-role-pills"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.5 }}
-            >
+            <div className="ol-role-grid">
               {['Editor-in-Chief', 'Peer Reviewer', 'Content Manager', 'Contributor'].map((role) => (
                 <span key={role} className="ol-role-pill">{role}</span>
               ))}
-            </motion.div>
+            </div>
 
             {/* Bottom tagline */}
-            <motion.p
-              className="ol-tagline-bottom"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.2, duration: 0.5 }}
-            >
+            <p className="ol-tagline-bottom">
               ESTABLISHED 2026 &nbsp;·&nbsp; INSTITUTIONAL EXCELLENCE
-            </motion.p>
+            </p>
           </div>
         </div>
 
@@ -321,7 +309,6 @@ export default function OrgLogin() {
 
           </motion.div>
         </motion.div>
-
       </div>
     </div>
   );

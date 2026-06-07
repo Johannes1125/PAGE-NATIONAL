@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect, useRef } from "react";
+import { api } from "../../lib/api-client";
 import {
   CalendarDays,
   ChevronLeft,
@@ -162,7 +163,7 @@ const formatEventDate = (isoStr: string) => {
 };
 
 export default function AuditLogPage() {
-  const [logs, setLogs] = useState<AuditLogEntry[]>(initialLogs);
+  const [logs, setLogs] = useState<AuditLogEntry[]>([]);
   const [activeTab, setActiveTab] = useState<LogCategory>("instant");
   
   const [searchQuery, setSearchQuery] = useState("");
@@ -187,8 +188,49 @@ export default function AuditLogPage() {
   const [contentHtml, setContentHtml] = useState("");
   const [featuredImageFiles, setFeaturedImageFiles] = useState<File[]>([]);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const editorRef = useRef<HTMLDivElement | null>(null);
+
+  const fetchLogs = async () => {
+    try {
+      const response = await api.get('/posts');
+      const mapped: AuditLogEntry[] = response.posts.map((post: any) => {
+        const isInstant = post.status === 'published' && (!post.assigned_members || post.assigned_members === 'none');
+        return {
+          id: post.id.toString(),
+          date: new Date(post.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+          time: new Date(post.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) + " PST",
+          adminName: post.author || "System",
+          actionType: isInstant ? "INSTANT PUBLISH" : "MODERATION",
+          status: (post.status.charAt(0).toUpperCase() + post.status.slice(1)) as PostStatus,
+          targetEntity: post.title,
+          logCategory: isInstant ? "instant" : "approval",
+          postData: {
+            title: post.title,
+            category: post.category,
+            author: post.author || "System",
+            date: post.created_at ? post.created_at.slice(0, 16) : "",
+            endDate: post.scheduled_at ? post.scheduled_at.slice(0, 16) : undefined,
+            assigned: post.assigned_members || "none",
+            visibility: post.visibility || "public",
+            excerpt: post.excerpt || "",
+            contentHtml: post.content_html || "",
+          }
+        };
+      });
+      setLogs(mapped);
+    } catch (err) {
+      console.error("Failed to load audit logs", err);
+      gooeyToast.error("Failed to load records from Supabase database.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLogs();
+  }, []);
 
   const stats = useMemo(() => {
     return {
@@ -211,7 +253,7 @@ export default function AuditLogPage() {
     });
 
     if (sortOrder === "OLDEST") {
-      result = result.reverse();
+      result = [...result].reverse();
     }
     return result;
   }, [logs, activeTab, searchQuery, categoryFilter, sortOrder]);
@@ -234,10 +276,19 @@ export default function AuditLogPage() {
 
   useEffect(() => setCurrentPage(1), [activeTab, searchQuery, categoryFilter]);
 
-  const handleDeletePost = (id: string) => {
+  const handleDeletePost = async (id: string) => {
     if (window.confirm("Are you sure you want to permanently delete this record? This action cannot be undone.")) {
-      setLogs((current) => current.filter((log) => log.id !== id));
-      gooeyToast.success("Record permanently removed from the database.");
+      try {
+        setIsLoading(true);
+        await api.delete(`/posts/${id}`);
+        setLogs((current) => current.filter((log) => log.id !== id));
+        gooeyToast.success("Record permanently removed from the database.");
+      } catch (err) {
+        console.error("Failed to delete post", err);
+        gooeyToast.error("Failed to delete record from database.");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -309,29 +360,51 @@ export default function AuditLogPage() {
     }
   };
 
-  const handleSaveChanges = () => {
+  const handleSaveChanges = async () => {
     const stepError = validateStep(1) || validateStep(2);
     if (stepError) {
       gooeyToast.error("Validation failed. Please check your inputs.");
       return;
     }
 
-    setLogs((currentLogs) => 
-      currentLogs.map(log => 
-        log.id === editingLogId 
-          ? {
-              ...log,
-              targetEntity: title, 
-              postData: {
-                title, category, author, date: dateTime, endDate: category === "events" ? endDateTime : undefined, assigned: assignedMembers, visibility, excerpt, contentHtml
-              }
-            } 
-          : log
-      )
-    );
+    try {
+      setIsLoading(true);
+      const post = logs.find(l => l.id === editingLogId);
+      const targetStatus = post ? post.status.toLowerCase() : "published";
 
-    gooeyToast.success("Manuscript data successfully updated.");
-    closeEditModal();
+      const res = await api.put(`/posts/${editingLogId}`, {
+        title,
+        category,
+        content_html: contentHtml,
+        excerpt,
+        assigned_members: assignedMembers,
+        status: targetStatus,
+      });
+
+      if (res.success) {
+        setLogs((currentLogs) => 
+          currentLogs.map(log => 
+            log.id === editingLogId 
+              ? {
+                  ...log,
+                  targetEntity: title, 
+                  postData: {
+                    ...log.postData,
+                    title, category, author, date: dateTime, endDate: category === "events" ? endDateTime : undefined, assigned: assignedMembers, visibility, excerpt, contentHtml
+                  }
+                } 
+              : log
+          )
+        );
+        gooeyToast.success("Manuscript data successfully updated.");
+        closeEditModal();
+      }
+    } catch (err) {
+      console.error("Failed to update post", err);
+      gooeyToast.error("Failed to update post in database.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const renderFileList = (files: File[]) => {

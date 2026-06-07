@@ -96,10 +96,41 @@ class DashboardController extends Controller
         $approvedPosts = Post::where('user_id', $user->id)->where('status', 'published')->count();
         $rejectedPosts = Post::where('user_id', $user->id)->where('status', 'rejected')->count();
         
-        $activeReviews = ArticleSubmission::where('user_id', $user->id)
+        $activeReviewsCount = ArticleSubmission::where('user_id', $user->id)
             ->whereIn('status', ['pending', 'in-review', 'revision'])
             ->count();
 
+        // Get actual active reviews with reviewer info
+        $activeReviews = ArticleSubmission::where('user_id', $user->id)
+            ->whereIn('status', ['pending', 'in-review', 'revision'])
+            ->with('reviewer')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($sub) {
+                return [
+                    'id' => (string) $sub->id,
+                    'title' => $sub->title,
+                    'reviewer' => $sub->reviewer ? $sub->reviewer->name : 'Unassigned Reviewer',
+                    'dueDate' => $sub->due_date ? $sub->due_date->format('M d, Y') : 'No Due Date',
+                    'status' => ($sub->status === 'pending' || $sub->status === 'in-review') ? 'in-review' : 'revision',
+                ];
+            });
+ 
+        // Dynamic membership requests from same university (unapproved/recent members)
+        $membershipRequests = User::where('university', $user->university)
+            ->where('role', 'member')
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($u) {
+                return [
+                    'id' => (string) $u->id,
+                    'name' => $u->name,
+                    'role' => ucfirst($u->role),
+                    'submittedAt' => $u->created_at->diffForHumans(),
+                ];
+            });
+ 
         // Recent Activity Feed for this organization
         $recentActivities = UserActivity::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
@@ -107,9 +138,23 @@ class DashboardController extends Controller
             ->get()
             ->map(function ($act) {
                 return [
-                    'id' => $act->id,
+                    'id' => (string) $act->id,
                     'action' => $act->action,
                     'timestamp' => $act->created_at->diffForHumans(),
+                ];
+            });
+ 
+        // System data logs (detailed actions logs)
+        $organizationDataLogs = UserActivity::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($act) {
+                return [
+                    'id' => (string) $act->id,
+                    'entry' => $act->action,
+                    'source' => $act->ip_address ? "IP: {$act->ip_address}" : 'Supabase Hook',
+                    'time' => $act->created_at->diffForHumans(),
                 ];
             });
 
@@ -119,9 +164,12 @@ class DashboardController extends Controller
                 'pendingPosts' => $pendingPosts,
                 'approvedPosts' => $approvedPosts,
                 'rejectedPosts' => $rejectedPosts,
-                'activeReviews' => $activeReviews,
+                'activeReviews' => $activeReviewsCount,
             ],
+            'activeReviewsList' => $activeReviews,
+            'membershipRequests' => $membershipRequests,
             'recentActivities' => $recentActivities,
+            'organizationDataLogs' => $organizationDataLogs,
         ]);
     }
 }
