@@ -1,7 +1,8 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import "./about-page.css";
 
 // ── Icon Components ────────────────────────────────────────────────────────
@@ -18,6 +19,12 @@ const CloseIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
     <line x1="18" y1="6"  x2="6"  y2="18" />
     <line x1="6"  y1="6"  x2="18" y2="18" />
+  </svg>
+);
+
+const ChevronDownIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 12 15 18 9" />
   </svg>
 );
 
@@ -204,9 +211,42 @@ const FOOTER_CONTACT = [
   { icon: <PhoneIcon />,       text: "+63 908 XXX XXXX"    },
 ];
 
+const ACTIVITY_DROPDOWN_ITEMS = [
+  { label: "All Activities",  type: "all"        },
+  { label: "Conferences",     type: "conference" },
+  { label: "Seminars",        type: "seminar"    },
+  { label: "Workshops",       type: "workshop"   },
+  { label: "Other Events",    type: "other"      },
+];
+
+const dropdownVariants: Variants = {
+  hidden:  { opacity: 0, y: -8, scale: 0.96 },
+  visible: { opacity: 1, y: 0,  scale: 1,    transition: { duration: 0.18, ease: "easeOut" } },
+  exit:    { opacity: 0, y: -6, scale: 0.97, transition: { duration: 0.13 } },
+};
+
 // ── Navbar ─────────────────────────────────────────────────────────────────
 function Navbar({ scrolled }: { scrolled: boolean }) {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen,     setMenuOpen]     = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { setDropdownOpen(false); setMenuOpen(false); }
+    };
+    const onClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onClick);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onClick);
+    };
+  }, []);
 
   useEffect(() => {
     const onResize = () => { if (window.innerWidth > 768) setMenuOpen(false); };
@@ -248,6 +288,34 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
               {link}
             </Link>
           ))}
+
+          <div className="navbar__dropdown-wrap" ref={dropdownRef}>
+            <button
+              id="activities-dropdown-btn"
+              className={`navbar__dropdown-trigger${dropdownOpen ? " navbar__dropdown-trigger--open" : ""}`}
+              onClick={() => setDropdownOpen(p => !p)}
+              aria-haspopup="true" aria-expanded={dropdownOpen}>
+              National Activities
+              <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
+            </button>
+            <AnimatePresence>
+              {dropdownOpen && (
+                <motion.div role="menu" className="navbar__dropdown"
+                  variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
+                  {ACTIVITY_DROPDOWN_ITEMS.map((item, i) => (
+                    <Link key={item.type}
+                      href={item.type === "all" ? "/activities" : `/activities?type=${item.type}`}
+                      role="menuitem"
+                      className={`navbar__dropdown-item${i === 0 ? " navbar__dropdown-item--all" : ""}`}
+                      onClick={() => setDropdownOpen(false)}>
+                      {item.label}
+                    </Link>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
           <Link href="/member-login" className="navbar__signin">Sign In</Link>
         </div>
 
@@ -261,7 +329,7 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
       </nav>
 
       <div className={`navbar__mobile-menu${menuOpen ? " navbar__mobile-menu--open" : ""}`}>
-        {NAV_LINKS.map((link) => (
+          {NAV_LINKS.map((link) => (
           <Link
             key={link}
             href={getPath(link as NavLink)}
@@ -269,6 +337,15 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
             onClick={() => setMenuOpen(false)}
           >
             {link}
+          </Link>
+        ))}
+        <div className="navbar__mobile-dropdown-label">National Activities</div>
+        {ACTIVITY_DROPDOWN_ITEMS.map(item => (
+          <Link key={item.type}
+            href={item.type === "all" ? "/activities" : `/activities?type=${item.type}`}
+            className="navbar__mobile-sublink"
+            onClick={() => setMenuOpen(false)}>
+            {item.label}
           </Link>
         ))}
         <Link href="/member-login" className="navbar__mobile-signin" onClick={() => setMenuOpen(false)}>
