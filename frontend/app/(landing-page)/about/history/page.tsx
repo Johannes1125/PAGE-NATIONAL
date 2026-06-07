@@ -1,52 +1,32 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { api } from "../../lib/api-client";
-import "./home-page.css";
-import Image from 'next/image';
+import { TIMELINE_EVENTS, type TimelineEvent } from "./mock-data";
+import "./history.css";
 
 // ── Icon Components ────────────────────────────────────────────────────────
 
-const BookOpenIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+const HamburgerIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <line x1="3" y1="6"  x2="21" y2="6" />
+    <line x1="3" y1="12" x2="21" y2="12" />
+    <line x1="3" y1="18" x2="21" y2="18" />
   </svg>
 );
 
-const JournalIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+const CloseIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <line x1="18" y1="6"  x2="6"  y2="18" />
+    <line x1="6"  y1="6"  x2="18" y2="18" />
   </svg>
 );
 
-const CalendarIconSm = () => (
-  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-    <line x1="16" y1="2" x2="16" y2="6" />
-    <line x1="8" y1="2" x2="8" y2="6" />
-    <line x1="3" y1="10" x2="21" y2="10" />
-  </svg>
-);
-
-const CalendarIconLg = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-    <line x1="16" y1="2" x2="16" y2="6" />
-    <line x1="8" y1="2" x2="8" y2="6" />
-    <line x1="3" y1="10" x2="21" y2="10" />
-  </svg>
-);
-
-const UsersIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-    <circle cx="9" cy="7" r="4" />
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+const ChevronDownIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 12 15 18 9" />
   </svg>
 );
 
@@ -91,47 +71,70 @@ const PhoneIcon = () => (
   </svg>
 );
 
-const ArrowIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="5" y1="12" x2="19" y2="12" />
-    <polyline points="12 5 19 12 12 19" />
+// ── Milestone Icons ──
+
+const LandmarkIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="2" y1="22" x2="22" y2="22" />
+    <polyline points="12 2 20 7 4 7 12 2" />
+    <rect x="5" y="11" width="3" height="11" />
+    <rect x="10" y="11" width="4" height="11" />
+    <rect x="15" y="11" width="3" height="11" />
+    <line x1="4" y1="11" x2="20" y2="11" />
   </svg>
 );
 
-const HamburgerIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-    <line x1="3" y1="6"  x2="21" y2="6" />
-    <line x1="3" y1="12" x2="21" y2="12" />
-    <line x1="3" y1="18" x2="21" y2="18" />
+const UsersIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
   </svg>
 );
 
-const CloseIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-    <line x1="18" y1="6"  x2="6"  y2="18" />
-    <line x1="6"  y1="6"  x2="18" y2="18" />
+const HandshakeIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
   </svg>
 );
 
-const ChevronDownIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="6 9 12 15 18 9" />
+const LightbulbIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 18h6" />
+    <path d="M10 22h4" />
+    <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14" />
   </svg>
 );
 
-// ── Types & Data ───────────────────────────────────────────────────────────
+const GraduationCapIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+    <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" />
+  </svg>
+);
 
-type NavLink = "Home" | "About" | "News" | "Contact";
+function getMilestoneIcon(type: string) {
+  switch (type) {
+    case "founding":
+      return <LandmarkIcon />;
+    case "conference":
+      return <UsersIcon />;
+    case "partnership":
+      return <HandshakeIcon />;
+    case "initiative":
+      return <LightbulbIcon />;
+    case "program":
+      return <GraduationCapIcon />;
+    default:
+      return <LightbulbIcon />;
+  }
+}
 
-const getPath = (link: NavLink): string => {
-  const map: Record<NavLink, string> = {
-    Home: "/", About: "./about", News: "/news", Contact: "/contact",
-  };
-  return map[link];
-};
-
-// ── Static Data ────────────────────────────────────────────────────────────
-const NAV_LINKS: NavLink[] = ["Home", "About", "News", "Contact"];
+// ── Shared Data ────────────────────────────────────────────────────────────
 
 const ABOUT_DROPDOWN_ITEMS = [
   { label: "About PAGE",        href: "/about" },
@@ -149,93 +152,20 @@ const ACTIVITY_DROPDOWN_ITEMS = [
   { label: "Other Events",    type: "other"      },
 ];
 
+const FOOTER_QUICK_LINKS = ["About PAGE", "History", "Officers", "News & Announcements"];
+const FOOTER_RESOURCES    = ["Journals", "Articles", "Upcoming Activities", "Contact Us"];
+const FOOTER_CONTACT = [
+  { icon: <MapPinIcon />,      text: "Manila, Philippines" },
+  { icon: <MailIconContact />, text: "page@gmail.edu.ph"   },
+  { icon: <PhoneIcon />,       text: "+63 908 XXX XXXX"    },
+];
+
 const dropdownVariants: Variants = {
   hidden:  { opacity: 0, y: -8, scale: 0.96 },
   visible: { opacity: 1, y: 0,  scale: 1,    transition: { duration: 0.18, ease: "easeOut" } },
   exit:    { opacity: 0, y: -6, scale: 0.97, transition: { duration: 0.13 } },
 };
 
-const RESOURCE_CARDS = [
-  {
-    icon: <BookOpenIcon />,
-    num: "01",
-    title: "Articles",
-    desc: "Browse academic articles and research papers from leading scholars in graduate education.",
-  },
-  {
-    icon: <JournalIcon />,
-    num: "02",
-    title: "Journals",
-    desc: "Peer-reviewed journals advancing graduate education research across the Philippines.",
-  },
-  {
-    icon: <CalendarIconLg />,
-    num: "03",
-    title: "Upcoming Activities",
-    desc: "Conferences, workshops, and events organized for graduate education professionals.",
-  },
-  {
-    icon: <UsersIcon />,
-    num: "04",
-    title: "Join PAGE",
-    desc: "Become a member of our growing community of graduate education professionals.",
-  },
-];
-
-const HERO_STATS = [
-  { label: "Member Institutions", value: "120+" },
-  { label: "Published Journals",  value: "340+" },
-  { label: "Annual Events",       value: "28"   },
-];
-
-const NEWS_CARDS = [
-  {
-    date:    "March 12, 2026",
-    author:  "Dr. Maria Santos",
-    title:   "PAGE Annual Conference 2026: Innovation in Graduate Education",
-    excerpt: "Join us for the most anticipated event of the year as we explore cutting-edge innovations and best practices in graduate education.",
-  },
-  {
-    date:    "February 28, 2026",
-    author:  "Dr. Jose Reyes",
-    title:   "New Research Grant Opportunities for Graduate Faculty",
-    excerpt: "PAGE announces a new round of research grants supporting faculty members engaged in graduate-level research across Philippine universities.",
-  },
-  {
-    date:    "February 10, 2026",
-    author:  "Dr. Ana Lim",
-    title:   "Guidelines Released for 2026 Graduate Program Accreditation",
-    excerpt: "Updated guidelines for graduate program accreditation. Institutions are encouraged to review the new standards and prepare accordingly.",
-  },
-  {
-    date:    "January 25, 2026",
-    author:  "Dr. Ramon Cruz",
-    title:   "International Collaboration Summit: Linking PH & Global Universities",
-    excerpt: "PAGE facilitates a landmark collaboration summit connecting Philippine graduate schools with partner institutions across Asia, Europe, and North America.",
-  },
-  {
-    date:    "January 14, 2026",
-    author:  "Dr. Clara Bautista",
-    title:   "Scholarship Program Opens for Graduate Students Nationwide",
-    excerpt: "Applications are now open for PAGE's annual scholarship program supporting outstanding graduate students across the archipelago.",
-  },
-  {
-    date:    "December 30, 2025",
-    author:  "Dr. Noel Torres",
-    title:   "Year in Review: Milestones in Philippine Graduate Education",
-    excerpt: "As the year closes, we reflect on the remarkable achievements of the Philippine graduate education community and look ahead.",
-  },
-];
-
-const FOOTER_QUICK_LINKS = ["About PAGE", "History", "Officers", "News & Announcements"];
-const FOOTER_RESOURCES    = ["Journals", "Articles", "Upcoming Activities", "Contact Us"];
-const FOOTER_CONTACT = [
-  { icon: <MapPinIcon />,      text: "Manila, Philippines"  },
-  { icon: <MailIconContact />, text: "page@gmail.edu.ph"    },
-  { icon: <PhoneIcon />,       text: "+63 908 XXX XXXX"     },
-];
-
-// ── Navbar ─────────────────────────────────────────────────────────────────
 // ── Navbar ─────────────────────────────────────────────────────────────────
 function Navbar({ scrolled }: { scrolled: boolean }) {
   const pathname = usePathname();
@@ -287,20 +217,7 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
     <header className={`navbar${scrolled ? " navbar--scrolled" : ""}${menuOpen ? " navbar--open" : ""}`}>
       <nav className="navbar__inner">
         <div className="navbar__logo">
-          <div className="navbar__logo-mark">
-            <Image
-              src="/PAGE.jpg"
-              width={50}
-              height={50}
-              alt="PAGE Logo"
-              onError={(e) => {
-                const target = e.currentTarget as HTMLImageElement;
-                target.style.display = "none";
-                const fallback = target.nextElementSibling as HTMLElement;
-                if (fallback) fallback.style.display = "flex";
-              }}
-            />
-          </div>
+          <div className="navbar__logo-mark" />
           <div className="navbar__logo-text">
             <div className="navbar__logo-name">PAGE</div>
             <div className="navbar__logo-sub">Philippine Association for Graduate Education</div>
@@ -468,177 +385,51 @@ function Navbar({ scrolled }: { scrolled: boolean }) {
   );
 }
 
-// ── Hero ───────────────────────────────────────────────────────────────────
-function HeroSection() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 80);
-    return () => clearTimeout(t);
-  }, []);
-
+// ── About Page Header ──────────────────────────────────────────────────────
+function AboutHero() {
   return (
-    <section className="hero">
-      {/* Spiral dark background layers */}
-      <div className="hero__spiral-base" />
-      <div className="hero__spiral-1" />
-      <div className="hero__spiral-2" />
-      <div className="hero__spiral-3" />
-      <div className="hero__nucleus" />
-      <div className="hero__stars" />
-      <div className="hero__rule-left" />
-      <div className="hero__rule-right" />
-
-      <div className={`hero__content${visible ? " hero__content--visible" : ""}`}>
-        <div className="hero__eyebrow">
-          <span className="hero__eyebrow-dot" />
-          Est. in the Philippines
-          <span className="hero__eyebrow-dot" />
+    <section className="about-hero">
+      <div className="container">
+        <div className="about-hero__breadcrumb">
+          <Link href="/" className="about-hero__breadcrumb-link">Home</Link>
+          <span className="about-hero__breadcrumb-sep">/</span>
+          <Link href="/about" className="about-hero__breadcrumb-link">About</Link>
+          <span className="about-hero__breadcrumb-sep">/</span>
+          <span className="about-hero__breadcrumb-current">PAGE History</span>
         </div>
-
-        <h1 className="hero__title">
-          Philippine Association<br />
-          for <em>Graduate Education</em>
-        </h1>
-
-        <p className="hero__subtitle">
-          Advancing excellence in graduate education through collaboration,
-          research, and professional development across the Philippines.
+        <h1 className="about-hero__title">PAGE History</h1>
+        <div className="about-hero__divider" />
+        <p className="about-hero__subtitle">
+          Tracing our path from foundation in 2010 to driving higher education excellence
+          and virtual transformation across the nation.
         </p>
-
-        <div className="hero__cta-group">
-          <button className="btn-primary">Get Started</button>
-          <button className="btn-ghost">Learn More</button>
-        </div>
-      </div>
-
-      {/* Stats strip */}
-      <div className={`hero__stats${visible ? " hero__stats--visible" : ""}`}>
-        {HERO_STATS.map(s => (
-          <div key={s.label} className="hero__stat-card">
-            <div className="hero__stat-value">{s.value}</div>
-            <div className="hero__stat-label">{s.label}</div>
-          </div>
-        ))}
       </div>
     </section>
   );
 }
 
-// ── Resources ──────────────────────────────────────────────────────────────
-function ResourcesSection() {
+// ── Timeline Skeleton Loader ──
+function TimelineSkeleton() {
   return (
-    <section className="resources">
-      <div className="container">
-        <div className="section-header">
-          <span className="section-label">What We Offer</span>
-          <h2 className="section-title">Explore Our Resources</h2>
-          <p className="section-subtitle">
-            Discover opportunities and resources designed for graduate education
-            professionals across the Philippines.
-          </p>
-        </div>
-
-        <div className="resources__grid">
-          {RESOURCE_CARDS.map(card => (
-            <div key={card.title} className="resource-card">
-              <div className="resource-card__num">{card.num}</div>
-              <div className="resource-card__icon">{card.icon}</div>
-              <h3 className="resource-card__title">{card.title}</h3>
-              <p className="resource-card__desc">{card.desc}</p>
-              <a href="#" className="resource-card__link">
-                Explore <ArrowIcon />
-              </a>
+    <div className="timeline">
+      <div className="timeline__line" style={{ background: "#e5e7eb" }} />
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="timeline__item">
+          <div className="timeline__content-wrap">
+            <div className="skeleton-timeline-card">
+              <div className="skeleton-badge skeleton-pulse" />
+              <div className="skeleton-year skeleton-pulse" />
+              <div className="skeleton-title skeleton-pulse" />
+              <div className="skeleton-desc skeleton-pulse" />
+              <div className="skeleton-desc skeleton-pulse" />
             </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ── News ───────────────────────────────────────────────────────────────────
-type NewsCardType = {
-  date: string;
-  author: string;
-  title: string;
-  excerpt: string;
-};
-
-function NewsCard({ card }: { card: NewsCardType }) {
-  return (
-    <div className="news-card">
-      <div className="news-card__image">
-        <span className="news-card__image-label">Research</span>
-      </div>
-      <div className="news-card__body">
-        <div className="news-card__meta">
-          <span className="news-card__date">{card.date}</span>
-          <span className="news-card__dot">·</span>
-          <span className="news-card__author">{card.author}</span>
-        </div>
-        <h4 className="news-card__title">{card.title}</h4>
-        <p className="news-card__excerpt">{card.excerpt}</p>
-        <a href="#" className="news-card__link">
-          Read More <ArrowIcon />
-        </a>
-      </div>
-    </div>
-  );
-}
-
-// ── News Section ───────────────────────────────────────────────────────────
-function NewsSection() {
-  const [posts, setPosts] = useState<NewsCardType[]>([]);
-
-  useEffect(() => {
-    const fetchPublicPosts = async () => {
-      try {
-        const response = await api.get('/public/posts');
-        const mapped = response.posts.map((post: any) => ({
-          date: new Date(post.created_at).toLocaleDateString("en-US", {
-            month: "long",
-            day: "numeric",
-            year: "numeric"
-          }),
-          author: post.author || "PAGE National",
-          title: post.title,
-          excerpt: post.excerpt || "Browse full content within our publications portal.",
-        }));
-        if (mapped.length > 0) {
-          setPosts(mapped);
-        } else {
-          setPosts(NEWS_CARDS);
-        }
-      } catch (err) {
-        console.error("Failed to fetch public posts", err);
-        setPosts(NEWS_CARDS);
-      }
-    };
-    fetchPublicPosts();
-  }, []);
-
-  return (
-    <section className="news">
-      <div className="container">
-        <div className="news__header">
-          <div className="news__header-text">
-            <span className="section-label">Latest Updates</span>
-            <h2 className="news__title">News &amp; Announcements</h2>
-            <p className="news__subtitle">
-              Stay informed with the latest developments in Philippine graduate education.
-            </p>
           </div>
-          <button className="btn-dark">View All News</button>
+          <div className="timeline__node" style={{ background: "#f3f4f6" }}>
+            <div className="skeleton-pulse" style={{ width: "34px", height: "34px", borderRadius: "50%" }} />
+          </div>
         </div>
-
-        <div className="news__grid">
-          {posts.map((card) => (
-            <NewsCard key={card.title} card={card} />
-          ))}
-        </div>
-      </div>
-    </section>
+      ))}
+    </div>
   );
 }
 
@@ -648,13 +439,9 @@ function Footer() {
     <footer className="footer">
       <div className="footer__inner">
         <div className="footer__columns">
-
-          {/* Brand */}
           <div>
             <div className="footer__brand-logo">
-              <div className="footer__logo-mark">
-                <span className="navbar__logo-mark-fallback" style={{ display: "none" }}>PAGE</span>
-              </div>
+              <div className="footer__logo-mark" />
               <div>
                 <div className="footer__logo-name">PAGE</div>
                 <div className="footer__logo-sub">An academic towards to excellence</div>
@@ -665,13 +452,12 @@ function Footer() {
               through collaboration and research.
             </p>
             <div className="footer__socials">
-              {[<FacebookIcon />, <InstagramIcon />, <MailIconSm />].map((icon, i) => (
+              {[<FacebookIcon key="fb" />, <InstagramIcon key="ig" />, <MailIconSm key="mail" />].map((icon, i) => (
                 <button key={i} className="footer__social-btn">{icon}</button>
               ))}
             </div>
           </div>
 
-          {/* Quick Links */}
           <div>
             <h4 className="footer__col-title">Quick Links</h4>
             <ul className="footer__links">
@@ -681,7 +467,6 @@ function Footer() {
             </ul>
           </div>
 
-          {/* Resources */}
           <div>
             <h4 className="footer__col-title">Resources</h4>
             <ul className="footer__links">
@@ -691,7 +476,6 @@ function Footer() {
             </ul>
           </div>
 
-          {/* Contact */}
           <div>
             <h4 className="footer__col-title">Contact</h4>
             <div className="footer__contact-list">
@@ -703,7 +487,6 @@ function Footer() {
               ))}
             </div>
           </div>
-
         </div>
 
         <div className="footer__bottom">
@@ -721,23 +504,96 @@ function Footer() {
   );
 }
 
-// ── Main Page ──────────────────────────────────────────────────────────────
-export default function PAGELandingPage() {
+// ── Framer Motion Variants ─────────────────────────────────────────────────
+
+const timelineContainerVariants: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.15,
+    },
+  },
+};
+
+const timelineItemVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 35,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
+// ── Main Page Component ────────────────────────────────────────────────────
+export default function HistoryPage() {
   const [scrolled, setScrolled] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
+    
+    // Simulate loading state
+    const t = setTimeout(() => setLoading(false), 600);
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      clearTimeout(t);
+    };
   }, []);
 
   return (
     <>
       <Navbar scrolled={scrolled} />
       <main>
-        <HeroSection />
-        <ResourcesSection />
-        <NewsSection />
+        <AboutHero />
+        
+        <section className="history-section">
+          <div className="container">
+            {loading ? (
+              <TimelineSkeleton />
+            ) : (
+              <div className="timeline">
+                <div className="timeline__line" />
+                
+                <motion.div
+                  variants={timelineContainerVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  {TIMELINE_EVENTS.map((event, i) => (
+                    <motion.div
+                      key={event.year}
+                      className="timeline__item"
+                      variants={timelineItemVariants}
+                    >
+                      <div className="timeline__content-wrap">
+                        <div className={`timeline__card milestone-${event.milestone_type}`}>
+                          <span className="timeline__badge">{event.milestone_type}</span>
+                          <span className="timeline__year">{event.year}</span>
+                          <h3 className="timeline__title">{event.title}</h3>
+                          <p className="timeline__desc">{event.description}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="timeline__node">
+                        <div className={`timeline__icon-inner milestone-${event.milestone_type}`} style={{ color: "var(--milestone-color)", background: "var(--milestone-bg)" }}>
+                          {getMilestoneIcon(event.milestone_type)}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </div>
+            )}
+          </div>
+        </section>
       </main>
       <Footer />
     </>
