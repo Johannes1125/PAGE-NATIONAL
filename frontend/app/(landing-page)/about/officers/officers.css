@@ -1,0 +1,492 @@
+/* ============================================================
+   PAGE Officers Page — officers.css
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Instrument+Serif:ital@0;1&display=swap');
+
+/* ── Design Tokens ────────────────────────────────────────── */
+:root {
+  --ink:          #0f1923;
+  --ink-60:       rgba(15,25,35,0.6);
+  --ink-30:       rgba(15,25,35,0.3);
+  --ink-10:       rgba(15,25,35,0.08);
+  --ink-05:       rgba(15,25,35,0.04);
+  --accent:       #1a4b8c;
+  --accent-light: #e8eef8;
+  --accent-mid:   #2d62ae;
+  --parchment:    #f7f6f3;
+  --white:        #ffffff;
+  --rule:         rgba(15,25,35,0.12);
+  --serif:        'Instrument Serif', serif;
+  --sans:         'Poppins', sans-serif;
+  --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
+  --t-fast:       0.14s ease;
+  --t-mid:        0.24s ease;
+  --t-slow:       0.42s var(--ease-out);
+}
+
+.container {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+
+/* ============================================================
+   ABOUT HERO — clean light page header
+   ============================================================ */
+.about-hero {
+  background: var(--white);
+  padding: 112px 0 48px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.about-hero__breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.about-hero__breadcrumb-link {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--accent);
+  transition: color var(--t-fast);
+  letter-spacing: 0.1px;
+}
+
+.about-hero__breadcrumb-link:hover { color: var(--ink); }
+
+.about-hero__breadcrumb-sep {
+  font-size: 13px;
+  color: var(--ink-30);
+}
+
+.about-hero__breadcrumb-current {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-60);
+  letter-spacing: 0.1px;
+}
+
+.about-hero__title {
+  font-family: var(--sans);
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0 0 20px;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+}
+
+.about-hero__divider {
+  width: 56px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--ink), var(--accent));
+  border-radius: 2px;
+  margin-bottom: 22px;
+}
+
+.about-hero__subtitle {
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--ink-60);
+  max-width: 560px;
+  line-height: 1.75;
+  margin: 0;
+  letter-spacing: 0.1px;
+}
+
+/* ============================================================
+   OFFICERS MAIN LAYOUT
+   ============================================================ */
+.officers-section {
+  background: var(--parchment);
+  padding: 80px 0 110px;
+  min-height: 500px;
+}
+
+/* Tab selector */
+.term-selector {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(15, 25, 35, 0.05);
+  padding: 6px;
+  border-radius: 12px;
+  width: fit-content;
+  margin: 0 auto 56px;
+  position: relative;
+  z-index: 1;
+}
+
+.term-selector__btn {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-60);
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: color var(--t-fast);
+  position: relative;
+  z-index: 1;
+}
+
+.term-selector__btn--active {
+  color: var(--white);
+}
+
+.term-selector__active-indicator {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  border-radius: 8px;
+  z-index: -1;
+}
+
+/* Officers Grid */
+.officers-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px 24px;
+}
+
+.officers-card {
+  background: var(--white);
+  border-radius: 16px;
+  border: 1px solid var(--rule);
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.01);
+  transition: transform var(--t-mid), box-shadow var(--t-mid), border-color var(--t-mid);
+}
+
+.officers-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(15, 25, 35, 0.06);
+  border-color: rgba(26, 75, 140, 0.3);
+}
+
+.officers-card__image-container {
+  height: 200px;
+  background: linear-gradient(135deg, #0f1c30 0%, #1e3a63 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.officers-card__image-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.officers-card__avatar {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  overflow: hidden;
+  transition: transform var(--t-mid), border-color var(--t-mid);
+}
+
+.officers-card:hover .officers-card__avatar {
+  transform: scale(1.05);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.officers-card__body {
+  padding: 24px 20px;
+  text-align: center;
+}
+
+.officers-card__position {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-light);
+  padding: 4px 10px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.officers-card__name {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--ink);
+  margin: 0 0 12px;
+  line-height: 1.2;
+}
+
+.officers-card__bio {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--ink-60);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ============================================================
+   SKELETON GRID SKELETONS
+   ============================================================ */
+.skeleton-card {
+  height: 350px;
+  background: var(--white);
+  border-radius: 16px;
+  border: 1px solid var(--rule);
+  overflow: hidden;
+}
+
+.skeleton-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  margin-top: 52px;
+}
+
+.skeleton-badge {
+  width: 110px;
+  height: 18px;
+  border-radius: 6px;
+  margin: 24px auto 12px;
+}
+
+.skeleton-name {
+  width: 160px;
+  height: 24px;
+  margin: 0 auto;
+}
+
+/* ============================================================
+   FOOTER (Consistent styles)
+   ============================================================ */
+.footer {
+  background: #080e18;
+  color: rgba(255,255,255,0.7);
+  padding: 80px 0 32px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.footer__inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+
+.footer__columns {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.2fr;
+  gap: 64px;
+  margin-bottom: 64px;
+}
+
+.footer__brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.footer__logo-mark {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  overflow: hidden;
+  background-image: url('../../../public/PAGE.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+.footer__logo-name {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--white);
+  line-height: 1.2;
+}
+
+.footer__logo-sub {
+  font-size: 10px;
+  color: rgba(255,255,255,0.4);
+}
+
+.footer__brand-desc {
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  max-width: 320px;
+}
+
+.footer__socials {
+  display: flex;
+  gap: 10px;
+}
+
+.footer__social-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.footer__social-btn:hover {
+  background: var(--white);
+  color: var(--ink);
+}
+
+.footer__col-title {
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.footer__links li {
+  margin-bottom: 12px;
+}
+
+.footer__link {
+  color: rgba(255,255,255,0.5);
+  font-size: 13px;
+  font-weight: 400;
+  transition: color var(--t-fast);
+}
+
+.footer__link:hover {
+  color: var(--white);
+}
+
+.footer__contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.footer__contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.footer__contact-icon {
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.footer__contact-text {
+  font-size: 13px;
+  line-height: 1.4;
+  color: rgba(255,255,255,0.5);
+}
+
+.footer__bottom {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer__copyright {
+  font-size: 12px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.4);
+}
+
+.footer__legal {
+  display: flex;
+  gap: 24px;
+}
+
+.footer__legal-link {
+  font-size: 12px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.4);
+  transition: color var(--t-fast);
+}
+
+.footer__legal-link:hover {
+  color: var(--white);
+}
+
+/* ============================================================
+   RESPONSIVENESS (MOBILE STYLING)
+   ============================================================ */
+@media (max-width: 1200px) {
+  .officers-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+}@media (max-width: 991px) {
+
+  .footer__columns {
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+  }
+
+}@media (max-width: 768px) {
+
+  
+  .about-hero {
+    padding: 100px 0 40px;
+  }
+  .container {
+    padding: 0 24px;
+  }
+  
+  .officers-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+}@media (max-width: 576px) {
+
+  .officers-grid {
+    grid-template-columns: 1fr;
+  }
+  .term-selector {
+    width: 100%;
+    display: flex;
+  }
+  .term-selector__btn {
+    flex: 1;
+    text-align: center;
+    padding: 10px 12px;
+  }
+  .footer__columns {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .footer__bottom {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+
+}
