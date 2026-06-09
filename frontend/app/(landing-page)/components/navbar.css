@@ -1,5 +1,5 @@
 /* ============================================================
-   SHARED NAVBAR COMPONENT STYLES
+   SHARED NAVBAR COMPONENT STYLES — Light Theme
    Used by: components/Navbar.tsx
    ============================================================ */
 
@@ -8,7 +8,11 @@
 /* ── Design tokens ─────────────────────────────────────────── */
 :root {
   --ink:          #0f1923;
-  --parchment:    #f7f6f3;
+  --ink-80:       rgba(15,25,35,0.8);
+  --ink-60:       rgba(15,25,35,0.55);
+  --ink-40:       rgba(15,25,35,0.4);
+  --ink-30:       rgba(15,25,35,0.3);
+  --parchment:    #faf9f6;
   --white:        #ffffff;
   --sans:         'Poppins', sans-serif;
   --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
@@ -17,15 +21,14 @@
   --t-mid:        0.24s ease;
   --t-slow:       0.42s var(--ease-out);
 
-  /* Accent colour — warm gold for PAGE identity */
-  --accent:       #f0a840;
-  --accent-dim:   rgba(240, 168, 64, 0.18);
-  --accent-glow:  rgba(240, 168, 64, 0.28);
+  /* Accent */
+  --accent:       #1a3c6e;
+  --accent-light: #e8eef8;
+  --accent-dim:   rgba(26, 60, 110, 0.06);
 
-  /* Glass surface */
-  --glass-bg:     rgba(8, 15, 26, 0.72);
-  --glass-border: rgba(255, 255, 255, 0.10);
-  --glass-blur:   20px;
+  /* Surface */
+  --nav-bg:       rgba(255, 255, 255, 0.95);
+  --nav-border:   rgba(15, 25, 35, 0.06);
 }
 
 /* ============================================================
@@ -35,46 +38,31 @@
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 200;
-  /* fixed solid dark background — no change on scroll */
-  background: #0a121e;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
-  box-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
+  background: var(--nav-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--nav-border);
+  transition: box-shadow 0.3s ease, background 0.3s ease;
 }
 
-/* Accent hairline — always visible */
-.navbar::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255,255,255,0.08) 30%,
-    rgba(255,255,255,0.14) 50%,
-    rgba(255,255,255,0.08) 70%,
-    transparent 100%
-  );
-  pointer-events: none;
-}
-
-/* Scroll state — just a slightly deeper shadow, same color */
+/* Scroll state */
 .navbar--scrolled {
+  background: rgba(255, 255, 255, 0.98);
   box-shadow:
-    0 4px 32px rgba(0, 0, 0, 0.60),
-    0 1px 0 rgba(255, 255, 255, 0.06);
+    0 1px 2px rgba(15, 25, 35, 0.04),
+    0 4px 12px rgba(15, 25, 35, 0.03);
 }
 
 /* ── Inner layout ───────────────────────────────────────────── */
 .navbar__inner {
-  max-width: 1440px;
+  max-width: 1300px;
   margin: 0 auto;
-  padding: 0 32px;
-  height: 76px;
+  padding: 0 36px;
+  height: 68px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 20px;
 }
 
 /* ============================================================
@@ -83,29 +71,27 @@
 .navbar__logo {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-shrink: 0;
   text-decoration: none;
 }
 
 .navbar__logo-mark {
   position: relative;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
-  /* subtle ring */
   box-shadow:
-    0 0 0 1px rgba(255,255,255,0.12),
-    0 2px 8px rgba(0,0,0,0.4);
+    0 0 0 1px rgba(15, 25, 35, 0.06);
   transition: box-shadow var(--t-mid), transform var(--t-mid);
 }
 
 .navbar__logo:hover .navbar__logo-mark {
   box-shadow:
     0 0 0 1.5px var(--accent),
-    0 4px 16px rgba(240, 168, 64, 0.3);
+    0 2px 8px rgba(26, 60, 110, 0.12);
   transform: scale(1.05);
 }
 
@@ -113,7 +99,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 9px;
+  border-radius: 50%;
   display: block;
 }
 
@@ -121,7 +107,7 @@
   font-family: var(--sans);
   font-size: 11px;
   font-weight: 700;
-  color: rgba(255,255,255,0.85);
+  color: var(--ink);
   letter-spacing: 1.5px;
   text-transform: uppercase;
 }
@@ -135,22 +121,23 @@
 .navbar__logo-name {
   font-family: var(--sans);
   font-weight: 700;
-  font-size: 15px;
-  color: var(--white);
+  font-size: 14px;
+  color: var(--ink);
   letter-spacing: -0.3px;
   line-height: 1.2;
 }
 
 .navbar__logo-sub {
-  font-size: 9.5px;
+  font-size: 8.5px;
   font-weight: 400;
-  color: rgba(255,255,255,0.42);
-  letter-spacing: 0.2px;
+  color: var(--ink-30);
+  letter-spacing: 1.2px;
   line-height: 1.2;
-  max-width: 200px;
+  max-width: 180px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-transform: uppercase;
 }
 
 /* ============================================================
@@ -159,25 +146,23 @@
 .navbar__links {
   display: flex;
   align-items: center;
-  gap: 8px;
-  /* frosted pill — does NOT stretch; sits between logo and sign in */
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  gap: 2px;
+  background: rgba(15, 25, 35, 0.025);
+  border: 1px solid rgba(15, 25, 35, 0.05);
   border-radius: 40px;
-  padding: 6px 12px;
+  padding: 4px 8px;
   flex-shrink: 0;
   min-width: 0;
-  /* NOTE: NO overflow:hidden here — dropdowns are position:absolute and must escape the pill */
 }
 
 /* ── Individual nav links ──────────────────────────────────── */
 .navbar__link {
   position: relative;
   font-family: var(--sans);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.60);
-  padding: 8px 14px;
+  color: var(--ink-60);
+  padding: 7px 14px;
   border-radius: 30px;
   letter-spacing: 0.1px;
   transition:
@@ -185,55 +170,58 @@
     background var(--t-fast);
   white-space: nowrap;
   flex-shrink: 0;
+  text-decoration: none;
 }
 
 .navbar__link:hover {
-  color: var(--white);
-  background: rgba(255, 255, 255, 0.09);
+  color: var(--ink);
+  background: rgba(15, 25, 35, 0.04);
 }
 
 .navbar__link--active {
   color: var(--white);
-  background: rgba(255, 255, 255, 0.12);
-  /* keep same weight as default — no layout/font shift on activation */
+  background: var(--ink);
   font-weight: 500;
+}
+
+.navbar__link--active:hover {
+  color: var(--white);
+  background: var(--ink);
 }
 
 /* ── Sign In button ────────────────────────────────────────── */
 .navbar__signin {
   flex-shrink: 0;
   font-family: var(--sans);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  color: #0a121e;
-  background: #ffffff;
+  color: var(--white);
+  background: var(--ink);
   border: none;
   border-radius: 30px;
-  padding: 10px 24px;
+  padding: 9px 22px;
   cursor: pointer;
   letter-spacing: 0.1px;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   transition:
     background var(--t-fast),
     transform  var(--t-fast),
     box-shadow var(--t-fast);
-  /* sits outside the pill, to the right */
-  margin-left: 16px;
+  margin-left: 12px;
 }
 
 .navbar__signin:hover {
-  background: #f0f0f0;
+  background: #1a2a3f;
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.30);
+  box-shadow: 0 4px 12px rgba(15, 25, 35, 0.15);
 }
 
 .navbar__signin:active {
   transform: translateY(0);
-  background: #e4e4e4;
+  background: #152235;
 }
 
 /* ============================================================
@@ -244,15 +232,30 @@
   flex-shrink: 0;
 }
 
+/* Invisible bridge between trigger and dropdown to prevent hover loss */
+.navbar__dropdown-wrap::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 8px;
+  pointer-events: none;
+}
+
+.navbar__dropdown-wrap:hover::after {
+  pointer-events: auto;
+}
+
 .navbar__dropdown-trigger {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   font-family: var(--sans);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
-  color: rgba(255,255,255,0.60);
-  padding: 8px 14px;
+  color: var(--ink-60);
+  padding: 7px 14px;
   border-radius: 30px;
   letter-spacing: 0.1px;
   transition: color var(--t-fast), background var(--t-fast);
@@ -266,27 +269,32 @@
 
 .navbar__dropdown-trigger:hover,
 .navbar__dropdown-trigger--open {
-  color: var(--white);
-  background: rgba(255,255,255,0.09);
+  color: var(--ink);
+  background: rgba(15, 25, 35, 0.04);
 }
 
 .navbar__dropdown-trigger--active {
   color: var(--white);
-  background: rgba(255,255,255,0.12);
-  /* keep same weight — no font shift on activation */
+  background: var(--ink);
   font-weight: 500;
+}
+
+.navbar__dropdown-trigger--active:hover,
+.navbar__dropdown-trigger--active.navbar__dropdown-trigger--open {
+  color: var(--white);
+  background: var(--ink);
 }
 
 .navbar__dropdown-chevron {
   display: flex;
   align-items: center;
-  opacity: 0.60;
+  opacity: 0.45;
   transition: transform var(--t-fast), opacity var(--t-fast);
 }
 
 .navbar__dropdown-trigger:hover .navbar__dropdown-chevron,
 .navbar__dropdown-trigger--open .navbar__dropdown-chevron {
-  opacity: 1;
+  opacity: 0.8;
 }
 
 .navbar__dropdown-trigger--open .navbar__dropdown-chevron {
@@ -296,36 +304,29 @@
 /* ── Dropdown panel ─────────────────────────────────────────── */
 .navbar__dropdown {
   position: absolute;
-  top: calc(100% + 14px);
+  top: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
   min-width: 210px;
-  background: rgba(7, 14, 25, 0.96);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  border: 1px solid rgba(255,255,255,0.11);
-  border-radius: 16px;
-  padding: 8px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 25, 35, 0.10);
+  border-radius: 12px;
+  padding: 6px;
   box-shadow:
-    0 2px 0 rgba(255,255,255,0.05) inset,
-    0 20px 60px rgba(0,0,0,0.6),
-    0 0 0 1px rgba(0,0,0,0.4);
+    0 4px 6px rgba(15, 25, 35, 0.04),
+    0 12px 40px rgba(15, 25, 35, 0.12);
   z-index: 300;
 }
 
-/* Arrow notch */
+/* Invisible hover bridge above the dropdown */
 .navbar__dropdown::before {
   content: '';
   position: absolute;
-  top: -7px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 14px;
-  height: 7px;
-  background: rgba(7, 14, 25, 0.96);
-  clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
-  /* match border */
-  filter: drop-shadow(0 -1px 0 rgba(255,255,255,0.11));
+  top: -8px;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: transparent;
 }
 
 .navbar__dropdown-item {
@@ -333,9 +334,9 @@
   font-family: var(--sans);
   font-size: 13px;
   font-weight: 500;
-  color: rgba(255,255,255,0.62);
-  padding: 9px 13px;
-  border-radius: 10px;
+  color: var(--ink-60);
+  padding: 9px 14px;
+  border-radius: 8px;
   transition: color var(--t-fast), background var(--t-fast);
   white-space: nowrap;
   cursor: pointer;
@@ -343,17 +344,16 @@
 }
 
 .navbar__dropdown-item:hover {
-  color: var(--white);
-  background: rgba(255,255,255,0.08);
+  color: var(--ink);
+  background: rgba(15, 25, 35, 0.05);
 }
 
 .navbar__dropdown-item--all {
-  color: var(--white);
-  font-weight: 700;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
+  color: var(--ink);
+  font-weight: 600;
+  border-bottom: 1px solid rgba(15, 25, 35, 0.05);
   margin-bottom: 4px;
-  padding-bottom: 11px;
-  /* accent mark */
+  padding-bottom: 10px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -362,8 +362,8 @@
 .navbar__dropdown-item--all::before {
   content: '';
   display: inline-block;
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: var(--accent);
   flex-shrink: 0;
@@ -371,37 +371,37 @@
 
 /* ── Chapters dropdown (wide) ──────────────────────────────── */
 .navbar__dropdown--chapters {
-  width: 620px !important;
-  padding: 24px !important;
+  width: 580px !important;
+  padding: 20px !important;
 }
 
 .navbar__chapters-columns {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: 20px;
 }
 
 .navbar__chapters-col {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .navbar__chapters-col-header {
   font-family: var(--sans);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(15, 25, 35, 0.05);
   padding-bottom: 6px;
 }
 
 .navbar__chapters-col-grid {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .navbar__dropdown-item--chapter {
@@ -410,11 +410,11 @@
   font-size: 11px;
   font-weight: 500;
   text-align: left;
-  padding: 8px 12px;
+  padding: 7px 10px;
   border-radius: 6px;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.05);
-  color: rgba(255,255,255,0.7) !important;
+  background: rgba(15, 25, 35, 0.015);
+  border: 1px solid rgba(15, 25, 35, 0.04);
+  color: var(--ink-60) !important;
   transition: all var(--t-fast);
   text-decoration: none;
   white-space: nowrap;
@@ -422,8 +422,8 @@
 
 .navbar__dropdown-item--chapter:hover {
   background: var(--accent-dim) !important;
-  border-color: rgba(240, 168, 64, 0.35) !important;
-  color: var(--white) !important;
+  border-color: rgba(26, 60, 110, 0.14) !important;
+  color: var(--ink) !important;
   transform: translateX(2px);
 }
 
@@ -432,12 +432,12 @@
    ============================================================ */
 .navbar__hamburger {
   display: none;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(15, 25, 35, 0.03);
+  border: 1px solid rgba(15, 25, 35, 0.07);
   border-radius: 10px;
-  color: var(--white);
-  width: 40px;
-  height: 40px;
+  color: var(--ink);
+  width: 38px;
+  height: 38px;
   align-items: center;
   justify-content: center;
   cursor: pointer;
@@ -446,18 +446,18 @@
 }
 
 .navbar__hamburger:hover {
-  background: rgba(255,255,255,0.13);
-  border-color: rgba(255,255,255,0.20);
+  background: rgba(15, 25, 35, 0.06);
+  border-color: rgba(15, 25, 35, 0.12);
 }
 
 /* ============================================================
    MOBILE MENU
    ============================================================ */
 .navbar__mobile-menu {
-  background: rgba(6, 12, 22, 0.97);
+  background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border-top: 1px solid rgba(255,255,255,0.07);
+  border-top: 1px solid rgba(15, 25, 35, 0.05);
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -471,15 +471,16 @@
 
 .navbar__mobile-menu--open {
   max-height: 800px;
-  padding: 14px 16px 24px;
+  padding: 12px 16px 20px;
+  overflow-y: auto;
 }
 
 .navbar__mobile-link {
   font-family: var(--sans);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
-  color: rgba(255,255,255,0.60);
-  padding: 11px 14px;
+  color: var(--ink-60);
+  padding: 10px 14px;
   border-radius: 10px;
   transition: background var(--t-fast), color var(--t-fast);
   text-decoration: none;
@@ -488,8 +489,8 @@
 
 .navbar__mobile-link:hover,
 .navbar__mobile-link--active {
-  background: rgba(255,255,255,0.08);
-  color: var(--white);
+  background: rgba(15, 25, 35, 0.03);
+  color: var(--ink);
 }
 
 .navbar__mobile-link--active {
@@ -499,32 +500,31 @@
 .navbar__mobile-signin {
   margin-top: 12px;
   font-family: var(--sans);
-  font-weight: 700;
+  font-weight: 600;
   font-size: 14px;
-  color: #0a121e;
-  background: #ffffff;
+  color: var(--white);
+  background: var(--ink);
   border: none;
   border-radius: 12px;
-  padding: 14px 20px;
+  padding: 13px 20px;
   text-align: center;
   cursor: pointer;
   transition: background var(--t-fast);
   text-decoration: none;
   display: block;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.20);
   letter-spacing: 0.1px;
 }
 
 .navbar__mobile-signin:hover {
-  background: #f0f0f0;
+  background: #1a2a3f;
 }
 
 /* ── Mobile dropdowns ──────────────────────────────────────── */
 .navbar__mobile-dropdown-label {
   font-family: var(--sans);
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: 700;
-  color: rgba(255,255,255,0.30);
+  color: var(--ink-30);
   letter-spacing: 2px;
   text-transform: uppercase;
   padding: 14px 14px 4px;
@@ -542,10 +542,10 @@
 
 .navbar__mobile-sublink {
   font-family: var(--sans);
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 400;
-  color: rgba(255,255,255,0.50);
-  padding: 8px 14px 8px 22px;
+  color: var(--ink-60);
+  padding: 7px 14px 7px 22px;
   border-radius: 10px;
   transition: background var(--t-fast), color var(--t-fast);
   display: block;
@@ -553,36 +553,36 @@
 }
 
 .navbar__mobile-sublink:hover {
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.85);
+  background: rgba(15, 25, 35, 0.03);
+  color: var(--ink);
 }
 
 .navbar__mobile-chapters-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-  padding: 8px 14px;
+  gap: 5px;
+  padding: 6px 14px;
 }
 
 .navbar__mobile-chapter-link {
   display: block;
   font-family: var(--sans);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 600;
   text-align: center;
-  padding: 9px 4px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
+  padding: 8px 4px;
+  background: rgba(15, 25, 35, 0.015);
+  border: 1px solid rgba(15, 25, 35, 0.05);
   border-radius: 8px;
-  color: rgba(255,255,255,0.60);
+  color: var(--ink-60);
   text-decoration: none;
   transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
 }
 
 .navbar__mobile-chapter-link:hover {
   background: var(--accent-dim);
-  border-color: rgba(240, 168, 64, 0.30);
-  color: var(--white);
+  border-color: rgba(26, 60, 110, 0.14);
+  color: var(--ink);
 }
 
 /* ============================================================
@@ -590,30 +590,30 @@
    ============================================================ */
 @media (min-width: 1201px) and (max-width: 1350px) {
   .navbar__links {
-    gap: 6px;
-    padding: 5px 8px;
+    gap: 2px;
+    padding: 4px 6px;
   }
   .navbar__link,
   .navbar__dropdown-trigger {
     padding: 6px 10px;
-    font-size: 13px;
+    font-size: 12px;
   }
   .navbar__inner {
     padding: 0 20px;
-    height: 70px;
-    gap: 12px;
+    height: 62px;
+    gap: 10px;
   }
   .navbar__signin {
-    padding: 8px 18px;
-    margin-left: 10px;
-    font-size: 13px;
+    padding: 7px 16px;
+    margin-left: 8px;
+    font-size: 12px;
   }
 }
 
 @media (max-width: 1200px) {
   .navbar__inner {
     padding: 0 20px;
-    height: 60px;
+    height: 58px;
   }
   .navbar__links  { display: none; }
   .navbar__signin { display: none; }

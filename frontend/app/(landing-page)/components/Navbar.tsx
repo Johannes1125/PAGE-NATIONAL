@@ -2,7 +2,6 @@
 import "./navbar.css";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 
@@ -30,35 +29,38 @@ const ChevronDownIcon = () => (
 
 // ── Navigation Menu Data ──────────────────────────────────────────────────
 const ABOUT_DROPDOWN_ITEMS = [
-  { label: "Constitution and By-Laws", href: "/about/cbl" },
-  { label: "History of PAGE",          href: "/about/history" },
-  { label: "PAGE Logo & Description",  href: "/about/logo" },
-  { label: "PAGE National Officers",   href: "/about/officers" },
-  { label: "SEC Registration",         href: "/about/sec" },
-  { label: "BIR Certification",        href: "/about/bir" },
+  { label: "About PAGE",                href: "/about" },
+  { label: "Constitution and By-Laws",  href: "/about/cbl" },
+  { label: "History of PAGE",           href: "/about/history" },
+  { label: "PAGE Logo & Description",   href: "/about/logo" },
+  { label: "PAGE National Officers",    href: "/about/officers" },
+  { label: "SEC Registration",          href: "/about/sec" },
+  { label: "BIR Certification",         href: "/about/bir" },
 ];
 
 const ACTIVITY_DROPDOWN_ITEMS = [
-  { label: "Latest Activities", timeframe: "latest" },
-  { label: "Future Activities", timeframe: "future" },
+  { label: "Latest Activities",  timeframe: "latest" },
+  { label: "Future Activities",  timeframe: "future" },
 ];
 
 const CONVENTIONS_DROPDOWN_ITEMS = [
-  { label: "53rd Convention", href: "/convention/53rd-national-convention" },
-  { label: "54th Convention", href: "/convention/54th-national-convention" },
-  { label: "55th Convention", href: "/convention/55th-national-convention" },
-  { label: "56th Convention", href: "/convention/56th-national-convention" },
+  { label: "All Conventions",   href: "/convention" },
+  { label: "53rd Convention",   href: "/convention/53rd-national-convention" },
+  { label: "54th Convention",   href: "/convention/54th-national-convention" },
+  { label: "55th Convention",   href: "/convention/55th-national-convention" },
+  { label: "56th Convention",   href: "/convention/56th-national-convention" },
 ];
 
 const JOURNALS_DROPDOWN_ITEMS = [
-  { label: "Submission Guidelines",       href: "/journals/guidelines" },
-  { label: "Education",                   href: "/journals?discipline=Education" },
-  { label: "Humanities & Social Sciences", href: "/journals?discipline=Humanities and Social Sciences" },
-  { label: "Engineering & Technology",    href: "/journals?discipline=Engineering and Technology" },
-  { label: "Health & Sciences",           href: "/journals?discipline=Health and Sciences" },
-  { label: "Business Education",          href: "/journals?discipline=Business Education" },
-  { label: "Public Administration",       href: "/journals?discipline=Public Administration" },
-  { label: "Other Disciplines",           href: "/journals?discipline=Other Disciplines" },
+  { label: "All Journals",                  href: "/journals" },
+  { label: "Submission Guidelines",         href: "/journals/guidelines" },
+  { label: "Education",                     href: "/journals?discipline=Education" },
+  { label: "Humanities & Social Sciences",  href: "/journals?discipline=Humanities and Social Sciences" },
+  { label: "Engineering & Technology",      href: "/journals?discipline=Engineering and Technology" },
+  { label: "Health & Sciences",             href: "/journals?discipline=Health and Sciences" },
+  { label: "Business Education",            href: "/journals?discipline=Business Education" },
+  { label: "Public Administration",         href: "/journals?discipline=Public Administration" },
+  { label: "Other Disciplines",             href: "/journals?discipline=Other Disciplines" },
 ];
 
 const LUZON_CHAPTERS = [
@@ -89,9 +91,9 @@ const MINDANAO_CHAPTERS = [
 ];
 
 const dropdownVariants: Variants = {
-  hidden:  { opacity: 0, y: -8, scale: 0.96 },
-  visible: { opacity: 1, y: 0,  scale: 1,    transition: { duration: 0.18, ease: "easeOut" } },
-  exit:    { opacity: 0, y: -6, scale: 0.97, transition: { duration: 0.13 } },
+  hidden:  { opacity: 0, y: -4, scale: 0.98 },
+  visible: { opacity: 1, y: 0,  scale: 1,    transition: { duration: 0.15, ease: "easeOut" } },
+  exit:    { opacity: 0, y: -4, scale: 0.98, transition: { duration: 0.1 } },
 };
 
 export default function Navbar({ scrolled }: { scrolled: boolean }) {
@@ -109,34 +111,29 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
   const conventionRef = useRef<HTMLDivElement>(null);
   const journalsRef = useRef<HTMLDivElement>(null);
 
+  // Close all dropdowns
+  const closeAll = () => {
+    setActivitiesDropdownOpen(false);
+    setAboutDropdownOpen(false);
+    setChaptersDropdownOpen(false);
+    setConventionDropdownOpen(false);
+    setJournalsDropdownOpen(false);
+  };
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setActivitiesDropdownOpen(false);
-        setAboutDropdownOpen(false);
-        setChaptersDropdownOpen(false);
-        setConventionDropdownOpen(false);
-        setJournalsDropdownOpen(false);
+        closeAll();
         setMenuOpen(false);
       }
     };
     const onClick = (e: MouseEvent) => {
       const target = e.target as Node;
-      if (activitiesRef.current && !activitiesRef.current.contains(target)) {
-        setActivitiesDropdownOpen(false);
-      }
-      if (aboutRef.current && !aboutRef.current.contains(target)) {
-        setAboutDropdownOpen(false);
-      }
-      if (chaptersRef.current && !chaptersRef.current.contains(target)) {
-        setChaptersDropdownOpen(false);
-      }
-      if (conventionRef.current && !conventionRef.current.contains(target)) {
-        setConventionDropdownOpen(false);
-      }
-      if (journalsRef.current && !journalsRef.current.contains(target)) {
-        setJournalsDropdownOpen(false);
-      }
+      if (activitiesRef.current && !activitiesRef.current.contains(target)) setActivitiesDropdownOpen(false);
+      if (aboutRef.current && !aboutRef.current.contains(target)) setAboutDropdownOpen(false);
+      if (chaptersRef.current && !chaptersRef.current.contains(target)) setChaptersDropdownOpen(false);
+      if (conventionRef.current && !conventionRef.current.contains(target)) setConventionDropdownOpen(false);
+      if (journalsRef.current && !journalsRef.current.contains(target)) setJournalsDropdownOpen(false);
     };
     document.addEventListener("keydown", onKey);
     document.addEventListener("mousedown", onClick);
@@ -164,7 +161,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
   return (
     <header className={`navbar${scrolled ? " navbar--scrolled" : ""}${menuOpen ? " navbar--open" : ""}`}>
       <nav className="navbar__inner">
-        <div className="navbar__logo">
+        <Link href="/" className="navbar__logo">
           <div className="navbar__logo-mark">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -185,7 +182,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
             <div className="navbar__logo-name">PAGE</div>
             <div className="navbar__logo-sub">Philippine Association for Graduate Education</div>
           </div>
-        </div>
+        </Link>
 
         <div className="navbar__links">
           {/* Home Link */}
@@ -194,23 +191,25 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
           </Link>
 
           {/* About Dropdown */}
-          <div 
-            className="navbar__dropdown-wrap" 
+          <div
+            className="navbar__dropdown-wrap"
             ref={aboutRef}
             onMouseEnter={() => setAboutDropdownOpen(true)}
             onMouseLeave={() => setAboutDropdownOpen(false)}
           >
-            <Link
+            <button
               id="about-dropdown-btn"
-              href="/about"
               className={`navbar__dropdown-trigger${aboutDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isAboutActive ? " navbar__dropdown-trigger--active" : ""}`}
-              onClick={() => setAboutDropdownOpen(false)}
+              onClick={(e) => {
+                e.preventDefault();
+                setAboutDropdownOpen(prev => !prev);
+              }}
               aria-haspopup="true"
               aria-expanded={aboutDropdownOpen}
             >
               About
               <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
-            </Link>
+            </button>
             <AnimatePresence>
               {aboutDropdownOpen && (
                 <motion.div role="menu" className="navbar__dropdown"
@@ -230,27 +229,33 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
           </div>
 
           {/* Chapters Dropdown */}
-          <div 
-            className="navbar__dropdown-wrap" 
+          <div
+            className="navbar__dropdown-wrap"
             ref={chaptersRef}
             onMouseEnter={() => setChaptersDropdownOpen(true)}
             onMouseLeave={() => setChaptersDropdownOpen(false)}
           >
-            <Link
+            <button
               id="chapters-dropdown-btn"
-              href="/chapters"
               className={`navbar__dropdown-trigger${chaptersDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isChaptersActive ? " navbar__dropdown-trigger--active" : ""}`}
-              onClick={() => setChaptersDropdownOpen(false)}
+              onClick={(e) => {
+                e.preventDefault();
+                setChaptersDropdownOpen(prev => !prev);
+              }}
               aria-haspopup="true"
               aria-expanded={chaptersDropdownOpen}
             >
               Chapters
               <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
-            </Link>
+            </button>
             <AnimatePresence>
               {chaptersDropdownOpen && (
                 <motion.div role="menu" className="navbar__dropdown navbar__dropdown--chapters"
                   variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
+                  <Link href="/chapters" className="navbar__dropdown-item navbar__dropdown-item--all"
+                    onClick={() => setChaptersDropdownOpen(false)}>
+                    View All Chapters
+                  </Link>
                   <div className="navbar__chapters-columns">
                     {/* Luzon Column */}
                     <div className="navbar__chapters-col">
@@ -304,32 +309,34 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
           </div>
 
           {/* Convention Dropdown */}
-          <div 
-            className="navbar__dropdown-wrap" 
+          <div
+            className="navbar__dropdown-wrap"
             ref={conventionRef}
             onMouseEnter={() => setConventionDropdownOpen(true)}
             onMouseLeave={() => setConventionDropdownOpen(false)}
           >
-            <Link
+            <button
               id="convention-dropdown-btn"
-              href="/convention"
               className={`navbar__dropdown-trigger${conventionDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isConventionActive ? " navbar__dropdown-trigger--active" : ""}`}
-              onClick={() => setConventionDropdownOpen(false)}
+              onClick={(e) => {
+                e.preventDefault();
+                setConventionDropdownOpen(prev => !prev);
+              }}
               aria-haspopup="true"
               aria-expanded={conventionDropdownOpen}
             >
               Convention
               <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
-            </Link>
+            </button>
             <AnimatePresence>
               {conventionDropdownOpen && (
                 <motion.div role="menu" className="navbar__dropdown"
                   variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
-                  {CONVENTIONS_DROPDOWN_ITEMS.map((item) => (
+                  {CONVENTIONS_DROPDOWN_ITEMS.map((item, i) => (
                     <Link key={item.href}
                       href={item.href}
                       role="menuitem"
-                      className="navbar__dropdown-item"
+                      className={`navbar__dropdown-item${i === 0 ? " navbar__dropdown-item--all" : ""}`}
                       onClick={() => setConventionDropdownOpen(false)}>
                       {item.label}
                     </Link>
@@ -340,23 +347,25 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
           </div>
 
           {/* Research Journals Dropdown */}
-          <div 
-            className="navbar__dropdown-wrap" 
+          <div
+            className="navbar__dropdown-wrap"
             ref={journalsRef}
             onMouseEnter={() => setJournalsDropdownOpen(true)}
             onMouseLeave={() => setJournalsDropdownOpen(false)}
           >
-            <Link
+            <button
               id="journals-dropdown-btn"
-              href="/journals"
               className={`navbar__dropdown-trigger${journalsDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isJournalsActive ? " navbar__dropdown-trigger--active" : ""}`}
-              onClick={() => setJournalsDropdownOpen(false)}
+              onClick={(e) => {
+                e.preventDefault();
+                setJournalsDropdownOpen(prev => !prev);
+              }}
               aria-haspopup="true"
               aria-expanded={journalsDropdownOpen}
             >
               Research Journals
               <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
-            </Link>
+            </button>
             <AnimatePresence>
               {journalsDropdownOpen && (
                 <motion.div role="menu" className="navbar__dropdown"
@@ -381,27 +390,35 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
           </Link>
 
           {/* Activities Dropdown */}
-          <div 
-            className="navbar__dropdown-wrap" 
+          <div
+            className="navbar__dropdown-wrap"
             ref={activitiesRef}
             onMouseEnter={() => setActivitiesDropdownOpen(true)}
             onMouseLeave={() => setActivitiesDropdownOpen(false)}
           >
-            <Link
+            <button
               id="activities-dropdown-btn"
-              href="/activities"
               className={`navbar__dropdown-trigger${activitiesDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isActivitiesActive ? " navbar__dropdown-trigger--active" : ""}`}
-              onClick={() => setActivitiesDropdownOpen(false)}
+              onClick={(e) => {
+                e.preventDefault();
+                setActivitiesDropdownOpen(prev => !prev);
+              }}
               aria-haspopup="true"
               aria-expanded={activitiesDropdownOpen}
             >
               National Activities
               <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
-            </Link>
+            </button>
             <AnimatePresence>
               {activitiesDropdownOpen && (
                 <motion.div role="menu" className="navbar__dropdown"
                   variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
+                  <Link href="/activities"
+                    role="menuitem"
+                    className="navbar__dropdown-item navbar__dropdown-item--all"
+                    onClick={() => setActivitiesDropdownOpen(false)}>
+                    All Activities
+                  </Link>
                   {ACTIVITY_DROPDOWN_ITEMS.map((item) => (
                     <Link key={item.timeframe}
                       href={`/activities?timeframe=${item.timeframe}`}
@@ -420,9 +437,9 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
           <Link href="/contact" className={`navbar__link${isContactActive ? " navbar__link--active" : ""}`}>
             Contact
           </Link>
-
-          <Link href="/member-login" className="navbar__signin">Sign In</Link>
         </div>
+
+        <Link href="/member-login" className="navbar__signin">Sign In</Link>
 
         <button className="navbar__hamburger" onClick={() => setMenuOpen(p => !p)} aria-label="Toggle menu">
           {menuOpen ? <CloseIcon /> : <HamburgerIcon />}
@@ -434,12 +451,12 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
         <Link href="/" className={`navbar__mobile-link${isHomeActive ? " navbar__mobile-link--active" : ""}`} onClick={() => setMenuOpen(false)}>
           Home
         </Link>
-        
+
         {/* About PAGE mobile */}
         <Link href="/about" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
           About PAGE
         </Link>
-        {ABOUT_DROPDOWN_ITEMS.map(item => (
+        {ABOUT_DROPDOWN_ITEMS.slice(1).map(item => (
           <Link key={item.href} href={item.href} className="navbar__mobile-sublink" onClick={() => setMenuOpen(false)}>
             {item.label}
           </Link>
@@ -481,7 +498,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
         <Link href="/convention" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
           Convention
         </Link>
-        {CONVENTIONS_DROPDOWN_ITEMS.map(item => (
+        {CONVENTIONS_DROPDOWN_ITEMS.slice(1).map(item => (
           <Link key={item.href} href={item.href} className="navbar__mobile-sublink" onClick={() => setMenuOpen(false)}>
             {item.label}
           </Link>
@@ -491,7 +508,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
         <Link href="/journals" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
           Research Journals
         </Link>
-        {JOURNALS_DROPDOWN_ITEMS.map(item => (
+        {JOURNALS_DROPDOWN_ITEMS.slice(1).map(item => (
           <Link key={item.href} href={item.href} className="navbar__mobile-sublink" onClick={() => setMenuOpen(false)}>
             {item.label}
           </Link>
