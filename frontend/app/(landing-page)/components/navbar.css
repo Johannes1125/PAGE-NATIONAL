@@ -14,7 +14,7 @@
   --ink-30:       rgba(15,25,35,0.3);
   --parchment:    #faf9f6;
   --white:        #ffffff;
-  --sans:         'Poppins', sans-serif;
+  --sans:         var(--font-poppins), sans-serif;
   --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
   --t-fast:       0.14s ease;
@@ -624,3 +624,40 @@
   .navbar__hamburger   { display: none; }
   .navbar__mobile-menu { display: none !important; }
 }
+
+/* Scoped overrides to enforce correct light-theme styling against any page-level conflicts */
+.navbar__dropdown--chapters.navbar__dropdown--chapters {
+  width: 580px !important;
+  padding: 20px !important;
+}
+
+.navbar__dropdown--chapters .navbar__chapters-columns {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 20px !important;
+}
+
+.navbar__dropdown--chapters .navbar__dropdown-item--chapter {
+  display: block !important;
+  font-family: var(--sans) !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  text-align: left !important;
+  padding: 7px 10px !important;
+  border-radius: 6px !important;
+  background: rgba(15, 25, 35, 0.015) !important;
+  border: 1px solid rgba(15, 25, 35, 0.04) !important;
+  color: var(--ink-60) !important;
+  transition: all var(--t-fast) !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  transform: none !important;
+}
+
+.navbar__dropdown--chapters .navbar__dropdown-item--chapter:hover {
+  background: var(--accent-dim) !important;
+  border-color: rgba(26, 60, 110, 0.14) !important;
+  color: var(--ink) !important;
+  transform: translateX(2px) !important;
+}
+

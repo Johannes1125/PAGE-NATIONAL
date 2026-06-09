@@ -24,8 +24,8 @@ a {
   --parchment:    #f7f6f3;
   --white:        #ffffff;
   --rule:         rgba(15,25,35,0.12);
-  --serif:        'Instrument Serif', serif;
-  --sans:         'Poppins', sans-serif;
+  --serif:        var(--font-instrument-serif), serif;
+  --sans:         var(--font-poppins), sans-serif;
   --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
   --t-fast:       0.14s ease;
   --t-mid:        0.24s ease;

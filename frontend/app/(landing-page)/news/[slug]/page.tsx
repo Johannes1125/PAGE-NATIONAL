@@ -253,10 +253,10 @@ export default function NewsDetailPage() {
                     <span className="news-detail__dot" />
                     <span className="news-detail__org">{article.organization}</span>
                   </div>
-                  <h1 className="news-detail__title">{article.title}</h1>
+                  <h1 className="news-detail__title article-title">{article.title}</h1>
                   <div className="news-detail__divider" />
 
-                  <div className="news-detail__content">
+                  <div className="news-detail__content article-body">
                     {article.body.map((section) => (
                       <div key={section.heading}>
                         <h2>{section.heading}</h2>

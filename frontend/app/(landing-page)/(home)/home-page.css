@@ -29,8 +29,8 @@ ul { list-style: none; }
   --white:        #ffffff;
   --rule:         rgba(15,25,35,0.07);
   --rule-strong:  rgba(15,25,35,0.12);
-  --serif:        'Instrument Serif', serif;
-  --sans:         'Poppins', sans-serif;
+  --serif:        var(--font-instrument-serif), serif;
+  --sans:         var(--font-poppins), sans-serif;
   --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
   --t-fast:       0.14s ease;
   --t-mid:        0.24s ease;
@@ -84,13 +84,34 @@ ul { list-style: none; }
   pointer-events: none;
 }
 
-/* Subtle dot pattern overlay */
+/* Subtle grid line pattern overlay */
 .hero__pattern {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, rgba(15,25,35,0.025) 1px, transparent 1px);
-  background-size: 28px 28px;
+  background-size: 56px 56px;
+  background-image:
+    linear-gradient(to right, rgba(15,25,35,0.018) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15,25,35,0.018) 1px, transparent 1px);
   pointer-events: none;
+}
+
+/* Large circular PAGE seal watermark */
+.hero__watermark {
+  position: absolute;
+  top: 48%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  height: 800px;
+  background-image: url('/PAGE.jpg');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.032;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: multiply;
+  border-radius: 50%;
 }
 
 /* Thin decorative vertical rules */
@@ -143,7 +164,7 @@ ul { list-style: none; }
   position: relative;
   z-index: 2;
   text-align: center;
-  max-width: 680px;
+  max-width: 900px;
   padding: 0 40px;
   display: flex;
   flex-direction: column;
@@ -185,6 +206,13 @@ ul { list-style: none; }
   letter-spacing: -1px;
 }
 
+.hero-headline {
+  font-family: var(--font-editorial);
+  font-weight: 900;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1.15;
+}
+
 .hero__title em {
   font-style: italic;
   color: var(--ink-60);
@@ -198,6 +226,13 @@ ul { list-style: none; }
   margin: 0 auto 40px;
   max-width: 480px;
   letter-spacing: 0.1px;
+}
+
+.hero-subtext {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 1.125rem;
+  line-height: 1.75;
 }
 
 /* CTA row */
@@ -254,6 +289,13 @@ ul { list-style: none; }
   border-color: var(--ink-30);
   background: rgba(15,25,35,0.02);
 }
+
+.hero-cta {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
 
 /* Stats strip */
 .hero__stats {

@@ -680,3 +680,23 @@ ul { list-style: none; }
   .footer__inner { padding: 0 24px !important; }
   .footer__columns { grid-template-columns: 1fr !important; gap: 32px !important; }
 }
+
+.article-title {
+  font-family: var(--font-editorial);
+  font-weight: 700;
+}
+
+.article-body {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 1.125rem;
+  line-height: 1.9;
+}
+
+.article-body p {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 1.125rem;
+  line-height: 1.9;
+}
+

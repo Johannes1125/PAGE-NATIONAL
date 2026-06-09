@@ -176,6 +176,7 @@ function HeroSection() {
       {/* Light background layers */}
       <div className="hero__bg-gradient" />
       <div className="hero__pattern" />
+      <div className="hero__watermark" />
       <div className="hero__rule-left" />
       <div className="hero__rule-right" />
 
@@ -192,21 +193,21 @@ function HeroSection() {
           <span className="hero__eyebrow-dot" />
         </div>
 
-        <h1 className="hero__title">
+        <h1 className="hero__title hero-headline">
           Philippine Association<br />
           for <em>Graduate Education</em>
         </h1>
 
-        <p className="hero__subtitle">
+        <p className="hero__subtitle hero-subtext">
           Advancing excellence in graduate education through collaboration,
           research, and professional development across the Philippines.
         </p>
 
         <div className="hero__cta-group">
-          <button className="btn-primary">
+          <button className="btn-primary hero-cta">
             Get Started <ArrowRightIcon />
           </button>
-          <button className="btn-ghost">Learn More</button>
+          <button className="btn-ghost hero-cta">Learn More</button>
         </div>
       </div>
 
