@@ -1,0 +1,514 @@
+/* =========================================
+   1. LAYOUT & SYSTEM
+   ========================================= */
+.apply-page {
+  --apply-navy: var(--ink);
+  --apply-blue: var(--accent);
+  --apply-accent: #b8860b;
+  --apply-bg: var(--parchment);
+  --apply-surface: var(--white);
+  --apply-border: var(--rule);
+  --apply-text: var(--ink);
+  --apply-text-muted: var(--ink-60);
+  --apply-error: #ef4444;
+  --apply-success: #10b981;
+  --font-serif: var(--serif);
+  --font-sans: var(--sans);
+  
+  background-color: var(--apply-bg);
+  color: var(--apply-text);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+}
+
+.apply-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 120px 24px 80px;
+}
+
+.apply-card {
+  background-color: var(--apply-surface);
+  border: 1px solid var(--apply-border);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px -10px rgba(20, 49, 82, 0.08);
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .apply-card {
+    padding: 24px 16px;
+  }
+}
+
+.apply-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 3.5vw, 2.5rem);
+  color: var(--apply-navy);
+  text-align: center;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.apply-subtitle {
+  color: var(--apply-text-muted);
+  text-align: center;
+  font-size: 15px;
+  margin-bottom: 40px;
+}
+
+/* =========================================
+   2. STEP INDICATOR
+   ========================================= */
+.apply-stepper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  margin-bottom: 48px;
+  padding: 0 10px;
+}
+
+.apply-stepper::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--apply-border);
+  z-index: 1;
+}
+
+.apply-step-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  background: none;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  width: 80px;
+}
+
+.apply-step-node:disabled {
+  cursor: not-allowed;
+}
+
+.apply-step-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--apply-surface);
+  border: 2px solid var(--apply-border);
+  color: var(--apply-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-bottom: 8px;
+  box-shadow: 0 0 0 4px var(--apply-surface);
+}
+
+.apply-step-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--apply-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+  transition: color 0.3s ease;
+  white-space: nowrap;
+}
+
+/* Stepper States */
+.apply-step-node--completed .apply-step-circle {
+  background-color: var(--apply-blue);
+  border-color: var(--apply-blue);
+  color: #ffffff;
+}
+
+.apply-step-node--completed .apply-step-label {
+  color: var(--apply-blue);
+}
+
+.apply-step-node--active .apply-step-circle {
+  border-color: var(--apply-accent);
+  color: var(--apply-accent);
+  box-shadow: 0 0 0 4px var(--apply-surface), 0 0 0 6px rgba(184, 134, 11, 0.2);
+  font-weight: 900;
+}
+
+.apply-step-node--active .apply-step-label {
+  color: var(--apply-accent);
+}
+
+.apply-step-node:focus-visible .apply-step-circle {
+  outline: 2px solid var(--apply-blue);
+  outline-offset: 4px;
+}
+
+/* =========================================
+   3. FORMS & INPUTS
+   ========================================= */
+.apply-form-group {
+  margin-bottom: 24px;
+}
+
+.apply-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--apply-navy);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.apply-label span {
+  color: var(--apply-error);
+}
+
+.apply-input {
+  width: 100%;
+  border: 1px solid var(--apply-border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--apply-text);
+  background-color: var(--apply-surface);
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.apply-input:focus {
+  border-color: var(--apply-blue);
+  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.12);
+}
+
+.apply-input--error {
+  border-color: var(--apply-error);
+}
+
+.apply-input-error-text {
+  color: var(--apply-error);
+  font-size: 12px;
+  margin-top: 6px;
+  display: block;
+  font-weight: 500;
+}
+
+/* =========================================
+   4. STEP 2: RADIO CATEGORY CARDS
+   ========================================= */
+.apply-category-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.apply-category-radio {
+  border: 2px solid var(--apply-border);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  background-color: var(--apply-surface);
+  outline: none;
+}
+
+.apply-category-radio:hover {
+  border-color: var(--apply-blue);
+  background-color: rgba(30, 83, 142, 0.01);
+}
+
+.apply-category-radio--selected {
+  border-color: var(--apply-blue);
+  background-color: rgba(30, 83, 142, 0.03);
+  box-shadow: 0 4px 12px rgba(30, 83, 142, 0.05);
+}
+
+.apply-category-radio:focus-visible {
+  outline: 2px solid var(--apply-blue);
+  outline-offset: 2px;
+}
+
+.apply-category-radio__left {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.apply-category-radio__icon {
+  color: var(--apply-blue);
+  flex-shrink: 0;
+}
+
+.apply-category-radio__title {
+  font-weight: 700;
+  color: var(--apply-navy);
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.apply-category-radio__desc {
+  font-size: 13px;
+  color: var(--apply-text-muted);
+  line-height: 1.4;
+}
+
+.apply-category-radio__fee {
+  font-family: var(--apply-sans);
+  font-weight: 800;
+  color: var(--apply-accent);
+  font-size: 16px;
+  flex-shrink: 0;
+  text-align: right;
+  padding-left: 16px;
+}
+
+/* =========================================
+   5. STEP 3: DOCUMENT UPLOAD ZONE
+   ========================================= */
+.apply-upload-slots {
+  display: grid;
+  gap: 20px;
+}
+
+.apply-upload-slot {
+  border: 1.5px dashed var(--apply-border);
+  border-radius: 10px;
+  padding: 24px;
+  text-align: center;
+  transition: all 0.2s ease;
+  position: relative;
+  background-color: rgba(248, 250, 252, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.apply-upload-slot:hover {
+  border-color: var(--apply-blue);
+  background-color: rgba(30, 83, 142, 0.01);
+}
+
+.apply-upload-slot--active {
+  border-color: var(--apply-blue);
+  background-color: rgba(30, 83, 142, 0.04);
+}
+
+.apply-upload-slot--error {
+  border-color: var(--apply-error);
+  background-color: rgba(239, 68, 68, 0.02);
+}
+
+.apply-upload-slot--success {
+  border-color: var(--apply-success);
+  background-color: rgba(16, 185, 129, 0.02);
+}
+
+.apply-upload-icon {
+  color: var(--apply-text-muted);
+  margin-bottom: 12px;
+  transition: color 0.2s;
+}
+
+.apply-upload-slot:hover .apply-upload-icon {
+  color: var(--apply-blue);
+}
+
+.apply-upload-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--apply-text);
+  margin-bottom: 4px;
+}
+
+.apply-upload-subtext {
+  font-size: 11px;
+  color: var(--apply-text-muted);
+}
+
+.apply-uploaded-file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 480px;
+  background-color: var(--apply-surface);
+  border: 1px solid var(--apply-border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-top: 12px;
+}
+
+.apply-uploaded-file__info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--apply-navy);
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.apply-uploaded-file__size {
+  font-size: 11px;
+  color: var(--apply-text-muted);
+  font-weight: 400;
+}
+
+.apply-uploaded-file__clear {
+  background: none;
+  border: none;
+  color: var(--apply-error);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.apply-uploaded-file__clear:hover {
+  background-color: rgba(239, 68, 68, 0.08);
+}
+
+/* =========================================
+   6. STEP 4: REVIEW SUMMARY
+   ========================================= */
+.apply-summary-section {
+  border-bottom: 1px solid var(--apply-border);
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+}
+
+.apply-summary-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.apply-summary-section__title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--apply-navy);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+}
+
+.apply-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px 24px;
+}
+
+@media (max-width: 640px) {
+  .apply-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.apply-summary-item__label {
+  font-size: 12px;
+  color: var(--apply-text-muted);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.apply-summary-item__value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--apply-navy);
+}
+
+.apply-summary-documents {
+  display: grid;
+  gap: 10px;
+}
+
+.apply-summary-doc-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--apply-border);
+  border-radius: 8px;
+  padding: 10px 16px;
+  background-color: rgba(248, 250, 252, 0.3);
+}
+
+/* =========================================
+   7. NAVIGATION ACTIONS
+   ========================================= */
+.apply-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+  border-top: 1px solid var(--apply-border);
+  padding-top: 24px;
+  gap: 16px;
+}
+
+.apply-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.apply-btn--primary {
+  background-color: var(--apply-blue);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(30, 83, 142, 0.15);
+}
+
+.apply-btn--primary:hover:not(:disabled) {
+  background-color: #143152;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(30, 83, 142, 0.25);
+}
+
+.apply-btn--primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.apply-btn--secondary {
+  background-color: var(--apply-surface);
+  border: 1px solid var(--apply-border);
+  color: var(--apply-navy);
+}
+
+.apply-btn--secondary:hover:not(:disabled) {
+  background-color: var(--apply-bg);
+  border-color: #cbd5e1;
+}
+
+.apply-btn--secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -1,0 +1,390 @@
+/* =========================================
+   1. BRAND TOKENS & VARIABLES
+   ========================================= */
+:root {
+  --admin-navy: #143152;
+  --admin-blue: #1e538e;
+  --admin-accent: #b8860b;
+  --admin-bg: #f8fafc;
+  --admin-surface: #ffffff;
+  --admin-border: #e2e8f0;
+  --admin-text: #0f172a;
+  --admin-muted: #64748b;
+  --admin-hover-bg: rgba(30, 83, 142, 0.02);
+  
+  /* Status Colors */
+  --badge-pending-bg: #fff4d8;
+  --badge-pending-text: #9a6400;
+  --badge-review-bg: #e0f2fe;
+  --badge-review-text: #0369a1;
+  --badge-approved-bg: #dcfce7;
+  --badge-approved-text: #15803d;
+  --badge-rejected-bg: #fee2e2;
+  --badge-rejected-text: #b91c1c;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+}
+
+.applications-page {
+  min-height: 100vh;
+  background-color: var(--admin-bg);
+  color: var(--admin-text);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.applications-content {
+  padding: 32px clamp(16px, 3vw, 40px);
+}
+
+/* =========================================
+   2. SEARCH & SUMMARY BAR
+   ========================================= */
+.applications-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.applications-count {
+  font-size: 14px;
+  color: var(--admin-muted);
+}
+
+.applications-filters {
+  display: flex;
+  gap: 12px;
+}
+
+.applications-select {
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--admin-navy);
+  background: var(--admin-surface);
+  cursor: pointer;
+  outline: none;
+  min-width: 140px;
+}
+
+.applications-select:focus {
+  border-color: var(--admin-blue);
+  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.12);
+}
+
+/* =========================================
+   3. APPLICATIONS DATA TABLE
+   ========================================= */
+.table-container {
+  background-color: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+}
+
+.applications-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+.applications-table th {
+  background-color: #f8fafc;
+  color: var(--admin-navy);
+  font-weight: 700;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--admin-border);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+.applications-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--admin-border);
+  color: #334155;
+}
+
+.applications-table tbody tr {
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.applications-table tbody tr:hover {
+  background-color: var(--admin-hover-bg);
+}
+
+.applications-table tbody tr--selected {
+  background-color: rgba(30, 83, 142, 0.04);
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge--pending {
+  background-color: var(--badge-pending-bg);
+  color: var(--badge-pending-text);
+}
+
+.status-badge--under_review {
+  background-color: var(--badge-review-bg);
+  color: var(--badge-review-text);
+}
+
+.status-badge--approved {
+  background-color: var(--badge-approved-bg);
+  color: var(--badge-approved-text);
+}
+
+.status-badge--rejected {
+  background-color: var(--badge-rejected-bg);
+  color: var(--badge-rejected-text);
+}
+
+/* Row Action button */
+.row-review-btn {
+  background: none;
+  border: 1px solid var(--admin-border);
+  color: var(--admin-blue);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.row-review-btn:hover {
+  background-color: var(--admin-blue);
+  color: #ffffff;
+  border-color: var(--admin-blue);
+}
+
+/* =========================================
+   4. DETAIL SLIDE-IN SIDE PANEL
+   ========================================= */
+.detail-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(15, 23, 42, 0.3);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.detail-drawer {
+  width: 100%;
+  max-width: 520px;
+  background-color: var(--admin-surface);
+  height: 100%;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  z-index: 1001;
+  position: relative;
+}
+
+.detail-drawer__header {
+  padding: 24px;
+  border-bottom: 1px solid var(--admin-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8fafc;
+}
+
+.detail-drawer__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--admin-navy);
+}
+
+.detail-drawer__close {
+  background: none;
+  border: none;
+  color: var(--admin-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.detail-drawer__close:hover {
+  background-color: rgba(15, 23, 42, 0.06);
+}
+
+.detail-drawer__body {
+  padding: 24px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.detail-section {
+  margin-bottom: 24px;
+}
+
+.detail-section__title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--admin-navy);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--admin-border);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.detail-block__label {
+  font-size: 11px;
+  color: var(--admin-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.detail-block__value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--admin-text);
+  word-break: break-all;
+}
+
+.detail-doc-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--admin-text);
+  background-color: #fafbfc;
+  margin-bottom: 8px;
+}
+
+.detail-doc-item:last-child {
+  margin-bottom: 0;
+}
+
+/* =========================================
+   5. ADMIN DECISION ACTIONS & TEXTAREA
+   ========================================= */
+.decision-block {
+  padding: 24px;
+  background-color: #f8fafc;
+  border-top: 1px solid var(--admin-border);
+}
+
+.decision-reason-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--admin-navy);
+  margin-bottom: 8px;
+}
+
+.decision-reason-textarea {
+  width: 100%;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 13px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+  margin-bottom: 16px;
+  outline: none;
+  background-color: var(--admin-surface);
+}
+
+.decision-reason-textarea:focus {
+  border-color: var(--badge-rejected-text);
+  box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.15);
+}
+
+.decision-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.decision-btn {
+  flex: 1;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.decision-btn--approve {
+  background-color: #16803d;
+  color: #ffffff;
+}
+
+.decision-btn--approve:hover {
+  background-color: #15803d;
+}
+
+.decision-btn--reject {
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
+.decision-btn--reject:hover {
+  background-color: #b91c1c;
+}
+
+.decision-btn--confirm-reject {
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
+.decision-btn--cancel {
+  background-color: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  color: var(--admin-text);
+}
+
+.decision-btn--cancel:hover {
+  background-color: #e2e8f0;
+}

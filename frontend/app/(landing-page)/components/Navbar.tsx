@@ -63,6 +63,27 @@ const JOURNALS_DROPDOWN_ITEMS = [
   { label: "Other Disciplines",             href: "/journals?discipline=Other Disciplines" },
 ];
 
+const MEMBERSHIP_DROPDOWN_ITEMS = [
+  { label: "Membership Categories",   href: "/membership" },
+  { label: "Apply Online",            href: "/membership/apply" },
+  { label: "Life Members",            href: "/membership?cat=life#requirements" },
+  { label: "Regular Members",           href: "/membership?cat=regular#requirements" },
+  { label: "Membership Forms",        href: "/membership/apply" },
+  { label: "Membership Requirements", href: "/membership#requirements" },
+];
+
+const PARTNERS_DROPDOWN_ITEMS = [
+  { label: "MOU/MOA with Phil. Universities", href: "/partners?tab=phil" },
+  { label: "MOU/MOA with Foreign Universities", href: "/partners?tab=foreign" },
+  { label: "MOU/MOA with Industries",          href: "/partners?tab=industries" },
+];
+
+const LIBRARY_DROPDOWN_ITEMS = [
+  { label: "CMO 15",      href: "/library?tab=cmo15" },
+  { label: "CMO 21",      href: "/library?tab=cmo21" },
+  { label: "Other CMOs",  href: "/library?tab=other" },
+];
+
 const LUZON_CHAPTERS = [
   { short: "PAGE NCR", slug: "ncr" },
   { short: "PAGE CAR", slug: "car" },
@@ -124,12 +145,18 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
   const [chaptersDropdownOpen, setChaptersDropdownOpen] = useState(false);
   const [conventionDropdownOpen, setConventionDropdownOpen] = useState(false);
   const [journalsDropdownOpen, setJournalsDropdownOpen] = useState(false);
+  const [membershipDropdownOpen, setMembershipDropdownOpen] = useState(false);
+  const [partnersDropdownOpen, setPartnersDropdownOpen] = useState(false);
+  const [libraryDropdownOpen, setLibraryDropdownOpen] = useState(false);
 
   const activitiesRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
   const chaptersRef = useRef<HTMLDivElement>(null);
   const conventionRef = useRef<HTMLDivElement>(null);
   const journalsRef = useRef<HTMLDivElement>(null);
+  const membershipRef = useRef<HTMLDivElement>(null);
+  const partnersRef = useRef<HTMLDivElement>(null);
+  const libraryRef = useRef<HTMLDivElement>(null);
 
   // Close all dropdowns
   const closeAll = () => {
@@ -138,6 +165,9 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
     setChaptersDropdownOpen(false);
     setConventionDropdownOpen(false);
     setJournalsDropdownOpen(false);
+    setMembershipDropdownOpen(false);
+    setPartnersDropdownOpen(false);
+    setLibraryDropdownOpen(false);
   };
 
   useEffect(() => {
@@ -154,6 +184,9 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
       if (chaptersRef.current && !chaptersRef.current.contains(target)) setChaptersDropdownOpen(false);
       if (conventionRef.current && !conventionRef.current.contains(target)) setConventionDropdownOpen(false);
       if (journalsRef.current && !journalsRef.current.contains(target)) setJournalsDropdownOpen(false);
+      if (membershipRef.current && !membershipRef.current.contains(target)) setMembershipDropdownOpen(false);
+      if (partnersRef.current && !partnersRef.current.contains(target)) setPartnersDropdownOpen(false);
+      if (libraryRef.current && !libraryRef.current.contains(target)) setLibraryDropdownOpen(false);
     };
     document.addEventListener("keydown", onKey);
     document.addEventListener("mousedown", onClick);
@@ -164,13 +197,21 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
   }, []);
 
   useEffect(() => {
-    const onResize = () => { if (window.innerWidth > 1200) setMenuOpen(false); };
+    closeAll();
+    setMenuOpen(false);
+  }, [pathname, searchParams]);
+
+  useEffect(() => {
+    const onResize = () => { if (window.innerWidth > 1240) setMenuOpen(false); };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
   const isHomeActive = pathname === "/";
   const isAboutActive = pathname?.startsWith("/about");
+  const isMembershipActive = pathname?.startsWith("/membership");
+  const isPartnersActive = pathname?.startsWith("/partners");
+  const isLibraryActive = pathname?.startsWith("/library");
   const isNewsActive = pathname?.startsWith("/news");
   const isActivitiesActive = pathname?.startsWith("/activities");
   const isChaptersActive = pathname?.startsWith("/chapters");
@@ -413,6 +454,120 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
             </AnimatePresence>
           </div>
 
+          {/* Membership Dropdown */}
+          <div
+            className="navbar__dropdown-wrap"
+            ref={membershipRef}
+            onMouseEnter={() => setMembershipDropdownOpen(true)}
+            onMouseLeave={() => setMembershipDropdownOpen(false)}
+          >
+            <button
+              id="membership-dropdown-btn"
+              className={`navbar__dropdown-trigger${membershipDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isMembershipActive ? " navbar__dropdown-trigger--active" : ""}`}
+              onClick={(e) => {
+                e.preventDefault();
+                setMembershipDropdownOpen(prev => !prev);
+              }}
+              aria-haspopup="true"
+              aria-expanded={membershipDropdownOpen}
+            >
+              Membership
+              <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
+            </button>
+            <AnimatePresence>
+              {membershipDropdownOpen && (
+                <motion.div role="menu" className="navbar__dropdown"
+                  variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
+                  {MEMBERSHIP_DROPDOWN_ITEMS.map((item, i) => (
+                    <Link key={item.label}
+                      href={item.href}
+                      role="menuitem"
+                      className={`navbar__dropdown-item${i === 0 ? " navbar__dropdown-item--all" : ""}${isDropdownItemActive(item.href) ? " navbar__dropdown-item--active" : ""}`}
+                      onClick={() => setMembershipDropdownOpen(false)}>
+                      {item.label}
+                    </Link>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* PAGE Partners Dropdown */}
+          <div
+            className="navbar__dropdown-wrap"
+            ref={partnersRef}
+            onMouseEnter={() => setPartnersDropdownOpen(true)}
+            onMouseLeave={() => setPartnersDropdownOpen(false)}
+          >
+            <button
+              id="partners-dropdown-btn"
+              className={`navbar__dropdown-trigger${partnersDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isPartnersActive ? " navbar__dropdown-trigger--active" : ""}`}
+              onClick={(e) => {
+                e.preventDefault();
+                setPartnersDropdownOpen(prev => !prev);
+              }}
+              aria-haspopup="true"
+              aria-expanded={partnersDropdownOpen}
+            >
+              Partnerships
+              <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
+            </button>
+            <AnimatePresence>
+              {partnersDropdownOpen && (
+                <motion.div role="menu" className="navbar__dropdown"
+                  variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
+                  {PARTNERS_DROPDOWN_ITEMS.map((item) => (
+                    <Link key={item.label}
+                      href={item.href}
+                      role="menuitem"
+                      className={`navbar__dropdown-item${isDropdownItemActive(item.href) ? " navbar__dropdown-item--active" : ""}`}
+                      onClick={() => setPartnersDropdownOpen(false)}>
+                      {item.label}
+                    </Link>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* PAGE Library Dropdown */}
+          <div
+            className="navbar__dropdown-wrap"
+            ref={libraryRef}
+            onMouseEnter={() => setLibraryDropdownOpen(true)}
+            onMouseLeave={() => setLibraryDropdownOpen(false)}
+          >
+            <button
+              id="library-dropdown-btn"
+              className={`navbar__dropdown-trigger${libraryDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isLibraryActive ? " navbar__dropdown-trigger--active" : ""}`}
+              onClick={(e) => {
+                e.preventDefault();
+                setLibraryDropdownOpen(prev => !prev);
+              }}
+              aria-haspopup="true"
+              aria-expanded={libraryDropdownOpen}
+            >
+              Library
+              <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
+            </button>
+            <AnimatePresence>
+              {libraryDropdownOpen && (
+                <motion.div role="menu" className="navbar__dropdown"
+                  variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
+                  {LIBRARY_DROPDOWN_ITEMS.map((item) => (
+                    <Link key={item.label}
+                      href={item.href}
+                      role="menuitem"
+                      className={`navbar__dropdown-item${isDropdownItemActive(item.href) ? " navbar__dropdown-item--active" : ""}`}
+                      onClick={() => setLibraryDropdownOpen(false)}>
+                      {item.label}
+                    </Link>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
           {/* News Link */}
           <Link href="/news" className={`navbar__link${isNewsActive ? " navbar__link--active" : ""}`}>
             News
@@ -555,6 +710,36 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
           </Link>
         ))}
 
+        {/* Membership mobile */}
+        <Link href="/membership" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
+          Membership
+        </Link>
+        {MEMBERSHIP_DROPDOWN_ITEMS.map(item => (
+          <Link key={item.label} href={item.href} className={`navbar__mobile-sublink${isDropdownItemActive(item.href) ? " navbar__mobile-sublink--active" : ""}`} onClick={() => setMenuOpen(false)}>
+            {item.label}
+          </Link>
+        ))}
+
+        {/* PAGE Partners mobile */}
+        <span className="navbar__mobile-dropdown-label">
+          Partnerships
+        </span>
+        {PARTNERS_DROPDOWN_ITEMS.map(item => (
+          <Link key={item.label} href={item.href} className={`navbar__mobile-sublink${isDropdownItemActive(item.href) ? " navbar__mobile-sublink--active" : ""}`} onClick={() => setMenuOpen(false)}>
+            {item.label}
+          </Link>
+        ))}
+
+        {/* PAGE Library mobile */}
+        <span className="navbar__mobile-dropdown-label">
+          Library
+        </span>
+        {LIBRARY_DROPDOWN_ITEMS.map(item => (
+          <Link key={item.label} href={item.href} className={`navbar__mobile-sublink${isDropdownItemActive(item.href) ? " navbar__mobile-sublink--active" : ""}`} onClick={() => setMenuOpen(false)}>
+            {item.label}
+          </Link>
+        ))}
+
         <Link href="/news" className={`navbar__mobile-link${isNewsActive ? " navbar__mobile-link--active" : ""}`} onClick={() => setMenuOpen(false)}>
           News
         </Link>
@@ -601,6 +786,9 @@ export default function Navbar(props: { scrolled: boolean }) {
             <span className="navbar__link">Chapters</span>
             <span className="navbar__link">Convention</span>
             <span className="navbar__link">Research Journals</span>
+            <span className="navbar__link">Membership</span>
+            <span className="navbar__link">Partnerships</span>
+            <span className="navbar__link">Library</span>
             <span className="navbar__link">News</span>
             <span className="navbar__link">National Activities</span>
             <span className="navbar__link">Contact</span>
