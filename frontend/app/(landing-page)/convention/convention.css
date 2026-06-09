@@ -100,11 +100,10 @@ body {
    ============================================================ */
 .convention-hero {
   background: var(--white);
-  padding: 72px 0 80px;
+  padding: 112px 0 48px;
   position: relative;
   overflow: hidden;
   color: var(--ink);
-  margin-top: 68px; /* Offset for navbar */
   border-bottom: 1px solid var(--rule);
 }
 
@@ -120,15 +119,16 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .convention-hero__breadcrumb-link {
-  font-size: 11px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 400;
   color: var(--accent);
   text-decoration: none;
   transition: color var(--t-fast);
+  letter-spacing: 0.1px;
 }
 
 .convention-hero__breadcrumb-link:hover {
@@ -136,44 +136,48 @@ body {
 }
 
 .convention-hero__breadcrumb-sep {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--ink-30);
 }
 
 .convention-hero__breadcrumb-current {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--ink-60);
   font-weight: 500;
+  letter-spacing: 0.1px;
 }
 
 .convention-hero__title {
-  font-family: var(--serif);
-  font-size: clamp(36px, 5vw, 54px);
-  font-weight: 400;
+  font-family: var(--sans);
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 700;
   line-height: 1.1;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   letter-spacing: -0.5px;
   color: var(--ink);
 }
 
 .convention-hero__title em {
   font-style: italic;
-  font-family: var(--serif);
+  font-family: var(--sans);
 }
 
 .convention-hero__divider {
-  width: 60px;
-  height: 2px;
-  background: var(--accent-mid);
-  margin-bottom: 24px;
+  width: 56px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--ink), var(--accent));
+  border-radius: 2px;
+  margin-bottom: 22px;
 }
 
 .convention-hero__subtitle {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 300;
   color: var(--ink-60);
-  line-height: 1.6;
+  line-height: 1.75;
   max-width: 680px;
+  margin: 0;
+  letter-spacing: 0.1px;
 }
 
 /* ============================================================

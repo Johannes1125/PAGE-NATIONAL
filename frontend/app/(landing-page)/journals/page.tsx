@@ -417,7 +417,7 @@ function JournalsSection() {
           </div>
           
           <h1 className="journals-hero__title">
-            Journals
+            Research Journals
           </h1>
           
           <div className="journals-hero__search-wrap">
@@ -707,7 +707,7 @@ export default function ResearchJournalsPage() {
                   <span className="journals-hero__breadcrumb-sep">/</span>
                   <span className="journals-hero__breadcrumb-current">Research Journals</span>
                 </div>
-                <h1 className="journals-hero__title">Research <em>Journals</em></h1>
+                <h1 className="journals-hero__title">Research Journals</h1>
                 <div className="journals-hero__divider" />
                 <p className="journals-hero__subtitle">Loading publications...</p>
               </div>

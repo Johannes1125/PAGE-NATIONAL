@@ -189,7 +189,7 @@ function ActivitiesHero() {
           <span className="acts-hero__breadcrumb-current">National Activities</span>
         </div>
         <h1 className="acts-hero__title">
-          National <em>Activities</em>
+          National Activities
         </h1>
         <div className="acts-hero__divider" />
         <p className="acts-hero__subtitle">

@@ -1,8 +1,8 @@
 "use client";
 import "./navbar.css";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 
 // ── Icon Components ────────────────────────────────────────────────────────
@@ -96,8 +96,28 @@ const dropdownVariants: Variants = {
   exit:    { opacity: 0, y: -4, scale: 0.98, transition: { duration: 0.1 } },
 };
 
-export default function Navbar({ scrolled }: { scrolled: boolean }) {
+function NavbarContent({ scrolled }: { scrolled: boolean }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const isDropdownItemActive = (href: string) => {
+    if (href.includes("?")) {
+      const [path, query] = href.split("?");
+      if (pathname !== path) return false;
+      const targetParams = new URLSearchParams(query);
+      for (const [key, value] of targetParams.entries()) {
+        if (searchParams.get(key) !== value) return false;
+      }
+      return true;
+    }
+    if (pathname === href) {
+      if (href === "/activities" && searchParams.has("timeframe")) return false;
+      if (href === "/journals" && searchParams.has("discipline")) return false;
+      return true;
+    }
+    return false;
+  };
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [activitiesDropdownOpen, setActivitiesDropdownOpen] = useState(false);
   const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false);
@@ -218,7 +238,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
                     <Link key={item.href}
                       href={item.href}
                       role="menuitem"
-                      className={`navbar__dropdown-item${i === 0 ? " navbar__dropdown-item--all" : ""}`}
+                      className={`navbar__dropdown-item${i === 0 ? " navbar__dropdown-item--all" : ""}${isDropdownItemActive(item.href) ? " navbar__dropdown-item--active" : ""}`}
                       onClick={() => setAboutDropdownOpen(false)}>
                       {item.label}
                     </Link>
@@ -252,7 +272,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
               {chaptersDropdownOpen && (
                 <motion.div role="menu" className="navbar__dropdown navbar__dropdown--chapters"
                   variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
-                  <Link href="/chapters" className="navbar__dropdown-item navbar__dropdown-item--all"
+                  <Link href="/chapters" className={`navbar__dropdown-item navbar__dropdown-item--all${isDropdownItemActive("/chapters") ? " navbar__dropdown-item--active" : ""}`}
                     onClick={() => setChaptersDropdownOpen(false)}>
                     View All Chapters
                   </Link>
@@ -261,45 +281,54 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
                     <div className="navbar__chapters-col">
                       <div className="navbar__chapters-col-header">Luzon</div>
                       <div className="navbar__chapters-col-grid">
-                        {LUZON_CHAPTERS.map((item) => (
-                          <Link key={item.slug}
-                            href={`/chapters/${item.slug}`}
-                            role="menuitem"
-                            className="navbar__dropdown-item navbar__dropdown-item--chapter"
-                            onClick={() => setChaptersDropdownOpen(false)}>
-                            {item.short}
-                          </Link>
-                        ))}
+                        {LUZON_CHAPTERS.map((item) => {
+                          const href = `/chapters/${item.slug}`;
+                          return (
+                            <Link key={item.slug}
+                              href={href}
+                              role="menuitem"
+                              className={`navbar__dropdown-item navbar__dropdown-item--chapter${isDropdownItemActive(href) ? " navbar__dropdown-item--chapter-active" : ""}`}
+                              onClick={() => setChaptersDropdownOpen(false)}>
+                              {item.short}
+                            </Link>
+                          );
+                        })}
                       </div>
                     </div>
                     {/* Visayas Column */}
                     <div className="navbar__chapters-col">
                       <div className="navbar__chapters-col-header">Visayas</div>
                       <div className="navbar__chapters-col-grid">
-                        {VISAYAS_CHAPTERS.map((item) => (
-                          <Link key={item.slug}
-                            href={`/chapters/${item.slug}`}
-                            role="menuitem"
-                            className="navbar__dropdown-item navbar__dropdown-item--chapter"
-                            onClick={() => setChaptersDropdownOpen(false)}>
-                            {item.short}
-                          </Link>
-                        ))}
+                        {VISAYAS_CHAPTERS.map((item) => {
+                          const href = `/chapters/${item.slug}`;
+                          return (
+                            <Link key={item.slug}
+                              href={href}
+                              role="menuitem"
+                              className={`navbar__dropdown-item navbar__dropdown-item--chapter${isDropdownItemActive(href) ? " navbar__dropdown-item--chapter-active" : ""}`}
+                              onClick={() => setChaptersDropdownOpen(false)}>
+                              {item.short}
+                            </Link>
+                          );
+                        })}
                       </div>
                     </div>
                     {/* Mindanao Column */}
                     <div className="navbar__chapters-col">
                       <div className="navbar__chapters-col-header">Mindanao</div>
                       <div className="navbar__chapters-col-grid">
-                        {MINDANAO_CHAPTERS.map((item) => (
-                          <Link key={item.slug}
-                            href={`/chapters/${item.slug}`}
-                            role="menuitem"
-                            className="navbar__dropdown-item navbar__dropdown-item--chapter"
-                            onClick={() => setChaptersDropdownOpen(false)}>
-                            {item.short}
-                          </Link>
-                        ))}
+                        {MINDANAO_CHAPTERS.map((item) => {
+                          const href = `/chapters/${item.slug}`;
+                          return (
+                            <Link key={item.slug}
+                              href={href}
+                              role="menuitem"
+                              className={`navbar__dropdown-item navbar__dropdown-item--chapter${isDropdownItemActive(href) ? " navbar__dropdown-item--chapter-active" : ""}`}
+                              onClick={() => setChaptersDropdownOpen(false)}>
+                              {item.short}
+                            </Link>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
@@ -336,7 +365,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
                     <Link key={item.href}
                       href={item.href}
                       role="menuitem"
-                      className={`navbar__dropdown-item${i === 0 ? " navbar__dropdown-item--all" : ""}`}
+                      className={`navbar__dropdown-item${i === 0 ? " navbar__dropdown-item--all" : ""}${isDropdownItemActive(item.href) ? " navbar__dropdown-item--active" : ""}`}
                       onClick={() => setConventionDropdownOpen(false)}>
                       {item.label}
                     </Link>
@@ -374,7 +403,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
                     <Link key={item.href}
                       href={item.href}
                       role="menuitem"
-                      className={`navbar__dropdown-item${i === 0 ? " navbar__dropdown-item--all" : ""}`}
+                      className={`navbar__dropdown-item${i === 0 ? " navbar__dropdown-item--all" : ""}${isDropdownItemActive(item.href) ? " navbar__dropdown-item--active" : ""}`}
                       onClick={() => setJournalsDropdownOpen(false)}>
                       {item.label}
                     </Link>
@@ -415,19 +444,22 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
                   variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
                   <Link href="/activities"
                     role="menuitem"
-                    className="navbar__dropdown-item navbar__dropdown-item--all"
+                    className={`navbar__dropdown-item navbar__dropdown-item--all${isDropdownItemActive("/activities") ? " navbar__dropdown-item--active" : ""}`}
                     onClick={() => setActivitiesDropdownOpen(false)}>
                     All Activities
                   </Link>
-                  {ACTIVITY_DROPDOWN_ITEMS.map((item) => (
-                    <Link key={item.timeframe}
-                      href={`/activities?timeframe=${item.timeframe}`}
-                      role="menuitem"
-                      className="navbar__dropdown-item"
-                      onClick={() => setActivitiesDropdownOpen(false)}>
-                      {item.label}
-                    </Link>
-                  ))}
+                  {ACTIVITY_DROPDOWN_ITEMS.map((item) => {
+                    const href = `/activities?timeframe=${item.timeframe}`;
+                    return (
+                      <Link key={item.timeframe}
+                        href={href}
+                        role="menuitem"
+                        className={`navbar__dropdown-item${isDropdownItemActive(href) ? " navbar__dropdown-item--active" : ""}`}
+                        onClick={() => setActivitiesDropdownOpen(false)}>
+                        {item.label}
+                      </Link>
+                    );
+                  })}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -457,7 +489,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
           About PAGE
         </Link>
         {ABOUT_DROPDOWN_ITEMS.slice(1).map(item => (
-          <Link key={item.href} href={item.href} className="navbar__mobile-sublink" onClick={() => setMenuOpen(false)}>
+          <Link key={item.href} href={item.href} className={`navbar__mobile-sublink${isDropdownItemActive(item.href) ? " navbar__mobile-sublink--active" : ""}`} onClick={() => setMenuOpen(false)}>
             {item.label}
           </Link>
         ))}
@@ -467,31 +499,40 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
           Chapters - Luzon
         </Link>
         <div className="navbar__mobile-chapters-grid">
-          {LUZON_CHAPTERS.map(item => (
-            <Link key={item.slug} href={`/chapters/${item.slug}`} className="navbar__mobile-chapter-link" onClick={() => setMenuOpen(false)}>
-              {item.short}
-            </Link>
-          ))}
+          {LUZON_CHAPTERS.map(item => {
+            const href = `/chapters/${item.slug}`;
+            return (
+              <Link key={item.slug} href={href} className={`navbar__mobile-chapter-link${isDropdownItemActive(href) ? " navbar__mobile-chapter-link--active" : ""}`} onClick={() => setMenuOpen(false)}>
+                {item.short}
+              </Link>
+            );
+          })}
         </div>
         <Link href="/chapters" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
           Chapters - Visayas
         </Link>
         <div className="navbar__mobile-chapters-grid">
-          {VISAYAS_CHAPTERS.map(item => (
-            <Link key={item.slug} href={`/chapters/${item.slug}`} className="navbar__mobile-chapter-link" onClick={() => setMenuOpen(false)}>
-              {item.short}
-            </Link>
-          ))}
+          {VISAYAS_CHAPTERS.map(item => {
+            const href = `/chapters/${item.slug}`;
+            return (
+              <Link key={item.slug} href={href} className={`navbar__mobile-chapter-link${isDropdownItemActive(href) ? " navbar__mobile-chapter-link--active" : ""}`} onClick={() => setMenuOpen(false)}>
+                {item.short}
+              </Link>
+            );
+          })}
         </div>
         <Link href="/chapters" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
           Chapters - Mindanao
         </Link>
         <div className="navbar__mobile-chapters-grid">
-          {MINDANAO_CHAPTERS.map(item => (
-            <Link key={item.slug} href={`/chapters/${item.slug}`} className="navbar__mobile-chapter-link" onClick={() => setMenuOpen(false)}>
-              {item.short}
-            </Link>
-          ))}
+          {MINDANAO_CHAPTERS.map(item => {
+            const href = `/chapters/${item.slug}`;
+            return (
+              <Link key={item.slug} href={href} className={`navbar__mobile-chapter-link${isDropdownItemActive(href) ? " navbar__mobile-chapter-link--active" : ""}`} onClick={() => setMenuOpen(false)}>
+                {item.short}
+              </Link>
+            );
+          })}
         </div>
 
         {/* Convention mobile */}
@@ -499,7 +540,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
           Convention
         </Link>
         {CONVENTIONS_DROPDOWN_ITEMS.slice(1).map(item => (
-          <Link key={item.href} href={item.href} className="navbar__mobile-sublink" onClick={() => setMenuOpen(false)}>
+          <Link key={item.href} href={item.href} className={`navbar__mobile-sublink${isDropdownItemActive(item.href) ? " navbar__mobile-sublink--active" : ""}`} onClick={() => setMenuOpen(false)}>
             {item.label}
           </Link>
         ))}
@@ -509,7 +550,7 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
           Research Journals
         </Link>
         {JOURNALS_DROPDOWN_ITEMS.slice(1).map(item => (
-          <Link key={item.href} href={item.href} className="navbar__mobile-sublink" onClick={() => setMenuOpen(false)}>
+          <Link key={item.href} href={item.href} className={`navbar__mobile-sublink${isDropdownItemActive(item.href) ? " navbar__mobile-sublink--active" : ""}`} onClick={() => setMenuOpen(false)}>
             {item.label}
           </Link>
         ))}
@@ -522,11 +563,14 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
         <Link href="/activities" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
           National Activities
         </Link>
-        {ACTIVITY_DROPDOWN_ITEMS.map(item => (
-          <Link key={item.timeframe} href={`/activities?timeframe=${item.timeframe}`} className="navbar__mobile-sublink" onClick={() => setMenuOpen(false)}>
-            {item.label}
-          </Link>
-        ))}
+        {ACTIVITY_DROPDOWN_ITEMS.map(item => {
+          const href = `/activities?timeframe=${item.timeframe}`;
+          return (
+            <Link key={item.timeframe} href={href} className={`navbar__mobile-sublink${isDropdownItemActive(href) ? " navbar__mobile-sublink--active" : ""}`} onClick={() => setMenuOpen(false)}>
+              {item.label}
+            </Link>
+          );
+        })}
 
         <Link href="/contact" className={`navbar__mobile-link${isContactActive ? " navbar__mobile-link--active" : ""}`} onClick={() => setMenuOpen(false)}>
           Contact
@@ -534,5 +578,38 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
         <Link href="/member-login" className="navbar__mobile-signin" onClick={() => setMenuOpen(false)}>Sign In</Link>
       </div>
     </header>
+  );
+}
+
+export default function Navbar(props: { scrolled: boolean }) {
+  return (
+    <Suspense fallback={
+      <header className={`navbar${props.scrolled ? " navbar--scrolled" : ""}`}>
+        <nav className="navbar__inner">
+          <div className="navbar__logo">
+            <div className="navbar__logo-mark">
+              <img src="/PAGE.jpg" width={50} height={50} alt="PAGE Logo" />
+            </div>
+            <div className="navbar__logo-text">
+              <div className="navbar__logo-name">PAGE</div>
+              <div className="navbar__logo-sub">Philippine Association for Graduate Education</div>
+            </div>
+          </div>
+          <div className="navbar__links" style={{ opacity: 0.7 }}>
+            <span className="navbar__link">Home</span>
+            <span className="navbar__link">About</span>
+            <span className="navbar__link">Chapters</span>
+            <span className="navbar__link">Convention</span>
+            <span className="navbar__link">Research Journals</span>
+            <span className="navbar__link">News</span>
+            <span className="navbar__link">National Activities</span>
+            <span className="navbar__link">Contact</span>
+          </div>
+          <div className="navbar__signin" style={{ opacity: 0.7 }}>Sign In</div>
+        </nav>
+      </header>
+    }>
+      <NavbarContent {...props} />
+    </Suspense>
   );
 }

@@ -57,7 +57,7 @@ a {
    ============================================================ */
 .journals-hero {
   background: var(--white);
-  padding: 100px 0 24px;
+  padding: 112px 0 48px;
   position: relative;
   overflow: hidden;
   border-bottom: 1px solid var(--rule);
@@ -76,14 +76,15 @@ a {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .journals-hero__breadcrumb-link {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 400;
-  color: var(--ink-60);
+  color: var(--accent);
   transition: color var(--t-fast);
+  letter-spacing: 0.1px;
 }
 
 .journals-hero__breadcrumb-link:hover {
@@ -91,23 +92,43 @@ a {
 }
 
 .journals-hero__breadcrumb-sep {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--ink-30);
 }
 
 .journals-hero__breadcrumb-current {
-  font-size: 12px;
-  color: var(--ink-30);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-60);
+  letter-spacing: 0.1px;
 }
 
 .journals-hero__title {
   font-family: var(--sans);
-  font-size: clamp(34px, 5vw, 44px);
+  font-size: clamp(28px, 4vw, 44px);
   font-weight: 700;
   color: var(--ink);
   margin: 0 0 20px;
   letter-spacing: -0.5px;
   line-height: 1.1;
+}
+
+.journals-hero__divider {
+  width: 56px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--ink), var(--accent));
+  border-radius: 2px;
+  margin-bottom: 22px;
+}
+
+.journals-hero__subtitle {
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--ink-60);
+  max-width: 560px;
+  line-height: 1.75;
+  margin: 0;
+  letter-spacing: 0.1px;
 }
 
 /* Hero Prominent Search */

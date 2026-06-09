@@ -85,14 +85,6 @@
   flex-shrink: 0;
   box-shadow:
     0 0 0 1px rgba(15, 25, 35, 0.06);
-  transition: box-shadow var(--t-mid), transform var(--t-mid);
-}
-
-.navbar__logo:hover .navbar__logo-mark {
-  box-shadow:
-    0 0 0 1.5px var(--accent),
-    0 2px 8px rgba(26, 60, 110, 0.12);
-  transform: scale(1.05);
 }
 
 .navbar__logo-mark img {
@@ -348,6 +340,12 @@
   background: rgba(15, 25, 35, 0.05);
 }
 
+.navbar__dropdown-item--active {
+  color: var(--accent) !important;
+  background: var(--accent-light) !important;
+  font-weight: 600;
+}
+
 .navbar__dropdown-item--all {
   color: var(--ink);
   font-weight: 600;
@@ -425,6 +423,13 @@
   border-color: rgba(26, 60, 110, 0.14) !important;
   color: var(--ink) !important;
   transform: translateX(2px);
+}
+
+.navbar__dropdown-item--chapter.navbar__dropdown-item--chapter-active {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: var(--white) !important;
+  font-weight: 600 !important;
 }
 
 /* ============================================================
@@ -557,6 +562,12 @@
   color: var(--ink);
 }
 
+.navbar__mobile-sublink--active {
+  background: var(--accent-light) !important;
+  color: var(--accent) !important;
+  font-weight: 600;
+}
+
 .navbar__mobile-chapters-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -583,6 +594,13 @@
   background: var(--accent-dim);
   border-color: rgba(26, 60, 110, 0.14);
   color: var(--ink);
+}
+
+.navbar__mobile-chapter-link--active {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: var(--white) !important;
+  font-weight: 600;
 }
 
 /* ============================================================
@@ -659,5 +677,12 @@
   border-color: rgba(26, 60, 110, 0.14) !important;
   color: var(--ink) !important;
   transform: translateX(2px) !important;
+}
+
+.navbar__dropdown--chapters .navbar__dropdown-item--chapter.navbar__dropdown-item--chapter-active {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: var(--white) !important;
+  font-weight: 600 !important;
 }
 

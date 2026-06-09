@@ -91,7 +91,7 @@ function ConventionHero() {
           <span className="convention-hero__breadcrumb-current">Convention Archives</span>
         </div>
         <h1 className="convention-hero__title">
-          National <em>Conventions</em>
+          National Conventions
         </h1>
         <div className="convention-hero__divider" />
         <p className="convention-hero__subtitle">

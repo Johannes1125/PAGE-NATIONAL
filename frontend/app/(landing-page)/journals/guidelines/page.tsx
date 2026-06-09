@@ -20,7 +20,7 @@ export default function SubmissionGuidelinesPage() {
       <main style={{ minHeight: "100vh", background: "#060b13", paddingBottom: "80px" }}>
         
         {/* Hero Banner */}
-        <section className="journals-hero" style={{ padding: "120px 0 60px" }}>
+        <section className="journals-hero" style={{ padding: "112px 0 48px" }}>
           <div className="journals-container">
             <div className="journals-hero__breadcrumb">
               <Link href="/" className="journals-hero__breadcrumb-link">Home</Link>
@@ -29,7 +29,7 @@ export default function SubmissionGuidelinesPage() {
               <span className="journals-hero__breadcrumb-sep">/</span>
               <span className="journals-hero__breadcrumb-current">Submission Guidelines</span>
             </div>
-            <h1 className="journals-hero__title">Submission <em>Guidelines</em></h1>
+            <h1 className="journals-hero__title">Submission Guidelines</h1>
             <div className="journals-hero__divider" />
             <p className="journals-hero__subtitle" style={{ maxWidth: "700px" }}>
               Author instructions, manuscript templates, and ethical publishing standards for the PAGE Refereed Research Journals.
