@@ -233,8 +233,8 @@ const CHAPTER_BASES = [
   },
   {
     slug: "region-13",
-    name: "Region XIII (Caraga)",
-    short: "Region XIII",
+    name: "PAGE XIII",
+    short: "PAGE XIII",
     region: "Mindanao" as const,
     color: "#111827", // Neutral Black
     established: 2014,
@@ -243,6 +243,19 @@ const CHAPTER_BASES = [
     uni1: "Caraga State University",
     uni2: "Father Saturnino Urios University",
     uni3: "Surigao Del Norte State University",
+  },
+  {
+    slug: "caraga",
+    name: "PAGE CARAGA",
+    short: "PAGE CARAGA",
+    region: "Mindanao" as const,
+    color: "#1e293b", // Slate
+    established: 2014,
+    institutions: 11,
+    tagline: "Empowering educational leadership in the Caraga region.",
+    uni1: "Caraga State University",
+    uni2: "Father Saturnino Urios University",
+    uni3: "Saint Joseph Institute of Technology",
   },
   {
     slug: "barmm",

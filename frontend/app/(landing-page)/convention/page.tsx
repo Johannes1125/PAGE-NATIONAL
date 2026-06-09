@@ -232,7 +232,6 @@ export default function ConventionArchivesPage() {
 
   // Filter states
   const [selectedNum, setSelectedNum] = useState<string>("All");
-  const [selectedYear, setSelectedYear] = useState<string>("All");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
@@ -249,7 +248,6 @@ export default function ConventionArchivesPage() {
 
   // Compute unique values for filter controls
   const conventionNumbers = ["All", ...Array.from(new Set(CONVENTIONS_DATA.map(c => c.convention_number)))];
-  const conventionYears = ["All", ...Array.from(new Set(CONVENTIONS_DATA.map(c => c.year.toString())))].sort((a, b) => b.localeCompare(a));
 
   const handleNumChange = (num: string) => {
     if (num === selectedNum) return;
@@ -259,17 +257,8 @@ export default function ConventionArchivesPage() {
     return () => clearTimeout(timer);
   };
 
-  const handleYearChange = (year: string) => {
-    if (year === selectedYear) return;
-    setSelectedYear(year);
-    setLoading(true);
-    const timer = setTimeout(() => setLoading(false), 300);
-    return () => clearTimeout(timer);
-  };
-
   const resetFilters = () => {
     setSelectedNum("All");
-    setSelectedYear("All");
     setLoading(true);
     const timer = setTimeout(() => setLoading(false), 300);
     return () => clearTimeout(timer);
@@ -277,12 +266,10 @@ export default function ConventionArchivesPage() {
 
   // Filter logic
   const filteredConventions = CONVENTIONS_DATA.filter((c) => {
-    const matchNum = selectedNum === "All" || c.convention_number === selectedNum;
-    const matchYear = selectedYear === "All" || c.year.toString() === selectedYear;
-    return matchNum && matchYear;
+    return selectedNum === "All" || c.convention_number === selectedNum;
   });
 
-  const hasFiltersActive = selectedNum !== "All" || selectedYear !== "All";
+  const hasFiltersActive = selectedNum !== "All";
 
   return (
     <>
@@ -311,33 +298,6 @@ export default function ConventionArchivesPage() {
                         {isActive && (
                           <motion.div
                             layoutId="active-num-pill"
-                            className="convention-filter-active-indicator"
-                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                          />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="convention-filter-group">
-                <span className="convention-filter-label">Convention Year</span>
-                <div className="convention-filter-pills" role="tablist" aria-label="Filter by year">
-                  {conventionYears.map((year) => {
-                    const isActive = selectedYear === year;
-                    return (
-                      <button
-                        key={year}
-                        role="tab"
-                        aria-selected={isActive}
-                        className={`convention-filter-btn${isActive ? " convention-filter-btn--active" : ""}`}
-                        onClick={() => handleYearChange(year)}
-                      >
-                        {year === "All" ? "All Years" : year}
-                        {isActive && (
-                          <motion.div
-                            layoutId="active-year-pill"
                             className="convention-filter-active-indicator"
                             transition={{ type: "spring", stiffness: 380, damping: 30 }}
                           />
@@ -377,7 +337,7 @@ export default function ConventionArchivesPage() {
                   </motion.div>
                 ) : (
                   <motion.div
-                    key={`${selectedNum}-${selectedYear}`}
+                    key={selectedNum}
                     className="convention-grid"
                     variants={containerVariants}
                     initial="hidden"

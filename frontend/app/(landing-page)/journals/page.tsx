@@ -53,7 +53,16 @@ const MailIconSm = () => (
 );
 
 // ── Static/Constant Data ────────────────────────────────────────────────────
-const DISCIPLINES = ["All", "Humanities", "Social Sciences", "Technology", "Others"];
+const DISCIPLINES = [
+  "All",
+  "Education",
+  "Humanities and Social Sciences",
+  "Engineering and Technology",
+  "Health and Sciences",
+  "Business Education",
+  "Public Administration",
+  "Other Disciplines"
+];
 
 const CONVENTIONS = [
   { label: "All Conventions", slug: "all" },
@@ -136,9 +145,12 @@ function JournalItem({
 }) {
   const getDisciplineClass = (discipline: string) => {
     switch (discipline) {
-      case "Humanities": return "discipline-badge--humanities";
-      case "Social Sciences": return "discipline-badge--social-sciences";
-      case "Technology": return "discipline-badge--technology";
+      case "Education": return "discipline-badge--education";
+      case "Humanities and Social Sciences": return "discipline-badge--social-sciences";
+      case "Engineering and Technology": return "discipline-badge--technology";
+      case "Health and Sciences": return "discipline-badge--education"; // Reuse green emerald badge
+      case "Business Education": return "discipline-badge--business";
+      case "Public Administration": return "discipline-badge--business"; // Reuse amber business badge
       default: return "discipline-badge--others";
     }
   };

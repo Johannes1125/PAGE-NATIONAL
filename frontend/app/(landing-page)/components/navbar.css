@@ -261,6 +261,7 @@
   border: none;
   white-space: nowrap;
   flex-shrink: 0;
+  text-decoration: none;
 }
 
 .navbar__dropdown-trigger:hover,
@@ -370,28 +371,51 @@
 
 /* ── Chapters dropdown (wide) ──────────────────────────────── */
 .navbar__dropdown--chapters {
-  width: 400px !important;
-  padding: 16px !important;
+  width: 620px !important;
+  padding: 24px !important;
 }
 
-.navbar__chapters-grid {
+.navbar__chapters-columns {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.navbar__chapters-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.navbar__chapters-col-header {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 6px;
+}
+
+.navbar__chapters-col-grid {
+  display: flex;
+  flex-direction: column;
   gap: 6px;
 }
 
 .navbar__dropdown-item--chapter {
   display: block;
   font-family: var(--sans);
-  font-size: 11.5px;
-  font-weight: 600;
-  text-align: center;
-  padding: 9px 6px;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.65) !important;
-  transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast), transform var(--t-fast);
+  font-size: 11px;
+  font-weight: 500;
+  text-align: left;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.7) !important;
+  transition: all var(--t-fast);
   text-decoration: none;
   white-space: nowrap;
 }
@@ -400,7 +424,7 @@
   background: var(--accent-dim) !important;
   border-color: rgba(240, 168, 64, 0.35) !important;
   color: var(--white) !important;
-  transform: translateY(-1px);
+  transform: translateX(2px);
 }
 
 /* ============================================================
@@ -504,6 +528,16 @@
   letter-spacing: 2px;
   text-transform: uppercase;
   padding: 14px 14px 4px;
+}
+
+.navbar__mobile-dropdown-label--link {
+  text-decoration: none;
+  display: block;
+  transition: color var(--t-fast);
+}
+
+.navbar__mobile-dropdown-label--link:hover {
+  color: var(--accent);
 }
 
 .navbar__mobile-sublink {

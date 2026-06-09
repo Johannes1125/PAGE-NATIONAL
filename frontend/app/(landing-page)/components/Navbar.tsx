@@ -30,48 +30,62 @@ const ChevronDownIcon = () => (
 
 // ── Navigation Menu Data ──────────────────────────────────────────────────
 const ABOUT_DROPDOWN_ITEMS = [
-  { label: "About PAGE",        href: "/about" },
-  { label: "PAGE History",      href: "/about/history" },
-  { label: "Set of Officers",   href: "/about/officers" },
-  { label: "Logo Description",  href: "/about/logo" },
-  { label: "CBL Information",   href: "/about/cbl" },
+  { label: "Constitution and By-Laws", href: "/about/cbl" },
+  { label: "History of PAGE",          href: "/about/history" },
+  { label: "PAGE Logo & Description",  href: "/about/logo" },
+  { label: "PAGE National Officers",   href: "/about/officers" },
+  { label: "SEC Registration",         href: "/about/sec" },
+  { label: "BIR Certification",        href: "/about/bir" },
 ];
 
 const ACTIVITY_DROPDOWN_ITEMS = [
-  { label: "All Activities",  type: "all" },
-  { label: "Conferences",     type: "conference" },
-  { label: "Seminars",        type: "seminar" },
-  { label: "Workshops",       type: "workshop" },
-  { label: "Other Events",    type: "other" },
+  { label: "Latest Activities", timeframe: "latest" },
+  { label: "Future Activities", timeframe: "future" },
+];
+
+const CONVENTIONS_DROPDOWN_ITEMS = [
+  { label: "53rd Convention", href: "/convention/53rd-national-convention" },
+  { label: "54th Convention", href: "/convention/54th-national-convention" },
+  { label: "55th Convention", href: "/convention/55th-national-convention" },
+  { label: "56th Convention", href: "/convention/56th-national-convention" },
 ];
 
 const JOURNALS_DROPDOWN_ITEMS = [
-  { label: "All Journals",     href: "/journals" },
-  { label: "Humanities",       href: "/journals?discipline=Humanities" },
-  { label: "Social Sciences",  href: "/journals?discipline=Social Sciences" },
-  { label: "Technology",       href: "/journals?discipline=Technology" },
-  { label: "Others",           href: "/journals?discipline=Others" },
+  { label: "Submission Guidelines",       href: "/journals/guidelines" },
+  { label: "Education",                   href: "/journals?discipline=Education" },
+  { label: "Humanities & Social Sciences", href: "/journals?discipline=Humanities and Social Sciences" },
+  { label: "Engineering & Technology",    href: "/journals?discipline=Engineering and Technology" },
+  { label: "Health & Sciences",           href: "/journals?discipline=Health and Sciences" },
+  { label: "Business Education",          href: "/journals?discipline=Business Education" },
+  { label: "Public Administration",       href: "/journals?discipline=Public Administration" },
+  { label: "Other Disciplines",           href: "/journals?discipline=Other Disciplines" },
 ];
 
-const CHAPTERS_MENU_ITEMS = [
-  { short: "NCR", slug: "ncr" },
-  { short: "CAR", slug: "car" },
-  { short: "Region I", slug: "region-1" },
-  { short: "Region II", slug: "region-2" },
-  { short: "Region III", slug: "region-3" },
-  { short: "Region IV-A", slug: "region-4a" },
-  { short: "Region IV-B", slug: "region-4b" },
-  { short: "Region V", slug: "region-5" },
-  { short: "Region VI", slug: "region-6" },
-  { short: "Region VII", slug: "region-7" },
-  { short: "Region VIII", slug: "region-8" },
-  { short: "Negros", slug: "nir" },
-  { short: "Region IX", slug: "region-9" },
-  { short: "Region X", slug: "region-10" },
-  { short: "Region XI", slug: "region-11" },
-  { short: "Region XII", slug: "region-12" },
-  { short: "Region XIII", slug: "region-13" },
-  { short: "BARMM", slug: "barmm" },
+const LUZON_CHAPTERS = [
+  { short: "PAGE NCR", slug: "ncr" },
+  { short: "PAGE CAR", slug: "car" },
+  { short: "PAGE I", slug: "region-1" },
+  { short: "PAGE II", slug: "region-2" },
+  { short: "PAGE III", slug: "region-3" },
+  { short: "PAGE IV-A", slug: "region-4a" },
+  { short: "PAGE IV-B", slug: "region-4b" },
+  { short: "PAGE V", slug: "region-5" },
+];
+
+const VISAYAS_CHAPTERS = [
+  { short: "PAGE VI", slug: "region-6" },
+  { short: "PAGE VII", slug: "region-7" },
+  { short: "PAGE VIII", slug: "region-8" },
+  { short: "PAGE XVIII- NIR", slug: "nir" },
+];
+
+const MINDANAO_CHAPTERS = [
+  { short: "PAGE IX", slug: "region-9" },
+  { short: "PAGE X", slug: "region-10" },
+  { short: "PAGE XI", slug: "region-11" },
+  { short: "PAGE XII", slug: "region-12" },
+  { short: "PAGE XIII", slug: "region-13" },
+  { short: "PAGE CARAGA", slug: "caraga" },
 ];
 
 const dropdownVariants: Variants = {
@@ -180,23 +194,23 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
           </Link>
 
           {/* About Dropdown */}
-          <div className="navbar__dropdown-wrap" ref={aboutRef}>
-            <button
+          <div 
+            className="navbar__dropdown-wrap" 
+            ref={aboutRef}
+            onMouseEnter={() => setAboutDropdownOpen(true)}
+            onMouseLeave={() => setAboutDropdownOpen(false)}
+          >
+            <Link
               id="about-dropdown-btn"
+              href="/about"
               className={`navbar__dropdown-trigger${aboutDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isAboutActive ? " navbar__dropdown-trigger--active" : ""}`}
-              onClick={() => {
-                setAboutDropdownOpen(p => !p);
-                setActivitiesDropdownOpen(false);
-                setChaptersDropdownOpen(false);
-                setConventionDropdownOpen(false);
-                setJournalsDropdownOpen(false);
-              }}
+              onClick={() => setAboutDropdownOpen(false)}
               aria-haspopup="true"
               aria-expanded={aboutDropdownOpen}
             >
               About
               <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
-            </button>
+            </Link>
             <AnimatePresence>
               {aboutDropdownOpen && (
                 <motion.div role="menu" className="navbar__dropdown"
@@ -216,37 +230,73 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
           </div>
 
           {/* Chapters Dropdown */}
-          <div className="navbar__dropdown-wrap" ref={chaptersRef}>
-            <button
+          <div 
+            className="navbar__dropdown-wrap" 
+            ref={chaptersRef}
+            onMouseEnter={() => setChaptersDropdownOpen(true)}
+            onMouseLeave={() => setChaptersDropdownOpen(false)}
+          >
+            <Link
               id="chapters-dropdown-btn"
+              href="/chapters"
               className={`navbar__dropdown-trigger${chaptersDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isChaptersActive ? " navbar__dropdown-trigger--active" : ""}`}
-              onClick={() => {
-                setChaptersDropdownOpen(p => !p);
-                setAboutDropdownOpen(false);
-                setActivitiesDropdownOpen(false);
-                setConventionDropdownOpen(false);
-                setJournalsDropdownOpen(false);
-              }}
+              onClick={() => setChaptersDropdownOpen(false)}
               aria-haspopup="true"
               aria-expanded={chaptersDropdownOpen}
             >
               Chapters
               <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
-            </button>
+            </Link>
             <AnimatePresence>
               {chaptersDropdownOpen && (
                 <motion.div role="menu" className="navbar__dropdown navbar__dropdown--chapters"
                   variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
-                  <div className="navbar__chapters-grid">
-                    {CHAPTERS_MENU_ITEMS.map((item) => (
-                      <Link key={item.slug}
-                        href={`/chapters/${item.slug}`}
-                        role="menuitem"
-                        className="navbar__dropdown-item navbar__dropdown-item--chapter"
-                        onClick={() => setChaptersDropdownOpen(false)}>
-                        {item.short}
-                      </Link>
-                    ))}
+                  <div className="navbar__chapters-columns">
+                    {/* Luzon Column */}
+                    <div className="navbar__chapters-col">
+                      <div className="navbar__chapters-col-header">Luzon</div>
+                      <div className="navbar__chapters-col-grid">
+                        {LUZON_CHAPTERS.map((item) => (
+                          <Link key={item.slug}
+                            href={`/chapters/${item.slug}`}
+                            role="menuitem"
+                            className="navbar__dropdown-item navbar__dropdown-item--chapter"
+                            onClick={() => setChaptersDropdownOpen(false)}>
+                            {item.short}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Visayas Column */}
+                    <div className="navbar__chapters-col">
+                      <div className="navbar__chapters-col-header">Visayas</div>
+                      <div className="navbar__chapters-col-grid">
+                        {VISAYAS_CHAPTERS.map((item) => (
+                          <Link key={item.slug}
+                            href={`/chapters/${item.slug}`}
+                            role="menuitem"
+                            className="navbar__dropdown-item navbar__dropdown-item--chapter"
+                            onClick={() => setChaptersDropdownOpen(false)}>
+                            {item.short}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Mindanao Column */}
+                    <div className="navbar__chapters-col">
+                      <div className="navbar__chapters-col-header">Mindanao</div>
+                      <div className="navbar__chapters-col-grid">
+                        {MINDANAO_CHAPTERS.map((item) => (
+                          <Link key={item.slug}
+                            href={`/chapters/${item.slug}`}
+                            role="menuitem"
+                            className="navbar__dropdown-item navbar__dropdown-item--chapter"
+                            onClick={() => setChaptersDropdownOpen(false)}>
+                            {item.short}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -254,56 +304,59 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
           </div>
 
           {/* Convention Dropdown */}
-          <div className="navbar__dropdown-wrap" ref={conventionRef}>
-            <button
+          <div 
+            className="navbar__dropdown-wrap" 
+            ref={conventionRef}
+            onMouseEnter={() => setConventionDropdownOpen(true)}
+            onMouseLeave={() => setConventionDropdownOpen(false)}
+          >
+            <Link
               id="convention-dropdown-btn"
+              href="/convention"
               className={`navbar__dropdown-trigger${conventionDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isConventionActive ? " navbar__dropdown-trigger--active" : ""}`}
-              onClick={() => {
-                setConventionDropdownOpen(p => !p);
-                setAboutDropdownOpen(false);
-                setActivitiesDropdownOpen(false);
-                setChaptersDropdownOpen(false);
-                setJournalsDropdownOpen(false);
-              }}
+              onClick={() => setConventionDropdownOpen(false)}
               aria-haspopup="true"
               aria-expanded={conventionDropdownOpen}
             >
               Convention
               <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
-            </button>
+            </Link>
             <AnimatePresence>
               {conventionDropdownOpen && (
                 <motion.div role="menu" className="navbar__dropdown"
                   variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
-                  <Link href="/convention" role="menuitem" className="navbar__dropdown-item" onClick={() => setConventionDropdownOpen(false)}>
-                    Convention Archives
-                  </Link>
-                  <Link href="/convention/54th-national-convention" role="menuitem" className="navbar__dropdown-item" onClick={() => setConventionDropdownOpen(false)}>
-                    Latest Convention
-                  </Link>
+                  {CONVENTIONS_DROPDOWN_ITEMS.map((item) => (
+                    <Link key={item.href}
+                      href={item.href}
+                      role="menuitem"
+                      className="navbar__dropdown-item"
+                      onClick={() => setConventionDropdownOpen(false)}>
+                      {item.label}
+                    </Link>
+                  ))}
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
 
           {/* Research Journals Dropdown */}
-          <div className="navbar__dropdown-wrap" ref={journalsRef}>
-            <button
+          <div 
+            className="navbar__dropdown-wrap" 
+            ref={journalsRef}
+            onMouseEnter={() => setJournalsDropdownOpen(true)}
+            onMouseLeave={() => setJournalsDropdownOpen(false)}
+          >
+            <Link
               id="journals-dropdown-btn"
+              href="/journals"
               className={`navbar__dropdown-trigger${journalsDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isJournalsActive ? " navbar__dropdown-trigger--active" : ""}`}
-              onClick={() => {
-                setJournalsDropdownOpen(p => !p);
-                setAboutDropdownOpen(false);
-                setActivitiesDropdownOpen(false);
-                setChaptersDropdownOpen(false);
-                setConventionDropdownOpen(false);
-              }}
+              onClick={() => setJournalsDropdownOpen(false)}
               aria-haspopup="true"
               aria-expanded={journalsDropdownOpen}
             >
               Research Journals
               <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
-            </button>
+            </Link>
             <AnimatePresence>
               {journalsDropdownOpen && (
                 <motion.div role="menu" className="navbar__dropdown"
@@ -328,32 +381,32 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
           </Link>
 
           {/* Activities Dropdown */}
-          <div className="navbar__dropdown-wrap" ref={activitiesRef}>
-            <button
+          <div 
+            className="navbar__dropdown-wrap" 
+            ref={activitiesRef}
+            onMouseEnter={() => setActivitiesDropdownOpen(true)}
+            onMouseLeave={() => setActivitiesDropdownOpen(false)}
+          >
+            <Link
               id="activities-dropdown-btn"
+              href="/activities"
               className={`navbar__dropdown-trigger${activitiesDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isActivitiesActive ? " navbar__dropdown-trigger--active" : ""}`}
-              onClick={() => {
-                setActivitiesDropdownOpen(p => !p);
-                setAboutDropdownOpen(false);
-                setChaptersDropdownOpen(false);
-                setConventionDropdownOpen(false);
-                setJournalsDropdownOpen(false);
-              }}
+              onClick={() => setActivitiesDropdownOpen(false)}
               aria-haspopup="true"
               aria-expanded={activitiesDropdownOpen}
             >
               National Activities
               <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
-            </button>
+            </Link>
             <AnimatePresence>
               {activitiesDropdownOpen && (
                 <motion.div role="menu" className="navbar__dropdown"
                   variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
-                  {ACTIVITY_DROPDOWN_ITEMS.map((item, i) => (
-                    <Link key={item.type}
-                      href={item.type === "all" ? "/activities" : `/activities?type=${item.type}`}
+                  {ACTIVITY_DROPDOWN_ITEMS.map((item) => (
+                    <Link key={item.timeframe}
+                      href={`/activities?timeframe=${item.timeframe}`}
                       role="menuitem"
-                      className={`navbar__dropdown-item${i === 0 ? " navbar__dropdown-item--all" : ""}`}
+                      className="navbar__dropdown-item"
                       onClick={() => setActivitiesDropdownOpen(false)}>
                       {item.label}
                     </Link>
@@ -383,7 +436,9 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
         </Link>
         
         {/* About PAGE mobile */}
-        <div className="navbar__mobile-dropdown-label">About PAGE</div>
+        <Link href="/about" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
+          About PAGE
+        </Link>
         {ABOUT_DROPDOWN_ITEMS.map(item => (
           <Link key={item.href} href={item.href} className="navbar__mobile-sublink" onClick={() => setMenuOpen(false)}>
             {item.label}
@@ -391,9 +446,31 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
         ))}
 
         {/* Chapters mobile */}
-        <div className="navbar__mobile-dropdown-label">Chapters</div>
+        <Link href="/chapters" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
+          Chapters - Luzon
+        </Link>
         <div className="navbar__mobile-chapters-grid">
-          {CHAPTERS_MENU_ITEMS.map(item => (
+          {LUZON_CHAPTERS.map(item => (
+            <Link key={item.slug} href={`/chapters/${item.slug}`} className="navbar__mobile-chapter-link" onClick={() => setMenuOpen(false)}>
+              {item.short}
+            </Link>
+          ))}
+        </div>
+        <Link href="/chapters" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
+          Chapters - Visayas
+        </Link>
+        <div className="navbar__mobile-chapters-grid">
+          {VISAYAS_CHAPTERS.map(item => (
+            <Link key={item.slug} href={`/chapters/${item.slug}`} className="navbar__mobile-chapter-link" onClick={() => setMenuOpen(false)}>
+              {item.short}
+            </Link>
+          ))}
+        </div>
+        <Link href="/chapters" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
+          Chapters - Mindanao
+        </Link>
+        <div className="navbar__mobile-chapters-grid">
+          {MINDANAO_CHAPTERS.map(item => (
             <Link key={item.slug} href={`/chapters/${item.slug}`} className="navbar__mobile-chapter-link" onClick={() => setMenuOpen(false)}>
               {item.short}
             </Link>
@@ -401,22 +478,22 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
         </div>
 
         {/* Convention mobile */}
-        <div className="navbar__mobile-dropdown-label">Convention</div>
-        <Link href="/convention" className="navbar__mobile-sublink" onClick={() => setMenuOpen(false)}>
-          Convention Archives
+        <Link href="/convention" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
+          Convention
         </Link>
-        <Link href="/convention/54th-national-convention" className="navbar__mobile-sublink" onClick={() => setMenuOpen(false)}>
-          Latest Convention
-        </Link>
+        {CONVENTIONS_DROPDOWN_ITEMS.map(item => (
+          <Link key={item.href} href={item.href} className="navbar__mobile-sublink" onClick={() => setMenuOpen(false)}>
+            {item.label}
+          </Link>
+        ))}
 
         {/* Research Journals mobile */}
-        <div className="navbar__mobile-dropdown-label">Research Journals</div>
-        <Link href="/journals" className="navbar__mobile-sublink" onClick={() => setMenuOpen(false)}>
-          All Journals
+        <Link href="/journals" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
+          Research Journals
         </Link>
-        {["Humanities", "Social Sciences", "Technology", "Others"].map(disc => (
-          <Link key={disc} href={`/journals?discipline=${disc}`} className="navbar__mobile-sublink" onClick={() => setMenuOpen(false)}>
-            {disc}
+        {JOURNALS_DROPDOWN_ITEMS.map(item => (
+          <Link key={item.href} href={item.href} className="navbar__mobile-sublink" onClick={() => setMenuOpen(false)}>
+            {item.label}
           </Link>
         ))}
 
@@ -425,9 +502,11 @@ export default function Navbar({ scrolled }: { scrolled: boolean }) {
         </Link>
 
         {/* Activities mobile */}
-        <div className="navbar__mobile-dropdown-label">National Activities</div>
+        <Link href="/activities" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
+          National Activities
+        </Link>
         {ACTIVITY_DROPDOWN_ITEMS.map(item => (
-          <Link key={item.type} href={item.type === "all" ? "/activities" : `/activities?type=${item.type}`} className="navbar__mobile-sublink" onClick={() => setMenuOpen(false)}>
+          <Link key={item.timeframe} href={`/activities?timeframe=${item.timeframe}`} className="navbar__mobile-sublink" onClick={() => setMenuOpen(false)}>
             {item.label}
           </Link>
         ))}
