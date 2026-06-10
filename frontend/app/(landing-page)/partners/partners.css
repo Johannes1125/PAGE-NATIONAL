@@ -1,0 +1,252 @@
+/* =========================================
+   1. VARIABLES & ACADEMIC COLOR SYSTEM
+   ========================================= */
+.partners-page {
+  --partners-navy: var(--ink);
+  --partners-blue: var(--accent);
+  --partners-accent: #b8860b;
+  --partners-bg: var(--parchment);
+  --partners-surface: var(--white);
+  --partners-border: var(--rule);
+  --partners-text: var(--ink);
+  --partners-text-muted: var(--ink-60);
+  --font-serif: var(--serif);
+  --font-sans: var(--sans);
+  
+  background-color: var(--partners-bg);
+  color: var(--partners-text);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+}
+
+/* =========================================
+   2. HERO BANNER
+   ========================================= */
+.partners-hero {
+  position: relative;
+  padding: 120px 20px 80px;
+  text-align: center;
+  background: linear-gradient(135deg, #143152 0%, #1e538e 100%);
+  color: #ffffff;
+  overflow: hidden;
+  border-bottom: 3px solid var(--partners-accent);
+}
+
+.partners-hero__pattern {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  opacity: 0.04;
+  background-image: radial-gradient(circle, #ffffff 2px, transparent 2px);
+  background-size: 32px 32px;
+  pointer-events: none;
+}
+
+.partners-hero__breadcrumbs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  margin-bottom: 24px;
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+.partners-hero__breadcrumb-link {
+  color: #ffffff;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.partners-hero__breadcrumb-link:hover {
+  text-decoration: underline;
+  opacity: 1;
+}
+
+.partners-hero__breadcrumb-sep {
+  opacity: 0.5;
+}
+
+.partners-hero__breadcrumb-current {
+  color: #ebd7b5;
+}
+
+.partners-hero h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 900;
+  line-height: 1.15;
+  margin-bottom: 20px;
+  letter-spacing: -0.5px;
+}
+
+.partners-hero p {
+  max-width: 680px;
+  margin: 0 auto;
+  font-size: clamp(1.1rem, 2vw, 1.25rem);
+  line-height: 1.6;
+  opacity: 0.9;
+  font-weight: 300;
+}
+
+/* =========================================
+   3. LAYOUT & SECTIONS
+   ========================================= */
+.partners-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.partners-section {
+  padding: 80px 0;
+}
+
+.partners-tabs {
+  display: flex;
+  justify-content: center;
+  border-bottom: 2px solid var(--partners-border);
+  margin-bottom: 48px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.partners-tab-btn {
+  background: none;
+  border: none;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--partners-text-muted);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.partners-tab-btn:hover {
+  color: var(--partners-navy);
+}
+
+.partners-tab-btn--active {
+  color: var(--partners-blue);
+}
+
+.partners-tab-btn--active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0; right: 0;
+  height: 3px;
+  background-color: var(--partners-blue);
+  border-radius: 99px;
+}
+
+/* =========================================
+   4. PARTNERS CARDS GRID
+   ========================================= */
+.partners-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 28px;
+}
+
+.partner-card {
+  background-color: var(--partners-surface);
+  border: 1px solid var(--partners-border);
+  border-radius: 14px;
+  padding: 32px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.partner-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -8px rgba(20, 49, 82, 0.1);
+  border-color: rgba(30, 83, 142, 0.15);
+}
+
+.partner-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.partner-card__avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 10px;
+  background-color: rgba(30, 83, 142, 0.06);
+  color: var(--partners-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.partner-card__type {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.partner-card__type--mou {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.partner-card__type--moa {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.partner-card__name {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--partners-navy);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.partner-card__institution {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--partners-text-muted);
+  margin-bottom: 16px;
+}
+
+.partner-card__details {
+  font-size: 14px;
+  color: var(--partners-text-muted);
+  line-height: 1.6;
+  margin-bottom: 24px;
+  flex-grow: 1;
+}
+
+.partner-card__footer {
+  border-top: 1px solid var(--partners-border);
+  padding-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.partner-card__date-label {
+  font-weight: 600;
+  color: var(--partners-text-muted);
+}
+
+.partner-card__date-value {
+  font-weight: 700;
+  color: var(--partners-navy);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

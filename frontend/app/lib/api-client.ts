@@ -132,9 +132,45 @@ const MOCK_ACTIVITIES = [
       { file_name: 'Research_Abstracts_2024.pdf', file_path: 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/PDF1.pdf' },
     ],
   },
+  {
+    id: 9,
+    title: 'PAGE National Conference 2027: Reimagining Graduate Research',
+    slug: 'page-national-conference-2027',
+    description: 'The upcoming 2027 PAGE National Conference will examine how cyber-physical systems and advanced computing technologies interface with qualitative and quantitative graduate research projects in the digital age.',
+    venue: 'Boracay Regency Convention Center, Aklan',
+    date: '2027-04-14',
+    type: 'conference' as const,
+    status: 'published' as const,
+    gallery: [MOCK_GALLERY_BASE[0], MOCK_GALLERY_BASE[2], MOCK_GALLERY_BASE[4]],
+    materials: [],
+  },
+  {
+    id: 10,
+    title: 'Seminar on Transnational Research Collaborations and Grants',
+    slug: 'seminar-transnational-research-2026',
+    description: 'This seminar focuses on the administrative pathways for establishing credit transfer agreements and research linkages with ASEAN and European partner universities under CHED initiatives.',
+    venue: 'University of San Carlos, Cebu City',
+    date: '2026-08-20',
+    type: 'seminar' as const,
+    status: 'published' as const,
+    gallery: [MOCK_GALLERY_BASE[1], MOCK_GALLERY_BASE[3]],
+    materials: [],
+  },
+  {
+    id: 11,
+    title: 'Workshop on Advanced Thesis Advising & Mentorship Standards',
+    slug: 'workshop-thesis-advising-2026',
+    description: 'A dedicated capacity-building session for graduate school thesis mentors. This workshop details best practices in dissertation guidance, preventing citation issues, and tracking research progress.',
+    venue: 'Notre Dame of Marbel University, Koronadal City',
+    date: '2026-11-12',
+    type: 'workshop' as const,
+    status: 'published' as const,
+    gallery: [MOCK_GALLERY_BASE[4], MOCK_GALLERY_BASE[5]],
+    materials: [],
+  },
 ];
 
-const MOCK_YEARS = [2026, 2025, 2024];
+const MOCK_YEARS = [2027, 2026, 2025, 2024];
 const MOCK_ITEMS_PER_PAGE = 6;
 
 function mockActivitiesIndex(search: string): PaginatedActivitiesResponse {
@@ -142,12 +178,27 @@ function mockActivitiesIndex(search: string): PaginatedActivitiesResponse {
   const typeFilter = params.get('type') ?? 'all';
   const yearFilter = params.get('year') ? parseInt(params.get('year')!) : null;
   const page = params.get('page') ? parseInt(params.get('page')!) : 1;
+  const timeframe = params.get('timeframe'); // 'latest' (past) or 'future' (upcoming)
 
   let filtered = MOCK_ACTIVITIES.filter(a => {
     const matchType = typeFilter === 'all' || a.type === typeFilter;
     const matchYear = !yearFilter || new Date(a.date).getFullYear() === yearFilter;
-    return matchType && matchYear;
+    
+    let matchTimeframe = true;
+    if (timeframe === 'latest') {
+      matchTimeframe = new Date(a.date) < new Date('2026-06-09');
+    } else if (timeframe === 'future') {
+      matchTimeframe = new Date(a.date) >= new Date('2026-06-09');
+    }
+    return matchType && matchYear && matchTimeframe;
   });
+
+  // Sort order: future activities sorted ascending by date (soonest first); latest/past sorted descending by date
+  if (timeframe === 'future') {
+    filtered.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  } else {
+    filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }
 
   const total = filtered.length;
   const paginated = filtered.slice((page - 1) * MOCK_ITEMS_PER_PAGE, page * MOCK_ITEMS_PER_PAGE);

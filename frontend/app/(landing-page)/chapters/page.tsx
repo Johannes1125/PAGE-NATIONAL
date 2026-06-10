@@ -97,7 +97,7 @@ function ChaptersHero() {
           <span className="chapters-hero__breadcrumb-current">Chapters</span>
         </div>
         <h1 className="chapters-hero__title">
-          Regional <em>Chapters</em>
+          Regional Chapters
         </h1>
         <div className="chapters-hero__divider" />
         <p className="chapters-hero__subtitle">

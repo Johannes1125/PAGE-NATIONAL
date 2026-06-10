@@ -189,7 +189,7 @@ function ActivitiesHero() {
           <span className="acts-hero__breadcrumb-current">National Activities</span>
         </div>
         <h1 className="acts-hero__title">
-          National <em>Activities</em>
+          National Activities
         </h1>
         <div className="acts-hero__divider" />
         <p className="acts-hero__subtitle">
@@ -282,6 +282,7 @@ function ActivitiesSection() {
   const [page,        setPage]        = useState(1);
   const [typeFilter,  setTypeFilter]  = useState<ActivityType | "all">("all");
   const [yearFilter,  setYearFilter]  = useState<number | null>(null);
+  const [timeframeFilter, setTimeframeFilter] = useState<string | null>(null);
   const [status,      setStatus]      = useState<"loading" | "empty" | "error" | "ok">("loading");
 
   const router = useRouter();
@@ -309,6 +310,13 @@ function ActivitiesSection() {
       setYearFilter(null);
     }
 
+    const timeframeParam = searchParams.get("timeframe");
+    if (timeframeParam && ["latest", "future"].includes(timeframeParam)) {
+      setTimeframeFilter(timeframeParam);
+    } else {
+      setTimeframeFilter(null);
+    }
+
     setPage(1);
   }, [searchParams]);
 
@@ -318,6 +326,7 @@ function ActivitiesSection() {
       const qs = new URLSearchParams();
       if (typeFilter !== "all") qs.set("type", typeFilter);
       if (yearFilter !== null)  qs.set("year", String(yearFilter));
+      if (timeframeFilter !== null) qs.set("timeframe", timeframeFilter);
       qs.set("page", String(page));
 
       const res = await api.get<PaginatedActivitiesResponse>(
@@ -336,7 +345,7 @@ function ActivitiesSection() {
     } catch {
       setStatus("error");
     }
-  }, [typeFilter, yearFilter, page]);
+  }, [typeFilter, yearFilter, timeframeFilter, page]);
 
   useEffect(() => { fetchActivities(); }, [fetchActivities]);
 
@@ -344,6 +353,7 @@ function ActivitiesSection() {
     const params = new URLSearchParams();
     if (type !== "all") params.set("type", type);
     if (year !== null) params.set("year", String(year));
+    if (timeframeFilter !== null) params.set("timeframe", timeframeFilter);
     router.push(`${pathname}?${params.toString()}`);
   };
 
@@ -363,11 +373,14 @@ function ActivitiesSection() {
         <div className="section-header" style={{ textAlign: "left", marginBottom: "36px" }}>
           <span className="section-label">Events & Programs</span>
           <h2 className="section-title" style={{ textAlign: "left", margin: "0 0 8px" }}>
-            National Activities
+            {timeframeFilter === "latest" ? "Latest Activities" : timeframeFilter === "future" ? "Future Activities" : "National Activities"}
           </h2>
           <p className="section-subtitle" style={{ textAlign: "left", margin: 0, maxWidth: "600px" }}>
-            Browse PAGE-organized conferences, seminars, workshops, and events open
-            to graduate education professionals nationwide.
+            {timeframeFilter === "latest" 
+              ? "Browse recently completed conferences, seminars, and workshops organized by PAGE." 
+              : timeframeFilter === "future"
+              ? "Register for upcoming conferences, seminars, and workshops scheduled by PAGE."
+              : "Browse PAGE-organized conferences, seminars, workshops, and events open to graduate education professionals nationwide."}
           </p>
         </div>
 

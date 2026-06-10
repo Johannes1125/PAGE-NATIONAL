@@ -1,4 +1,4 @@
-export type JournalDiscipline = 'Humanities' | 'Social Sciences' | 'Technology' | 'Others';
+export type JournalDiscipline = 'Education' | 'Humanities and Social Sciences' | 'Engineering and Technology' | 'Health and Sciences' | 'Business Education' | 'Public Administration' | 'Other Disciplines';
 
 export interface JournalArticle {
   id: string;

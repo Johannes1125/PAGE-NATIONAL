@@ -1,0 +1,245 @@
+/* =========================================
+   1. LAYOUT & SYSTEM
+   ========================================= */
+.track-page {
+  --track-navy: var(--ink);
+  --track-blue: var(--accent);
+  --track-accent: #b8860b;
+  --track-bg: var(--parchment);
+  --track-surface: var(--white);
+  --track-border: var(--rule);
+  --track-text: var(--ink);
+  --track-text-muted: var(--ink-60);
+  --track-success: #10b981;
+  --font-serif: var(--serif);
+  --font-sans: var(--sans);
+  
+  background-color: var(--track-bg);
+  color: var(--track-text);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+}
+
+.track-container {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 120px 24px 80px;
+}
+
+.track-card {
+  background-color: var(--track-surface);
+  border: 1px solid var(--track-border);
+  border-radius: 16px;
+  box-shadow: 0 10px 35px -10px rgba(20, 49, 82, 0.07);
+  padding: 40px;
+}
+
+@media (max-width: 640px) {
+  .track-card {
+    padding: 24px 16px;
+  }
+}
+
+.track-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 3.5vw, 2.5rem);
+  color: var(--track-navy);
+  text-align: center;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.track-subtitle {
+  color: var(--track-text-muted);
+  text-align: center;
+  font-size: 14px;
+  margin-bottom: 40px;
+}
+
+/* =========================================
+   2. APP DETAILS STRIP
+   ========================================= */
+.track-details-strip {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  background-color: rgba(248, 250, 252, 0.8);
+  border: 1px solid var(--track-border);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 40px;
+}
+
+@media (max-width: 480px) {
+  .track-details-strip {
+    grid-template-columns: 1fr;
+  }
+}
+
+.track-detail-item__label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--track-text-muted);
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.track-detail-item__value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--track-navy);
+}
+
+/* =========================================
+   3. VERTICAL TIMELINE
+   ========================================= */
+.track-timeline {
+  position: relative;
+  padding-left: 36px;
+  margin-bottom: 40px;
+}
+
+/* Vertical timeline connector line */
+.track-timeline::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 11px;
+  width: 2px;
+  background-color: var(--track-border);
+  z-index: 1;
+}
+
+.track-timeline-node {
+  position: relative;
+  padding-bottom: 36px;
+}
+
+.track-timeline-node:last-child {
+  padding-bottom: 0;
+}
+
+/* Timeline dot */
+.track-timeline-dot {
+  position: absolute;
+  left: -36px;
+  top: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--track-surface);
+  border: 2px solid var(--track-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 0 4px var(--track-surface);
+}
+
+.track-timeline-dot__inner {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: transparent;
+  transition: background-color 0.3s ease;
+}
+
+.track-timeline-content {
+  padding-left: 12px;
+}
+
+.track-timeline-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--track-text-muted);
+  margin-bottom: 4px;
+  transition: color 0.3s ease;
+}
+
+.track-timeline-desc {
+  font-size: 13px;
+  color: var(--track-text-muted);
+  line-height: 1.45;
+  margin-bottom: 6px;
+}
+
+.track-timeline-time {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--track-blue);
+  display: block;
+}
+
+/* TIMELINE STATES */
+/* 1. Completed state */
+.track-timeline-node--completed .track-timeline-dot {
+  background-color: var(--track-blue);
+  border-color: var(--track-blue);
+}
+
+.track-timeline-node--completed .track-timeline-dot__inner {
+  background-color: #ffffff;
+}
+
+.track-timeline-node--completed .track-timeline-label {
+  color: var(--track-navy);
+}
+
+/* 2. Active/Current state */
+.track-timeline-node--active .track-timeline-dot {
+  border-color: var(--track-accent);
+  box-shadow: 0 0 0 4px var(--track-surface), 0 0 0 6px rgba(184, 134, 11, 0.15);
+}
+
+.track-timeline-node--active .track-timeline-dot__inner {
+  background-color: var(--track-accent);
+}
+
+.track-timeline-node--active .track-timeline-label {
+  color: var(--track-accent);
+  font-weight: 800;
+}
+
+/* =========================================
+   4. TIMELINE FOOTNOTE NOTE
+   ========================================= */
+.track-footnote {
+  background-color: rgba(184, 134, 11, 0.05);
+  border-left: 4px solid var(--track-accent);
+  border-radius: 6px;
+  padding: 16px;
+  font-size: 13px;
+  color: #856404;
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.track-btn-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.track-home-btn {
+  background-color: var(--track-navy);
+  color: #ffffff;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(20, 49, 82, 0.15);
+}
+
+.track-home-btn:hover {
+  background-color: var(--track-blue);
+  transform: translateY(-1px);
+}

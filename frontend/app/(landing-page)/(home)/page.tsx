@@ -1,41 +1,29 @@
 "use client";
 import Navbar from "../components/Navbar";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { api } from "../../lib/api-client";
 import "./home-page.css";
-import Image from 'next/image';
 
 // ── Icon Components ────────────────────────────────────────────────────────
 
 const BookOpenIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
     <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
   </svg>
 );
 
 const JournalIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
   </svg>
 );
 
-const CalendarIconSm = () => (
-  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-    <line x1="16" y1="2" x2="16" y2="6" />
-    <line x1="8" y1="2" x2="8" y2="6" />
-    <line x1="3" y1="10" x2="21" y2="10" />
-  </svg>
-);
-
 const CalendarIconLg = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
     <line x1="16" y1="2" x2="16" y2="6" />
     <line x1="8" y1="2" x2="8" y2="6" />
@@ -44,7 +32,7 @@ const CalendarIconLg = () => (
 );
 
 const UsersIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
     <circle cx="9" cy="7" r="4" />
     <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -74,88 +62,40 @@ const MailIconSm = () => (
 );
 
 const MailIconContact = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
     <polyline points="22,6 12,13 2,6" />
   </svg>
 );
 
 const MapPinIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
     <circle cx="12" cy="10" r="3" />
   </svg>
 );
 
 const PhoneIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.86a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z" />
   </svg>
 );
 
 const ArrowIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <line x1="5" y1="12" x2="19" y2="12" />
     <polyline points="12 5 19 12 12 19" />
   </svg>
 );
 
-const HamburgerIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-    <line x1="3" y1="6"  x2="21" y2="6" />
-    <line x1="3" y1="12" x2="21" y2="12" />
-    <line x1="3" y1="18" x2="21" y2="18" />
+const ArrowRightIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <polyline points="12 5 19 12 12 19" />
   </svg>
 );
-
-const CloseIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-    <line x1="18" y1="6"  x2="6"  y2="18" />
-    <line x1="6"  y1="6"  x2="18" y2="18" />
-  </svg>
-);
-
-const ChevronDownIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="6 9 12 15 18 9" />
-  </svg>
-);
-
-// ── Types & Data ───────────────────────────────────────────────────────────
-
-type NavLink = "Home" | "About" | "News" | "Contact";
-
-const getPath = (link: NavLink): string => {
-  const map: Record<NavLink, string> = {
-    Home: "/", About: "./about", News: "/news", Contact: "/contact",
-  };
-  return map[link];
-};
 
 // ── Static Data ────────────────────────────────────────────────────────────
-const NAV_LINKS: NavLink[] = ["Home", "About", "News", "Contact"];
-
-const ABOUT_DROPDOWN_ITEMS = [
-  { label: "About PAGE",        href: "/about" },
-  { label: "PAGE History",      href: "/about/history" },
-  { label: "Set of Officers",   href: "/about/officers" },
-  { label: "Logo Description",  href: "/about/logo" },
-  { label: "CBL Information",   href: "/about/cbl" },
-];
-
-const ACTIVITY_DROPDOWN_ITEMS = [
-  { label: "All Activities",  type: "all"        },
-  { label: "Conferences",     type: "conference" },
-  { label: "Seminars",        type: "seminar"    },
-  { label: "Workshops",       type: "workshop"   },
-  { label: "Other Events",    type: "other"      },
-];
-
-const dropdownVariants: Variants = {
-  hidden:  { opacity: 0, y: -8, scale: 0.96 },
-  visible: { opacity: 1, y: 0,  scale: 1,    transition: { duration: 0.18, ease: "easeOut" } },
-  exit:    { opacity: 0, y: -6, scale: 0.97, transition: { duration: 0.13 } },
-};
 
 const RESOURCE_CARDS = [
   {
@@ -190,42 +130,27 @@ const HERO_STATS = [
   { label: "Annual Events",       value: "28"   },
 ];
 
-const NEWS_CARDS = [
+const NEWS_CARDS: NewsCardType[] = [
   {
-    date:    "March 12, 2026",
-    author:  "Dr. Maria Santos",
-    title:   "PAGE Annual Conference 2026: Innovation in Graduate Education",
-    excerpt: "Join us for the most anticipated event of the year as we explore cutting-edge innovations and best practices in graduate education.",
+    date:    "Mar 12, 2026",
+    tag:     "Convention",
+    tagType: "convention",
+    title:   "39th National Convention opens registration",
+    excerpt: "Three days of keynotes, paper presentations, and chapter assemblies in Cebu.",
   },
   {
-    date:    "February 28, 2026",
-    author:  "Dr. Jose Reyes",
-    title:   "New Research Grant Opportunities for Graduate Faculty",
-    excerpt: "PAGE announces a new round of research grants supporting faculty members engaged in graduate-level research across Philippine universities.",
+    date:    "Feb 28, 2026",
+    tag:     "Research",
+    tagType: "research",
+    title:   "Call for papers: Vol. 14 of the PAGE Journal",
+    excerpt: "Submissions invited on interdisciplinary graduate research and pedagogy.",
   },
   {
-    date:    "February 10, 2026",
-    author:  "Dr. Ana Lim",
-    title:   "Guidelines Released for 2026 Graduate Program Accreditation",
-    excerpt: "Updated guidelines for graduate program accreditation. Institutions are encouraged to review the new standards and prepare accordingly.",
-  },
-  {
-    date:    "January 25, 2026",
-    author:  "Dr. Ramon Cruz",
-    title:   "International Collaboration Summit: Linking PH & Global Universities",
-    excerpt: "PAGE facilitates a landmark collaboration summit connecting Philippine graduate schools with partner institutions across Asia, Europe, and North America.",
-  },
-  {
-    date:    "January 14, 2026",
-    author:  "Dr. Clara Bautista",
-    title:   "Scholarship Program Opens for Graduate Students Nationwide",
-    excerpt: "Applications are now open for PAGE's annual scholarship program supporting outstanding graduate students across the archipelago.",
-  },
-  {
-    date:    "December 30, 2025",
-    author:  "Dr. Noel Torres",
-    title:   "Year in Review: Milestones in Philippine Graduate Education",
-    excerpt: "As the year closes, we reflect on the remarkable achievements of the Philippine graduate education community and look ahead.",
+    date:    "Feb 04, 2026",
+    tag:     "Chapters",
+    tagType: "chapters",
+    title:   "Mindanao chapter welcomes 12 new institutions",
+    excerpt: "Membership across the southern region grows to a record 48 universities.",
   },
 ];
 
@@ -247,37 +172,42 @@ function HeroSection() {
   }, []);
 
   return (
-    <section className="hero">
-      {/* Spiral dark background layers */}
-      <div className="hero__spiral-base" />
-      <div className="hero__spiral-1" />
-      <div className="hero__spiral-2" />
-      <div className="hero__spiral-3" />
-      <div className="hero__nucleus" />
-      <div className="hero__stars" />
+    <section className="hero" id="hero-section">
+      {/* Light background layers */}
+      <div className="hero__bg-gradient" />
+      <div className="hero__pattern" />
+      <div className="hero__watermark" />
       <div className="hero__rule-left" />
       <div className="hero__rule-right" />
 
       <div className={`hero__content${visible ? " hero__content--visible" : ""}`}>
+        {/* Logo Emblem */}
+        <div className="hero__emblem">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/PAGE.jpg" alt="PAGE Logo Emblem" />
+        </div>
+
         <div className="hero__eyebrow">
           <span className="hero__eyebrow-dot" />
-          Est. in the Philippines
+          Est. 1987 · Philippines
           <span className="hero__eyebrow-dot" />
         </div>
 
-        <h1 className="hero__title">
+        <h1 className="hero__title hero-headline">
           Philippine Association<br />
           for <em>Graduate Education</em>
         </h1>
 
-        <p className="hero__subtitle">
+        <p className="hero__subtitle hero-subtext">
           Advancing excellence in graduate education through collaboration,
           research, and professional development across the Philippines.
         </p>
 
         <div className="hero__cta-group">
-          <button className="btn-primary">Get Started</button>
-          <button className="btn-ghost">Learn More</button>
+          <button className="btn-primary hero-cta">
+            Get Started <ArrowRightIcon />
+          </button>
+          <button className="btn-ghost hero-cta">Learn More</button>
         </div>
       </div>
 
@@ -297,7 +227,7 @@ function HeroSection() {
 // ── Resources ──────────────────────────────────────────────────────────────
 function ResourcesSection() {
   return (
-    <section className="resources">
+    <section className="resources" id="resources-section">
       <div className="container">
         <div className="section-header">
           <span className="section-label">What We Offer</span>
@@ -311,8 +241,10 @@ function ResourcesSection() {
         <div className="resources__grid">
           {RESOURCE_CARDS.map(card => (
             <div key={card.title} className="resource-card">
-              <div className="resource-card__num">{card.num}</div>
-              <div className="resource-card__icon">{card.icon}</div>
+              <div className="resource-card__header">
+                <div className="resource-card__num">{card.num}</div>
+                <div className="resource-card__icon">{card.icon}</div>
+              </div>
               <h3 className="resource-card__title">{card.title}</h3>
               <p className="resource-card__desc">{card.desc}</p>
               <a href="#" className="resource-card__link">
@@ -329,7 +261,8 @@ function ResourcesSection() {
 // ── News ───────────────────────────────────────────────────────────────────
 type NewsCardType = {
   date: string;
-  author: string;
+  tag?: string;
+  tagType?: string;
   title: string;
   excerpt: string;
 };
@@ -337,19 +270,19 @@ type NewsCardType = {
 function NewsCard({ card }: { card: NewsCardType }) {
   return (
     <div className="news-card">
-      <div className="news-card__image">
-        <span className="news-card__image-label">Research</span>
-      </div>
       <div className="news-card__body">
         <div className="news-card__meta">
+          {card.tag && (
+            <span className={`news-card__tag news-card__tag--${card.tagType || 'research'}`}>
+              {card.tag}
+            </span>
+          )}
           <span className="news-card__date">{card.date}</span>
-          <span className="news-card__dot">·</span>
-          <span className="news-card__author">{card.author}</span>
         </div>
         <h4 className="news-card__title">{card.title}</h4>
         <p className="news-card__excerpt">{card.excerpt}</p>
         <a href="#" className="news-card__link">
-          Read More <ArrowIcon />
+          Read more <ArrowIcon />
         </a>
       </div>
     </div>
@@ -364,13 +297,14 @@ function NewsSection() {
     const fetchPublicPosts = async () => {
       try {
         const response = await api.get('/public/posts');
-        const mapped = response.posts.map((post: any) => ({
+        const mapped = response.posts.slice(0, 3).map((post: any) => ({
           date: new Date(post.created_at).toLocaleDateString("en-US", {
-            month: "long",
+            month: "short",
             day: "numeric",
             year: "numeric"
           }),
-          author: post.author || "PAGE National",
+          tag: post.category || "Research",
+          tagType: (post.category || "research").toLowerCase(),
           title: post.title,
           excerpt: post.excerpt || "Browse full content within our publications portal.",
         }));
@@ -388,7 +322,7 @@ function NewsSection() {
   }, []);
 
   return (
-    <section className="news">
+    <section className="news" id="news-section">
       <div className="container">
         <div className="news__header">
           <div className="news__header-text">
@@ -398,11 +332,13 @@ function NewsSection() {
               Stay informed with the latest developments in Philippine graduate education.
             </p>
           </div>
-          <button className="btn-dark">View All News</button>
+          <button className="btn-dark">
+            View All News <ArrowRightIcon />
+          </button>
         </div>
 
         <div className="news__grid">
-          {posts.map((card) => (
+          {posts.slice(0, 3).map((card) => (
             <NewsCard key={card.title} card={card} />
           ))}
         </div>
@@ -414,7 +350,7 @@ function NewsSection() {
 // ── Footer ─────────────────────────────────────────────────────────────────
 function Footer() {
   return (
-    <footer className="footer">
+    <footer className="footer" id="footer">
       <div className="footer__inner">
         <div className="footer__columns">
 
@@ -426,7 +362,7 @@ function Footer() {
               </div>
               <div>
                 <div className="footer__logo-name">PAGE</div>
-                <div className="footer__logo-sub">An academic towards to excellence</div>
+                <div className="footer__logo-sub">Philippine Assoc. for Grad. Education</div>
               </div>
             </div>
             <p className="footer__brand-desc">

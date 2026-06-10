@@ -2,6 +2,134 @@ import { Convention } from "./types";
 
 export const CONVENTIONS_DATA: Convention[] = [
   {
+    slug: "56th-national-convention",
+    convention_number: "56th",
+    theme: "Reimagining Graduate Research in a Cyber-Physical Academic Ecosystem",
+    year: 2026,
+    location: "Manila Hotel, Metro Manila",
+    date_range: "October 21–23, 2026",
+    cover_image_url: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=600&auto=format&fit=crop",
+    intro_paragraph: "The 56th PAGE National Convention focuses on the future of academic inquiry, centering on cyber-physical ecosystems, hybrid graduate education delivery, and cutting-edge methodologies.",
+    program_schedule: [
+      {
+        day_number: 1,
+        date: "October 21, 2026",
+        sessions: [
+          {
+            time: "08:00 AM - 09:30 AM",
+            session_title: "Registration and Morning Networking Session",
+            session_type: "special",
+            room_or_venue: "Grand Ballroom Foyer"
+          },
+          {
+            time: "09:30 AM - 12:00 PM",
+            session_title: "Keynote Address: Graduate Education in Cyber-Physical Environments",
+            session_type: "plenary",
+            room_or_venue: "Grand Centennial Hall"
+          }
+        ]
+      }
+    ],
+    speakers: [
+      {
+        name: "Dr. Eleanor Vance",
+        title: "Professor of Computing and Ethics",
+        organization: "National University of the Philippines",
+        topic: "Integrating Generative AI in Academic Workflows Responsibly",
+        photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Dr. Eleanor Vance"
+      }
+    ],
+    activities: [
+      {
+        title: "Cyber-Physical Systems Forum",
+        description: "An open panel discussing the integration of virtual reality and simulated labs in advanced degree programs.",
+        type: "forum",
+        date: "October 22, 2026",
+        venue: "Grand Centennial Hall"
+      }
+    ],
+    journals: [
+      {
+        title: "Journal of Cyber-Physical Implementations in Graduate Education",
+        authors: ["Dr. Eleanor Vance"],
+        abstract_excerpt: "This study explores how graduate schools integrated digital twins and simulated environments in thesis research during 2025.",
+        volume: "Vol. 34",
+        issue: "No. 1",
+        download_url: "#"
+      }
+    ],
+    gallery: [
+      {
+        image_url: "https://images.unsplash.com/photo-1431540015161-0bf868a2d407?q=80&w=600&auto=format&fit=crop",
+        caption: "Plenary opening session panel of the 56th Convention."
+      }
+    ]
+  },
+  {
+    slug: "55th-national-convention",
+    convention_number: "55th",
+    theme: "Global Alliances and Digital Integration in Philippine Graduate Education",
+    year: 2025,
+    location: "Waterfront Cebu City Hotel, Cebu",
+    date_range: "October 22–24, 2025",
+    cover_image_url: "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=600&auto=format&fit=crop",
+    intro_paragraph: "The 55th PAGE National Convention brings together graduate school deans, program coordinators, and researchers from across the Philippines to discuss global partnerships, academic collaboration, and cross-border research frameworks.",
+    program_schedule: [
+      {
+        day_number: 1,
+        date: "October 22, 2025",
+        sessions: [
+          {
+            time: "08:00 AM - 09:30 AM",
+            session_title: "Registration and Morning Networking Session",
+            session_type: "special",
+            room_or_venue: "Grand Ballroom Foyer"
+          },
+          {
+            time: "09:30 AM - 12:00 PM",
+            session_title: "Keynote Address: Strengthening Regional Alliances in ASEAN Higher Education",
+            session_type: "plenary",
+            room_or_venue: "Plaza Ballroom"
+          }
+        ]
+      }
+    ],
+    speakers: [
+      {
+        name: "Dr. Robert Chen",
+        title: "Director of Higher Education Accreditation",
+        organization: "Asia-Pacific Academic Alliance",
+        topic: "Harmonizing Regional Programs for ASEAN Mobility",
+        photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Dr. Robert Chen"
+      }
+    ],
+    activities: [
+      {
+        title: "ASEAN Credit Transfer Workshop",
+        description: "Aligning credit standards and course outlines to foster graduate student exchanges.",
+        type: "workshop",
+        date: "October 23, 2025",
+        venue: "Plaza Ballroom"
+      }
+    ],
+    journals: [
+      {
+        title: "Building Alliances: Cross-border Research in ASEAN Graduate Schools",
+        authors: ["Dr. Robert Chen"],
+        abstract_excerpt: "A study of collaborative publications between universities in Singapore, Malaysia, and the Philippines.",
+        volume: "Vol. 33",
+        issue: "No. 2",
+        download_url: "#"
+      }
+    ],
+    gallery: [
+      {
+        image_url: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?q=80&w=600&auto=format&fit=crop",
+        caption: "Opening plenary session panel of the 55th Convention."
+      }
+    ]
+  },
+  {
     slug: "54th-national-convention",
     convention_number: "54th",
     theme: "Innovating Graduate Education: AI, Ethics, and Global Research Standards",
