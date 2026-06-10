@@ -30,17 +30,22 @@ export default function AdminSidebarLayout({
   children,
 }: AdminSidebarLayoutProps) {
   const pathname = usePathname();
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
-    if (typeof window === "undefined") return false;
-
-    return window.localStorage.getItem("admin-sidebar-collapsed") === "true";
-  });
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const [hasLoadedConfig, setHasLoadedConfig] = useState(false);
 
   useEffect(() => {
-    window.localStorage.setItem("admin-sidebar-collapsed", String(isSidebarCollapsed));
-  }, [isSidebarCollapsed]);
+    const collapsed = window.localStorage.getItem("admin-sidebar-collapsed") === "true";
+    setIsSidebarCollapsed(collapsed);
+    setHasLoadedConfig(true);
+  }, []);
+
+  useEffect(() => {
+    if (hasLoadedConfig) {
+      window.localStorage.setItem("admin-sidebar-collapsed", String(isSidebarCollapsed));
+    }
+  }, [isSidebarCollapsed, hasLoadedConfig]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(`(max-width: ${ADMIN_MOBILE_BREAKPOINT_PX}px)`);
