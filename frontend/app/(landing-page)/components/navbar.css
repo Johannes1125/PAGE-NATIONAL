@@ -606,32 +606,32 @@
 /* ============================================================
    RESPONSIVE
    ============================================================ */
-@media (min-width: 1241px) and (max-width: 1440px) {
+@media (min-width: 1361px) and (max-width: 1480px) {
   .navbar__links {
     gap: 1px;
-    padding: 2px 2px;
+    padding: 2px 3px;
   }
   .navbar__link,
   .navbar__dropdown-trigger {
-    padding: 5px 5px;
-    font-size: 10.5px;
+    padding: 5px 6px;
+    font-size: 11.5px;
   }
   .navbar__inner {
-    padding: 0 6px;
-    height: 60px;
-    gap: 3px;
+    padding: 0 10px;
+    height: 62px;
+    gap: 4px;
   }
   .navbar__signin {
-    padding: 6px 10px;
+    padding: 7px 12px;
     margin-left: 1px;
-    font-size: 11px;
+    font-size: 11.5px;
   }
   .navbar__logo-sub {
     display: none;
   }
 }
 
-@media (max-width: 1240px) {
+@media (max-width: 1360px) {
   .navbar__inner {
     padding: 0 16px;
     height: 58px;
@@ -641,7 +641,7 @@
   .navbar__hamburger { display: flex; }
 }
 
-@media (min-width: 1241px) {
+@media (min-width: 1361px) {
   .navbar__hamburger   { display: none; }
   .navbar__mobile-menu { display: none !important; }
 }

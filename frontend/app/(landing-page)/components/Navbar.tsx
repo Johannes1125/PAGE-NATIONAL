@@ -202,7 +202,7 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
   }, [pathname, searchParams]);
 
   useEffect(() => {
-    const onResize = () => { if (window.innerWidth > 1240) setMenuOpen(false); };
+    const onResize = () => { if (window.innerWidth > 1360) setMenuOpen(false); };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
