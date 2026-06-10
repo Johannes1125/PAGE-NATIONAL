@@ -695,3 +695,129 @@
   font-weight: 600 !important;
 }
 
+/* ── Logged in User Menu ───────────────────────────────────── */
+.navbar__user-menu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 10px;
+}
+
+.navbar__user-name {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-80);
+}
+
+.navbar__dashboard-btn {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-light);
+  border: none;
+  border-radius: 30px;
+  padding: 8px 16px;
+  text-decoration: none;
+  transition: all var(--t-fast);
+  white-space: nowrap;
+}
+
+.navbar__dashboard-btn:hover {
+  background: #d6e3f4;
+  transform: translateY(-1px);
+}
+
+.navbar__signout-btn {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-60);
+  background: transparent;
+  border: 1px solid rgba(15, 25, 35, 0.15);
+  border-radius: 30px;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: all var(--t-fast);
+  white-space: nowrap;
+}
+
+.navbar__signout-btn:hover {
+  color: var(--ink);
+  background: rgba(15, 25, 35, 0.05);
+  border-color: rgba(15, 25, 35, 0.3);
+}
+
+/* Mobile User Menu */
+.navbar__mobile-user-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  margin-top: 12px;
+  background: rgba(15, 25, 35, 0.02);
+  border-radius: 12px;
+  border: 1px solid rgba(15, 25, 35, 0.05);
+}
+
+.navbar__mobile-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.navbar__mobile-user-name {
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.navbar__mobile-user-role {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--accent);
+}
+
+.navbar__mobile-dashboard {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--white);
+  background: var(--accent);
+  border: none;
+  border-radius: 10px;
+  padding: 11px 16px;
+  text-align: center;
+  text-decoration: none;
+  transition: background var(--t-fast);
+}
+
+.navbar__mobile-dashboard:hover {
+  background: #15325c;
+}
+
+.navbar__mobile-signout {
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 13.5px;
+  color: var(--ink-80);
+  background: transparent;
+  border: 1px solid rgba(15, 25, 35, 0.15);
+  border-radius: 10px;
+  padding: 11px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--t-fast);
+}
+
+.navbar__mobile-signout:hover {
+  background: rgba(15, 25, 35, 0.05);
+  color: var(--ink);
+}
+

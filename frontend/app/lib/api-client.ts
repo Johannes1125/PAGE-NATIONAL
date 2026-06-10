@@ -248,28 +248,47 @@ const getHeaders = (isMultipart = false) => {
 };
 
 const handleResponse = async (response: Response) => {
-  if (response.status === 401) {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('page_user_token');
-      localStorage.removeItem('page_user_payload');
-      
-      const path = window.location.pathname;
-      if (path.includes('admin')) {
-        window.location.href = '/admin-login';
-      } else if (path.includes('org')) {
-        window.location.href = '/org-login';
-      } else {
-        window.location.href = '/member-login';
-      }
-    }
-    throw new Error('Session expired. Please log in again.');
+  let data;
+  try {
+    data = await response.json();
+  } catch (e) {
+    // Response might not have JSON body
   }
 
-  const data = await response.json();
+  if (response.status === 401) {
+    const isLoginEndpoint = response.url.endsWith('/login');
+    const onLoginPage = typeof window !== 'undefined' && 
+      (window.location.pathname === '/member-login' || 
+       window.location.pathname === '/org-login' || 
+       window.location.pathname === '/admin-login');
+
+    if (!isLoginEndpoint && !onLoginPage) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('page_user_token');
+        localStorage.removeItem('page_user_payload');
+        
+        const path = window.location.pathname;
+        if (path.includes('admin')) {
+          window.location.href = '/admin-login';
+        } else if (path.includes('org')) {
+          window.location.href = '/org-login';
+        } else {
+          window.location.href = '/member-login';
+        }
+      }
+      throw new Error('Session expired. Please log in again.');
+    } else {
+      const errorMsg = data?.message || 'Invalid credentials. Please try again.';
+      const err = new Error(errorMsg) as any;
+      err.status = 401;
+      throw err;
+    }
+  }
+
   if (!response.ok) {
-    const errorMsg = data.message || `Request failed with status ${response.status}`;
+    const errorMsg = data?.message || `Request failed with status ${response.status}`;
     const err = new Error(errorMsg) as any;
-    err.errors = data.errors;
+    err.errors = data?.errors;
     err.status = response.status;
     throw err;
   }

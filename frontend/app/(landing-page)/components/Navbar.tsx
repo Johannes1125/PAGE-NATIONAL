@@ -121,6 +121,30 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const payloadStr = localStorage.getItem("page_user_payload");
+      if (payloadStr) {
+        try {
+          setUser(JSON.parse(payloadStr));
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        setUser(null);
+      }
+    }
+  }, [pathname]);
+
+  const handleSignOut = () => {
+    localStorage.removeItem("page_user_token");
+    localStorage.removeItem("page_user_payload");
+    setUser(null);
+    window.location.href = "/";
+  };
+
   const isDropdownItemActive = (href: string) => {
     if (href.includes("?")) {
       const [path, query] = href.split("?");
@@ -626,7 +650,20 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
           </Link>
         </div>
 
-        <Link href="/member-login" className="navbar__signin">Sign In</Link>
+        {user ? (
+          <div className="navbar__user-menu">
+            <span className="navbar__user-name">Hello, {user.name.split(' ')[0]}</span>
+            {user.role === 'admin' && (
+              <Link href="/admin-dashboard" className="navbar__dashboard-btn">Dashboard</Link>
+            )}
+            {user.role === 'organization' && (
+              <Link href="/org-dashboard" className="navbar__dashboard-btn">Dashboard</Link>
+            )}
+            <button onClick={handleSignOut} className="navbar__signout-btn">Sign Out</button>
+          </div>
+        ) : (
+          <Link href="/member-login" className="navbar__signin">Sign In</Link>
+        )}
 
         <button className="navbar__hamburger" onClick={() => setMenuOpen(p => !p)} aria-label="Toggle menu">
           {menuOpen ? <CloseIcon /> : <HamburgerIcon />}
@@ -760,7 +797,23 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
         <Link href="/contact" className={`navbar__mobile-link${isContactActive ? " navbar__mobile-link--active" : ""}`} onClick={() => setMenuOpen(false)}>
           Contact
         </Link>
-        <Link href="/member-login" className="navbar__mobile-signin" onClick={() => setMenuOpen(false)}>Sign In</Link>
+        {user ? (
+          <div className="navbar__mobile-user-menu">
+            <div className="navbar__mobile-user-info">
+              <span className="navbar__mobile-user-name">{user.name}</span>
+              <span className="navbar__mobile-user-role">{user.role}</span>
+            </div>
+            {user.role === 'admin' && (
+              <Link href="/admin-dashboard" className="navbar__mobile-dashboard" onClick={() => setMenuOpen(false)}>Admin Dashboard</Link>
+            )}
+            {user.role === 'organization' && (
+              <Link href="/org-dashboard" className="navbar__mobile-dashboard" onClick={() => setMenuOpen(false)}>Organization Dashboard</Link>
+            )}
+            <button onClick={() => { handleSignOut(); setMenuOpen(false); }} className="navbar__mobile-signout">Sign Out</button>
+          </div>
+        ) : (
+          <Link href="/member-login" className="navbar__mobile-signin" onClick={() => setMenuOpen(false)}>Sign In</Link>
+        )}
       </div>
     </header>
   );
