@@ -10,11 +10,138 @@ import {
   CheckCircle2,
   Calendar,
   ChevronRight,
-  Home
+  Home,
+  Download
 } from "lucide-react";
 import Navbar from "../../../components/Navbar";
-import { ApplicationStatus } from "../../../../lib/membership-types";
+import { ApplicationStatus, ApplicationFormState } from "../../../../lib/membership-types";
 import "./track.css";
+import "../apply.css";
+
+// ── Printable Form Component (matching the application form print styles) ────
+
+function PrintableForm({ state }: { state: ApplicationFormState }) {
+  return (
+    <div className="print-only-form">
+      <div className="pf-header">
+        <div className="pf-logo">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/PAGE.jpg" alt="PAGE Logo" />
+        </div>
+        <div className="pf-title-block">
+          <h2>PHILIPPINE ASSOCIATION FOR GRADUATE EDUCATION</h2>
+          <h3>(PAGE), Inc., Manila</h3>
+        </div>
+        <div className="pf-photo-box">
+          PASTE / STAPLE<br />YOUR 1x1<br />PICTURE HERE
+        </div>
+      </div>
+
+      <div className="pf-membership-type">
+        Application for &nbsp;&nbsp;&nbsp;&nbsp;
+        <strong>( {state.membershipType === "regular" ? "X" : "  "} ) REGULAR</strong> &nbsp;&nbsp;&nbsp;&nbsp;
+        <strong>( {state.membershipType === "life" ? "X" : "  "} ) LIFETIME</strong> &nbsp;&nbsp;&nbsp;&nbsp;
+        <strong>( {state.membershipType === "associate" ? "X" : "  "} ) ASSOCIATE</strong> &nbsp;&nbsp;&nbsp;&nbsp;
+        <strong>( {state.membershipType === "institutional" ? "X" : "  "} ) INSTITUTIONAL</strong> Membership
+      </div>
+
+      <div className="pf-box">
+        <div className="pf-row">
+          <div className="pf-col pf-flex-3">Name: <span className="pf-val">{state.fullName || "(Not Specified)"}</span></div>
+          <div className="pf-col pf-flex-1">Region: <span className="pf-val">{state.region || "(Not Specified)"}</span></div>
+        </div>
+        <div className="pf-row">
+          <div className="pf-col">Home Address: <span className="pf-val">{state.homeAddress || "(Not Specified)"}</span></div>
+        </div>
+        <div className="pf-row">
+          <div className="pf-col pf-flex-1">Tel No(s)./ Mobile No: <span className="pf-val">{state.phone || "(Not Specified)"}</span></div>
+          <div className="pf-col pf-flex-1">Email Address: <span className="pf-val">{state.email || "(Not Specified)"}</span></div>
+        </div>
+        <div className="pf-row">
+          <div className="pf-col">Where Employed: <span className="pf-val">{state.whereEmployed || "(Not Specified)"}</span></div>
+        </div>
+        <div className="pf-row">
+          <div className="pf-col">Business Address: <span className="pf-val">{state.businessAddress || "(Not Specified)"}</span></div>
+        </div>
+        <div className="pf-row">
+          <div className="pf-col pf-flex-1">Present Position: <span className="pf-val">{state.presentPosition || "(Not Specified)"}</span></div>
+          <div className="pf-col pf-flex-1">Degree Obtained: <span className="pf-val">{state.degreeObtained || "(Not Specified)"}</span></div>
+        </div>
+        <div className="pf-row">
+          <div className="pf-col pf-flex-1">Specialization: <span className="pf-val">{state.specialization || "(Not Specified)"}</span></div>
+          <div className="pf-col pf-flex-1">Institution: <span className="pf-val">{state.degreeInstitution || "(Not Specified)"}</span></div>
+          <div className="pf-col pf-flex-1">Year Obtained: <span className="pf-val">{state.yearObtained || "(Not Specified)"}</span></div>
+        </div>
+      </div>
+
+      <div className="pf-section-title">Academic/ Administrative Experiences (past five (5) years)</div>
+      <div className="pf-experience-block">
+        <div className="pf-row pf-no-border">
+          <div className="pf-col pf-flex-2">Teaching: <span className="pf-val">{state.teachingExp || "N/A"}</span></div>
+          <div className="pf-col pf-flex-2">Institution: <span className="pf-val">{state.teachingInst || "N/A"}</span></div>
+          <div className="pf-col pf-flex-1">(from: <span className="pf-val">{state.teachingFrom || "N/A"}</span> to: <span className="pf-val">{state.teachingTo || "N/A"}</span>)</div>
+        </div>
+        <div className="pf-row pf-no-border" style={{ marginTop: "6px" }}>
+          <div className="pf-col pf-flex-2">Administrative: <span className="pf-val">{state.adminExp || "N/A"}</span></div>
+          <div className="pf-col pf-flex-2">Institution: <span className="pf-val">{state.adminInst || "N/A"}</span></div>
+          <div className="pf-col pf-flex-1">(from: <span className="pf-val">{state.adminFrom || "N/A"}</span> to: <span className="pf-val">{state.adminTo || "N/A"}</span>)</div>
+        </div>
+      </div>
+
+      <div className="pf-section-title">Title of recent articles, researches, books written (past five (5) years)</div>
+      <div className="pf-publications">
+        <div className="pf-pub-line">1. <span className="pf-val">{state.pub1 || "N/A"}</span></div>
+        <div className="pf-pub-line">2. <span className="pf-val">{state.pub2 || "N/A"}</span></div>
+        <div className="pf-pub-line">3. <span className="pf-val">{state.pub3 || "N/A"}</span></div>
+        <div className="pf-pub-line">4. <span className="pf-val">{state.pub4 || "N/A"}</span></div>
+      </div>
+
+      <div className="pf-section-title">Membership/ officership in other recognized Professional/ Cultural Associations (past five (5) years)</div>
+      <div className="pf-associations">
+        <div className="pf-pub-line">1. <span className="pf-val">{state.assoc1 || "N/A"}</span></div>
+        <div className="pf-pub-line">2. <span className="pf-val">{state.assoc2 || "N/A"}</span></div>
+        <div className="pf-pub-line">3. <span className="pf-val">{state.assoc3 || "N/A"}</span></div>
+      </div>
+
+      <div className="pf-section-title">Two (2) references and their addresses one of whom is the current Regional Chapter Board Member</div>
+      <div className="pf-references">
+        <div className="pf-ref-col">
+          <div>1. Name: <span className="pf-val">{state.ref1Name || "(Not Specified)"}</span></div>
+          <div>Position: <span className="pf-val">{state.ref1Position || "(Not Specified)"}</span></div>
+          <div>Address: <span className="pf-val">{state.ref1Address || "(Not Specified)"}</span></div>
+        </div>
+        <div className="pf-ref-col">
+          <div>2. Name: <span className="pf-val">{state.ref2Name || "(Not Specified)"}</span></div>
+          <div>Position: <span className="pf-val">{state.ref2Position || "(Not Specified)"}</span></div>
+          <div>Address: <span className="pf-val">{state.ref2Address || "(Not Specified)"}</span></div>
+        </div>
+      </div>
+
+      <div className="pf-consent">
+        By signing this document, I agree that I have read the Privacy Policy, understood its contents and
+        consent to it. I also understand that my consent does not preclude the existence of other criteria for lawful
+        processing of personal data, such as our legitimate interests, and does not waive any of my rights under the
+        Data Privacy Act of 2012 and other applicable laws and regulations.
+      </div>
+
+      <div className="pf-signatures">
+        <div className="pf-sig-col">
+          <div style={{ fontSize: "10px", fontWeight: "bold" }}>Recommended by:</div>
+          <br /><br />
+          <div className="pf-sig-line"></div>
+          <div className="pf-sig-label">(Signature over Printed Name)</div>
+        </div>
+        <div className="pf-sig-col">
+          <br /><br />
+          <div className="pf-sig-line pf-center-text"><span style={{ fontFamily: "sans-serif", fontSize: "11px" }}>{state.fullName}</span></div>
+          <div className="pf-sig-label">(Signature of Applicant over Printed Name)</div>
+          <div className="pf-date-line">Date: <span className="pf-val">{new Date().toLocaleDateString()}</span></div>
+          <div className="pf-committee-label">PAGE REGIONAL CHAPTER MEMBERSHIP COMMITTEE</div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ── Mock Initializer ────────────────────────────────────────────────────────
 
@@ -62,6 +189,7 @@ const getMockStatus = (id: string): ApplicationStatus => {
 function TrackContent() {
   const searchParams = useSearchParams();
   const [scrolled, setScrolled] = useState(false);
+  const [formData, setFormData] = useState<ApplicationFormState | null>(null);
   
   const applicationId = searchParams.get("id") || "MOCK-2025-0042";
   const [status, setStatus] = useState<ApplicationStatus | null>(null);
@@ -74,6 +202,16 @@ function TrackContent() {
 
   useEffect(() => {
     setStatus(getMockStatus(applicationId));
+    
+    // Load submitted form data from localStorage to populate print layout
+    const saved = localStorage.getItem("page_membership_application_data");
+    if (saved) {
+      try {
+        setFormData(JSON.parse(saved));
+      } catch (err) {
+        console.error("Failed to parse saved application data:", err);
+      }
+    }
   }, [applicationId]);
 
   if (!status) return null;
@@ -120,7 +258,9 @@ function TrackContent() {
             </div>
             <div className="track-detail-item">
               <div className="track-detail-item__label">Category Applied</div>
-              <div className="track-detail-item__value">{status.membershipType}</div>
+              <div className="track-detail-item__value">{formData?.membershipType ? (
+                formData.membershipType.charAt(0).toUpperCase() + formData.membershipType.slice(1) + " Member"
+              ) : status.membershipType}</div>
             </div>
             <div className="track-detail-item">
               <div className="track-detail-item__label">Current Status</div>
@@ -166,14 +306,26 @@ function TrackContent() {
             <strong>Notification Update:</strong> You will be notified via email automatically when your application status is verified or if additional document attachments are required.
           </div>
 
-          {/* Bottom return CTA */}
+          {/* Bottom actions CTA */}
           <div className="track-btn-wrap">
+            {formData && (
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="track-download-btn"
+              >
+                <Download size={16} /> Download PDF Form
+              </button>
+            )}
             <Link href="/" className="track-home-btn">
               <Home size={16} /> Return to Homepage
             </Link>
           </div>
         </motion.div>
       </main>
+
+      {/* Hidden printable form content loaded from storage */}
+      {formData && <PrintableForm state={formData} />}
     </div>
   );
 }

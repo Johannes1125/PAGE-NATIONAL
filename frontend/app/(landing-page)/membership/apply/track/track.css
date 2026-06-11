@@ -220,6 +220,7 @@
 .track-btn-wrap {
   display: flex;
   justify-content: center;
+  gap: 16px;
 }
 
 .track-home-btn {
@@ -242,4 +243,60 @@
 .track-home-btn:hover {
   background-color: var(--track-blue);
   transform: translateY(-1px);
+}
+
+.track-download-btn {
+  background-color: var(--track-accent);
+  color: #ffffff;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(184, 134, 11, 0.15);
+}
+
+.track-download-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Hide printable form by default on tracking page screen view */
+.track-page .print-only-form {
+  display: none !important;
+}
+
+/* ── Print Media ───────────────────────────────────────── */
+@media print {
+  body { background: white !important; color: black !important; }
+
+  .navbar, nav, footer, .footer,
+  .track-page > .navbar,
+  .track-container {
+    display: none !important;
+  }
+
+  .track-page {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    min-height: 0 !important;
+  }
+
+  .track-page .print-only-form,
+  .print-only-form {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    border-radius: 0 !important;
+  }
 }

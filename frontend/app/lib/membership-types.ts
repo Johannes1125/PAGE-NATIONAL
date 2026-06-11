@@ -14,6 +14,44 @@ export interface ApplicationFormState {
   address: string;
   membershipType: 'life' | 'institutional' | 'associate' | 'regular' | null;
   documents: Record<string, File | null>;
+  
+  // Additional fields for print form alignment
+  region?: string;
+  homeAddress?: string;
+  whereEmployed?: string;
+  businessAddress?: string;
+  presentPosition?: string;
+  degreeObtained?: string;
+  specialization?: string;
+  degreeInstitution?: string;
+  yearObtained?: string;
+  
+  teachingExp?: string;
+  teachingInst?: string;
+  teachingFrom?: string;
+  teachingTo?: string;
+  
+  adminExp?: string;
+  adminInst?: string;
+  adminFrom?: string;
+  adminTo?: string;
+  
+  pub1?: string;
+  pub2?: string;
+  pub3?: string;
+  pub4?: string;
+  
+  assoc1?: string;
+  assoc2?: string;
+  assoc3?: string;
+  
+  ref1Name?: string;
+  ref1Position?: string;
+  ref1Address?: string;
+  
+  ref2Name?: string;
+  ref2Position?: string;
+  ref2Address?: string;
 }
 
 export interface ApplicationStatus {

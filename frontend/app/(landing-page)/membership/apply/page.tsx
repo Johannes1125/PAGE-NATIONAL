@@ -18,7 +18,12 @@ import {
   Trash2,
   CheckCircle,
   ArrowRight,
-  ArrowLeft
+  ArrowLeft,
+  Briefcase,
+  GraduationCap,
+  BookOpen,
+  ShieldCheck,
+  Download,
 } from "lucide-react";
 import Navbar from "../../components/Navbar";
 import { ApplicationFormState } from "../../../lib/membership-types";
@@ -26,7 +31,7 @@ import { submitMembershipApplication } from "../../../lib/membership-api";
 import { gooeyToast } from "goey-toast";
 import "./apply.css";
 
-// ── State Definition ────────────────────────────────────────────────────────
+/* ── State ─────────────────────────────────────────────────────────────────── */
 
 const initialFormState: ApplicationFormState = {
   fullName: "",
@@ -35,9 +40,37 @@ const initialFormState: ApplicationFormState = {
   institution: "",
   address: "",
   membershipType: null,
-  documents: {
-    // Stores selected documents as File objects dynamically
-  }
+  documents: {},
+  region: "",
+  homeAddress: "",
+  whereEmployed: "",
+  businessAddress: "",
+  presentPosition: "",
+  degreeObtained: "",
+  specialization: "",
+  degreeInstitution: "",
+  yearObtained: "",
+  teachingExp: "",
+  teachingInst: "",
+  teachingFrom: "",
+  teachingTo: "",
+  adminExp: "",
+  adminInst: "",
+  adminFrom: "",
+  adminTo: "",
+  pub1: "",
+  pub2: "",
+  pub3: "",
+  pub4: "",
+  assoc1: "",
+  assoc2: "",
+  assoc3: "",
+  ref1Name: "",
+  ref1Position: "",
+  ref1Address: "",
+  ref2Name: "",
+  ref2Position: "",
+  ref2Address: "",
 };
 
 type Action =
@@ -54,8 +87,8 @@ function formReducer(state: ApplicationFormState, action: Action): ApplicationFo
         ...state,
         documents: {
           ...state.documents,
-          [action.slotName]: action.file
-        }
+          [action.slotName]: action.file,
+        },
       };
     case "RESET_FORM":
       return initialFormState;
@@ -64,13 +97,14 @@ function formReducer(state: ApplicationFormState, action: Action): ApplicationFo
   }
 }
 
-// ── Constants & Helpers ──────────────────────────────────────────────────────
+/* ── Constants ─────────────────────────────────────────────────────────────── */
 
 const STEPS = [
-  { number: 1, label: "Personal Info" },
-  { number: 2, label: "Membership Type" },
-  { number: 3, label: "Documents" },
-  { number: 4, label: "Review & Submit" }
+  { number: 1, label: "Profile", icon: User },
+  { number: 2, label: "Education & Job", icon: GraduationCap },
+  { number: 3, label: "Experience", icon: Briefcase },
+  { number: 4, label: "References", icon: ShieldCheck },
+  { number: 5, label: "Review", icon: FileText },
 ];
 
 const CATEGORIES = [
@@ -80,7 +114,8 @@ const CATEGORIES = [
     desc: "Active PAGE member for 3+ years. Lifetime support.",
     fee: "₱10,000 (One-time)",
     icon: Users,
-    slots: ["Valid ID", "Proof of Membership History"]
+    slots: ["Valid ID", "Proof of Membership History"],
+    color: "#b8860b",
   },
   {
     id: "institutional",
@@ -88,7 +123,8 @@ const CATEGORIES = [
     desc: "For universities offering graduate courses.",
     fee: "₱5,000 / year",
     icon: Building2,
-    slots: ["DTI/SEC Certificate", "Letter of Intent"]
+    slots: ["DTI/SEC Certificate", "Letter of Intent"],
+    color: "#1a3c6e",
   },
   {
     id: "associate",
@@ -96,7 +132,8 @@ const CATEGORIES = [
     desc: "For graduate researchers and lecturers.",
     fee: "₱2,000 / year",
     icon: UserCheck,
-    slots: ["Valid ID", "Endorsement Letter"]
+    slots: ["Valid ID", "Endorsement Letter"],
+    color: "#2d62ae",
   },
   {
     id: "regular",
@@ -104,30 +141,156 @@ const CATEGORIES = [
     desc: "Active graduate deans, coordinators, and faculty.",
     fee: "₱1,500 / year",
     icon: UserPlus,
-    slots: ["Valid ID", "Proof of Affiliation"]
-  }
+    slots: ["Valid ID", "Proof of Affiliation"],
+    color: "#143152",
+  },
 ] as const;
 
-// ── Slide Transitions ────────────────────────────────────────────────────────
+/* ── Slide Transitions ─────────────────────────────────────────────────────── */
 
 const slideVariants = {
   enter: (dir: "forward" | "backward") => ({
-    x: dir === "forward" ? 100 : -100,
-    opacity: 0
+    x: dir === "forward" ? 60 : -60,
+    opacity: 0,
   }),
   center: {
     x: 0,
     opacity: 1,
-    transition: { x: { type: "spring" as const, stiffness: 350, damping: 35 }, opacity: { duration: 0.2 } }
+    transition: { x: { type: "spring" as const, stiffness: 400, damping: 30 }, opacity: { duration: 0.25 } },
   },
   exit: (dir: "forward" | "backward") => ({
-    x: dir === "forward" ? -100 : 100,
+    x: dir === "forward" ? -60 : 60,
     opacity: 0,
-    transition: { x: { type: "spring" as const, stiffness: 350, damping: 35 }, opacity: { duration: 0.15 } }
-  })
+    transition: { x: { type: "spring" as const, stiffness: 400, damping: 30 }, opacity: { duration: 0.15 } },
+  }),
 };
 
-// ── Page Component Content ──────────────────────────────────────────────────
+/* ── Printable Form ────────────────────────────────────────────────────────── */
+
+function PrintableForm({ state }: { state: ApplicationFormState }) {
+  return (
+    <div className="print-only-form">
+      <div className="pf-header">
+        <div className="pf-logo">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/PAGE.jpg" alt="PAGE Logo" />
+        </div>
+        <div className="pf-title-block">
+          <h2>PHILIPPINE ASSOCIATION FOR GRADUATE EDUCATION</h2>
+          <h3>(PAGE), Inc., Manila</h3>
+        </div>
+        <div className="pf-photo-box">
+          PASTE / STAPLE<br />YOUR 1x1<br />PICTURE HERE
+        </div>
+      </div>
+
+      <div className="pf-membership-type">
+        Application for &nbsp;&nbsp;&nbsp;&nbsp;
+        <strong>( {state.membershipType === "regular" ? "X" : "  "} ) REGULAR</strong> &nbsp;&nbsp;&nbsp;&nbsp;
+        <strong>( {state.membershipType === "life" ? "X" : "  "} ) LIFETIME</strong> &nbsp;&nbsp;&nbsp;&nbsp;
+        <strong>( {state.membershipType === "associate" ? "X" : "  "} ) ASSOCIATE</strong> &nbsp;&nbsp;&nbsp;&nbsp;
+        <strong>( {state.membershipType === "institutional" ? "X" : "  "} ) INSTITUTIONAL</strong> Membership
+      </div>
+
+      <div className="pf-box">
+        <div className="pf-row">
+          <div className="pf-col pf-flex-3">Name: <span className="pf-val">{state.fullName || "(Not Specified)"}</span></div>
+          <div className="pf-col pf-flex-1">Region: <span className="pf-val">{state.region || "(Not Specified)"}</span></div>
+        </div>
+        <div className="pf-row">
+          <div className="pf-col">Home Address: <span className="pf-val">{state.homeAddress || "(Not Specified)"}</span></div>
+        </div>
+        <div className="pf-row">
+          <div className="pf-col pf-flex-1">Tel No(s)./ Mobile No: <span className="pf-val">{state.phone || "(Not Specified)"}</span></div>
+          <div className="pf-col pf-flex-1">Email Address: <span className="pf-val">{state.email || "(Not Specified)"}</span></div>
+        </div>
+        <div className="pf-row">
+          <div className="pf-col">Where Employed: <span className="pf-val">{state.whereEmployed || "(Not Specified)"}</span></div>
+        </div>
+        <div className="pf-row">
+          <div className="pf-col">Business Address: <span className="pf-val">{state.businessAddress || "(Not Specified)"}</span></div>
+        </div>
+        <div className="pf-row">
+          <div className="pf-col pf-flex-1">Present Position: <span className="pf-val">{state.presentPosition || "(Not Specified)"}</span></div>
+          <div className="pf-col pf-flex-1">Degree Obtained: <span className="pf-val">{state.degreeObtained || "(Not Specified)"}</span></div>
+        </div>
+        <div className="pf-row">
+          <div className="pf-col pf-flex-1">Specialization: <span className="pf-val">{state.specialization || "(Not Specified)"}</span></div>
+          <div className="pf-col pf-flex-1">Institution: <span className="pf-val">{state.degreeInstitution || "(Not Specified)"}</span></div>
+          <div className="pf-col pf-flex-1">Year Obtained: <span className="pf-val">{state.yearObtained || "(Not Specified)"}</span></div>
+        </div>
+      </div>
+
+      <div className="pf-section-title">Academic/ Administrative Experiences (past five (5) years)</div>
+      <div className="pf-experience-block">
+        <div className="pf-row pf-no-border">
+          <div className="pf-col pf-flex-2">Teaching: <span className="pf-val">{state.teachingExp || "N/A"}</span></div>
+          <div className="pf-col pf-flex-2">Institution: <span className="pf-val">{state.teachingInst || "N/A"}</span></div>
+          <div className="pf-col pf-flex-1">(from: <span className="pf-val">{state.teachingFrom || "N/A"}</span> to: <span className="pf-val">{state.teachingTo || "N/A"}</span>)</div>
+        </div>
+        <div className="pf-row pf-no-border" style={{ marginTop: "6px" }}>
+          <div className="pf-col pf-flex-2">Administrative: <span className="pf-val">{state.adminExp || "N/A"}</span></div>
+          <div className="pf-col pf-flex-2">Institution: <span className="pf-val">{state.adminInst || "N/A"}</span></div>
+          <div className="pf-col pf-flex-1">(from: <span className="pf-val">{state.adminFrom || "N/A"}</span> to: <span className="pf-val">{state.adminTo || "N/A"}</span>)</div>
+        </div>
+      </div>
+
+      <div className="pf-section-title">Title of recent articles, researches, books written (past five (5) years)</div>
+      <div className="pf-publications">
+        <div className="pf-pub-line">1. <span className="pf-val">{state.pub1 || "N/A"}</span></div>
+        <div className="pf-pub-line">2. <span className="pf-val">{state.pub2 || "N/A"}</span></div>
+        <div className="pf-pub-line">3. <span className="pf-val">{state.pub3 || "N/A"}</span></div>
+        <div className="pf-pub-line">4. <span className="pf-val">{state.pub4 || "N/A"}</span></div>
+      </div>
+
+      <div className="pf-section-title">Membership/ officership in other recognized Professional/ Cultural Associations (past five (5) years)</div>
+      <div className="pf-associations">
+        <div className="pf-pub-line">1. <span className="pf-val">{state.assoc1 || "N/A"}</span></div>
+        <div className="pf-pub-line">2. <span className="pf-val">{state.assoc2 || "N/A"}</span></div>
+        <div className="pf-pub-line">3. <span className="pf-val">{state.assoc3 || "N/A"}</span></div>
+      </div>
+
+      <div className="pf-section-title">Two (2) references and their addresses one of whom is the current Regional Chapter Board Member</div>
+      <div className="pf-references">
+        <div className="pf-ref-col">
+          <div>1. Name: <span className="pf-val">{state.ref1Name || "(Not Specified)"}</span></div>
+          <div>Position: <span className="pf-val">{state.ref1Position || "(Not Specified)"}</span></div>
+          <div>Address: <span className="pf-val">{state.ref1Address || "(Not Specified)"}</span></div>
+        </div>
+        <div className="pf-ref-col">
+          <div>2. Name: <span className="pf-val">{state.ref2Name || "(Not Specified)"}</span></div>
+          <div>Position: <span className="pf-val">{state.ref2Position || "(Not Specified)"}</span></div>
+          <div>Address: <span className="pf-val">{state.ref2Address || "(Not Specified)"}</span></div>
+        </div>
+      </div>
+
+      <div className="pf-consent">
+        By signing this document, I agree that I have read the Privacy Policy, understood its contents and
+        consent to it. I also understand that my consent does not preclude the existence of other criteria for lawful
+        processing of personal data, such as our legitimate interests, and does not waive any of my rights under the
+        Data Privacy Act of 2012 and other applicable laws and regulations.
+      </div>
+
+      <div className="pf-signatures">
+        <div className="pf-sig-col">
+          <div style={{ fontSize: "10px", fontWeight: "bold" }}>Recommended by:</div>
+          <br /><br />
+          <div className="pf-sig-line"></div>
+          <div className="pf-sig-label">(Signature over Printed Name)</div>
+        </div>
+        <div className="pf-sig-col">
+          <br /><br />
+          <div className="pf-sig-line pf-center-text"><span style={{ fontFamily: "sans-serif", fontSize: "11px" }}>{state.fullName}</span></div>
+          <div className="pf-sig-label">(Signature of Applicant over Printed Name)</div>
+          <div className="pf-date-line">Date: <span className="pf-val">{new Date().toLocaleDateString()}</span></div>
+          <div className="pf-committee-label">PAGE REGIONAL CHAPTER MEMBERSHIP COMMITTEE</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Page Component ────────────────────────────────────────────────────────── */
 
 function ApplyContent() {
   const router = useRouter();
@@ -136,8 +299,8 @@ function ApplyContent() {
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const [scrolled, setScrolled] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [consentChecked, setConsentChecked] = useState(false);
 
-  // Field validation error states
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [fileErrors, setFileErrors] = useState<Record<string, string | null>>({});
   const [attemptedAdvance, setAttemptedAdvance] = useState<Record<number, boolean>>({});
@@ -148,174 +311,161 @@ function ApplyContent() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const selectedCategory = CATEGORIES.find(c => c.id === state.membershipType);
+  const selectedCategory = CATEGORIES.find((c) => c.id === state.membershipType);
   const requiredSlots = selectedCategory ? selectedCategory.slots : [];
 
-  // ── Validation Helpers ─────────────────────────────────────────────────────
+  /* ── Validation ──────────────────────────────────────────────────────────── */
 
   const validateStep = (stepNum: number): boolean => {
     const stepErrors: Record<string, string | null> = {};
     let isValid = true;
 
     if (stepNum === 1) {
-      if (!state.fullName.trim()) {
-        stepErrors.fullName = "Full Name is required.";
-        isValid = false;
-      }
-      if (!state.email.trim()) {
-        stepErrors.email = "Email is required.";
-        isValid = false;
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email)) {
-        stepErrors.email = "Invalid email address format.";
-        isValid = false;
-      }
-      if (!state.phone.trim()) {
-        stepErrors.phone = "Phone number is required.";
-        isValid = false;
-      } else if (!/^\d{10,11}$/.test(state.phone.trim())) {
-        stepErrors.phone = "Phone number must be numeric (10 to 11 digits).";
-        isValid = false;
-      }
-      if (!state.institution.trim()) {
-        stepErrors.institution = "University or Institution name is required.";
-        isValid = false;
-      }
-      if (!state.address.trim()) {
-        stepErrors.address = "Office or Home address is required.";
-        isValid = false;
-      }
+      if (!state.membershipType) { stepErrors.membershipType = "Please select a membership type."; isValid = false; }
+      if (!state.fullName.trim()) { stepErrors.fullName = "Full Name is required."; isValid = false; }
+      if (!state.region?.trim()) { stepErrors.region = "Region is required."; isValid = false; }
+      if (!state.homeAddress?.trim()) { stepErrors.homeAddress = "Home Address is required."; isValid = false; }
+      if (!state.phone.trim()) { stepErrors.phone = "Phone number is required."; isValid = false; }
+      else if (!/^\d{7,15}$/.test(state.phone.trim())) { stepErrors.phone = "Must be 7–15 digits (numbers only)."; isValid = false; }
+      if (!state.email.trim()) { stepErrors.email = "Email is required."; isValid = false; }
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email)) { stepErrors.email = "Invalid email format."; isValid = false; }
     }
 
     if (stepNum === 2) {
-      if (!state.membershipType) {
-        stepErrors.membershipType = "You must choose a membership category.";
-        isValid = false;
-      }
+      if (!state.whereEmployed?.trim()) { stepErrors.whereEmployed = "Institution/employer is required."; isValid = false; }
+      if (!state.businessAddress?.trim()) { stepErrors.businessAddress = "Business Address is required."; isValid = false; }
+      if (!state.presentPosition?.trim()) { stepErrors.presentPosition = "Present Position is required."; isValid = false; }
+      if (!state.degreeObtained?.trim()) { stepErrors.degreeObtained = "Degree is required."; isValid = false; }
+      if (!state.specialization?.trim()) { stepErrors.specialization = "Specialization is required."; isValid = false; }
+      if (!state.degreeInstitution?.trim()) { stepErrors.degreeInstitution = "Institution is required."; isValid = false; }
+      if (!state.yearObtained?.trim()) { stepErrors.yearObtained = "Year is required."; isValid = false; }
+      else if (!/^\d{4}$/.test(state.yearObtained.trim())) { stepErrors.yearObtained = "Must be a 4-digit year."; isValid = false; }
     }
 
     if (stepNum === 3) {
-      if (!selectedCategory) {
-        stepErrors.membershipType = "No membership type selected.";
-        isValid = false;
-      } else {
-        requiredSlots.forEach(slot => {
-          if (!state.documents[slot]) {
-            stepErrors[slot] = `${slot} is required for this category.`;
-            isValid = false;
-          }
+      if (state.teachingFrom?.trim() && !/^\d{4}$/.test(state.teachingFrom.trim())) { stepErrors.teachingFrom = "Must be a 4-digit year."; isValid = false; }
+      if (state.teachingTo?.trim() && !/^\d{4}$/.test(state.teachingTo.trim())) { stepErrors.teachingTo = "Must be a 4-digit year."; isValid = false; }
+      if (state.adminFrom?.trim() && !/^\d{4}$/.test(state.adminFrom.trim())) { stepErrors.adminFrom = "Must be a 4-digit year."; isValid = false; }
+      if (state.adminTo?.trim() && !/^\d{4}$/.test(state.adminTo.trim())) { stepErrors.adminTo = "Must be a 4-digit year."; isValid = false; }
+      isValid = !stepErrors.teachingFrom && !stepErrors.teachingTo && !stepErrors.adminFrom && !stepErrors.adminTo;
+    }
+
+    if (stepNum === 4) {
+      if (!state.ref1Name?.trim()) { stepErrors.ref1Name = "Required."; isValid = false; }
+      if (!state.ref1Position?.trim()) { stepErrors.ref1Position = "Required."; isValid = false; }
+      if (!state.ref1Address?.trim()) { stepErrors.ref1Address = "Required."; isValid = false; }
+      if (!state.ref2Name?.trim()) { stepErrors.ref2Name = "Required."; isValid = false; }
+      if (!state.ref2Position?.trim()) { stepErrors.ref2Position = "Required."; isValid = false; }
+      if (!state.ref2Address?.trim()) { stepErrors.ref2Address = "Required."; isValid = false; }
+
+      if (selectedCategory) {
+        requiredSlots.forEach((slot) => {
+          if (!state.documents[slot]) { stepErrors[slot] = `${slot} is required.`; isValid = false; }
         });
       }
+
+      if (!consentChecked) { stepErrors.consent = "You must agree to the Privacy Policy."; isValid = false; }
     }
 
     setErrors(stepErrors);
     return isValid;
   };
 
-  // ── Navigation Control ─────────────────────────────────────────────────────
+  /* ── Navigation ──────────────────────────────────────────────────────────── */
 
   const handleNext = () => {
-    setAttemptedAdvance(prev => ({ ...prev, [currentStep]: true }));
+    setAttemptedAdvance((prev) => ({ ...prev, [currentStep]: true }));
     if (validateStep(currentStep)) {
       setDirection("forward");
-      setCurrentStep(prev => prev + 1);
+      setCurrentStep((prev) => prev + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
-      gooeyToast.error("Please fill in all required fields correctly.");
+      // Count errors for a more helpful message
+      const errorCount = Object.values(errors).filter(Boolean).length;
+      if (errorCount > 0) {
+        gooeyToast.error(`Please complete ${errorCount} required field${errorCount > 1 ? "s" : ""} before continuing.`);
+      } else {
+        gooeyToast.error("Please fill in all required fields.");
+      }
     }
   };
 
   const handleBack = () => {
     setDirection("backward");
-    setCurrentStep(prev => prev - 1);
+    setCurrentStep((prev) => prev - 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleStepClick = (targetStep: number) => {
     if (targetStep === currentStep) return;
     if (targetStep < currentStep) {
-      // Navigating backward is always allowed
       setDirection("backward");
       setCurrentStep(targetStep);
     } else {
-      // Navigating forward requires validating intermediate steps
+      // Only allow forward skipping if all intermediate steps pass
       let canAdvance = true;
+      let failedStep = currentStep;
       for (let s = currentStep; s < targetStep; s++) {
-        setAttemptedAdvance(prev => ({ ...prev, [s]: true }));
-        if (!validateStep(s)) {
-          canAdvance = false;
-          break;
-        }
+        setAttemptedAdvance((prev) => ({ ...prev, [s]: true }));
+        if (!validateStep(s)) { canAdvance = false; failedStep = s; break; }
       }
       if (canAdvance) {
         setDirection("forward");
         setCurrentStep(targetStep);
       } else {
-        gooeyToast.error("Please resolve errors on current step first.");
+        gooeyToast.error(`Please complete Step ${failedStep} before proceeding.`);
       }
     }
   };
 
-  // ── Document Upload Event Handlers ─────────────────────────────────────────
+  /* ── File Handling ───────────────────────────────────────────────────────── */
 
   const handleFileChange = (slotName: string, file: File | null) => {
     if (!file) {
       dispatch({ type: "SET_DOCUMENT", slotName, file: null });
-      setFileErrors(prev => ({ ...prev, [slotName]: null }));
+      setFileErrors((prev) => ({ ...prev, [slotName]: null }));
       return;
     }
 
-    // Validate type (.pdf, .jpg, .jpeg, .png only)
     const validTypes = ["application/pdf", "image/jpeg", "image/jpg", "image/png"];
     const ext = file.name.split(".").pop()?.toLowerCase();
     const validExts = ["pdf", "jpg", "jpeg", "png"];
 
     if (!validTypes.includes(file.type) && !validExts.includes(ext || "")) {
-      setFileErrors(prev => ({
-        ...prev,
-        [slotName]: "Invalid file type. Only PDF, JPG, JPEG, and PNG are allowed."
-      }));
-      gooeyToast.error("Invalid file format. Upload .pdf or .jpg/.png images.");
+      setFileErrors((prev) => ({ ...prev, [slotName]: "Only PDF, JPG, JPEG, PNG allowed." }));
+      gooeyToast.error("Invalid file format.");
       return;
     }
 
-    // Validate size (Max 5MB)
     const maxBytes = 5 * 1024 * 1024;
     if (file.size > maxBytes) {
-      setFileErrors(prev => ({
-        ...prev,
-        [slotName]: "File size exceeds 5MB limit."
-      }));
-      gooeyToast.error("File is too large. Maximum size is 5MB.");
+      setFileErrors((prev) => ({ ...prev, [slotName]: "File exceeds 5MB limit." }));
+      gooeyToast.error("File is too large. Max 5MB.");
       return;
     }
 
-    // Success -> Store document & clear error
-    setFileErrors(prev => ({ ...prev, [slotName]: null }));
+    setFileErrors((prev) => ({ ...prev, [slotName]: null }));
     dispatch({ type: "SET_DOCUMENT", slotName, file });
-    
-    // Clear validation error if any
-    if (errors[slotName]) {
-      setErrors(prev => ({ ...prev, [slotName]: null }));
-    }
+    if (errors[slotName]) { setErrors((prev) => ({ ...prev, [slotName]: null })); }
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
-
+  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); };
   const handleDrop = (e: React.DragEvent, slotName: string) => {
     e.preventDefault();
-    const file = e.dataTransfer.files?.[0] || null;
-    handleFileChange(slotName, file);
+    handleFileChange(slotName, e.dataTransfer.files?.[0] || null);
   };
 
-  // ── Final Submission ───────────────────────────────────────────────────────
+  /* ── Submit ──────────────────────────────────────────────────────────────── */
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
-
     setIsSubmitting(true);
     try {
       const result = await submitMembershipApplication(state);
+      // Save form data to localStorage (excluding File objects) so it can be printed/downloaded on the track page
+      const dataToSave = { ...state, documents: {} };
+      localStorage.setItem("page_membership_application_data", JSON.stringify(dataToSave));
       gooeyToast.success("Application submitted! You'll receive a confirmation email shortly.");
       router.push(`/membership/apply/track?id=${result.id}`);
     } catch (err) {
@@ -326,7 +476,6 @@ function ApplyContent() {
     }
   };
 
-  // Formatter for file sizes
   const formatBytes = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -335,45 +484,127 @@ function ApplyContent() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
+  const triggerDownloadPrint = () => { window.print(); };
+
+  const setField = (field: keyof Omit<ApplicationFormState, "documents">, value: string) => {
+    dispatch({ type: "SET_FIELD", field, value });
+    if (errors[field]) setErrors((p) => ({ ...p, [field]: null }));
+  };
+
+  const progress = ((currentStep - 1) / (STEPS.length - 1)) * 100;
+
+  /* ── Render Helpers ──────────────────────────────────────────────────────── */
+
+  const renderInput = (
+    id: string,
+    label: string,
+    placeholder: string,
+    value: string,
+    field: keyof Omit<ApplicationFormState, "documents">,
+    opts?: { type?: string; required?: boolean; syncField?: keyof Omit<ApplicationFormState, "documents"> }
+  ) => {
+    const error = errors[field];
+    return (
+      <div className="af-field">
+        {label && (
+          <label htmlFor={id} className="af-label">
+            {label} {opts?.required && <span className="af-req">*</span>}
+          </label>
+        )}
+        <input
+          type={opts?.type || "text"}
+          id={id}
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => {
+            let val = e.target.value;
+            const digitOnlyFields = ["phone", "yearObtained", "teachingFrom", "teachingTo", "adminFrom", "adminTo"];
+            if (digitOnlyFields.includes(field)) {
+              val = val.replace(/\D/g, "");
+            }
+            setField(field, val);
+            if (opts?.syncField) dispatch({ type: "SET_FIELD", field: opts.syncField, value: val });
+          }}
+          className={`af-input ${error ? "af-input--error" : ""}`}
+        />
+        {error && (
+          <motion.span
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="af-error"
+          >
+            {error}
+          </motion.span>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="apply-page">
       <Navbar scrolled={scrolled} />
 
-      <main className="apply-container">
-        <h1 className="apply-title">Membership Application</h1>
-        <p className="apply-subtitle">
-          Complete the 4-step registration form to apply for PAGE membership.
-        </p>
+      {/* ── Hero ──────────────────────────────────────────────────────── */}
+      <div className="af-hero screen-only">
+        <div className="af-hero__pattern" />
+        <motion.div
+          className="af-hero__content"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="af-hero__breadcrumbs">
+            <Link href="/" className="af-hero__crumb-link">Home</Link>
+            <span className="af-hero__crumb-sep">›</span>
+            <Link href="/membership" className="af-hero__crumb-link">Membership</Link>
+            <span className="af-hero__crumb-sep">›</span>
+            <span className="af-hero__crumb-current">Apply</span>
+          </div>
+          <h1 className="af-hero__title">Membership Application</h1>
+          <p className="af-hero__subtitle">
+            Complete the 5-step form below to apply for PAGE membership.
+          </p>
+        </motion.div>
+      </div>
 
-        <div className="apply-card">
-          {/* Stepper Header */}
-          <nav className="apply-stepper" aria-label="Registration steps">
+      {/* ── Main ──────────────────────────────────────────────────────── */}
+      <main className="af-main screen-only-wrapper">
+
+        {/* ── Stepper Card ─────────────────────────────────────────── */}
+        <div className="af-stepper-card screen-only">
+          <div className="af-progress-track">
+            <motion.div
+              className="af-progress-fill"
+              initial={false}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.45, ease: [0.32, 0.72, 0, 1] }}
+            />
+          </div>
+          <nav className="af-stepper" aria-label="Registration steps">
             {STEPS.map((step) => {
               const isActive = step.number === currentStep;
               const isCompleted = step.number < currentStep;
-              
-              let classes = "apply-step-node";
-              if (isCompleted) classes += " apply-step-node--completed";
-              if (isActive) classes += " apply-step-node--active";
-
+              const StepIcon = step.icon;
               return (
                 <button
                   key={step.number}
                   type="button"
-                  className={classes}
+                  className={`af-step ${isCompleted ? "af-step--done" : ""} ${isActive ? "af-step--active" : ""}`}
                   onClick={() => handleStepClick(step.number)}
                   aria-current={isActive ? "step" : undefined}
                 >
-                  <span className="apply-step-circle">
-                    {isCompleted ? <CheckCircle size={18} strokeWidth={2.5} style={{ color: "#ffffff" }} /> : step.number}
+                  <span className="af-step__circle">
+                    {isCompleted ? <CheckCircle size={16} strokeWidth={2.5} /> : <StepIcon size={16} />}
                   </span>
-                  <span className="apply-step-label">{step.label}</span>
+                  <span className="af-step__label">{step.label}</span>
                 </button>
               );
             })}
           </nav>
+        </div>
 
-          {/* Steps Display with Slide Animations */}
+        {/* ── Form Card ────────────────────────────────────────────── */}
+        <div className="af-card">
           <form onSubmit={handleSubmit}>
             <AnimatePresence mode="wait" initial={false} custom={direction}>
               <motion.div
@@ -384,337 +615,329 @@ function ApplyContent() {
                 animate="center"
                 exit="exit"
               >
-                {/* STEP 1: Personal Info */}
+                {/* ═══ STEP 1 ═══════════════════════════════════════ */}
                 {currentStep === 1 && (
-                  <div style={{ display: 'grid', gap: '4px' }}>
-                    <h2 style={{ fontFamily: 'var(--apply-serif)', fontSize: '20px', color: 'var(--apply-navy)', fontWeight: 700, marginBottom: '24px' }}>
-                      Step 1: Personal &amp; Institutional Details
-                    </h2>
-
-                    <div className="apply-form-group">
-                      <label htmlFor="fullName" className="apply-label">Full Name <span>*</span></label>
-                      <input
-                        type="text"
-                        id="fullName"
-                        className={`apply-input ${errors.fullName ? "apply-input--error" : ""}`}
-                        placeholder="Dr. Jane Doe"
-                        value={state.fullName}
-                        onChange={(e) => {
-                          dispatch({ type: "SET_FIELD", field: "fullName", value: e.target.value });
-                          if (errors.fullName) setErrors(p => ({ ...p, fullName: null }));
-                        }}
-                      />
-                      {errors.fullName && <span className="apply-input-error-text">{errors.fullName}</span>}
+                  <div>
+                    <div className="af-section-header">
+                      <div className="af-section-icon"><User size={18} /></div>
+                      <div>
+                        <h2 className="af-section-title">Membership Type & Profile</h2>
+                        <p className="af-section-desc">Select your membership type and enter your personal details.</p>
+                      </div>
                     </div>
 
-                    <div className="apply-form-group">
-                      <label htmlFor="email" className="apply-label">Email Address <span>*</span></label>
-                      <input
-                        type="email"
-                        id="email"
-                        className={`apply-input ${errors.email ? "apply-input--error" : ""}`}
-                        placeholder="jane.doe@university.edu.ph"
-                        value={state.email}
-                        onChange={(e) => {
-                          dispatch({ type: "SET_FIELD", field: "email", value: e.target.value });
-                          if (errors.email) setErrors(p => ({ ...p, email: null }));
-                        }}
-                      />
-                      {errors.email && <span className="apply-input-error-text">{errors.email}</span>}
+                    {/* Category Grid */}
+                    <div className="af-field">
+                      <label className="af-label">Membership Category <span className="af-req">*</span></label>
+                      {errors.membershipType && (
+                        <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="af-error">
+                          {errors.membershipType}
+                        </motion.span>
+                      )}
+                      <div className="af-category-grid">
+                        {CATEGORIES.map((cat) => {
+                          const Icon = cat.icon;
+                          const isSelected = state.membershipType === cat.id;
+                          return (
+                            <motion.div
+                              key={cat.id}
+                              role="radio"
+                              aria-checked={isSelected}
+                              tabIndex={0}
+                              className={`af-category ${isSelected ? "af-category--selected" : ""}`}
+                              style={{ "--cat-color": cat.color } as React.CSSProperties}
+                              whileHover={{ y: -2 }}
+                              whileTap={{ scale: 0.98 }}
+                              onClick={() => {
+                                dispatch({ type: "SET_FIELD", field: "membershipType", value: cat.id });
+                                if (errors.membershipType) setErrors((p) => ({ ...p, membershipType: null }));
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.preventDefault();
+                                  dispatch({ type: "SET_FIELD", field: "membershipType", value: cat.id });
+                                  if (errors.membershipType) setErrors((p) => ({ ...p, membershipType: null }));
+                                }
+                              }}
+                            >
+                              {isSelected && (
+                                <motion.span
+                                  className="af-category__check"
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                >
+                                  <CheckCircle size={14} />
+                                </motion.span>
+                              )}
+                              <span className="af-category__icon"><Icon size={18} /></span>
+                              <span className="af-category__body">
+                                <span className="af-category__name">{cat.name}</span>
+                                <span className="af-category__desc">{cat.desc}</span>
+                              </span>
+                              <span className="af-category__fee">{cat.fee}</span>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
                     </div>
 
-                    <div className="apply-form-group">
-                      <label htmlFor="phone" className="apply-label">Mobile Number <span>*</span></label>
-                      <input
-                        type="tel"
-                        id="phone"
-                        className={`apply-input ${errors.phone ? "apply-input--error" : ""}`}
-                        placeholder="09171234567"
-                        value={state.phone}
-                        onChange={(e) => {
-                          dispatch({ type: "SET_FIELD", field: "phone", value: e.target.value });
-                          if (errors.phone) setErrors(p => ({ ...p, phone: null }));
-                        }}
-                      />
-                      {errors.phone && <span className="apply-input-error-text">{errors.phone}</span>}
+                    {/* Profile Fields */}
+                    <div className="af-row af-row--3-1">
+                      {renderInput("fullName", "Full Name", "Dr. Jane Doe", state.fullName, "fullName", { required: true })}
+                      {renderInput("region", "Region", "NCR", state.region || "", "region", { required: true })}
                     </div>
-
-                    <div className="apply-form-group">
-                      <label htmlFor="institution" className="apply-label">University / Institution <span>*</span></label>
-                      <input
-                        type="text"
-                        id="institution"
-                        className={`apply-input ${errors.institution ? "apply-input--error" : ""}`}
-                        placeholder="State University of the Philippines"
-                        value={state.institution}
-                        onChange={(e) => {
-                          dispatch({ type: "SET_FIELD", field: "institution", value: e.target.value });
-                          if (errors.institution) setErrors(p => ({ ...p, institution: null }));
-                        }}
-                      />
-                      {errors.institution && <span className="apply-input-error-text">{errors.institution}</span>}
-                    </div>
-
-                    <div className="apply-form-group">
-                      <label htmlFor="address" className="apply-label">Mailing Address <span>*</span></label>
-                      <input
-                        type="text"
-                        id="address"
-                        className={`apply-input ${errors.address ? "apply-input--error" : ""}`}
-                        placeholder="123 Academic St, Diliman, Quezon City, Metro Manila"
-                        value={state.address}
-                        onChange={(e) => {
-                          dispatch({ type: "SET_FIELD", field: "address", value: e.target.value });
-                          if (errors.address) setErrors(p => ({ ...p, address: null }));
-                        }}
-                      />
-                      {errors.address && <span className="apply-input-error-text">{errors.address}</span>}
+                    {renderInput("homeAddress", "Home Address", "123 Cozy Lane, Quezon City", state.homeAddress || "", "homeAddress", { required: true })}
+                    <div className="af-row af-row--1-1">
+                      {renderInput("phone", "Mobile / Tel No", "09171234567", state.phone, "phone", { type: "tel", required: true })}
+                      {renderInput("email", "Email Address", "jane.doe@university.edu.ph", state.email, "email", { type: "email", required: true })}
                     </div>
                   </div>
                 )}
 
-                {/* STEP 2: Membership Type */}
+                {/* ═══ STEP 2 ═══════════════════════════════════════ */}
                 {currentStep === 2 && (
                   <div>
-                    <h2 style={{ fontFamily: 'var(--apply-serif)', fontSize: '20px', color: 'var(--apply-navy)', fontWeight: 700, marginBottom: '20px' }}>
-                      Step 2: Choose Classification
-                    </h2>
-
-                    {errors.membershipType && (
-                      <div style={{ color: 'var(--apply-error)', background: '#fff1f1', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '13px', fontWeight: 600 }}>
-                        {errors.membershipType}
+                    <div className="af-section-header">
+                      <div className="af-section-icon"><GraduationCap size={18} /></div>
+                      <div>
+                        <h2 className="af-section-title">Employment & Education</h2>
+                        <p className="af-section-desc">Provide your professional and academic background.</p>
                       </div>
-                    )}
+                    </div>
 
-                    <div className="apply-category-grid" role="radiogroup" aria-label="Membership categories">
-                      {CATEGORIES.map((cat) => {
-                        const Icon = cat.icon;
-                        const isSelected = state.membershipType === cat.id;
-
-                        return (
-                          <div
-                            key={cat.id}
-                            role="radio"
-                            aria-checked={isSelected}
-                            tabIndex={0}
-                            className={`apply-category-radio ${isSelected ? "apply-category-radio--selected" : ""}`}
-                            onClick={() => {
-                              dispatch({ type: "SET_FIELD", field: "membershipType", value: cat.id });
-                              if (errors.membershipType) setErrors(p => ({ ...p, membershipType: null }));
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" || e.key === " ") {
-                                e.preventDefault();
-                                dispatch({ type: "SET_FIELD", field: "membershipType", value: cat.id });
-                                if (errors.membershipType) setErrors(p => ({ ...p, membershipType: null }));
-                              }
-                            }}
-                          >
-                            <div className="apply-category-radio__left">
-                              <div className="apply-category-radio__icon">
-                                <Icon size={24} />
-                              </div>
-                              <div>
-                                <div className="apply-category-radio__title">{cat.name}</div>
-                                <div className="apply-category-radio__desc">{cat.desc}</div>
-                              </div>
-                            </div>
-                            <div className="apply-category-radio__fee">
-                              {cat.fee}
-                            </div>
-                          </div>
-                        );
-                      })}
+                    {renderInput("whereEmployed", "Where Employed (Institution/School)", "State University of Manila", state.whereEmployed || "", "whereEmployed", { required: true, syncField: "institution" })}
+                    {renderInput("businessAddress", "Business/Office Address", "456 Campus Ave, Manila", state.businessAddress || "", "businessAddress", { required: true, syncField: "address" })}
+                    <div className="af-row af-row--1-1">
+                      {renderInput("presentPosition", "Present Position/Title", "Dean of Graduate Studies", state.presentPosition || "", "presentPosition", { required: true })}
+                      {renderInput("degreeObtained", "Highest Degree Obtained", "PhD in Education", state.degreeObtained || "", "degreeObtained", { required: true })}
+                    </div>
+                    <div className="af-row af-row--2-2-1">
+                      {renderInput("specialization", "Specialization", "Educational Leadership", state.specialization || "", "specialization", { required: true })}
+                      {renderInput("degreeInstitution", "School / Institution", "University of the Philippines", state.degreeInstitution || "", "degreeInstitution", { required: true })}
+                      {renderInput("yearObtained", "Year", "2018", state.yearObtained || "", "yearObtained", { required: true })}
                     </div>
                   </div>
                 )}
 
-                {/* STEP 3: Documents */}
+                {/* ═══ STEP 3 ═══════════════════════════════════════ */}
                 {currentStep === 3 && (
                   <div>
-                    <h2 style={{ fontFamily: 'var(--apply-serif)', fontSize: '20px', color: 'var(--apply-navy)', fontWeight: 700, marginBottom: '8px' }}>
-                      Step 3: Document Uploads
-                    </h2>
-                    <p style={{ fontSize: '13px', color: 'var(--apply-text-muted)', marginBottom: '24px' }}>
-                      Selected Category: <strong style={{ color: 'var(--apply-navy)' }}>{selectedCategory?.name}</strong>. Please upload the required documents.
-                    </p>
+                    <div className="af-section-header">
+                      <div className="af-section-icon"><Briefcase size={18} /></div>
+                      <div>
+                        <h2 className="af-section-title">Experience & Research</h2>
+                        <p className="af-section-desc">Optional — list experiences within the past 5 years.</p>
+                      </div>
+                    </div>
 
-                    <div className="apply-upload-slots">
-                      {requiredSlots.map((slot) => {
-                        const file = state.documents[slot];
-                        const err = fileErrors[slot] || errors[slot];
+                    <div className="af-subsection">
+                      <div className="af-subsection__header"><BookOpen size={14} /><span>Teaching Experience</span><div className="af-subsection__line" /></div>
+                      <div className="af-row af-row--2-2-1-1">
+                        {renderInput("teachingExp", "Role / Course", "Teaching Role", state.teachingExp || "", "teachingExp")}
+                        {renderInput("teachingInst", "Institution", "Institution", state.teachingInst || "", "teachingInst")}
+                        {renderInput("teachingFrom", "From", "2019", state.teachingFrom || "", "teachingFrom")}
+                        {renderInput("teachingTo", "To", "2024", state.teachingTo || "", "teachingTo")}
+                      </div>
+                    </div>
 
-                        return (
-                          <div key={slot} className="apply-form-group">
-                            <label className="apply-label">{slot} <span>*</span></label>
-                            
-                            <div
-                              className={`apply-upload-slot ${file ? "apply-upload-slot--success" : ""} ${err ? "apply-upload-slot--error" : ""}`}
-                              onDragOver={handleDragOver}
-                              onDrop={(e) => handleDrop(e, slot)}
-                              onClick={() => document.getElementById(`file-${slot}`)?.click()}
-                            >
-                              <input
-                                type="file"
-                                id={`file-${slot}`}
-                                accept=".pdf,.jpg,.jpeg,.png"
-                                style={{ display: "none" }}
-                                onChange={(e) => {
-                                  const f = e.target.files?.[0] || null;
-                                  handleFileChange(slot, f);
-                                }}
-                              />
-                              
-                              <Upload size={28} className="apply-upload-icon" />
-                              <div className="apply-upload-text">
-                                {file ? "Replace File" : "Drag & Drop or Click to Upload"}
-                              </div>
-                              <div className="apply-upload-subtext">
-                                Supports PDF, JPG, JPEG, or PNG formats up to 5MB
-                              </div>
+                    <div className="af-subsection">
+                      <div className="af-subsection__header"><Briefcase size={14} /><span>Administrative Experience</span><div className="af-subsection__line" /></div>
+                      <div className="af-row af-row--2-2-1-1">
+                        {renderInput("adminExp", "Role", "Administrative Role", state.adminExp || "", "adminExp")}
+                        {renderInput("adminInst", "Institution", "Institution", state.adminInst || "", "adminInst")}
+                        {renderInput("adminFrom", "From", "2019", state.adminFrom || "", "adminFrom")}
+                        {renderInput("adminTo", "To", "2024", state.adminTo || "", "adminTo")}
+                      </div>
+                    </div>
 
-                              {file && (
-                                <div
-                                  className="apply-uploaded-file"
-                                  onClick={(e) => e.stopPropagation()} // Prevent triggering file selection dialog
-                                >
-                                  <div className="apply-uploaded-file__info">
-                                    <FileText size={16} style={{ color: "var(--apply-blue)" }} />
-                                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                      {file.name}
-                                      <span className="apply-uploaded-file__size"> ({formatBytes(file.size)})</span>
-                                    </span>
-                                  </div>
-                                  <button
-                                    type="button"
-                                    className="apply-uploaded-file__clear"
-                                    onClick={() => handleFileChange(slot, null)}
-                                    aria-label="Remove file"
-                                  >
-                                    <Trash2 size={14} />
-                                  </button>
-                                </div>
-                              )}
-                            </div>
+                    <div className="af-subsection">
+                      <div className="af-subsection__header"><BookOpen size={14} /><span>Publications & Research</span><div className="af-subsection__line" /></div>
+                      <div className="af-stack">
+                        {renderInput("pub1", "", "Research / Book Title 1", state.pub1 || "", "pub1")}
+                        {renderInput("pub2", "", "Research / Book Title 2", state.pub2 || "", "pub2")}
+                        {renderInput("pub3", "", "Research / Book Title 3", state.pub3 || "", "pub3")}
+                        {renderInput("pub4", "", "Research / Book Title 4", state.pub4 || "", "pub4")}
+                      </div>
+                    </div>
 
-                            {err && <span className="apply-input-error-text">{err}</span>}
-                          </div>
-                        );
-                      })}
+                    <div className="af-subsection">
+                      <div className="af-subsection__header"><Users size={14} /><span>Other Professional Associations</span><div className="af-subsection__line" /></div>
+                      <div className="af-stack">
+                        {renderInput("assoc1", "", "Association & Role 1", state.assoc1 || "", "assoc1")}
+                        {renderInput("assoc2", "", "Association & Role 2", state.assoc2 || "", "assoc2")}
+                        {renderInput("assoc3", "", "Association & Role 3", state.assoc3 || "", "assoc3")}
+                      </div>
                     </div>
                   </div>
                 )}
 
-                {/* STEP 4: Review Summary */}
+                {/* ═══ STEP 4 ═══════════════════════════════════════ */}
                 {currentStep === 4 && (
                   <div>
-                    <h2 style={{ fontFamily: 'var(--apply-serif)', fontSize: '20px', color: 'var(--apply-navy)', fontWeight: 700, marginBottom: '24px' }}>
-                      Step 4: Review Your Credentials
-                    </h2>
-
-                    <div style={{ background: '#f8fafc', padding: '24px', borderRadius: '12px', border: '1px solid var(--apply-border)' }}>
-                      {/* Personal Info */}
-                      <div className="apply-summary-section">
-                        <div className="apply-summary-section__title">Personal Details</div>
-                        <div className="apply-summary-grid">
-                          <div className="apply-summary-item">
-                            <div className="apply-summary-item__label">Full Name</div>
-                            <div className="apply-summary-item__value">{state.fullName}</div>
-                          </div>
-                          <div className="apply-summary-item">
-                            <div className="apply-summary-item__label">Email Address</div>
-                            <div className="apply-summary-item__value">{state.email}</div>
-                          </div>
-                          <div className="apply-summary-item">
-                            <div className="apply-summary-item__label">Mobile Number</div>
-                            <div className="apply-summary-item__value">{state.phone}</div>
-                          </div>
-                          <div className="apply-summary-item">
-                            <div className="apply-summary-item__label">University / Institution</div>
-                            <div className="apply-summary-item__value">{state.institution}</div>
-                          </div>
-                          <div className="apply-summary-item" style={{ gridColumn: '1 / -1' }}>
-                            <div className="apply-summary-item__label">Mailing Address</div>
-                            <div className="apply-summary-item__value">{state.address}</div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Membership Type */}
-                      <div className="apply-summary-section">
-                        <div className="apply-summary-section__title">Membership Selection</div>
-                        <div className="apply-summary-grid">
-                          <div className="apply-summary-item">
-                            <div className="apply-summary-item__label">Classification</div>
-                            <div className="apply-summary-item__value">{selectedCategory?.name}</div>
-                          </div>
-                          <div className="apply-summary-item">
-                            <div className="apply-summary-item__label">Amount Due</div>
-                            <div className="apply-summary-item__value" style={{ color: 'var(--apply-accent)', fontWeight: 800 }}>
-                              {selectedCategory?.fee}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Documents */}
-                      <div className="apply-summary-section">
-                        <div className="apply-summary-section__title">Submitted Documents</div>
-                        <div className="apply-summary-documents">
-                          {requiredSlots.map(slot => {
-                            const file = state.documents[slot];
-                            return (
-                              <div key={slot} className="apply-summary-doc-card">
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                  <FileText size={16} style={{ color: 'var(--apply-blue)' }} />
-                                  <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--apply-navy)' }}>{slot}</span>
-                                </div>
-                                <span style={{ fontSize: '13px', color: 'var(--apply-text-muted)' }}>
-                                  {file ? `${file.name} (${formatBytes(file.size)})` : "No file selected"}
-                                </span>
-                              </div>
-                            );
-                          })}
-                        </div>
+                    <div className="af-section-header">
+                      <div className="af-section-icon"><ShieldCheck size={18} /></div>
+                      <div>
+                        <h2 className="af-section-title">References & Documents</h2>
+                        <p className="af-section-desc">Provide two references and upload required documents.</p>
                       </div>
                     </div>
+
+                    <div className="af-subsection">
+                      <div className="af-subsection__header"><UserCheck size={14} /><span>Reference 1 (Regional Chapter Board Member Preferred)</span><div className="af-subsection__line" /></div>
+                      <div className="af-row af-row--1-1">
+                        {renderInput("ref1Name", "Name", "Full Name", state.ref1Name || "", "ref1Name", { required: true })}
+                        {renderInput("ref1Position", "Position", "Position", state.ref1Position || "", "ref1Position", { required: true })}
+                      </div>
+                      {renderInput("ref1Address", "Address", "Address", state.ref1Address || "", "ref1Address", { required: true })}
+                    </div>
+
+                    <div className="af-subsection">
+                      <div className="af-subsection__header"><UserCheck size={14} /><span>Reference 2</span><div className="af-subsection__line" /></div>
+                      <div className="af-row af-row--1-1">
+                        {renderInput("ref2Name", "Name", "Full Name", state.ref2Name || "", "ref2Name", { required: true })}
+                        {renderInput("ref2Position", "Position", "Position / Regional Member Title", state.ref2Position || "", "ref2Position", { required: true })}
+                      </div>
+                      {renderInput("ref2Address", "Address", "Address", state.ref2Address || "", "ref2Address", { required: true })}
+                    </div>
+
+                    {/* Document Uploads */}
+                    <div className="af-subsection">
+                      <div className="af-subsection__header"><Upload size={14} /><span>Required Documents</span><div className="af-subsection__line" /></div>
+                      <div className="af-upload-grid">
+                        {requiredSlots.map((slot) => {
+                          const file = state.documents[slot];
+                          const err = fileErrors[slot] || errors[slot];
+                          return (
+                            <div key={slot} className="af-field" style={{ marginBottom: 0 }}>
+                              <label className="af-label">{slot} <span className="af-req">*</span></label>
+                              <div
+                                className={`af-upload ${file ? "af-upload--success" : ""} ${err ? "af-upload--error" : ""}`}
+                                onDragOver={handleDragOver}
+                                onDrop={(e) => handleDrop(e, slot)}
+                                onClick={() => document.getElementById(`file-${slot}`)?.click()}
+                              >
+                                <input
+                                  type="file"
+                                  id={`file-${slot}`}
+                                  accept=".pdf,.jpg,.jpeg,.png"
+                                  style={{ display: "none" }}
+                                  onChange={(e) => handleFileChange(slot, e.target.files?.[0] || null)}
+                                />
+                                <div className="af-upload__icon-wrap">
+                                  {file ? <CheckCircle size={20} /> : <Upload size={20} />}
+                                </div>
+                                <span className="af-upload__text">
+                                  {file ? "File uploaded — click to replace" : "Drag & Drop or Click"}
+                                </span>
+                                <span className="af-upload__hint">PDF, JPG, PNG — Max 5MB</span>
+
+                                {file && (
+                                  <div className="af-upload__file" onClick={(e) => e.stopPropagation()}>
+                                    <FileText size={14} className="af-upload__file-icon" />
+                                    <span className="af-upload__file-name">{file.name}</span>
+                                    <span className="af-upload__file-size">({formatBytes(file.size)})</span>
+                                    <button
+                                      type="button"
+                                      className="af-upload__file-clear"
+                                      onClick={() => handleFileChange(slot, null)}
+                                    >
+                                      <Trash2 size={12} />
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                              {err && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="af-error">{err}</motion.span>}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Privacy Consent */}
+                    <div className="af-consent-box">
+                      <label className="af-consent-label">
+                        <input
+                          type="checkbox"
+                          checked={consentChecked}
+                          onChange={(e) => {
+                            setConsentChecked(e.target.checked);
+                            if (errors.consent) setErrors((p) => ({ ...p, consent: null }));
+                          }}
+                          className="af-consent-checkbox"
+                        />
+                        <span>
+                          <strong>Data Privacy Agreement:</strong> By checking this box, I agree that I have read the Privacy Policy, understood its contents and consent to the collection and processing of my personal data under the Data Privacy Act of 2012.
+                        </span>
+                      </label>
+                      {errors.consent && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="af-error" style={{ marginLeft: 28 }}>{errors.consent}</motion.span>}
+                    </div>
+                  </div>
+                )}
+
+                {/* ═══ STEP 5 ═══════════════════════════════════════ */}
+                {currentStep === 5 && (
+                  <div>
+                    <div className="af-section-header screen-only">
+                      <div className="af-section-icon"><FileText size={18} /></div>
+                      <div>
+                        <h2 className="af-section-title">Review & Download</h2>
+                        <p className="af-section-desc">Review your application below and download/print for your records.</p>
+                      </div>
+                    </div>
+
+                    <div className="af-download-bar screen-only">
+                      <motion.button
+                        type="button"
+                        onClick={triggerDownloadPrint}
+                        className="af-btn af-btn--download"
+                        whileHover={{ y: -1 }}
+                        whileTap={{ scale: 0.97 }}
+                      >
+                        <Download size={16} /> Print / Download Form (PDF)
+                      </motion.button>
+                    </div>
+
+                    <PrintableForm state={state} />
                   </div>
                 )}
               </motion.div>
             </AnimatePresence>
 
-            {/* Stepper Navigation Buttons */}
-            <div className="apply-actions">
+            {/* ── Nav Actions ────────────────────────────────────── */}
+            <div className="af-actions screen-only">
               {currentStep > 1 ? (
-                <button
+                <motion.button
                   type="button"
                   onClick={handleBack}
-                  className="apply-btn apply-btn--secondary"
                   disabled={isSubmitting}
+                  className="af-btn af-btn--secondary"
+                  whileHover={{ x: -2 }}
+                  whileTap={{ scale: 0.97 }}
                 >
                   <ArrowLeft size={16} /> Back
-                </button>
-              ) : (
-                <div />
-              )}
+                </motion.button>
+              ) : <div />}
 
-              {currentStep < 4 ? (
-                <button
+              {currentStep < 5 ? (
+                <motion.button
                   type="button"
                   onClick={handleNext}
-                  className="apply-btn apply-btn--primary"
+                  className="af-btn af-btn--primary"
+                  whileHover={{ x: 2 }}
+                  whileTap={{ scale: 0.97 }}
                 >
                   Next <ArrowRight size={16} />
-                </button>
+                </motion.button>
               ) : (
-                <button
+                <motion.button
                   type="submit"
-                  className="apply-btn apply-btn--primary"
-                  style={{ backgroundColor: 'var(--apply-success)' }}
                   disabled={isSubmitting}
+                  className="af-btn af-btn--submit"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
                 >
-                  {isSubmitting ? "Submitting Application..." : "Confirm & Submit"}
-                </button>
+                  {isSubmitting ? "Submitting..." : "Confirm & Submit"}
+                </motion.button>
               )}
             </div>
           </form>
@@ -726,11 +949,18 @@ function ApplyContent() {
 
 export default function ApplyPage() {
   return (
-    <Suspense fallback={
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: 'var(--font-sans)', color: '#143152' }}>
-        <h3>Loading Application Form...</h3>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="apply-page" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+          <div style={{ textAlign: "center" }}>
+            <div className="af-spinner" />
+            <p style={{ marginTop: 16, fontSize: 14, fontWeight: 600, color: "var(--ink-60)" }}>
+              Loading Application Form...
+            </p>
+          </div>
+        </div>
+      }
+    >
       <ApplyContent />
     </Suspense>
   );
