@@ -478,6 +478,146 @@
   color: var(--ink);
 }
 
+/* ============================================================
+   ADOPTION & SIGNATORIES SECTION
+   ============================================================ */
+.cbl-adoption-card {
+  margin-top: 40px;
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: 24px;
+  padding: 48px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
+}
+
+.cbl-resolution-block {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 40px;
+  padding-bottom: 32px;
+  border-bottom: 1px dashed var(--rule);
+}
+
+.cbl-resolution-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.cbl-resolution-text {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink);
+  font-weight: 500;
+  margin: 0 0 16px;
+}
+
+.cbl-adoption-date {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-style: italic;
+  color: var(--ink-60);
+  margin: 0;
+}
+
+.cbl-signatories-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.cbl-secretary-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.cbl-signatories-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.signatory-card {
+  background: var(--parchment);
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--t-mid), border-color var(--t-mid), box-shadow var(--t-mid);
+}
+
+.signatory-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(26, 75, 140, 0.2);
+  box-shadow: 0 4px 16px rgba(15, 25, 35, 0.03);
+}
+
+.signatory-card__badge {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 9px;
+  font-weight: 700;
+  background: var(--accent-light);
+  color: var(--accent);
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.signatory-card__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.signatory-card__role {
+  font-size: 11.5px;
+  color: var(--ink-60);
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+/* Secretary card is slightly larger and accented */
+.signatory-card--secretary {
+  background: var(--white);
+  border: 2px solid var(--accent);
+  max-width: 320px;
+  width: 100%;
+}
+
+.signatory-card--secretary .signatory-card__badge {
+  background: var(--accent);
+  color: var(--white);
+}
+
+@media (max-width: 991px) {
+  .cbl-signatories-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .cbl-adoption-card {
+    padding: 32px;
+  }
+}
+
+@media (max-width: 600px) {
+  .cbl-signatories-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
 /* ============================================================
    RESPONSIVENESS (MOBILE STYLING)

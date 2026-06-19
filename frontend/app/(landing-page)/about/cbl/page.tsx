@@ -353,6 +353,37 @@ export default function CBLInformationPage() {
                       </motion.div>
                     );
                   })}
+
+                  {/* Adoption & Attestation Card */}
+                  <div className="cbl-adoption-card">
+                    <div className="cbl-resolution-block">
+                      <h4 className="cbl-resolution-title">Resolution & Adoption</h4>
+                      <p className="cbl-resolution-text">“{CBL_DATA.resolution}”</p>
+                      <p className="cbl-adoption-date">{CBL_DATA.adoptionDate}</p>
+                    </div>
+
+                    <h4 className="cbl-signatories-title">Signatories</h4>
+                    
+                    {/* Corporate Secretary */}
+                    <div className="cbl-secretary-wrapper">
+                      <div className="signatory-card signatory-card--secretary">
+                        <span className="signatory-card__badge">{CBL_DATA.secretary.signatureType}</span>
+                        <div className="signatory-card__name">{CBL_DATA.secretary.name}</div>
+                        <div className="signatory-card__role">{CBL_DATA.secretary.title}</div>
+                      </div>
+                    </div>
+
+                    {/* Attested Board Members and Officers */}
+                    <div className="cbl-signatories-grid">
+                      {CBL_DATA.attestedBy.map((sig, idx) => (
+                        <div key={idx} className="signatory-card">
+                          <span className="signatory-card__badge">{sig.signatureType}</span>
+                          <div className="signatory-card__name">{sig.name}</div>
+                          <div className="signatory-card__role">{sig.title}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </motion.div>
 
                 {/* Right Side: Introduction & PDF Download Box */}
