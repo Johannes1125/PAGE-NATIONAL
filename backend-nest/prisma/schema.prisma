@@ -189,3 +189,39 @@ model users {
 
   @@index([api_token_hashed], map: "users_api_token_hashed_index")
 }
+
+model about_page_sections {
+  id           String    @id @default(uuid()) @db.Uuid
+  section_key  String    @unique @db.VarChar(255)
+  title        String    @db.VarChar(255)
+  content      String    @db.Text
+  status       String    @default("draft") @db.VarChar(255) // 'draft' | 'published' | 'archived'
+  created_at   DateTime? @default(now()) @db.Timestamp(0)
+  updated_at   DateTime? @default(now()) @updatedAt @db.Timestamp(0)
+  published_at DateTime? @db.Timestamp(0)
+}
+
+model about_page_officers {
+  id         String    @id @default(uuid()) @db.Uuid
+  name       String    @db.VarChar(255)
+  position   String    @db.VarChar(255)
+  chapter    String?   @db.VarChar(255)
+  photo_url  String?   @db.VarChar(255)
+  term_start String?   @db.VarChar(255)
+  term_end   String?   @db.VarChar(255)
+  status     String    @default("active") @db.VarChar(255) // 'active' | 'inactive'
+  sort_order Int       @default(0)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @updatedAt @db.Timestamp(0)
+}
+
+model about_page_documents {
+  id          String    @id @default(uuid()) @db.Uuid
+  section_key String    @db.VarChar(255)
+  file_name   String    @db.VarChar(255)
+  file_url    String    @db.VarChar(255)
+  file_type   String    @db.VarChar(255)
+  created_at  DateTime? @default(now()) @db.Timestamp(0)
+  updated_at  DateTime? @default(now()) @updatedAt @db.Timestamp(0)
+}
+

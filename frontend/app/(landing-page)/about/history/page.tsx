@@ -7,6 +7,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { TIMELINE_EVENTS, type TimelineEvent } from "./mock-data";
+import { api } from "../../../lib/api-client";
 import "./history.css";
 
 // ── Icon Components ────────────────────────────────────────────────────────
@@ -320,17 +321,31 @@ const timelineItemVariants: Variants = {
 export default function HistoryPage() {
   const [scrolled, setScrolled] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", onScroll);
     
-    // Simulate loading state
-    const t = setTimeout(() => setLoading(false), 600);
+    const fetchHistory = async () => {
+      try {
+        const res = await api.get("/public/about-page/sections/history");
+        if (res.success && res.data) {
+          setTimelineEvents(JSON.parse(res.data.content));
+        } else {
+          setTimelineEvents(TIMELINE_EVENTS);
+        }
+      } catch (err) {
+        console.error(err);
+        setTimelineEvents(TIMELINE_EVENTS);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHistory();
 
     return () => {
       window.removeEventListener("scroll", onScroll);
-      clearTimeout(t);
     };
   }, []);
 
@@ -353,7 +368,7 @@ export default function HistoryPage() {
                   initial="hidden"
                   animate="visible"
                 >
-                  {TIMELINE_EVENTS.map((event, i) => (
+                  {timelineEvents.map((event, i) => (
                     <motion.div
                       key={event.year}
                       className="timeline__item"

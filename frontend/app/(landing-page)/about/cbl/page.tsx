@@ -5,7 +5,8 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { CBL_DATA } from "./mock-data";
+import { CBL_DATA, type CBLData } from "./mock-data";
+import { api } from "../../../lib/api-client";
 import "./cbl.css";
 
 // ── Icon Components ────────────────────────────────────────────────────────
@@ -116,7 +117,7 @@ const dropdownVariants: Variants = {
 
 
 // ── About Page Header ──────────────────────────────────────────────────────
-function AboutHero() {
+function AboutHero({ cbl }: { cbl: CBLData }) {
   return (
     <section className="about-hero">
       <div className="container">
@@ -127,9 +128,9 @@ function AboutHero() {
           <span className="about-hero__breadcrumb-sep">/</span>
           <span className="about-hero__breadcrumb-current">CBL Information</span>
         </div>
-        <h1 className="about-hero__title">{CBL_DATA.title}</h1>
+        <h1 className="about-hero__title">{cbl.title}</h1>
         <div className="about-hero__divider" />
-        <p className="about-hero__subtitle">{CBL_DATA.subtitle}</p>
+        <p className="about-hero__subtitle">{cbl.subtitle}</p>
       </div>
     </section>
   );
@@ -256,17 +257,31 @@ export default function CBLInformationPage() {
   const [scrolled, setScrolled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [cbl, setCbl] = useState<CBLData>(CBL_DATA);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", onScroll);
     
-    // Simulate initial load state
-    const t = setTimeout(() => setLoading(false), 600);
+    const fetchCBL = async () => {
+      try {
+        const res = await api.get("/public/about-page/sections/cbl_information");
+        if (res.success && res.data) {
+          setCbl(JSON.parse(res.data.content));
+        } else {
+          setCbl(CBL_DATA);
+        }
+      } catch (err) {
+        console.error(err);
+        setCbl(CBL_DATA);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCBL();
 
     return () => {
       window.removeEventListener("scroll", onScroll);
-      clearTimeout(t);
     };
   }, []);
 
@@ -278,7 +293,7 @@ export default function CBLInformationPage() {
     <>
       <Navbar scrolled={scrolled} />
       <main>
-        <AboutHero />
+        <AboutHero cbl={cbl} />
         
         <section className="cbl-section">
           <div className="container">
@@ -293,7 +308,7 @@ export default function CBLInformationPage() {
               >
                 {/* Left Side: Custom Accordion List */}
                 <motion.div className="accordion-list" variants={leftSideVariants}>
-                  {CBL_DATA.articles.map(article => {
+                  {cbl.articles.map(article => {
                     const isOpen = openId === article.id;
                     return (
                       <motion.div
@@ -358,8 +373,8 @@ export default function CBLInformationPage() {
                   <div className="cbl-adoption-card">
                     <div className="cbl-resolution-block">
                       <h4 className="cbl-resolution-title">Resolution & Adoption</h4>
-                      <p className="cbl-resolution-text">“{CBL_DATA.resolution}”</p>
-                      <p className="cbl-adoption-date">{CBL_DATA.adoptionDate}</p>
+                      <p className="cbl-resolution-text">“{cbl.resolution}”</p>
+                      <p className="cbl-adoption-date">{cbl.adoptionDate}</p>
                     </div>
 
                     <h4 className="cbl-signatories-title">Signatories</h4>
@@ -367,15 +382,15 @@ export default function CBLInformationPage() {
                     {/* Corporate Secretary */}
                     <div className="cbl-secretary-wrapper">
                       <div className="signatory-card signatory-card--secretary">
-                        <span className="signatory-card__badge">{CBL_DATA.secretary.signatureType}</span>
-                        <div className="signatory-card__name">{CBL_DATA.secretary.name}</div>
-                        <div className="signatory-card__role">{CBL_DATA.secretary.title}</div>
+                        <span className="signatory-card__badge">{cbl.secretary.signatureType}</span>
+                        <div className="signatory-card__name">{cbl.secretary.name}</div>
+                        <div className="signatory-card__role">{cbl.secretary.title}</div>
                       </div>
                     </div>
 
                     {/* Attested Board Members and Officers */}
                     <div className="cbl-signatories-grid">
-                      {CBL_DATA.attestedBy.map((sig, idx) => (
+                      {cbl.attestedBy.map((sig, idx) => (
                         <div key={idx} className="signatory-card">
                           <span className="signatory-card__badge">{sig.signatureType}</span>
                           <div className="signatory-card__name">{sig.name}</div>
@@ -392,7 +407,7 @@ export default function CBLInformationPage() {
                     <h3 className="accordion-trigger__title" style={{ marginBottom: "16px", color: "var(--ink)" }}>
                       Governance & By-Laws
                     </h3>
-                    <p className="cbl-info-text">{CBL_DATA.introduction}</p>
+                    <p className="cbl-info-text">{cbl.introduction}</p>
                   </div>
 
                   <div className="cbl-download-box">
@@ -401,7 +416,7 @@ export default function CBLInformationPage() {
                       Access the full, official Constitution and By-Laws draft document in PDF format for offline reading and institutional reference.
                     </p>
                     <a
-                      href={CBL_DATA.pdfUrl}
+                      href={cbl.pdfUrl}
                       download="PAGE-CBL-Draft.pdf"
                       className="cbl-download-btn"
                     >

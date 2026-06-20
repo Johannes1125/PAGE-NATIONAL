@@ -6,7 +6,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { CATEGORIES, OFFICERS_DATA, type Officer, type OfficerCategory } from "./mock-data";
+import { CATEGORIES, type Officer, type OfficerCategory } from "./mock-data";
+import { api } from "../../../lib/api-client";
 import "./officers.css";
 
 // ── Icon Components ────────────────────────────────────────────────────────
@@ -252,17 +253,40 @@ export default function OfficersPage() {
   const [scrolled, setScrolled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<OfficerCategory>("All");
+  const [officersList, setOfficersList] = useState<Officer[]>([]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", onScroll);
-    
-    // Simulate loading state on initial load
-    const t = setTimeout(() => setLoading(false), 600);
+
+    const fetchOfficers = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get("/public/about-page/officers");
+        if (res.success && res.data) {
+          const mapped: Officer[] = res.data.map((off: any) => {
+            const isBoard = off.position.toLowerCase().includes("board of director") || off.position.toLowerCase().includes("board member");
+            return {
+              name: off.name,
+              position: off.position,
+              category: isBoard ? "Board of Directors" : "National Officers",
+              bio: off.chapter ? `Representing ${off.chapter} chapter.` : "PAGE National Officer.",
+              photo_url: off.photo_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(off.name)}&backgroundColor=1e5390&textColor=ffffff`,
+            };
+          });
+          setOfficersList(mapped);
+        }
+      } catch (err) {
+        console.error("Error loading officers list:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOfficers();
 
     return () => {
       window.removeEventListener("scroll", onScroll);
-      clearTimeout(t);
     };
   }, []);
 
@@ -276,7 +300,7 @@ export default function OfficersPage() {
     return () => clearTimeout(t);
   };
 
-  const filteredOfficers = OFFICERS_DATA.filter(officer =>
+  const filteredOfficers = officersList.filter(officer =>
     activeCategory === "All" ? true : officer.category === activeCategory
   );
 

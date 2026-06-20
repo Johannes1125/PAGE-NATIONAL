@@ -3,6 +3,7 @@ import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { FileText, ShieldCheck, FileCheck, CheckCircle } from "lucide-react";
+import { api } from "../../../lib/api-client";
 import "../about-page.css";
 
 // ── Mock BIR Data ─────────────────────────────────────────────────────────
@@ -17,10 +18,29 @@ const BIR_DETAILS = {
 
 export default function BirCertificationPage() {
   const [scrolled, setScrolled] = useState(false);
+  const [description, setDescription] = useState("Official Tax Identification Number (TIN) registration and Certificate of Tax Exemption issued by the Bureau of Internal Revenue (BIR).");
+  const [documents, setDocuments] = useState<any[]>([]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", onScroll);
+
+    const fetchData = async () => {
+      try {
+        const birRes = await api.get("/public/about-page/sections/bir_certification");
+        if (birRes.success && birRes.data) {
+          setDescription(birRes.data.content);
+        }
+        const docRes = await api.get("/public/about-page/documents/bir_certification");
+        if (docRes.success && docRes.data) {
+          setDocuments(docRes.data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchData();
+
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
@@ -42,7 +62,7 @@ export default function BirCertificationPage() {
             <h1 className="about-hero__title">BIR <em>Certification</em></h1>
             <div className="about-hero__divider" />
             <p className="about-hero__subtitle">
-              Official Tax Identification Number (TIN) registration and Certificate of Tax Exemption issued by the Bureau of Internal Revenue (BIR).
+              {description}
             </p>
           </div>
         </section>
@@ -157,6 +177,40 @@ export default function BirCertificationPage() {
                   <p style={{ fontSize: "9px", color: "#666", margin: "4px 0 0" }}>Signed: {BIR_DETAILS.signatory}</p>
                 </div>
               </div>
+
+              {documents.length > 0 && (
+                <div style={{ width: "100%", textAlign: "left", marginTop: "10px" }}>
+                  <h4 style={{ color: "#fff", fontSize: "14px", fontWeight: 600, marginBottom: "10px" }}>Uploaded Certificates</h4>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    {documents.map((doc: any) => (
+                      <a
+                        key={doc.id}
+                        href={doc.file_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "10px",
+                          padding: "10px 14px",
+                          background: "rgba(255, 255, 255, 0.04)",
+                          border: "1px solid rgba(255, 255, 255, 0.08)",
+                          borderRadius: "8px",
+                          color: "var(--accent)",
+                          textDecoration: "none",
+                          fontSize: "13px",
+                          fontWeight: 500
+                        }}
+                      >
+                        <FileText size={16} />
+                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
+                          {doc.file_name}
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
           </div>

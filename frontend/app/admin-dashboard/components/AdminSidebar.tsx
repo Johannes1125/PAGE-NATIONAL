@@ -11,6 +11,7 @@ import {
   PlusCircle,
   Users,
   UserCheck,
+  BookOpen,
   type LucideIcon,
 } from "lucide-react";
 import styles from "./AdminSidebar.module.css";
@@ -29,6 +30,7 @@ const adminNavItems: AdminNavItem[] = [
   { href: "/admin-dashboard/audit-log", label: "Audit Log", icon: ClipboardList },
   { href: "/admin-dashboard/manage-users", label: "Manage Users", icon: Users },
   { href: "/admin-dashboard/view-messages", label: "Messages", icon: MessageSquareText },
+  { href: "/admin-dashboard/about-page", label: "About PAGE", icon: BookOpen },
 ];
 
 type AdminSidebarProps = {

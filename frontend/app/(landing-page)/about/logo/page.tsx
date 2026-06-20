@@ -7,6 +7,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { LOGO_DATA } from "./mock-data";
+import { api } from "../../../lib/api-client";
 import "./logo.css";
 
 // ── Icon Components ────────────────────────────────────────────────────────
@@ -109,7 +110,7 @@ const dropdownVariants: Variants = {
 
 
 // ── About Page Header ──────────────────────────────────────────────────────
-function AboutHero() {
+function AboutHero({ title, subtitle }: { title?: string; subtitle?: string }) {
   return (
     <section className="about-hero">
       <div className="container">
@@ -120,9 +121,9 @@ function AboutHero() {
           <span className="about-hero__breadcrumb-sep">/</span>
           <span className="about-hero__breadcrumb-current">Logo Description</span>
         </div>
-        <h1 className="about-hero__title">{LOGO_DATA.title}</h1>
+        <h1 className="about-hero__title">{title || LOGO_DATA.title}</h1>
         <div className="about-hero__divider" />
-        <p className="about-hero__subtitle">{LOGO_DATA.subtitle}</p>
+        <p className="about-hero__subtitle">{subtitle || LOGO_DATA.subtitle}</p>
       </div>
     </section>
   );
@@ -266,17 +267,45 @@ const itemVariants: Variants = {
 export default function LogoDescriptionPage() {
   const [scrolled, setScrolled] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [sectionTitle, setSectionTitle] = useState("");
+  const [logoDescription, setLogoDescription] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", onScroll);
-    
-    // Simulate loading state
-    const t = setTimeout(() => setLoading(false), 600);
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // Fetch logo & description section
+        const descRes = await api.get("/public/about-page/sections/logo_description");
+        if (descRes.success && descRes.data) {
+          setSectionTitle(descRes.data.title);
+          setLogoDescription(descRes.data.content);
+        }
+
+        // Fetch logo documents
+        const docRes = await api.get("/public/about-page/documents/logo_description");
+        if (docRes.success && docRes.data && docRes.data.length > 0) {
+          const imageDoc = docRes.data.find((d: any) => d.file_type === "image" || d.file_name.match(/\.(jpg|jpeg|png|webp|svg)$/i));
+          if (imageDoc) {
+            setLogoUrl(imageDoc.file_url);
+          } else {
+            setLogoUrl(docRes.data[0].file_url);
+          }
+        }
+      } catch (err) {
+        console.error("Error loading logo description page:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
 
     return () => {
       window.removeEventListener("scroll", onScroll);
-      clearTimeout(t);
     };
   }, []);
 
@@ -284,7 +313,7 @@ export default function LogoDescriptionPage() {
     <>
       <Navbar scrolled={scrolled} />
       <main>
-        <AboutHero />
+        <AboutHero title={sectionTitle} />
         
         <section className="logo-section">
           <div className="container">
@@ -300,13 +329,11 @@ export default function LogoDescriptionPage() {
                 <div className="logo-showcase">
                   {/* Left Side: Logo card display */}
                   <motion.div className="logo-card" variants={itemVariants}>
-                    <div className="logo-card__image-wrap">
-                      <Image
-                        src="/PAGE-logo.jpg"
-                        width={180}
-                        height={180}
+                    <div className="logo-card__image-wrap" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <img
+                        src={logoUrl || "/PAGE-logo.jpg"}
                         alt="PAGE official logo"
-                        priority
+                        style={{ width: "100%", maxHeight: "180px", objectFit: "contain", borderRadius: "8px" }}
                       />
                     </div>
                     <span className="logo-card__label">Official Mark</span>
@@ -360,7 +387,9 @@ export default function LogoDescriptionPage() {
                   <motion.div className="logo-details__philosophy" variants={itemVariants}>
                     <h2 className="logo-details__section-title">Design Philosophy</h2>
                     <div className="philosophy-card">
-                      <p className="philosophy-text">{LOGO_DATA.design_philosophy}</p>
+                      <p className="philosophy-text" style={{ whiteSpace: "pre-line" }}>
+                        {logoDescription || LOGO_DATA.design_philosophy}
+                      </p>
                     </div>
                   </motion.div>
                 </div>

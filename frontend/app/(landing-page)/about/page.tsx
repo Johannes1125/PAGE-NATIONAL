@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { api } from "../../lib/api-client";
 import "./about-page.css";
 
 // ── Icon Components ────────────────────────────────────────────────────────
@@ -261,7 +262,7 @@ function AboutHero() {
 }
 
 // ── About Organization ─────────────────────────────────────────────────────
-function AboutOrganization() {
+function AboutOrganization({ description, logoUrl }: { description?: string; logoUrl?: string }) {
   return (
     <section className="about-org">
       <div className="container">
@@ -271,8 +272,8 @@ function AboutOrganization() {
             <h2 className="section-title" style={{ textAlign: "left", margin: "0 0 24px" }}>
               About the Organization
             </h2>
-            <p className="about-org__body">
-              The Philippine Association for Graduate Education Philippines, Inc. (PAGE) anchors its organizational identity on driving academic excellence and research innovation across higher education institutions in the Philippines.
+            <p className="about-org__body" style={{ whiteSpace: "pre-line" }}>
+              {description || "The Philippine Association for Graduate Education Philippines, Inc. (PAGE) anchors its organizational identity on driving academic excellence and research innovation across higher education institutions in the Philippines."}
             </p>
             <p className="about-org__body">
               Our mission is to foster excellence in graduate education through collaborative
@@ -290,8 +291,12 @@ function AboutOrganization() {
           <div className="about-org__visual">
             <div className="about-org__image-card">
               <div className="about-org__image-top">
-                <div className="about-org__image-icon">
-                  <CompassIcon />
+                <div className="about-org__image-icon" style={{ overflow: "hidden", background: logoUrl ? "transparent" : "var(--accent)" }}>
+                  {logoUrl ? (
+                    <img src={logoUrl} alt="PAGE Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    <CompassIcon />
+                  )}
                 </div>
                 <p className="about-org__image-label">Philippine Association<br />for Graduate Education</p>
                 <p className="about-org__image-sub">Est. 1962 · SEC Registered</p>
@@ -437,12 +442,14 @@ function OurHistory() {
 
 // ── Our Officers ──────────────────────────────────────────────────────────
 // ── Our Officers ──────────────────────────────────────────────────────────
-function OurOfficers() {
+function OurOfficers({ officersList = [] }: { officersList?: any[] }) {
   const [activeFilter, setActiveFilter] = useState("All");
   const filters = ["All", "National Officers", "Board of Directors"];
 
+  const displayOfficers = officersList.length > 0 ? officersList : OFFICERS;
+
   // Filter logic based on the selected category
-  const filteredOfficers = OFFICERS.filter(officer =>
+  const filteredOfficers = displayOfficers.filter(officer =>
     activeFilter === "All" ? true : officer.category === activeFilter
   );
 
@@ -474,16 +481,20 @@ function OurOfficers() {
           {filteredOfficers.map((officer, index) => (
             <div key={officer.name} className="officer-card">
               <div className="officer-card__image">
-{/*                 <div className="officer-card__avatar">
-                  {officer.name.split(" ").slice(-1)[0][0]}
-                </div> */}
+                <div className="officer-card__avatar" style={{ overflow: "hidden", background: officer.photo_url ? "transparent" : "rgba(255,255,255,0.1)" }}>
+                  {officer.photo_url ? (
+                    <img src={officer.photo_url} alt={officer.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    officer.name.split(" ").slice(-1)[0][0]
+                  )}
+                </div>
               </div>
               <div className="officer-card__body">
                 <div className="officer-card__num">
                   {String(index + 1).padStart(2, "0")}
                 </div>
                 <h4 className="officer-card__name">{officer.name}</h4>
-                <span className="officer-card__role">{officer.role}</span>
+                <span className="officer-card__role">{officer.role || officer.position}</span>
                 <p className="officer-card__bio">{officer.bio}</p>
               </div>
             </div>
@@ -611,10 +622,55 @@ function Footer() {
 // ── Main Page ──────────────────────────────────────────────────────────────
 export default function AboutPage() {
   const [scrolled, setScrolled] = useState(false);
+  const [logoDescription, setLogoDescription] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
+  const [officersList, setOfficersList] = useState<any[]>([]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", onScroll);
+
+    const fetchData = async () => {
+      try {
+        // Fetch logo & description section
+        const descRes = await api.get("/public/about-page/sections/logo_description");
+        if (descRes.success && descRes.data) {
+          setLogoDescription(descRes.data.content);
+        }
+
+        // Fetch logo document
+        const docRes = await api.get("/public/about-page/documents/logo_description");
+        if (docRes.success && docRes.data && docRes.data.length > 0) {
+          const imageDoc = docRes.data.find((d: any) => d.file_type === "image" || d.file_name.match(/\.(jpg|jpeg|png|webp|svg)$/i));
+          if (imageDoc) {
+            setLogoUrl(imageDoc.file_url);
+          } else {
+            setLogoUrl(docRes.data[0].file_url);
+          }
+        }
+
+        // Fetch dynamic officers
+        const officersRes = await api.get("/public/about-page/officers");
+        if (officersRes.success && officersRes.data) {
+          const mapped = officersRes.data.map((off: any) => {
+            const isBoard = off.position.toLowerCase().includes("board of director") || off.position.toLowerCase().includes("board member");
+            return {
+              name: off.name,
+              role: off.position,
+              category: isBoard ? "Board of Directors" : "National Officers",
+              bio: off.chapter ? `Representing ${off.chapter} chapter.` : "PAGE National Officer.",
+              photo_url: off.photo_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(off.name)}&backgroundColor=1e5390&textColor=ffffff`,
+            };
+          });
+          setOfficersList(mapped);
+        }
+      } catch (err) {
+        console.error("Error loading dynamic about page content:", err);
+      }
+    };
+
+    fetchData();
+
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
@@ -623,10 +679,10 @@ export default function AboutPage() {
       <Navbar scrolled={scrolled} />
       <main>
         <AboutHero />
-        <AboutOrganization />
+        <AboutOrganization description={logoDescription} logoUrl={logoUrl} />
         <MissionVision />
         <OurHistory />
-        <OurOfficers />
+        <OurOfficers officersList={officersList} />
         <CoreValues />
       </main>
       <Footer />
