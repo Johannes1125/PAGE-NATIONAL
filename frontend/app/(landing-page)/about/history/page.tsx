@@ -158,7 +158,7 @@ const FOOTER_QUICK_LINKS = ["About PAGE", "History", "Officers", "News & Announc
 const FOOTER_RESOURCES    = ["Journals", "Articles", "Upcoming Activities", "Contact Us"];
 const FOOTER_CONTACT = [
   { icon: <MapPinIcon />,      text: "Manila, Philippines" },
-  { icon: <MailIconContact />, text: "page@gmail.edu.ph"   },
+  { icon: <MailIconContact />, text: "page.org.ph@gmail.com" },
   { icon: <PhoneIcon />,       text: "+63 908 XXX XXXX"    },
 ];
 
@@ -186,7 +186,7 @@ function AboutHero() {
         <h1 className="about-hero__title">PAGE History</h1>
         <div className="about-hero__divider" />
         <p className="about-hero__subtitle">
-          Tracing our path from foundation in 2010 to driving higher education excellence
+          Tracing our path from foundation in 1962 to driving higher education excellence
           and virtual transformation across the nation.
         </p>
       </div>
@@ -365,6 +365,16 @@ export default function HistoryPage() {
                           <span className="timeline__year">{event.year}</span>
                           <h3 className="timeline__title">{event.title}</h3>
                           <p className="timeline__desc">{event.description}</p>
+                          {event.list && (
+                            <div className="timeline__list-container">
+                              <h4 className="timeline__list-title">{event.list.title}</h4>
+                              <ul className="timeline__list">
+                                {event.list.items.map((item, idx) => (
+                                  <li key={idx} className="timeline__list-item">{item}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
                         </div>
                       </div>
                       

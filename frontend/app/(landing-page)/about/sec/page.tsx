@@ -7,12 +7,12 @@ import "../about-page.css";
 
 // ── Mock SEC Data ─────────────────────────────────────────────────────────
 const SEC_DETAILS = {
-  companyName: "Philippine Association for Graduate Education, Inc. (PAGE)",
-  registrationNumber: "CN201018954",
-  dateRegistered: "October 12, 2010",
+  companyName: "PHILIPPINE ASSOCIATION FOR GRADUATE EDUCATION PHILIPPINES, (PAGE) INC.",
+  registrationNumber: "2024090169660-00",
+  dateRegistered: "September 1, 2024",
   status: "Active / Registered",
   type: "Non-Stock, Non-Profit Corporation",
-  signatory: "Teresita R. Manzala (Securities and Exchange Commissioner)",
+  signatory: "Emilio B. Aquino (Securities and Exchange Commission Chairperson)",
 };
 
 export default function SecRegistrationPage() {

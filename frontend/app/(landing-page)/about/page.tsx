@@ -145,34 +145,34 @@ const NAV_LINKS = ["Home", "About", "News", "Contact"];
 
 const TIMELINE_EVENTS = [
   {
-    year: "2010",
-    title: "Foundation Year",
-    desc: "PAGE was officially established as a special project under the Commission on Higher Education (CHED), marking the beginning of a national movement to elevate graduate education standards across the Philippines.",
+    year: "1962",
+    title: "Founding of PAGE",
+    desc: "Dr. Jesus E. Perpiñan and Atty. Pablo T. Mateo, Jr. gathered graduate school deans at the Old Selecta on Lepanto Street. On September 26, 1962, PAGE was born with nine founding higher education institutions.",
+  },
+  {
+    year: "1994",
+    title: "Antedating CHED",
+    desc: "PAGE's establishment pre-dates the Commission on Higher Education (CHED) by 32 years. Since then, the association has actively collaborated as a key consultant and constructive policy advocate.",
   },
   {
     year: "2012",
-    title: "First National Conference",
-    desc: "PAGE hosted its inaugural national conference, bringing together graduate school deans and faculty from over 80 universities across the Philippine archipelago to share research and best practices.",
+    title: "Golden Anniversary",
+    desc: "PAGE marked 50 years of excellence at its Annual Assembly in Manila Hotel. The official PAGE National Anthem was subsequently launched, and international plenary speakers were introduced.",
   },
   {
-    year: "2015",
-    title: "International Partnerships",
-    desc: "PAGE established formal partnerships with leading graduate education organizations in Asia, Europe, and North America, opening doors for international research collaboration and faculty exchange programs.",
-  },
-  {
-    year: "2018",
-    title: "Digital Research Repository",
-    desc: "Launched the national digital repository for Philippine graduate research, providing open access to thousands of theses, dissertations, and peer-reviewed articles from member institutions.",
-  },
-  {
-    year: "2021",
-    title: "Virtual Learning Initiative",
-    desc: "In response to the global pandemic, PAGE pioneered hybrid graduate education frameworks adopted by over 120 universities, ensuring continuity and quality in graduate programs nationwide.",
+    year: "2020",
+    title: "New Leadership",
+    desc: "Dr. Lino C. Reynoso of Emilio Aguinaldo College was elected PAGE President. Under his term, the organization guided graduate schools through COVID-19 and transition to hybrid learning.",
   },
   {
     year: "2024",
-    title: "Excellence Awards Program",
-    desc: "PAGE introduced the annual Graduate Education Excellence Awards, recognizing outstanding contributions by faculty, researchers, and graduate students across the Philippines.",
+    title: "SEC Re-registration",
+    desc: "The association successfully renewed its corporate identity under its new official name: 'Philippine Association for Graduate Education Philippines, Inc. (PAGE)', reactivating chapters nationwide.",
+  },
+  {
+    year: "2025 & Beyond",
+    title: "Ongoing Legacy",
+    desc: "Entering its 63rd year, PAGE continues to lead discussions on graduate education reforms, collaborative research, and digital innovations to meet global higher education standards.",
   },
 ];
 
@@ -210,7 +210,7 @@ const FOOTER_QUICK_LINKS = ["About PAGE", "History", "Officers", "News & Announc
 const FOOTER_RESOURCES    = ["Journals", "Articles", "Upcoming Activities", "Contact Us"];
 const FOOTER_CONTACT = [
   { icon: <MapPinIcon />,      text: "Manila, Philippines" },
-  { icon: <MailIconContact />, text: "page@gmail.edu.ph"   },
+  { icon: <MailIconContact />, text: "page.org.ph@gmail.com" },
   { icon: <PhoneIcon />,       text: "+63 908 XXX XXXX"    },
 ];
 
@@ -252,8 +252,8 @@ function AboutHero() {
         <h1 className="about-hero__title">About PAGE</h1>
         <div className="about-hero__divider" />
         <p className="about-hero__subtitle">
-          Philippine Association for Graduate Education — Advancing excellence through
-          collaboration, research, and innovation under the CHED Program.
+          Philippine Association for Graduate Education Philippines, Inc. (PAGE) — Advancing excellence through
+          collaboration, research, and academic leadership since 1962.
         </p>
       </div>
     </section>
@@ -272,7 +272,7 @@ function AboutOrganization() {
               About the Organization
             </h2>
             <p className="about-org__body">
-              The Philippine Association for Graduate Education (PAGE) anchors its organizational identity on driving academic excellence and research innovation across higher education institutions in the Philippines.
+              The Philippine Association for Graduate Education Philippines, Inc. (PAGE) anchors its organizational identity on driving academic excellence and research innovation across higher education institutions in the Philippines.
             </p>
             <p className="about-org__body">
               Our mission is to foster excellence in graduate education through collaborative
@@ -294,7 +294,7 @@ function AboutOrganization() {
                   <CompassIcon />
                 </div>
                 <p className="about-org__image-label">Philippine Association<br />for Graduate Education</p>
-                <p className="about-org__image-sub">Est. 2010 · Under CHED</p>
+                <p className="about-org__image-sub">Est. 1962 · SEC Registered</p>
               </div>
               <div className="about-org__image-stats">
                 <div className="about-org__image-stat">
@@ -340,7 +340,10 @@ function MissionVision() {
             </div>
             <h3 className="mv-card__title">Our Vision</h3>
             <p className="mv-card__text">
-              To be a premier and globally recognized association of professionals and institutions dedicated to the continuous advancement, internationalization, and transformation of graduate education in the Philippines
+              The Philippine Association for Graduate Education Philippines, Inc. (PAGE) envisions herself as
+              an association of accredited graduate institutions offering diverse, relevant programs which are
+              globally recognized and administered by highly qualified and socially responsible graduate
+              educators.
             </p>
             <a href="#" className="mv-card__link">
               Learn more <ArrowIcon />
@@ -354,9 +357,38 @@ function MissionVision() {
             </div>
             <h3 className="mv-card__title">Our Mission</h3>
             <p className="mv-card__text">
-              To foster an empowering environment for academic leaders, faculty, and graduate students through impactful research, capacity building, and policy advocacy. PAGE is explicitly committed to partnering with regulatory bodies like the Commission on Higher Education (CHED) to elevate Philippine scholarly publications and educational standards to par with global trends
+              Being the national organization that has concerned itself with achieving quality graduate
+              education for 62 years (1962-2024), the Philippine Association for Graduate Education Philippines
+              (PAGE), Inc. shall continue to assist in the task of enhancing the quality of Filipino professionals and
+              leaders as active participants in the attainment of national and international goals for sustained
+              human development.
             </p>
             <a href="#" className="mv-card__link">
+              Learn more <ArrowIcon />
+            </a>
+          </div>
+
+          <div className="mv-card">
+            <div className="mv-card__num">03</div>
+            <div className="mv-card__icon-wrap">
+              <StarIcon />
+            </div>
+            <h3 className="mv-card__title">Goals &amp; Objectives</h3>
+            <p className="mv-card__text" style={{ fontSize: "13px" }}>
+              PAGE supports national development goals through these institutional objectives:
+            </p>
+            <ul style={{ listStyleType: "none", padding: 0, marginTop: "8px", display: "flex", flexDirection: "column", gap: "8px", fontSize: "12px", color: "var(--ink-60)" }}>
+              <li style={{ display: "flex", gap: "6px" }}>
+                <span>🡆</span> <span>Encourage the production and dissemination of basic and functional research.</span>
+              </li>
+              <li style={{ display: "flex", gap: "6px" }}>
+                <span>🡆</span> <span>Promote scholarship, professional growth, and administrative competence.</span>
+              </li>
+              <li style={{ display: "flex", gap: "6px" }}>
+                <span>🡆</span> <span>Make library and research resources reciprocally available via consortium arrangements.</span>
+              </li>
+            </ul>
+            <a href="#" className="mv-card__link" style={{ marginTop: "auto", paddingTop: "16px" }}>
               Learn more <ArrowIcon />
             </a>
           </div>

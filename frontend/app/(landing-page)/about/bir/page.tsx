@@ -7,12 +7,12 @@ import "../about-page.css";
 
 // ── Mock BIR Data ─────────────────────────────────────────────────────────
 const BIR_DETAILS = {
-  registeredName: "Philippine Association for Graduate Education, Inc.",
-  tin: "007-814-112-000",
-  certificateNumber: "CCN-2012-0941",
+  registeredName: "PHILIPPINE ASSOCIATION FOR GRADUATE EDUCATION PHILIPPINES, (PAGE) INC.",
+  tin: "661-807-029-000",
+  certificateNumber: "CCN-2024-0901",
   status: "Tax Exempt status active under Section 30(H) of the NIRC",
-  dateIssued: "November 14, 2012",
-  signatory: "Kim S. Jacinto-Henares (Commissioner of Internal Revenue)",
+  dateIssued: "September 1, 2024",
+  signatory: "Romeo D. Lumagui Jr. (Commissioner of Internal Revenue)",
 };
 
 export default function BirCertificationPage() {

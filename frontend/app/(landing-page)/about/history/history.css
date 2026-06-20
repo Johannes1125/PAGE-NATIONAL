@@ -258,6 +258,53 @@
   line-height: 1.65;
 }
 
+/* ── Timeline List Elements ── */
+.timeline__list-container {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ink-10);
+  text-align: left;
+}
+
+.timeline__list-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.timeline__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px 16px;
+}
+
+.timeline__list-item {
+  font-size: 13px;
+  color: var(--ink-60);
+  position: relative;
+  padding-left: 14px;
+  line-height: 1.4;
+}
+
+.timeline__list-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--milestone-color);
+  opacity: 0.8;
+}
+
+
 /* ============================================================
    SKELETON LOADERS
    ============================================================ */

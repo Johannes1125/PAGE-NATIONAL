@@ -95,7 +95,7 @@ const FOOTER_QUICK_LINKS = ["About PAGE", "History", "Officers", "News & Announc
 const FOOTER_RESOURCES    = ["Journals", "Articles", "Upcoming Activities", "Contact Us"];
 const FOOTER_CONTACT = [
   { icon: <MapPinIcon />,      text: "Manila, Philippines" },
-  { icon: <MailIconContact />, text: "page@gmail.edu.ph"   },
+  { icon: <MailIconContact />, text: "page.org.ph@gmail.com" },
   { icon: <PhoneIcon />,       text: "+63 908 XXX XXXX"    },
 ];
 
