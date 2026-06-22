@@ -166,6 +166,8 @@ async function main() {
   console.log('Cleaning up existing database data...');
   
   // Clear tables in appropriate order due to FK constraints
+  await prisma.cbl_articles.deleteMany({});
+  await prisma.cbl_governance_documents.deleteMany({});
   await prisma.about_page_documents.deleteMany({});
   await prisma.about_page_officers.deleteMany({});
   await prisma.about_page_sections.deleteMany({});
@@ -303,6 +305,31 @@ async function main() {
       published_at: new Date(),
     }
   });
+
+  // Preseed CBL Governance document
+  await prisma.cbl_governance_documents.create({
+    data: {
+      title: INITIAL_CBL_DATA.title,
+      general_description: INITIAL_CBL_DATA.introduction,
+      file_name: 'CBL-draft.pdf',
+      file_url: INITIAL_CBL_DATA.pdfUrl,
+      file_size: 1048576,
+      uploaded_by: 'PAGE Admin Directory',
+    }
+  });
+
+  // Preseed CBL Articles
+  for (let i = 0; i < INITIAL_CBL_DATA.articles.length; i++) {
+    const art = INITIAL_CBL_DATA.articles[i];
+    await prisma.cbl_articles.create({
+      data: {
+        article_number: art.articleNumber,
+        article_name: art.title,
+        article_description: art.sections.map(s => `<p>${s}</p>`).join(''),
+        sort_order: i + 1,
+      }
+    });
+  }
 
   await prisma.about_page_sections.create({
     data: {

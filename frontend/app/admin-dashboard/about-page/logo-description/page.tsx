@@ -38,6 +38,12 @@ export default function LogoDescriptionManagement() {
   const [title, setTitle] = useState("PAGE Logo & Description");
   const [content, setContent] = useState("");
 
+  const hasUnsavedChanges =
+    title !== (section?.title || "") ||
+    content !== (section?.content || "");
+
+  const isPublishButtonDisabled = (section?.status === "published") && !hasUnsavedChanges;
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -161,17 +167,13 @@ export default function LogoDescriptionManagement() {
           <div style={{ display: "flex", gap: "8px" }}>
             <button
               type="button"
-              className="about-btn about-btn--secondary"
-              disabled={isSaving}
-              onClick={() => handleSave("draft")}
-            >
-              <Save size={16} /> Save as Draft
-            </button>
-            <button
-              type="button"
               className="about-btn about-btn--primary"
-              disabled={isSaving}
+              disabled={isSaving || isPublishButtonDisabled}
               onClick={() => handleSave("published")}
+              style={{
+                opacity: (isSaving || isPublishButtonDisabled) ? 0.5 : 1,
+                cursor: (isSaving || isPublishButtonDisabled) ? "not-allowed" : "pointer",
+              }}
             >
               <Globe size={16} /> Publish Changes
             </button>

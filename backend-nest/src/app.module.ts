@@ -9,6 +9,7 @@ import { MessagesModule } from './messages/messages.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { UsersModule } from './users/users.module';
 import { AboutPageModule } from './about-page/about-page.module';
+import { CblModule } from './about-page/cbl/cbl.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AboutPageModule } from './about-page/about-page.module';
     DashboardModule,
     UsersModule,
     AboutPageModule,
+    CblModule,
   ],
 })
 export class AppModule {}

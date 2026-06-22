@@ -363,4 +363,13 @@ export const api = {
     });
     return handleResponse(response);
   },
+
+  patchMultipart: async <T = any>(endpoint: string, formData: FormData): Promise<T> => {
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+      method: 'PATCH',
+      headers: getHeaders(true),
+      body: formData,
+    });
+    return handleResponse(response);
+  },
 };

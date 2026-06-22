@@ -1,8 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, Globe, Eye, Plus, Trash, Edit } from "lucide-react";
+import {
+  Save,
+  Globe,
+  Plus,
+  Trash,
+  Edit,
+  Upload,
+  FileText,
+  Check,
+  Search,
+  Undo2,
+  Redo2,
+  Bold,
+  Italic,
+  Underline,
+  Eye,
+  X,
+  ArrowLeft,
+  AlertTriangle,
+  Calendar,
+  Info,
+} from "lucide-react";
 import AdminSidebarLayout from "../../components/AdminSidebarLayout";
 import { api } from "../../../lib/api-client";
 import { gooeyToast } from "goey-toast";
@@ -10,30 +31,193 @@ import "goey-toast/styles.css";
 import "../about-page.css";
 import "../../admin-dashboard.css";
 
-type Signatory = {
-  name: string;
-  title: string;
-  signed: boolean;
-  signatureType: "SGD." | "Sgd";
+// ── DESIGN TOKENS (Elder-friendly) ───────────────────────────────────────────
+const T = {
+  blue:       "#103152",
+  blueLight:  "#1a4a7a",
+  accent:     "#2563eb",
+  accentBg:   "#eff6ff",
+  red:        "#dc2626",
+  redBg:      "#fef2f2",
+  redBorder:  "#fecaca",
+  green:      "#16a34a",
+  slate50:    "#f8fafc",
+  slate100:   "#f1f5f9",
+  slate200:   "#e2e8f0",
+  slate300:   "#cbd5e1",
+  slate500:   "#64748b",
+  slate600:   "#475569",
+  slate700:   "#334155",
+  slate900:   "#0f172a",
+  white:      "#ffffff",
+  border:     "#d1d9e2",
+
+  // Font sizes – bumped for readability
+  fs_xs:      13,
+  fs_sm:      14,
+  fs_base:    15,
+  fs_md:      16,
+  fs_lg:      18,
+  fs_xl:      20,
+
+  // Heights – larger touch targets
+  inputH:     44,
+  btnH:       42,
+  btnHSm:     36,
+  rowH:       52,
+} as const;
+
+// ── CUSTOM WYSIWYG RICH TEXT EDITOR ──────────────────────────────────────────
+
+type RichTextEditorProps = {
+  value: string;
+  onChange: (val: string) => void;
+  placeholder?: string;
+  minHeight?: string;
 };
+
+function RichTextEditor({ value, onChange, placeholder, minHeight = "140px" }: RichTextEditorProps) {
+  const editorRef = useRef<HTMLDivElement>(null);
+  const isUpdatingRef = useRef(false);
+  const [activeFormats, setActiveFormats] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (editorRef.current && editorRef.current.innerHTML !== value) {
+      isUpdatingRef.current = true;
+      editorRef.current.innerHTML = value || "";
+      isUpdatingRef.current = false;
+    }
+  }, [value]);
+
+  const updateActiveFormats = () => {
+    setActiveFormats({
+      bold: document.queryCommandState("bold"),
+      italic: document.queryCommandState("italic"),
+      underline: document.queryCommandState("underline"),
+    });
+  };
+
+  const handleCommand = (command: string) => {
+    document.execCommand(command, false, "");
+    updateActiveFormats();
+    if (editorRef.current) onChange(editorRef.current.innerHTML);
+  };
+
+  const handleInput = () => {
+    if (isUpdatingRef.current) return;
+    if (editorRef.current) onChange(editorRef.current.innerHTML);
+  };
+
+  const handleKeyUp = () => updateActiveFormats();
+  const handleMouseUp = () => updateActiveFormats();
+
+  // Prevent the editor from losing focus/selection when a toolbar button is clicked
+  const preventBlur = (e: React.MouseEvent) => e.preventDefault();
+
+  const toolBtn = (cmd?: string): React.CSSProperties => {
+    const active = cmd ? activeFormats[cmd] : false;
+    return {
+      width: 36,
+      height: 36,
+      borderRadius: 6,
+      border: active ? `1.5px solid ${T.accent}` : "1px solid #e2e8f0",
+      background: active ? T.accentBg : T.white,
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      color: active ? T.accent : T.slate700,
+      flexShrink: 0,
+      fontWeight: active ? 700 : 400,
+      transition: "background 0.15s, border 0.15s, color 0.15s",
+    };
+  };
+
+  const separatorStyle: React.CSSProperties = {
+    width: 1, height: 20, background: T.slate300, margin: "0 4px",
+  };
+
+  return (
+    <div
+      style={{
+        border: `1.5px solid ${T.slate200}`,
+        borderRadius: 10,
+        overflow: "hidden",
+        background: T.white,
+      }}
+    >
+      {/* Toolbar */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          padding: "8px 12px",
+          background: T.slate50,
+          borderBottom: `1px solid ${T.slate200}`,
+          flexWrap: "wrap",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1 }}>
+          {/* Undo / Redo */}
+          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("undo")} style={toolBtn()} title="Undo"><Undo2 size={15} /></button>
+          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("redo")} style={toolBtn()} title="Redo"><Redo2 size={15} /></button>
+          <div style={separatorStyle} />
+          {/* Formatting */}
+          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("bold")} style={toolBtn("bold")} title="Bold"><Bold size={15} /></button>
+          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("italic")} style={toolBtn("italic")} title="Italic"><Italic size={15} /></button>
+          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("underline")} style={toolBtn("underline")} title="Underline"><Underline size={15} /></button>
+        </div>
+        {/* Character count */}
+        <span style={{ fontSize: T.fs_xs, color: T.slate500, whiteSpace: "nowrap", flexShrink: 0 }}>
+          {value.replace(/<[^>]*>/g, "").length} characters
+        </span>
+      </div>
+      {/* Editable area */}
+      <div
+        ref={editorRef}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={handleInput}
+        onBlur={handleInput}
+        onKeyUp={handleKeyUp}
+        onMouseUp={handleMouseUp}
+        style={{
+          padding: "14px 16px",
+          outline: "none",
+          fontSize: T.fs_base,
+          color: T.slate900,
+          lineHeight: 1.75,
+          minHeight,
+          overflowY: "auto",
+        }}
+        data-placeholder={placeholder}
+      />
+    </div>
+  );
+}
+
+// ── TYPES ───────────────────────────────────────────────────────────────────
 
 type CBLArticle = {
   id: string;
-  articleNumber: string;
-  title: string;
-  sections: string[];
+  article_number: string;
+  article_name: string;
+  article_description: string;
+  sort_order: number;
+  updated_at: string;
 };
 
-type CBLData = {
+type GovernanceDoc = {
+  id: string;
   title: string;
-  subtitle: string;
-  introduction: string;
-  pdfUrl: string;
-  articles: CBLArticle[];
-  resolution: string;
-  adoptionDate: string;
-  secretary: Signatory;
-  attestedBy: Signatory[];
+  general_description: string;
+  file_name?: string;
+  file_url?: string;
+  file_size?: number;
+  uploaded_by?: string;
+  updated_at: string;
+  created_at: string;
 };
 
 type Section = {
@@ -45,471 +229,1397 @@ type Section = {
   updated_at: string;
 };
 
+// ── COMPONENT ────────────────────────────────────────────────────────────────
+
 export default function CblInformationManagement() {
   const router = useRouter();
-  const [section, setSection] = useState<Section | null>(null);
+
+  const [activeTab, setActiveTab] = useState<"process" | "governance">("process");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
-  // Forms states
-  const [title, setTitle] = useState("");
-  const [subtitle, setSubtitle] = useState("");
-  const [introduction, setIntroduction] = useState("");
-  const [resolution, setResolution] = useState("");
-  const [adoptionDate, setAdoptionDate] = useState("");
-  const [pdfUrl, setPdfUrl] = useState("");
+  const [section, setSection] = useState<Section | null>(null);
+  const [governanceDoc, setGovernanceDoc] = useState<GovernanceDoc | null>(null);
   const [articles, setArticles] = useState<CBLArticle[]>([]);
-  const [secretary, setSecretary] = useState<Signatory>({ name: "", title: "", signed: true, signatureType: "SGD." });
-  const [attestedBy, setAttestedBy] = useState<Signatory[]>([]);
 
-  // Form for adding a new article
-  const [newArtNum, setNewArtNum] = useState("");
-  const [newArtTitle, setNewArtTitle] = useState("");
-  const [newArtSections, setNewArtSections] = useState("");
+  const [title, setTitle] = useState("");
+  const [generalDescription, setGeneralDescription] = useState("");
 
-  // Form for adding attested signatory
-  const [newSigName, setNewSigName] = useState("");
-  const [newSigTitle, setNewSigTitle] = useState("");
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchCBL = async () => {
-      try {
-        setIsLoading(true);
-        const res = await api.get("/about-page/sections/cbl_information");
-        if (res.success) {
-          const s = res.data as Section;
-          setSection(s);
-          setTitle(s.title);
-          
-          const parsed = JSON.parse(s.content) as CBLData;
-          setSubtitle(parsed.subtitle || "");
-          setIntroduction(parsed.introduction || "");
-          setResolution(parsed.resolution || "");
-          setAdoptionDate(parsed.adoptionDate || "");
-          setPdfUrl(parsed.pdfUrl || "");
-          setArticles(parsed.articles || []);
-          setSecretary(parsed.secretary || { name: "", title: "", signed: true, signatureType: "SGD." });
-          setAttestedBy(parsed.attestedBy || []);
-        }
-      } catch (err) {
-        console.error(err);
-        gooeyToast.error("Failed to load CBL data.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchCBL();
-  }, []);
+  const [articleNumber, setArticleNumber] = useState("");
+  const [articleName, setArticleName] = useState("");
+  const [articleDescription, setArticleDescription] = useState("");
 
-  const handleSave = async (status: "draft" | "published") => {
-    setIsSaving(true);
-    const contentData: CBLData = {
-      title,
-      subtitle,
-      introduction,
-      pdfUrl,
-      articles,
-      resolution,
-      adoptionDate,
-      secretary,
-      attestedBy,
-    };
+  const [previewArticle, setPreviewArticle] = useState<CBLArticle | null>(null);
+  const [searchQueryTable, setSearchQueryTable] = useState("");
+  const [showDeletePDFModal, setShowDeletePDFModal] = useState(false);
+  const [showDeleteArticleModal, setShowDeleteArticleModal] = useState<string | null>(null);
 
+  const hasUnsavedGeneralInfoChanges =
+    title !== (governanceDoc?.title || "") ||
+    generalDescription !== (governanceDoc?.general_description || "");
+
+  const isPublishButtonDisabled = (section?.status === "published") && !hasUnsavedGeneralInfoChanges;
+
+
+  // ── DATA LOADING ─────────────────────────────────────────────────────────
+
+  const fetchAllData = async () => {
     try {
-      const res = await api.put("/about-page/sections/cbl_information", {
-        title,
-        content: JSON.stringify(contentData),
-        status,
-      });
+      setIsLoading(true);
+      const [secRes, govRes, artRes] = await Promise.all([
+        api.get("/about-page/sections/cbl_information"),
+        api.get("/about-page/cbl/governance"),
+        api.get("/about-page/cbl/articles"),
+      ]);
+      if (secRes.success && secRes.data) setSection(secRes.data as Section);
+      if (govRes.success && govRes.data) {
+        const doc = govRes.data as GovernanceDoc;
+        setGovernanceDoc(doc);
+        setTitle(doc.title);
+        setGeneralDescription(doc.general_description);
+      }
+      if (artRes.success && artRes.data) setArticles(artRes.data as CBLArticle[]);
+    } catch (err) {
+      console.error("Failed to load CBL data:", err);
+      gooeyToast.error("Failed to load Constitution and By-Laws data.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => { fetchAllData(); }, []);
+
+  // ── GENERAL INFO SAVE ────────────────────────────────────────────────────
+
+  const handleSaveGeneralInfo = async () => {
+    try {
+      if (governanceDoc?.id) {
+        const res = await api.patch(`/about-page/cbl/governance/${governanceDoc.id}`, {
+          title, general_description: generalDescription,
+        });
+        if (res.success) setGovernanceDoc(res.data);
+      } else {
+        const res = await api.post("/about-page/cbl/governance", {
+          title: title || "Constitution and By-Laws",
+          general_description: generalDescription || "",
+        });
+        if (res.success) setGovernanceDoc(res.data);
+      }
+    } catch (err) { console.error("Save general info failed:", err); }
+  };
+
+  // ── ARTICLE OPERATIONS ───────────────────────────────────────────────────
+
+  const handleOpenCreateDrawer = () => {
+    setSelectedArticleId(null);
+    setArticleNumber(""); setArticleName(""); setArticleDescription("");
+    setIsDrawerOpen(true);
+  };
+
+  const handleOpenEditDrawer = (art: CBLArticle) => {
+    setSelectedArticleId(art.id);
+    setArticleNumber(art.article_number); setArticleName(art.article_name);
+    setArticleDescription(art.article_description);
+    setIsDrawerOpen(true);
+  };
+
+  const handleCloseDrawer = () => setIsDrawerOpen(false);
+
+
+  const handleSaveArticle = async () => {
+    if (!articleNumber.trim() || !articleName.trim() || !articleDescription.replace(/<[^>]*>/g, "").trim()) {
+      gooeyToast.error("Article Number, Name, and Description are required.");
+      return;
+    }
+    try {
+      setIsSaving(true);
+      if (selectedArticleId) {
+        const res = await api.patch(`/about-page/cbl/articles/${selectedArticleId}`, {
+          article_number: articleNumber, article_name: articleName, article_description: articleDescription,
+        });
+        if (res.success) {
+          setArticles((prev) => prev.map((a) => a.id === selectedArticleId ? res.data : a).sort((a, b) => a.sort_order - b.sort_order));
+          gooeyToast.success("Article updated successfully!");
+          handleCloseDrawer();
+        }
+      } else {
+        const res = await api.post("/about-page/cbl/articles", {
+          article_number: articleNumber, article_name: articleName, article_description: articleDescription,
+        });
+        if (res.success) {
+          setArticles((prev) => [...prev, res.data].sort((a, b) => a.sort_order - b.sort_order));
+          gooeyToast.success("Article created successfully!");
+          handleCloseDrawer();
+        }
+      }
+    } catch (err: any) {
+      gooeyToast.error(err.message || "Failed to save article.");
+    } finally { setIsSaving(false); }
+  };
+
+  const handleDeleteArticle = async (id: string) => {
+    try {
+      setIsSaving(true);
+      const res = await api.delete(`/about-page/cbl/articles/${id}`);
+      if (res.success) {
+        setArticles((prev) => prev.filter((a) => a.id !== id));
+        if (selectedArticleId === id) handleCloseDrawer();
+        setShowDeleteArticleModal(null);
+        gooeyToast.success("Article deleted successfully!");
+      }
+    } catch (err: any) {
+      gooeyToast.error("Failed to delete article.");
+    } finally { setIsSaving(false); }
+  };
+
+  // ── PDF OPERATIONS ───────────────────────────────────────────────────────
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files?.length) return;
+    const file = files[0];
+    if (file.type !== "application/pdf") { gooeyToast.error("Only PDF files are allowed."); return; }
+    if (file.size > 10 * 1024 * 1024) { gooeyToast.error("File size exceeds 10MB."); return; }
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      let res;
+      if (governanceDoc?.id) {
+        res = await api.patchMultipart(`/about-page/cbl/governance/${governanceDoc.id}`, formData);
+      } else {
+        formData.append("title", title || "Constitution and By-Laws");
+        formData.append("general_description", generalDescription || "");
+        res = await api.postMultipart("/about-page/cbl/governance", formData);
+      }
+      if (res.success) { setGovernanceDoc(res.data); gooeyToast.success("Governance PDF linked successfully!"); }
+    } catch (err: any) {
+      gooeyToast.error("Failed to upload governance document PDF.");
+    } finally { setIsUploading(false); }
+  };
+
+  const handleDeletePDF = async () => {
+    if (!governanceDoc?.id) return;
+    try {
+      setIsUploading(true);
+      const res = await api.patch(`/about-page/cbl/governance/${governanceDoc.id}`, { removeFile: true });
+      if (res.success) {
+        setGovernanceDoc(res.data);
+        gooeyToast.success("PDF removed.");
+        setShowDeletePDFModal(false);
+      }
+    } catch {
+      gooeyToast.error("Failed to remove PDF.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // ── PUBLISH ──────────────────────────────────────────────────────────────
+
+  const handlePublishToggle = async (publish: boolean) => {
+    setIsSaving(true);
+    try {
+      if (title.trim() === "" || generalDescription.replace(/<[^>]*>/g, "").trim() === "") {
+        gooeyToast.error("CBL Title and General Description are required.");
+        setIsSaving(false);
+        return;
+      }
+
+      if (hasUnsavedGeneralInfoChanges) {
+        let res;
+        if (governanceDoc?.id) {
+          res = await api.patch(`/about-page/cbl/governance/${governanceDoc.id}`, {
+            title, general_description: generalDescription,
+          });
+        } else {
+          res = await api.post("/about-page/cbl/governance", {
+            title: title || "Constitution and By-Laws",
+            general_description: generalDescription || "",
+          });
+        }
+        if (!res.success) {
+          throw new Error("Failed to save general information.");
+        }
+        setGovernanceDoc(res.data);
+      }
+
+      const endpoint = `/about-page/sections/cbl_information/${publish ? "publish" : "unpublish"}`;
+      const res = await api.post(endpoint, {});
       if (res.success) {
         setSection(res.data);
-        gooeyToast.success("CBL Information updated successfully!");
+        gooeyToast.success(publish ? "CBL content published!" : "Saved as draft.");
+        router.push("/admin-dashboard/about-page");
       }
-    } catch (err) {
-      console.error(err);
-      gooeyToast.error("Failed to save CBL Information.");
+    } catch (err: any) {
+      console.error("Failed to update status:", err);
+      gooeyToast.error(err.message || "Failed to update publication status.");
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleAddArticle = () => {
-    if (!newArtNum || !newArtTitle || !newArtSections) {
-      gooeyToast.error("Please fill in Article number, title, and sections.");
-      return;
-    }
-    const newArticle: CBLArticle = {
-      id: `art-${Date.now()}`,
-      articleNumber: newArtNum,
-      title: newArtTitle,
-      sections: newArtSections.split("\n").filter((s) => s.trim() !== ""),
-    };
-    setArticles([...articles, newArticle]);
-    setNewArtNum("");
-    setNewArtTitle("");
-    setNewArtSections("");
-    gooeyToast.success("Article added to list. Remember to Save Changes!");
-  };
+  // ── HELPERS ──────────────────────────────────────────────────────────────
 
-  const handleDeleteArticle = (id: string) => {
-    setArticles(articles.filter((a) => a.id !== id));
-  };
+  const formatFileSize = (bytes?: number) => !bytes ? "—" : `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  const formatDate = (dateStr?: string) => !dateStr ? "—" :
+    new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
 
-  const handleAddSignatory = () => {
-    if (!newSigName || !newSigTitle) {
-      gooeyToast.error("Please fill in name and title.");
-      return;
-    }
-    const newSig: Signatory = {
-      name: newSigName,
-      title: newSigTitle,
-      signed: true,
-      signatureType: "SGD.",
-    };
-    setAttestedBy([...attestedBy, newSig]);
-    setNewSigName("");
-    setNewSigTitle("");
-    gooeyToast.success("Signatory added. Remember to Save Changes!");
-  };
+  const filteredArticles = articles.filter((a) =>
+    a.article_number.toLowerCase().includes(searchQueryTable.toLowerCase()) ||
+    a.article_name.toLowerCase().includes(searchQueryTable.toLowerCase())
+  );
 
-  const handleDeleteSignatory = (index: number) => {
-    setAttestedBy(attestedBy.filter((_, i) => i !== index));
-  };
+  // ── LOADING ──────────────────────────────────────────────────────────────
 
   if (isLoading) {
     return (
-      <AdminSidebarLayout
-        pageClassName="admin-dashboard"
-        mainClassName="admin-main"
-        title="Constitution & By-Laws"
-        subtitle="Loading CBL configurations..."
-      >
-        <div style={{ display: "flex", justifyContent: "center", padding: "80px" }}>
-          <Loader2 className="animate-spin" size={32} />
+      <AdminSidebarLayout pageClassName="admin-dashboard" mainClassName="admin-main"
+        title="Constitution & By-Laws" subtitle="Loading CBL Configurations...">
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "80px 0" }}>
+          <Loader2 className="animate-spin" size={40} style={{ color: T.blue }} />
         </div>
       </AdminSidebarLayout>
     );
   }
 
+  // ── SHARED STYLE HELPERS ─────────────────────────────────────────────────
+
+  const labelStyle: React.CSSProperties = {
+    display: "block",
+    fontSize: T.fs_sm,
+    fontWeight: 700,
+    color: T.slate600,
+    marginBottom: 7,
+    letterSpacing: "0.01em",
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    height: T.inputH,
+    padding: "0 14px",
+    border: `1.5px solid ${T.slate200}`,
+    borderRadius: 9,
+    fontSize: T.fs_base,
+    color: T.slate900,
+    outline: "none",
+    boxSizing: "border-box",
+    background: T.white,
+    transition: "border-color 0.15s",
+  };
+
+  const primaryBtn: React.CSSProperties = {
+    height: T.btnH,
+    padding: "0 22px",
+    borderRadius: 9,
+    fontSize: T.fs_base,
+    fontWeight: 700,
+    color: T.white,
+    background: T.blue,
+    border: "none",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    whiteSpace: "nowrap",
+    letterSpacing: "0.01em",
+  };
+
+  const secondaryBtn: React.CSSProperties = {
+    height: T.btnH,
+    padding: "0 18px",
+    borderRadius: 9,
+    fontSize: T.fs_base,
+    fontWeight: 600,
+    color: T.slate600,
+    background: T.slate100,
+    border: `1.5px solid ${T.slate200}`,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    whiteSpace: "nowrap",
+  };
+
+  const dangerBtn: React.CSSProperties = {
+    height: T.btnH,
+    padding: "0 18px",
+    borderRadius: 9,
+    fontSize: T.fs_base,
+    fontWeight: 600,
+    color: T.red,
+    background: T.redBg,
+    border: `1.5px solid ${T.redBorder}`,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    whiteSpace: "nowrap",
+  };
+
+  const cardStyle: React.CSSProperties = {
+    background: T.white,
+    border: `1px solid ${T.border}`,
+    borderRadius: 14,
+    overflow: "hidden",
+  };
+
+  const cardHeaderStyle: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "16px 24px",
+    borderBottom: `1px solid ${T.slate100}`,
+    background: T.white,
+  };
+
+  const cardTitleStyle: React.CSSProperties = {
+    fontSize: T.fs_md,
+    fontWeight: 700,
+    color: T.blue,
+    margin: 0,
+  };
+
+  // ── MAIN RENDER ──────────────────────────────────────────────────────────
+
   return (
     <AdminSidebarLayout
       pageClassName="admin-dashboard"
       mainClassName="admin-main"
-      title="CBL INFORMATION MANAGEMENT"
-      subtitle="Manage the Constitution and By-Laws articles, resolutions, and attesting officers."
-      eyebrow="Section Editor"
+      title="CBL Information"
+      subtitle="Constitution & By-Laws content management"
+      eyebrow="Content Manager"
     >
-      <div className="admin-shell">
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
-          <button
-            type="button"
-            className="about-btn about-btn--secondary"
-            onClick={() => router.push("/admin-dashboard/about-page")}
-          >
-            <ArrowLeft size={16} /> Back to dashboard
-          </button>
-          
-          <div style={{ display: "flex", gap: "8px" }}>
+      {/* ── STICKY HEADER ─────────────────────────────────────────────────── */}
+      <div
+        style={{
+          position: "sticky", top: 0, zIndex: 30,
+          background: "#ffffff",
+          borderBottom: `1px solid ${T.slate200}`,
+          boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+        }}
+      >
+        <div
+          style={{
+            padding: "0 28px", height: 56,
+            display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16,
+          }}
+        >
+          {/* Back + Tabs */}
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <button
               type="button"
-              className="about-btn about-btn--secondary"
-              disabled={isSaving}
-              onClick={() => handleSave("draft")}
+              onClick={() => router.push("/admin-dashboard/about-page")}
+              style={{
+                display: "flex", alignItems: "center", gap: 6,
+                color: T.slate500, fontSize: T.fs_sm, fontWeight: 600,
+                background: "none", border: "none", cursor: "pointer", padding: "6px 0",
+              }}
             >
-              <Save size={16} /> Save as Draft
+              <ArrowLeft size={16} /> Back
             </button>
+
+            {/* Compact Tabs */}
+            <div
+              style={{
+                display: "flex", alignItems: "center", gap: 2,
+                background: T.slate100, borderRadius: 9, padding: 3,
+              }}
+            >
+              {(["process", "governance"] as const).map((tab) => {
+                const labels = { process: "Process Information", governance: "Governance Document" };
+                const isActive = activeTab === tab;
+                return (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setActiveTab(tab)}
+                    style={{
+                      height: 34,
+                      padding: "0 16px",
+                      borderRadius: 7,
+                      fontSize: T.fs_sm,
+                      fontWeight: isActive ? 700 : 500,
+                      color: isActive ? T.blue : T.slate500,
+                      background: isActive ? T.white : "transparent",
+                      border: isActive ? `1px solid ${T.slate200}` : "1px solid transparent",
+                      cursor: "pointer",
+                      boxShadow: isActive ? "0 1px 3px rgba(0,0,0,0.06)" : "none",
+                      transition: "all 0.15s", whiteSpace: "nowrap",
+                    }}
+                  >
+                    {labels[tab]}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <button
               type="button"
-              className="about-btn about-btn--primary"
-              disabled={isSaving}
-              onClick={() => handleSave("published")}
+              disabled={isSaving || isPublishButtonDisabled}
+              onClick={() => handlePublishToggle(true)}
+              style={{
+                ...primaryBtn,
+                height: T.btnHSm,
+                fontSize: T.fs_sm,
+                padding: "0 18px",
+                borderRadius: 8,
+                background: (isSaving || isPublishButtonDisabled) ? "#4a7098" : T.blue,
+                opacity: (isSaving || isPublishButtonDisabled) ? 0.5 : 1,
+                cursor: (isSaving || isPublishButtonDisabled) ? "not-allowed" : "pointer",
+              }}
             >
-              <Globe size={16} /> Publish Changes
+              <Globe size={15} /> Publish Changes
             </button>
           </div>
         </div>
+      </div>
 
-        <section style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: "24px", alignItems: "start" }}>
-          {/* Main Content Fields */}
-          <div className="about-editor-card">
-            <h3 style={{ fontSize: "16px", color: "var(--p-navy)", marginBottom: "16px", fontWeight: 600 }}>
-              General Metadata & Intro
-            </h3>
+      {/* ── PAGE CONTENT ─────────────────────────────────────────────────── */}
+      <div style={{ padding: "28px 28px 80px" }}>
 
-            <div className="about-form-group">
-              <label className="about-form-label">Title</label>
-              <input
-                type="text"
-                className="about-input"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
+        {/* ── PROCESS INFORMATION TAB ──────────────────────────────────────── */}
+        {activeTab === "process" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
-            <div className="about-form-group">
-              <label className="about-form-label">Subtitle</label>
-              <input
-                type="text"
-                className="about-input"
-                value={subtitle}
-                onChange={(e) => setSubtitle(e.target.value)}
-              />
-            </div>
-
-            <div className="about-form-group">
-              <label className="about-form-label">Introduction Narrative</label>
-              <textarea
-                rows={4}
-                className="about-textarea"
-                value={introduction}
-                onChange={(e) => setIntroduction(e.target.value)}
-              />
-            </div>
-
-            <div className="about-form-group">
-              <label className="about-form-label">PDF Link URL</label>
-              <input
-                type="text"
-                className="about-input"
-                value={pdfUrl}
-                onChange={(e) => setPdfUrl(e.target.value)}
-              />
-            </div>
-
-            <hr style={{ border: 0, borderTop: "1px solid var(--r-border)", margin: "24px 0" }} />
-
-            <h3 style={{ fontSize: "16px", color: "var(--p-navy)", marginBottom: "16px", fontWeight: 600 }}>
-              Articles Registry
-            </h3>
-
-            {/* List of current articles */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "20px" }}>
-              {articles.map((art) => (
-                <div
-                  key={art.id}
+            {/* SECTION 1 — General Information */}
+            <div style={cardStyle}>
+              <div style={cardHeaderStyle}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{
+                    width: 34, height: 34, borderRadius: 9,
+                    background: T.accentBg,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    <FileText size={16} color={T.accent} />
+                  </div>
+                  <h3 style={cardTitleStyle}>General Information</h3>
+                </div>
+                <span
                   style={{
-                    background: "var(--r-surface-2)",
-                    border: "1px solid var(--r-border)",
-                    borderRadius: "10px",
-                    padding: "14px",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
+                    fontSize: T.fs_xs,
+                    fontWeight: 700,
+                    color: T.accent,
+                    background: T.accentBg,
+                    padding: "4px 10px",
+                    borderRadius: 20,
+                    letterSpacing: "0.06em",
+                    textTransform: "uppercase",
+                    display: "flex", alignItems: "center", gap: 5,
                   }}
                 >
-                  <div>
-                    <h4 style={{ fontWeight: 600, color: "var(--p-navy)" }}>
-                      {art.articleNumber}: {art.title}
-                    </h4>
-                    <p style={{ fontSize: "12.5px", color: "var(--r-text-muted)", marginTop: "4px" }}>
-                      {art.sections.length} Section(s) listed
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    className="about-btn about-btn--danger"
-                    style={{ height: "30px", padding: "0 10px" }}
-                    onClick={() => handleDeleteArticle(art.id)}
-                  >
-                    <Trash size={14} /> Remove
-                  </button>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: T.accent, display: "inline-block" }} />
+                  Preamble
+                </span>
+              </div>
+
+              <div style={{ padding: "22px 24px", display: "flex", flexDirection: "column", gap: 20 }}>
+                {/* CBL Title */}
+                <div>
+                  <label style={labelStyle}>CBL Title <span style={{ color: T.red }}>*</span></label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Constitution and By-Laws"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    style={inputStyle}
+                  />
                 </div>
-              ))}
+
+                {/* General Description */}
+                <div>
+                  <label style={labelStyle}>General Description <span style={{ color: T.red }}>*</span></label>
+                  <RichTextEditor
+                    value={generalDescription}
+                    onChange={(val) => setGeneralDescription(val)}
+                    placeholder="Write the preamble narrative details..."
+                    minHeight="130px"
+                  />
+                </div>
+              </div>
             </div>
 
-            {/* Form to add an article */}
+            {/* SECTION 2 — Articles Registry */}
+            <div style={cardStyle}>
+              {/* Card Title Header */}
+              <div
+                style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  padding: "18px 24px 14px",
+                  borderBottom: `1px solid ${T.slate100}`,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{
+                    width: 34, height: 34, borderRadius: 9,
+                    background: T.accentBg, display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    <FileText size={16} color={T.accent} />
+                  </div>
+                  <div>
+                    <h3 style={{ ...cardTitleStyle, margin: 0 }}>Articles</h3>
+                    <span style={{ fontSize: T.fs_xs, color: T.slate500 }}>
+                      {filteredArticles.length} of {articles.length} article{articles.length !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+                </div>
+                {/* Search + New Article */}
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div
+                    style={{
+                      display: "flex", alignItems: "center", gap: 10,
+                      height: T.btnHSm + 2,
+                      padding: "0 12px",
+                      border: `1.5px solid ${T.slate200}`,
+                      borderRadius: 9,
+                      background: T.white,
+                    }}
+                  >
+                    <Search size={15} color={T.slate500} />
+                    <input
+                      type="text"
+                      placeholder="Search articles..."
+                      value={searchQueryTable}
+                      onChange={(e) => setSearchQueryTable(e.target.value)}
+                      style={{
+                        width: 180, fontSize: T.fs_sm,
+                        color: T.slate900, border: "none", outline: "none", background: "transparent",
+                      }}
+                    />
+                    {searchQueryTable && (
+                      <button
+                        type="button"
+                        onClick={() => setSearchQueryTable("")}
+                        style={{ background: "none", border: "none", cursor: "pointer", padding: 2, color: T.slate500, borderRadius: 4 }}
+                      >
+                        <X size={13} />
+                      </button>
+                    )}
+                  </div>
+                  <button type="button" onClick={handleOpenCreateDrawer} style={primaryBtn}>
+                    <Plus size={16} /> New Article
+                  </button>
+                </div>
+              </div>
+
+              {/* Article Table */}
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr style={{ background: "#f4f7fb", borderBottom: `1px solid ${T.slate100}` }}>
+                      {[
+                        { label: "Article Number", w: "22%" },
+                        { label: "Article Name", w: "auto" },
+                        { label: "Updated", w: "18%" },
+                        { label: "Actions", w: "14%", right: true },
+                      ].map((col) => (
+                        <th
+                          key={col.label}
+                          style={{
+                            padding: "13px 24px",
+                            textAlign: col.right ? "right" : "left",
+                            fontWeight: 700,
+                            color: T.slate600,
+                            fontSize: T.fs_sm,
+                            width: col.w,
+                            letterSpacing: "0.01em",
+                          }}
+                        >
+                          {col.label}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredArticles.map((art, idx) => (
+                      <tr
+                        key={art.id}
+                        style={{
+                          borderBottom: `1px solid ${T.slate100}`,
+                          background: idx % 2 === 0 ? T.white : "#fafcff",
+                          transition: "background 0.12s",
+                          cursor: "default",
+                        }}
+                        onMouseEnter={(e) => ((e.currentTarget as HTMLTableRowElement).style.background = "#eef4fb")}
+                        onMouseLeave={(e) => ((e.currentTarget as HTMLTableRowElement).style.background = idx % 2 === 0 ? T.white : "#fafcff")}
+                      >
+                        <td style={{ padding: "14px 24px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                            <span style={{
+                              width: 26, height: 26, borderRadius: "50%",
+                              background: T.accentBg, color: T.accent,
+                              fontSize: T.fs_xs, fontWeight: 700,
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              flexShrink: 0,
+                            }}>
+                              {idx + 1}
+                            </span>
+                            <span style={{ fontWeight: 700, color: T.blue, fontSize: T.fs_base }}>{art.article_number}</span>
+                          </div>
+                        </td>
+                        <td style={{ padding: "14px 24px", color: T.slate700, fontWeight: 600, fontSize: T.fs_base }}>
+                          {art.article_name}
+                        </td>
+                        <td style={{ padding: "14px 24px", color: T.slate500, fontSize: T.fs_sm }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                            <Calendar size={13} color={T.slate500} />
+                            {formatDate(art.updated_at)}
+                          </div>
+                        </td>
+                        <td style={{ padding: "14px 24px", textAlign: "right" }}>
+                          <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                            {/* View */}
+                            <button
+                              type="button" title="View article"
+                              onClick={() => setPreviewArticle(art)}
+                              style={{
+                                width: 36, height: 36, borderRadius: 7,
+                                border: `1.5px solid ${T.slate200}`,
+                                background: T.white, cursor: "pointer",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                color: T.slate500,
+                              }}
+                            >
+                              <Eye size={15} />
+                            </button>
+                            {/* Edit */}
+                            <button
+                              type="button" title="Edit article"
+                              onClick={() => handleOpenEditDrawer(art)}
+                              style={{
+                                width: 36, height: 36, borderRadius: 7,
+                                border: `1.5px solid #bfdbfe`,
+                                background: "#eff6ff", cursor: "pointer",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                color: T.accent,
+                              }}
+                            >
+                              <Edit size={15} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {filteredArticles.length === 0 && (
+                      <tr>
+                        <td
+                          colSpan={4}
+                          style={{
+                            padding: "52px 24px", textAlign: "center",
+                            color: T.slate500, fontSize: T.fs_base,
+                          }}
+                        >
+                          {searchQueryTable
+                            ? `No articles matching "${searchQueryTable}".`
+                            : "No articles in the registry yet. Click New Article to begin."}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Footer count */}
+              {filteredArticles.length > 0 && (
+                <div
+                  style={{
+                    padding: "10px 24px",
+                    borderTop: `1px solid ${T.slate100}`,
+                    fontSize: T.fs_sm,
+                    color: T.slate500,
+                    background: T.slate50,
+                  }}
+                >
+                  Showing {filteredArticles.length} of {articles.length} article{articles.length !== 1 ? "s" : ""}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── GOVERNANCE DOCUMENT TAB ───────────────────────────────────────── */}
+        {activeTab === "governance" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+
+            {/* Preamble Preview */}
+            <div style={cardStyle}>
+              <div style={cardHeaderStyle}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{
+                    width: 34, height: 34, borderRadius: 9,
+                    background: T.accentBg,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    <FileText size={16} color={T.accent} />
+                  </div>
+                  <h3 style={cardTitleStyle}>Preamble Sync Preview</h3>
+                </div>
+              </div>
+              <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
+                <div>
+                  <span style={{ fontSize: T.fs_xs, fontWeight: 700, color: T.slate500, textTransform: "uppercase", letterSpacing: "0.06em" }}>CBL Title</span>
+                  <p style={{ fontSize: T.fs_base, fontWeight: 600, color: T.slate900, margin: "6px 0 0" }}>{title || "—"}</p>
+                </div>
+                <div>
+                  <span style={{ fontSize: T.fs_xs, fontWeight: 700, color: T.slate500, textTransform: "uppercase", letterSpacing: "0.06em" }}>General Description</span>
+                  <div
+                    style={{
+                      fontSize: T.fs_base, color: T.slate700, marginTop: 8,
+                      border: `1px solid ${T.slate200}`, background: T.slate50,
+                      borderRadius: 9, padding: "12px 16px", maxHeight: 180, overflowY: "auto", lineHeight: 1.7,
+                    }}
+                    dangerouslySetInnerHTML={{ __html: generalDescription || "Preamble content empty." }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Governance PDF */}
+            <div style={cardStyle}>
+              <div style={cardHeaderStyle}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{
+                    width: 34, height: 34, borderRadius: 9,
+                    background: T.accentBg,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    <FileText size={16} color={T.accent} />
+                  </div>
+                  <h3 style={cardTitleStyle}>Governance PDF Document</h3>
+                </div>
+                <Info size={17} color={T.slate500} />
+              </div>
+              <div style={{ padding: "24px" }}>
+                {!governanceDoc?.file_url ? (
+                  <label
+                    style={{
+                      border: `2px dashed ${T.slate300}`,
+                      borderRadius: 14, padding: "50px 24px",
+                      display: "flex", flexDirection: "column", alignItems: "center",
+                      justifyContent: "center", cursor: "pointer", textAlign: "center",
+                      background: T.slate50,
+                    }}
+                  >
+                    {isUploading ? (
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+                        <Loader2 className="animate-spin" size={32} style={{ color: T.blue }} />
+                        <p style={{ fontSize: T.fs_base, fontWeight: 600, color: T.slate600, margin: 0 }}>Uploading file, please wait...</p>
+                      </div>
+                    ) : (
+                      <>
+                        <div style={{ width: 56, height: 56, background: T.accentBg, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+                          <Upload size={24} color={T.blue} />
+                        </div>
+                        <p style={{ fontSize: T.fs_lg, fontWeight: 700, color: T.slate900, margin: "0 0 6px" }}>Drop PDF here or click to upload</p>
+                        <p style={{ fontSize: T.fs_sm, color: T.slate500, margin: "0 0 16px" }}>Only PDF documents are supported. Maximum size: 10 MB.</p>
+                        <span style={{
+                          display: "inline-flex", alignItems: "center", gap: 7,
+                          padding: "0 18px", height: 38,
+                          background: T.blue, color: T.white,
+                          borderRadius: 8, fontSize: T.fs_sm, fontWeight: 600,
+                          pointerEvents: "none",
+                        }}>
+                          <Upload size={14} /> Choose PDF file
+                        </span>
+                      </>
+                    )}
+                    <input type="file" accept="application/pdf" style={{ display: "none" }} onChange={handleFileUpload} disabled={isUploading} />
+                  </label>
+                ) : (
+                  <div style={{ border: `1.5px solid ${T.slate200}`, borderRadius: 12, padding: 20 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                        <div style={{ width: 52, height: 52, background: T.redBg, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <FileText size={24} color={T.red} />
+                        </div>
+                        <div>
+                          <p style={{ fontSize: T.fs_base, fontWeight: 700, color: T.slate900, margin: 0 }}>{governanceDoc.file_name}</p>
+                          <p style={{ fontSize: T.fs_sm, color: T.slate500, margin: "3px 0 0" }}>
+                            {formatFileSize(governanceDoc.file_size)} · Uploaded {formatDate(governanceDoc.created_at)}
+                          </p>
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                        <a
+                          href={governanceDoc.file_url} target="_blank" rel="noreferrer"
+                          style={{ ...secondaryBtn, textDecoration: "none", height: 38, fontSize: T.fs_sm }}
+                        >
+                          Preview File
+                        </a>
+                        <label style={{ ...secondaryBtn, height: 38, fontSize: T.fs_sm, cursor: "pointer" }}>
+                          Replace
+                          <input type="file" accept="application/pdf" style={{ display: "none" }} onChange={handleFileUpload} disabled={isUploading} />
+                        </label>
+                        <button type="button" onClick={() => setShowDeletePDFModal(true)} disabled={isUploading}
+                          style={{ ...dangerBtn, height: 38, fontSize: T.fs_sm }}>
+                          <Trash size={15} /> Remove
+                        </button>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginTop: 18, paddingTop: 18, borderTop: `1px solid ${T.slate100}` }}>
+                      {[
+                        { label: "Uploaded By", value: governanceDoc.uploaded_by || "—" },
+                        { label: "Upload Date", value: formatDate(governanceDoc.created_at) },
+                        { label: "Last Modified", value: formatDate(governanceDoc.updated_at) },
+                        { label: "Link Status", value: "Active PDF", icon: <Check size={13} color={T.green} /> },
+                      ].map((meta) => (
+                        <div key={meta.label}>
+                          <span style={{ fontSize: T.fs_xs, fontWeight: 700, color: T.slate500, textTransform: "uppercase", letterSpacing: "0.06em", display: "block" }}>
+                            {meta.label}
+                          </span>
+                          <span style={{ fontSize: T.fs_sm, fontWeight: 700, color: T.slate600, display: "flex", alignItems: "center", gap: 4, marginTop: 5 }}>
+                            {meta.icon} {meta.value}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── SLIDE-OVER DRAWER ─────────────────────────────────────────────── */}
+
+      {isDrawerOpen && (
+        <div
+          onClick={handleCloseDrawer}
+          style={{
+            position: "fixed", inset: 0,
+            background: "rgba(0,0,0,0.45)",
+            backdropFilter: "blur(3px)",
+            WebkitBackdropFilter: "blur(3px)",
+            zIndex: 40,
+          }}
+        />
+      )}
+
+      <div
+        style={{
+          position: "fixed", top: 0, right: 0, bottom: 0,
+          width: "100%", maxWidth: 650,
+          background: T.white,
+          boxShadow: "-6px 0 40px rgba(0,0,0,0.14)",
+          zIndex: 50,
+          display: "flex", flexDirection: "column",
+          transform: isDrawerOpen ? "translateX(0)" : "translateX(100%)",
+          transition: "transform 0.28s cubic-bezier(0.4,0,0.2,1)",
+        }}
+      >
+        {/* Drawer Header */}
+        <div
+          style={{
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+            padding: "0 24px", height: 68,
+            borderBottom: `1px solid ${T.slate100}`,
+            background: T.slate50, flexShrink: 0,
+          }}
+        >
+          <div>
+            <h3 style={{ fontSize: T.fs_lg, fontWeight: 700, color: T.blue, margin: 0 }}>
+              {selectedArticleId ? "Edit Article" : "New Article"}
+            </h3>
+            <p style={{ fontSize: T.fs_sm, color: T.slate500, margin: "3px 0 0" }}>
+              Fill in the constitutional article details
+            </p>
+          </div>
+          <button
+            type="button" onClick={handleCloseDrawer}
+            style={{
+              width: 38, height: 38, borderRadius: 8,
+              border: `1.5px solid ${T.slate200}`,
+              background: T.white, cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center", color: T.slate500,
+            }}
+          >
+            <X size={17} />
+          </button>
+        </div>
+
+        {/* Drawer Form */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "24px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+
+            {/* Article Number */}
+            <div>
+              <label style={labelStyle}>
+                Article Number <span style={{ color: T.red }}>*</span>
+              </label>
+              {!selectedArticleId ? (
+                /* ── CREATE MODE: plain text input ── */
+                <>
+                  <input
+                    type="text"
+                    placeholder="e.g. Article I, Article V, Article XII..."
+                    value={articleNumber}
+                    onChange={(e) => setArticleNumber(e.target.value)}
+                    autoFocus
+                    style={inputStyle}
+                  />
+                  <p style={{ margin: "7px 0 0", fontSize: T.fs_xs, color: T.slate500, lineHeight: 1.5 }}>
+                    Enter a unique article identifier. Use Roman numerals or a custom label (e.g. Article I, Article II).
+                  </p>
+                </>
+              ) : (
+                /* ── EDIT MODE: editable input showing current number ── */
+                <>
+                  <input
+                    type="text"
+                    value={articleNumber}
+                    onChange={(e) => setArticleNumber(e.target.value)}
+                    style={{
+                      ...inputStyle,
+                      background: "#f8fafc",
+                      fontWeight: 700,
+                      color: T.blue,
+                    }}
+                  />
+                  <p style={{ margin: "7px 0 0", fontSize: T.fs_xs, color: T.slate500, lineHeight: 1.5 }}>
+                    You may rename the article number. Changes take effect when you save.
+                  </p>
+                </>
+              )}
+            </div>
+
+            {/* Article Name */}
+            <div>
+              <label style={labelStyle}>Article Name <span style={{ color: T.red }}>*</span></label>
+              <input
+                type="text"
+                placeholder="e.g. Purposes and Objectives"
+                value={articleName}
+                onChange={(e) => setArticleName(e.target.value)}
+                style={inputStyle}
+              />
+            </div>
+
+            {/* Article Description */}
+            <div>
+              <label style={labelStyle}>Article Description <span style={{ color: T.red }}>*</span></label>
+              <RichTextEditor
+                value={articleDescription}
+                onChange={(val) => setArticleDescription(val)}
+                placeholder="Type the items, sections, and descriptions of this article..."
+                minHeight="280px"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Drawer Footer */}
+        <div
+          style={{
+            padding: "16px 24px",
+            borderTop: `1px solid ${T.slate100}`,
+            background: T.slate50, flexShrink: 0,
+            display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
+          }}
+        >
+          {/* Left: Delete */}
+          <div>
+            {selectedArticleId && (
+              <button type="button" disabled={isSaving}
+                onClick={() => setShowDeleteArticleModal(selectedArticleId)}
+                style={dangerBtn}
+              >
+                <Trash size={16} /> Delete Article
+              </button>
+            )}
+          </div>
+
+          {/* Right: Cancel + Save */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <button type="button" onClick={handleCloseDrawer} style={secondaryBtn}>
+              Cancel
+            </button>
+            <button type="button" onClick={handleSaveArticle} disabled={isSaving}
+              style={{ ...primaryBtn, background: isSaving ? "#4a7098" : T.blue }}>
+              {isSaving ? <Loader2 className="animate-spin" size={16} /> : <Check size={16} />}
+              Save Article
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── READ-ONLY PREVIEW MODAL ───────────────────────────────────────── */}
+
+      {previewArticle && (
+        <>
+          <div
+            onClick={() => setPreviewArticle(null)}
+            style={{
+              position: "fixed", inset: 0,
+              background: "rgba(0,0,0,0.45)",
+              backdropFilter: "blur(3px)",
+              WebkitBackdropFilter: "blur(3px)",
+              zIndex: 55,
+            }}
+          />
+          <div
+            style={{
+              position: "fixed", top: "50%", left: "50%",
+              transform: "translate(-50%,-50%)",
+              width: "92%", maxWidth: 560,
+              background: T.white,
+              border: `1px solid ${T.slate200}`,
+              borderRadius: 16,
+              boxShadow: "0 24px 70px rgba(0,0,0,0.18)",
+              zIndex: 60,
+              display: "flex", flexDirection: "column",
+              maxHeight: "82vh", overflow: "hidden",
+            }}
+          >
             <div
               style={{
-                background: "rgba(20,49,82,0.02)",
-                border: "1px dashed var(--r-border-mid)",
-                borderRadius: "12px",
-                padding: "16px",
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                padding: "18px 24px",
+                borderBottom: `1px solid ${T.slate100}`,
+                background: T.slate50,
               }}
             >
-              <h4 style={{ fontSize: "13.5px", fontWeight: 600, color: "var(--p-navy)", marginBottom: "12px" }}>
-                Add New Article
-              </h4>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "12px", marginBottom: "12px" }}>
-                <input
-                  type="text"
-                  placeholder="e.g. Article I"
-                  className="about-input"
-                  value={newArtNum}
-                  onChange={(e) => setNewArtNum(e.target.value)}
-                />
-                <input
-                  type="text"
-                  placeholder="Article Title"
-                  className="about-input"
-                  value={newArtTitle}
-                  onChange={(e) => setNewArtTitle(e.target.value)}
-                />
+              <div>
+                <span
+                  style={{
+                    fontSize: 11, fontWeight: 700, color: T.slate500,
+                    background: T.slate200, padding: "3px 8px", borderRadius: 4,
+                    textTransform: "uppercase", letterSpacing: "0.06em",
+                    display: "inline-block", marginBottom: 6,
+                  }}
+                >
+                  Article Preview
+                </span>
+                <h3 style={{ fontSize: T.fs_lg, fontWeight: 700, color: T.blue, margin: 0 }}>
+                  {previewArticle.article_number}: {previewArticle.article_name}
+                </h3>
               </div>
-              <textarea
-                placeholder="Paste sections here (one section per line)..."
-                rows={3}
-                className="about-textarea"
-                value={newArtSections}
-                onChange={(e) => setNewArtSections(e.target.value)}
-              />
               <button
                 type="button"
-                className="about-btn about-btn--primary"
-                style={{ marginTop: "12px" }}
-                onClick={handleAddArticle}
+                onClick={() => setPreviewArticle(null)}
+                style={{
+                  width: 38, height: 38, borderRadius: 8,
+                  border: `1.5px solid ${T.slate200}`,
+                  background: T.white, cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center", color: T.slate500,
+                }}
               >
-                <Plus size={14} /> Add Article
+                <X size={17} />
+              </button>
+            </div>
+            <div
+              style={{ padding: "22px 24px", overflowY: "auto", fontSize: T.fs_base, lineHeight: 1.8, color: T.slate700 }}
+              dangerouslySetInnerHTML={{ __html: previewArticle.article_description }}
+            />
+            <div
+              style={{
+                padding: "14px 24px",
+                borderTop: `1px solid ${T.slate100}`,
+                background: T.slate50,
+                display: "flex", justifyContent: "flex-end", gap: 10,
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => { setPreviewArticle(null); handleOpenEditDrawer(previewArticle); }}
+                style={{ ...secondaryBtn, color: T.accent, border: `1.5px solid #bfdbfe`, background: T.accentBg }}
+              >
+                <Edit size={16} /> Edit Article
+              </button>
+              <button type="button" onClick={() => setPreviewArticle(null)} style={secondaryBtn}>
+                Close
               </button>
             </div>
           </div>
-
-          {/* Resolutions & Attestation Details */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-            <div className="about-editor-card">
-              <h3 style={{ fontSize: "15px", color: "var(--p-navy)", marginBottom: "16px", fontWeight: 600 }}>
-                Resolution & Attestation
-              </h3>
-
-              <div className="about-form-group">
-                <label className="about-form-label">Adoption Resolution Quote</label>
-                <textarea
-                  rows={3}
-                  className="about-textarea"
-                  value={resolution}
-                  onChange={(e) => setResolution(e.target.value)}
-                />
-              </div>
-
-              <div className="about-form-group">
-                <label className="about-form-label">Adoption Date Tagline</label>
-                <input
-                  type="text"
-                  className="about-input"
-                  placeholder="Adopted, this 3rd day..."
-                  value={adoptionDate}
-                  onChange={(e) => setAdoptionDate(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="about-editor-card">
-              <h3 style={{ fontSize: "15px", color: "var(--p-navy)", marginBottom: "16px", fontWeight: 600 }}>
-                Bylaws Signatories
-              </h3>
-
-              <div className="about-form-group">
-                <label className="about-form-label">Corporate Secretary Name</label>
-                <input
-                  type="text"
-                  className="about-input"
-                  value={secretary.name}
-                  onChange={(e) => setSecretary({ ...secretary, name: e.target.value })}
-                />
-              </div>
-
-              <div className="about-form-group">
-                <label className="about-form-label">Corporate Secretary Title</label>
-                <input
-                  type="text"
-                  className="about-input"
-                  value={secretary.title}
-                  onChange={(e) => setSecretary({ ...secretary, title: e.target.value })}
-                />
-              </div>
-
-              <hr style={{ border: 0, borderTop: "1px solid var(--r-border)", margin: "16px 0" }} />
-
-              <h4 style={{ fontSize: "13px", fontWeight: 600, color: "var(--p-navy)", marginBottom: "10px" }}>
-                Attesting Officers List
-              </h4>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "12px" }}>
-                {attestedBy.map((sig, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "8px 12px",
-                      background: "var(--r-surface-2)",
-                      border: "1px solid var(--r-border)",
-                      borderRadius: "8px",
-                    }}
-                  >
-                    <div>
-                      <span style={{ fontWeight: 600, fontSize: "12.5px" }}>{sig.name}</span>
-                      <p style={{ fontSize: "11px", color: "var(--r-text-muted)" }}>{sig.title}</p>
-                    </div>
-                    <button
-                      type="button"
-                      className="about-btn about-btn--danger"
-                      style={{ height: "26px", padding: "0 8px" }}
-                      onClick={() => handleDeleteSignatory(i)}
-                    >
-                      <Trash size={12} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              {/* Form to add attesting officer */}
+        </>
+      )}
+      {/* ── CUSTOM CONFIRM DELETE ARTICLE MODAL ──────────────────────────────── */}
+      {showDeleteArticleModal && (
+        <>
+          <div
+            onClick={() => !isSaving && setShowDeleteArticleModal(null)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(15, 23, 42, 0.4)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
+              zIndex: 55,
+            }}
+          />
+          <div
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%,-50%)",
+              width: "90%",
+              maxWidth: 440,
+              background: T.white,
+              border: `1.5px solid ${T.slate200}`,
+              borderRadius: 20,
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+              zIndex: 60,
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              animation: "modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+          >
+            <div style={{ padding: "28px 28px 16px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
               <div
                 style={{
-                  background: "rgba(20,49,82,0.02)",
-                  border: "1px dashed var(--r-border-mid)",
-                  borderRadius: "10px",
-                  padding: "12px",
+                  width: 56,
+                  height: 56,
+                  borderRadius: "50%",
+                  background: T.redBg,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: T.red,
+                  marginBottom: 16,
                 }}
               >
-                <input
-                  type="text"
-                  placeholder="Officer Name"
-                  className="about-input"
-                  style={{ marginBottom: "8px", height: "36px" }}
-                  value={newSigName}
-                  onChange={(e) => setNewSigName(e.target.value)}
-                />
-                <input
-                  type="text"
-                  placeholder="Title (e.g. VP for Luzon)"
-                  className="about-input"
-                  style={{ marginBottom: "8px", height: "36px" }}
-                  value={newSigTitle}
-                  onChange={(e) => setNewSigTitle(e.target.value)}
-                />
-                <button
-                  type="button"
-                  className="about-btn about-btn--primary"
-                  style={{ height: "32px", width: "100%" }}
-                  onClick={handleAddSignatory}
-                >
-                  <Plus size={12} /> Add Signatory
-                </button>
+                <AlertTriangle size={26} />
               </div>
+              <h3 style={{ fontSize: T.fs_lg, fontWeight: 800, color: T.blue, margin: "0 0 8px" }}>
+                Remove CBL Article
+              </h3>
+              <p style={{ fontSize: T.fs_base, color: T.slate500, margin: 0, lineHeight: 1.5 }}>
+                Are you sure you want to delete this article? This action cannot be undone.
+              </p>
+            </div>
+
+            {(() => {
+              const art = articles.find((a) => a.id === showDeleteArticleModal);
+              if (!art) return null;
+              return (
+                <div style={{ padding: "0 28px" }}>
+                  <div
+                    style={{
+                      background: T.slate50,
+                      border: `1px solid ${T.slate200}`,
+                      borderRadius: 12,
+                      padding: "12px 16px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                    }}
+                  >
+                    <FileText size={20} color={T.red} style={{ flexShrink: 0 }} />
+                    <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, textAlign: "left" }}>
+                      <div style={{ fontSize: T.fs_sm, fontWeight: 700, color: T.slate700 }}>
+                        {art.article_number}
+                      </div>
+                      <div style={{ fontSize: T.fs_xs, color: T.slate500, marginTop: 2 }}>
+                        {art.article_name}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
+            <div
+              style={{
+                padding: "24px 28px 28px",
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 12,
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setShowDeleteArticleModal(null)}
+                disabled={isSaving}
+                style={{
+                  ...secondaryBtn,
+                  justifyContent: "center",
+                  height: 44,
+                  fontSize: T.fs_base,
+                  fontWeight: 700,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDeleteArticle(showDeleteArticleModal)}
+                disabled={isSaving}
+                style={{
+                  ...dangerBtn,
+                  justifyContent: "center",
+                  height: 44,
+                  fontSize: T.fs_base,
+                  fontWeight: 700,
+                  background: isSaving ? "#fca5a5" : T.red,
+                  color: T.white,
+                  border: "none",
+                }}
+              >
+                {isSaving ? <Loader2 className="animate-spin" size={16} /> : "Remove Article"}
+              </button>
             </div>
           </div>
-        </section>
-      </div>
+        </>
+      )}
+
+
+      {/* ── CUSTOM CONFIRM DELETE PDF MODAL ─────────────────────────────────── */}
+      {showDeletePDFModal && (
+        <>
+          <div
+            onClick={() => !isUploading && setShowDeletePDFModal(false)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(15, 23, 42, 0.4)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
+              zIndex: 55,
+            }}
+          />
+          <div
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%,-50%)",
+              width: "90%",
+              maxWidth: 440,
+              background: T.white,
+              border: `1.5px solid ${T.slate200}`,
+              borderRadius: 20,
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+              zIndex: 60,
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              animation: "modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+          >
+            <style>{`
+              @keyframes modalFadeIn {
+                from { opacity: 0; transform: translate(-50%, -48%) scale(0.96); }
+                to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+              }
+            `}</style>
+            
+            <div style={{ padding: "28px 28px 16px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+              <div
+                style={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: "50%",
+                  background: T.redBg,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: T.red,
+                  marginBottom: 16,
+                }}
+              >
+                <AlertTriangle size={26} />
+              </div>
+              <h3 style={{ fontSize: T.fs_lg, fontWeight: 800, color: T.blue, margin: "0 0 8px" }}>
+                Remove Governance PDF
+              </h3>
+              <p style={{ fontSize: T.fs_base, color: T.slate500, margin: 0, lineHeight: 1.5 }}>
+                Are you sure you want to remove the governance document PDF? This action cannot be undone.
+              </p>
+            </div>
+
+            {governanceDoc?.file_name && (
+              <div style={{ padding: "0 28px" }}>
+                <div
+                  style={{
+                    background: T.slate50,
+                    border: `1px solid ${T.slate200}`,
+                    borderRadius: 12,
+                    padding: "12px 16px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                  }}
+                >
+                  <FileText size={20} color={T.red} style={{ flexShrink: 0 }} />
+                  <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, textAlign: "left" }}>
+                    <div style={{ fontSize: T.fs_sm, fontWeight: 700, color: T.slate700 }}>
+                      {governanceDoc.file_name}
+                    </div>
+                    <div style={{ fontSize: T.fs_xs, color: T.slate500, marginTop: 2 }}>
+                      {formatFileSize(governanceDoc.file_size)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div
+              style={{
+                padding: "24px 28px 28px",
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 12,
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setShowDeletePDFModal(false)}
+                disabled={isUploading}
+                style={{
+                  ...secondaryBtn,
+                  justifyContent: "center",
+                  height: 44,
+                  fontSize: T.fs_base,
+                  fontWeight: 700,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeletePDF}
+                disabled={isUploading}
+                style={{
+                  ...dangerBtn,
+                  justifyContent: "center",
+                  height: 44,
+                  fontSize: T.fs_base,
+                  fontWeight: 700,
+                  background: isUploading ? "#fca5a5" : T.red,
+                  color: T.white,
+                  border: "none",
+                }}
+              >
+                {isUploading ? <Loader2 className="animate-spin" size={16} /> : "Remove PDF"}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </AdminSidebarLayout>
   );
 }
 
-// Simple loader helper
-function Loader2(props: { className?: string; size?: number; color?: string }) {
+// Loader icon
+function Loader2({ className, size = 24, style }: { className?: string; size?: number; style?: React.CSSProperties }) {
   return (
     <svg
-      className={props.className}
-      width={props.size || 24}
-      height={props.size || 24}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke={props.color || "currentColor"}
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{ animation: "spin 1s linear infinite" }}
+      className={className}
+      width={size} height={size}
+      viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2.5"
+      strokeLinecap="round" strokeLinejoin="round"
+      style={{ animation: "spin 1s linear infinite", ...style }}
     >
       <path d="M21 12a9 9 0 1 1-6.219-8.56" />
     </svg>

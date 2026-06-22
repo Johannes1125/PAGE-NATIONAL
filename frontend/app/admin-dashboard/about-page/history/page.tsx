@@ -39,6 +39,12 @@ export default function HistoryManagement() {
   const [title, setTitle] = useState("History of PAGE");
   const [events, setEvents] = useState<TimelineEvent[]>([]);
 
+  const hasUnsavedChanges =
+    title !== (section?.title || "") ||
+    JSON.stringify(events) !== (section?.content || "[]");
+
+  const isPublishButtonDisabled = (section?.status === "published") && !hasUnsavedChanges;
+
   // Add event form states
   const [newYear, setNewYear] = useState("");
   const [newTitle, setNewTitle] = useState("");
@@ -164,17 +170,13 @@ export default function HistoryManagement() {
           <div style={{ display: "flex", gap: "8px" }}>
             <button
               type="button"
-              className="about-btn about-btn--secondary"
-              disabled={isSaving}
-              onClick={() => handleSave("draft")}
-            >
-              <Save size={16} /> Save as Draft
-            </button>
-            <button
-              type="button"
               className="about-btn about-btn--primary"
-              disabled={isSaving}
+              disabled={isSaving || isPublishButtonDisabled}
               onClick={() => handleSave("published")}
+              style={{
+                opacity: (isSaving || isPublishButtonDisabled) ? 0.5 : 1,
+                cursor: (isSaving || isPublishButtonDisabled) ? "not-allowed" : "pointer",
+              }}
             >
               <Globe size={16} /> Publish Changes
             </button>
