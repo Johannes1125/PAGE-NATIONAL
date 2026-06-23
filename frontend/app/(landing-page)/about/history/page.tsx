@@ -6,9 +6,32 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { TIMELINE_EVENTS, type TimelineEvent } from "./mock-data";
+import { TIMELINE_EVENTS } from "./mock-data";
 import { api } from "../../../lib/api-client";
 import "./history.css";
+
+// ── API record shape ────────────────────────────────────────────────────────
+type ProgramType = "Initiative" | "Conference" | "Seminar" | "Convention" | "Other";
+
+interface HistoricalRecord {
+  id: string;
+  title: string;
+  yearStart: number;
+  programType: ProgramType;
+  description: string;
+}
+
+// Map API programType to the existing icon system
+function programTypeToMilestone(pt: ProgramType): string {
+  const map: Record<ProgramType, string> = {
+    Initiative:  "initiative",
+    Conference:  "conference",
+    Seminar:     "initiative",
+    Convention:  "conference",
+    Other:       "initiative",
+  };
+  return map[pt] ?? "initiative";
+}
 
 // ── Icon Components ────────────────────────────────────────────────────────
 
@@ -321,23 +344,23 @@ const timelineItemVariants: Variants = {
 export default function HistoryPage() {
   const [scrolled, setScrolled] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
+  const [apiRecords, setApiRecords] = useState<HistoricalRecord[] | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", onScroll);
-    
+
     const fetchHistory = async () => {
       try {
-        const res = await api.get("/public/about-page/sections/history");
-        if (res.success && res.data) {
-          setTimelineEvents(JSON.parse(res.data.content));
+        const res = await api.get<{ success: boolean; data: HistoricalRecord[] }>("/public/historical-records");
+        if (res.success && res.data && res.data.length > 0) {
+          setApiRecords(res.data); // already sorted asc by yearStart from backend
         } else {
-          setTimelineEvents(TIMELINE_EVENTS);
+          setApiRecords(null); // fall back to mock
         }
       } catch (err) {
         console.error(err);
-        setTimelineEvents(TIMELINE_EVENTS);
+        setApiRecords(null); // fall back to mock
       } finally {
         setLoading(false);
       }
@@ -354,7 +377,7 @@ export default function HistoryPage() {
       <Navbar scrolled={scrolled} />
       <main>
         <AboutHero />
-        
+
         <section className="history-section">
           <div className="container">
             {loading ? (
@@ -362,44 +385,74 @@ export default function HistoryPage() {
             ) : (
               <div className="timeline">
                 <div className="timeline__line" />
-                
+
                 <motion.div
                   variants={timelineContainerVariants}
                   initial="hidden"
                   animate="visible"
                 >
-                  {timelineEvents.map((event, i) => (
-                    <motion.div
-                      key={event.year}
-                      className="timeline__item"
-                      variants={timelineItemVariants}
-                    >
-                      <div className="timeline__content-wrap">
-                        <div className={`timeline__card milestone-${event.milestone_type}`}>
-                          <span className="timeline__badge">{event.milestone_type}</span>
-                          <span className="timeline__year">{event.year}</span>
-                          <h3 className="timeline__title">{event.title}</h3>
-                          <p className="timeline__desc">{event.description}</p>
-                          {event.list && (
-                            <div className="timeline__list-container">
-                              <h4 className="timeline__list-title">{event.list.title}</h4>
-                              <ul className="timeline__list">
-                                {event.list.items.map((item, idx) => (
-                                  <li key={idx} className="timeline__list-item">{item}</li>
-                                ))}
-                              </ul>
+                  {/* API records (sorted asc by yearStart from backend) */}
+                  {apiRecords !== null ? (
+                    apiRecords.map((record) => {
+                      const milestoneType = programTypeToMilestone(record.programType);
+                      return (
+                        <motion.div
+                          key={record.id}
+                          className="timeline__item"
+                          variants={timelineItemVariants}
+                        >
+                          <div className="timeline__content-wrap">
+                            <div className={`timeline__card milestone-${milestoneType}`}>
+                              <span className="timeline__badge">{record.programType}</span>
+                              <span className="timeline__year">{record.yearStart}</span>
+                              <h3 className="timeline__title">{record.title}</h3>
+                              <p className="timeline__desc">{record.description}</p>
                             </div>
-                          )}
+                          </div>
+
+                          <div className="timeline__node">
+                            <div className={`timeline__icon-inner milestone-${milestoneType}`} style={{ color: "var(--milestone-color)", background: "var(--milestone-bg)" }}>
+                              {getMilestoneIcon(milestoneType)}
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })
+                  ) : (
+                    /* Fall back to static mock data */
+                    TIMELINE_EVENTS.map((event) => (
+                      <motion.div
+                        key={event.year}
+                        className="timeline__item"
+                        variants={timelineItemVariants}
+                      >
+                        <div className="timeline__content-wrap">
+                          <div className={`timeline__card milestone-${event.milestone_type}`}>
+                            <span className="timeline__badge">{event.milestone_type}</span>
+                            <span className="timeline__year">{event.year}</span>
+                            <h3 className="timeline__title">{event.title}</h3>
+                            <p className="timeline__desc">{event.description}</p>
+                            {event.list && (
+                              <div className="timeline__list-container">
+                                <h4 className="timeline__list-title">{event.list.title}</h4>
+                                <ul className="timeline__list">
+                                  {event.list.items.map((item, idx) => (
+                                    <li key={idx} className="timeline__list-item">{item}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      
-                      <div className="timeline__node">
-                        <div className={`timeline__icon-inner milestone-${event.milestone_type}`} style={{ color: "var(--milestone-color)", background: "var(--milestone-bg)" }}>
-                          {getMilestoneIcon(event.milestone_type)}
+
+                        <div className="timeline__node">
+                          <div className={`timeline__icon-inner milestone-${event.milestone_type}`} style={{ color: "var(--milestone-color)", background: "var(--milestone-bg)" }}>
+                            {getMilestoneIcon(event.milestone_type)}
+                          </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  ))}
+                      </motion.div>
+                    ))
+                  )}
                 </motion.div>
               </div>
             )}

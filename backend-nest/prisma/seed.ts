@@ -162,6 +162,141 @@ const INITIAL_OFFICERS = [
   { name: "Dr. Dolores T. Quambo", position: "Press Relations Officer", chapter: "National", term_start: "2024", term_end: "2026", status: "active", sort_order: 8 }
 ];
 
+const INITIAL_HISTORICAL_RECORDS = [
+  {
+    yearStart: 1962,
+    programType: 'Initiative',
+    title: 'Founding of PAGE',
+    description: 'PAGE was established on September 26, 1962, through the efforts of Dr. Jesus E. Perpiñan and Atty. Pablo T. Mateo Jr. to improve graduate education standards in the Philippines.',
+  },
+  {
+    yearStart: 1962,
+    programType: 'Conference',
+    title: 'First National Conference on Graduate Education',
+    description: 'PAGE held its first national conference at Philippine Women’s University with the theme "Graduate Education Today."',
+  },
+  {
+    yearStart: 1963,
+    programType: 'Initiative',
+    title: 'Graduate Education Standards Advocacy',
+    description: 'PAGE contributed to the development of the first government regulations for graduate education through BPS Circular No. 4, Series of 1963.',
+  },
+  {
+    yearStart: 1964,
+    programType: 'Initiative',
+    title: 'Improved Graduate Education Policies',
+    description: 'PAGE recommendations influenced Department Order No. 15, Series of 1964, improving standards and procedures for graduate education.',
+  },
+  {
+    yearStart: 1969,
+    programType: 'Convention',
+    title: 'First Convention Outside Manila',
+    description: 'PAGE expanded beyond Metro Manila through its 8th Annual Convention in Cebu City.',
+  },
+  {
+    yearStart: 1974,
+    programType: 'Initiative',
+    title: 'Research-Oriented Graduate Education Reform',
+    description: 'PAGE recommendations influenced Circular No. 10, Series of 1974, emphasizing functional research and national development.',
+  },
+  {
+    yearStart: 1980,
+    programType: 'Convention',
+    title: 'First Mindanao Convention',
+    description: 'PAGE held its first annual convention in Mindanao at Zamboanga City.',
+  },
+  {
+    yearStart: 1984,
+    programType: 'Initiative',
+    title: 'SOTARE Research Project',
+    description: 'PAGE collaborated with PRODED to produce SOTARE I, a landmark review of educational research in the Philippines.',
+  },
+  {
+    yearStart: 1994,
+    programType: 'Initiative',
+    title: 'Partnership with Higher Education Reforms',
+    description: 'PAGE continued its role as consultant and critic following the creation of CHED through RA 7722.',
+  },
+  {
+    yearStart: 2000,
+    programType: 'Initiative',
+    title: 'Strategic Plan 2001–2006',
+    description: 'PAGE launched a strategic blueprint focusing on organizational development, quality assurance, innovation, and access.',
+  },
+  {
+    yearStart: 2003,
+    programType: 'Initiative',
+    title: 'Launch of PAGE Website',
+    description: 'Under Fr. José Antonio E. Aureada, PAGE established its first official website to strengthen communication and coordination nationwide.',
+  },
+  {
+    yearStart: 2005,
+    programType: 'Initiative',
+    title: 'Expansion of Membership Categories',
+    description: 'PAGE introduced Associate Membership through constitutional amendments.',
+  },
+  {
+    yearStart: 2012,
+    programType: 'Convention',
+    title: 'Golden Anniversary Celebration',
+    description: 'PAGE celebrated its 50th anniversary and reaffirmed its commitment to graduate education excellence.',
+  },
+  {
+    yearStart: 2012,
+    programType: 'Initiative',
+    title: 'Establishment of PAGE National Headquarters',
+    description: 'PAGE opened a permanent national headquarters in Manila.',
+  },
+  {
+    yearStart: 2015,
+    programType: 'Initiative',
+    title: 'Launch of Philippine Journal of Graduate Education',
+    description: 'PAGE transformed its journal into a refereed publication known as the Philippine Journal of Graduate Education (PJGE).',
+  },
+  {
+    yearStart: 2017,
+    programType: 'Convention',
+    title: '50th Annual National Convention',
+    description: 'PAGE hosted its Golden Convention featuring international plenary speakers, founding institution awards, and the launch of the PAGE National Anthem.',
+  },
+  {
+    yearStart: 2019,
+    programType: 'Convention',
+    title: 'Fourth Industrial Revolution Focus',
+    description: 'PAGE\'s 51st Convention addressed the opportunities and challenges of the Fourth Industrial Revolution for graduate education.',
+  },
+  {
+    yearStart: 2020,
+    programType: 'Convention',
+    title: '52nd Annual Convention',
+    description: 'Dr. Lino C. Reynoso was elected President during the convention themed "New Policies and Standards: Transforming the Landscape of Graduate Education."',
+  },
+  {
+    yearStart: 2022,
+    programType: 'Convention',
+    title: 'Post-Pandemic Graduate Education Transformation',
+    description: 'PAGE conducted its hybrid 53rd Annual Convention focused on resilience and responsiveness in graduate education after COVID-19.',
+  },
+  {
+    yearStart: 2023,
+    programType: 'Convention',
+    title: 'Graduate Education Reform Convention',
+    description: 'PAGE\'s 54th Annual Convention focused on implementing CHED CMO No. 15, Series of 2019.',
+  },
+  {
+    yearStart: 2024,
+    programType: 'Initiative',
+    title: 'SEC Re-registration and New Corporate Name',
+    description: 'PAGE successfully renewed its SEC registration and adopted the corporate name "Philippine Association for Graduate Education Philippines, Inc. (PAGE)."',
+  },
+  {
+    yearStart: 2024,
+    programType: 'Initiative',
+    title: 'Chapter Reactivation Program',
+    description: 'PAGE began reactivating regional chapters nationwide to strengthen organizational presence and support graduate education initiatives.',
+  },
+];
+
 async function main() {
   console.log('Cleaning up existing database data...');
   
@@ -177,7 +312,9 @@ async function main() {
   await prisma.post_attachments.deleteMany({});
   await prisma.posts.deleteMany({});
   await prisma.article_submissions.deleteMany({});
+  await prisma.historical_records.deleteMany({});
   await prisma.users.deleteMany({});
+
 
   console.log('Database cleaned. Seeding new data...');
 
@@ -440,6 +577,19 @@ async function main() {
       ip_address: '192.168.1.45',
     },
   });
+
+  // Seed Historical Records
+  console.log('Seeding historical records...');
+  for (const record of INITIAL_HISTORICAL_RECORDS) {
+    await prisma.historical_records.create({
+      data: {
+        title: record.title,
+        yearStart: record.yearStart,
+        programType: record.programType,
+        description: record.description,
+      },
+    });
+  }
 }
 
 main()

@@ -248,3 +248,13 @@ model cbl_governance_documents {
 }
 
 
+model historical_records {
+  id          String   @id @default(uuid()) @db.Uuid
+  title       String   @db.VarChar(255)
+  yearStart   Int
+  programType String   @db.VarChar(50)
+  description String   @db.Text
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now()) @db.Timestamp(0)
+  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamp(0)
+}

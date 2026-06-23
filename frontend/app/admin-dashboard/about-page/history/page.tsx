@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Globe, Plus, Trash, AlertTriangle } from "lucide-react";
 import AdminSidebarLayout from "../../components/AdminSidebarLayout";
 import { api } from "../../../lib/api-client";
 import { gooeyToast } from "goey-toast";
@@ -10,691 +9,970 @@ import "goey-toast/styles.css";
 import "../about-page.css";
 import "../../admin-dashboard.css";
 
-type TimelineEvent = {
-  year: string;
+// ── Types ──────────────────────────────────────────────────────────────────
+
+type ProgramType = "Initiative" | "Conference" | "Seminar" | "Convention" | "Other";
+
+interface HistoricalRecord {
+  id: string;
   title: string;
+  yearStart: number;
+  programType: ProgramType;
   description: string;
-  milestone_type: "founding" | "conference" | "partnership" | "initiative" | "program";
-  list?: {
-    title: string;
-    items: string[];
-  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface FormState {
+  title: string;
+  yearStart: string;
+  programType: ProgramType;
+  description: string;
+}
+
+interface FormErrors {
+  title?: string;
+  yearStart?: string;
+  programType?: string;
+  description?: string;
+}
+
+const PROGRAM_TYPES: ProgramType[] = ["Initiative", "Conference", "Seminar", "Convention", "Other"];
+const CURRENT_YEAR = new Date().getFullYear();
+
+const EMPTY_FORM: FormState = {
+  title: "",
+  yearStart: "",
+  programType: "Initiative",
+  description: "",
 };
 
-type Section = {
-  id: string;
-  section_key: string;
-  title: string;
-  content: string;
-  status: "draft" | "published" | "archived";
-  updated_at: string;
+// ── Validation ─────────────────────────────────────────────────────────────
+
+function validateForm(form: FormState): FormErrors {
+  const errors: FormErrors = {};
+  if (!form.title.trim()) errors.title = "Title is required.";
+  else if (form.title.length > 255) errors.title = "Title must not exceed 255 characters.";
+
+  const year = parseInt(form.yearStart, 10);
+  if (!form.yearStart.trim()) errors.yearStart = "Year is required.";
+  else if (isNaN(year) || !Number.isInteger(year)) errors.yearStart = "Year must be a valid number.";
+  else if (year < 1900) errors.yearStart = "Year must be 1900 or later.";
+  else if (year > CURRENT_YEAR) errors.yearStart = `Year must not exceed the current year (${CURRENT_YEAR}).`;
+
+  if (!PROGRAM_TYPES.includes(form.programType)) errors.programType = "Select a valid program type.";
+  if (!form.description.trim()) errors.description = "Description is required.";
+  else if (form.description.length < 10) errors.description = "Description must be at least 10 characters.";
+
+  return errors;
+}
+
+// ── Icons ──────────────────────────────────────────────────────────────────
+
+function IconPlus() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+      <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
+  );
+}
+function IconEdit() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </svg>
+  );
+}
+function IconTrash() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+      <path d="M10 11v6M14 11v6" />
+      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+    </svg>
+  );
+}
+function IconAlert() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+      <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+    </svg>
+  );
+}
+function IconSearch() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+  );
+}
+function IconBack() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+      <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
+    </svg>
+  );
+}
+function Loader({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+      style={{ animation: "spin 1s linear infinite" }}>
+      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+    </svg>
+  );
+}
+
+// ── Program Type Badge ──────────────────────────────────────────────────────
+
+const BADGE_COLORS: Record<ProgramType, { bg: string; color: string }> = {
+  Initiative:  { bg: "rgba(30,83,142,0.1)",  color: "var(--p-blue)"    },
+  Conference:  { bg: "rgba(5,150,105,0.1)",   color: "var(--p-emerald)" },
+  Seminar:     { bg: "rgba(245,158,11,0.12)", color: "var(--p-amber)"   },
+  Convention:  { bg: "rgba(139,92,246,0.1)",  color: "#7c3aed"          },
+  Other:       { bg: "rgba(107,114,128,0.1)", color: "#6b7280"          },
 };
+
+function ProgramBadge({ type }: { type: string }) {
+  const colors = BADGE_COLORS[type as ProgramType] ?? BADGE_COLORS.Other;
+  return (
+    <span style={{
+      display: "inline-block",
+      padding: "3px 12px",
+      borderRadius: 999,
+      fontSize: 13,
+      fontWeight: 700,
+      background: colors.bg,
+      color: colors.color,
+      letterSpacing: "0.3px",
+      whiteSpace: "nowrap",
+    }}>
+      {type}
+    </span>
+  );
+}
+
+// ── Create / Edit Modal ─────────────────────────────────────────────────────
+
+interface ModalProps {
+  mode: "create" | "edit";
+  initialData?: HistoricalRecord;
+  onClose: () => void;
+  onSaved: (record: HistoricalRecord) => void;
+}
+
+function RecordModal({ mode, initialData, onClose, onSaved }: ModalProps) {
+  const [form, setForm] = useState<FormState>(
+    initialData
+      ? {
+          title: initialData.title,
+          yearStart: String(initialData.yearStart),
+          programType: initialData.programType,
+          description: initialData.description,
+        }
+      : EMPTY_FORM
+  );
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [saving, setSaving] = useState(false);
+  const firstInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    firstInputRef.current?.focus();
+    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
+  const handleChange = (field: keyof FormState, value: string) => {
+    setForm(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const errs = validateForm(form);
+    if (Object.keys(errs).length) { setErrors(errs); return; }
+
+    setSaving(true);
+    try {
+      const payload = {
+        title: form.title.trim(),
+        yearStart: parseInt(form.yearStart, 10),
+        programType: form.programType,
+        description: form.description.trim(),
+      };
+
+      let res: any;
+      if (mode === "create") {
+        res = await api.post("/historical-records", payload);
+      } else {
+        res = await api.patch(`/historical-records/${initialData!.id}`, payload);
+      }
+
+      if (res.success) {
+        gooeyToast.success(mode === "create" ? "Historical record created!" : "Historical record updated!");
+        onSaved(res.data);
+      }
+    } catch (err: any) {
+      const msg = err?.message || "An error occurred. Please try again.";
+      gooeyToast.error(msg);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const fieldStyle = (hasError: boolean): React.CSSProperties => ({
+    height: 52,
+    background: "var(--r-surface-2)",
+    border: `1px solid ${hasError ? "var(--p-rose)" : "var(--r-border)"}`,
+    borderRadius: 8,
+    padding: "0 14px",
+    color: "var(--r-text)",
+    fontFamily: "var(--font-body)",
+    fontSize: 18,
+    width: "100%",
+    outline: "none",
+    boxSizing: "border-box" as const,
+  });
+
+  const errorStyle: React.CSSProperties = {
+    fontSize: 14,
+    color: "var(--p-rose)",
+    marginTop: 4,
+    fontWeight: 500,
+  };
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.5)", backdropFilter: "blur(6px)", zIndex: 55 }}
+        aria-hidden="true"
+      />
+
+      {/* Modal */}
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="record-modal-title"
+        style={{
+          position: "fixed", top: "50%", left: "50%",
+          transform: "translate(-50%,-50%)",
+          width: "90%", maxWidth: 560,
+          background: "var(--r-surface)",
+          border: "1.5px solid var(--r-border-mid)",
+          borderRadius: 20,
+          boxShadow: "0 25px 60px -12px rgba(0,0,0,0.3)",
+          zIndex: 60,
+          overflow: "hidden",
+          animation: "confirmModalIn 0.2s cubic-bezier(0.16,1,0.3,1)",
+          maxHeight: "90dvh",
+          overflowY: "auto",
+        }}
+      >
+        <style>{`
+          @keyframes confirmModalIn {
+            from { opacity:0; transform:translate(-50%,-48%) scale(0.96); }
+            to   { opacity:1; transform:translate(-50%,-50%) scale(1); }
+          }
+        `}</style>
+
+        {/* Header */}
+        <div style={{ padding: "24px 28px 16px", borderBottom: "1px solid var(--r-border)" }}>
+          <h2 id="record-modal-title" style={{ fontSize: 20, fontWeight: 700, color: "var(--p-navy)", margin: 0, fontFamily: "var(--font-body)" }}>
+            {mode === "create" ? "Add Historical Record" : "Edit Historical Record"}
+          </h2>
+          <p style={{ fontSize: 15, color: "var(--r-text-muted)", margin: "4px 0 0", fontFamily: "var(--font-body)" }}>
+            {mode === "create" ? "Create a new organizational milestone." : "Update the selected milestone record."}
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} noValidate>
+          <div style={{ padding: "20px 28px" }}>
+
+            {/* Title */}
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ display: "block", fontSize: 18, fontWeight: 600, color: "var(--p-navy)", marginBottom: 8, fontFamily: "var(--font-body)" }}>
+                Title <span style={{ color: "var(--p-rose)" }}>*</span>
+              </label>
+              <input
+                ref={firstInputRef}
+                id="modal-title"
+                type="text"
+                placeholder="e.g. National Convention Established"
+                value={form.title}
+                onChange={e => handleChange("title", e.target.value)}
+                style={fieldStyle(!!errors.title)}
+                maxLength={255}
+              />
+              {errors.title && <p style={errorStyle}>{errors.title}</p>}
+            </div>
+
+            {/* Year Start */}
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ display: "block", fontSize: 18, fontWeight: 600, color: "var(--p-navy)", marginBottom: 8, fontFamily: "var(--font-body)" }}>
+                Year Start <span style={{ color: "var(--p-rose)" }}>*</span>
+              </label>
+              <select
+                id="modal-year"
+                value={form.yearStart}
+                onChange={e => handleChange("yearStart", e.target.value)}
+                style={{ ...fieldStyle(!!errors.yearStart), cursor: "pointer" }}
+              >
+                <option value="" disabled>Select Year</option>
+                {Array.from({ length: CURRENT_YEAR - 1900 + 1 }, (_, i) => CURRENT_YEAR - i).map(y => (
+                  <option key={y} value={String(y)}>{y}</option>
+                ))}
+              </select>
+              {errors.yearStart && <p style={errorStyle}>{errors.yearStart}</p>}
+            </div>
+
+            {/* Program Type */}
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ display: "block", fontSize: 18, fontWeight: 600, color: "var(--p-navy)", marginBottom: 8, fontFamily: "var(--font-body)" }}>
+                Program Type <span style={{ color: "var(--p-rose)" }}>*</span>
+              </label>
+              <select
+                id="modal-program-type"
+                value={form.programType}
+                onChange={e => handleChange("programType", e.target.value)}
+                style={{ ...fieldStyle(!!errors.programType), cursor: "pointer" }}
+              >
+                {PROGRAM_TYPES.map(t => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+              {errors.programType && <p style={errorStyle}>{errors.programType}</p>}
+            </div>
+
+            {/* Description */}
+            <div style={{ marginBottom: 8 }}>
+              <label style={{ display: "block", fontSize: 18, fontWeight: 600, color: "var(--p-navy)", marginBottom: 8, fontFamily: "var(--font-body)" }}>
+                Description <span style={{ color: "var(--p-rose)" }}>*</span>
+              </label>
+              <textarea
+                id="modal-description"
+                rows={5}
+                placeholder="Provide a detailed description of this historical milestone (at least 10 characters)..."
+                value={form.description}
+                onChange={e => handleChange("description", e.target.value)}
+                style={{
+                  background: "var(--r-surface-2)",
+                  border: `1px solid ${errors.description ? "var(--p-rose)" : "var(--r-border)"}`,
+                  borderRadius: 8,
+                  padding: "14px",
+                  color: "var(--r-text)",
+                  fontFamily: "var(--font-body)",
+                  fontSize: 18,
+                  width: "100%",
+                  resize: "vertical",
+                  minHeight: 120,
+                  outline: "none",
+                  boxSizing: "border-box",
+                }}
+              />
+              {errors.description && <p style={errorStyle}>{errors.description}</p>}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div style={{ padding: "16px 28px 24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, borderTop: "1px solid var(--r-border)" }}>
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={saving}
+              style={{
+                height: 52, borderRadius: 12, fontSize: 18, fontWeight: 600,
+                color: "var(--r-text-mid)", background: "var(--r-surface-2)",
+                border: "1px solid var(--r-border-mid)", cursor: saving ? "not-allowed" : "pointer",
+                fontFamily: "var(--font-body)", display: "flex", alignItems: "center", justifyContent: "center",
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              id="modal-submit-btn"
+              disabled={saving}
+              style={{
+                height: 52, borderRadius: 12, fontSize: 18, fontWeight: 600,
+                color: "#fff",
+                background: saving ? "#4a7098" : "var(--p-blue)",
+                border: "none", cursor: saving ? "not-allowed" : "pointer",
+                fontFamily: "var(--font-body)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                opacity: saving ? 0.8 : 1,
+              }}
+            >
+              {saving ? <Loader size={18} /> : null}
+              {saving ? "Saving..." : mode === "create" ? "Create Record" : "Save Changes"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </>
+  );
+}
+
+// ── Delete Confirm Modal ────────────────────────────────────────────────────
+
+interface DeleteModalProps {
+  record: HistoricalRecord;
+  onClose: () => void;
+  onDeleted: (id: string) => void;
+}
+
+function DeleteModal({ record, onClose, onDeleted }: DeleteModalProps) {
+  const [deleting, setDeleting] = useState(false);
+  const cancelRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    cancelRef.current?.focus();
+    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await api.delete(`/historical-records/${record.id}`);
+      gooeyToast.success("Historical record deleted successfully.");
+      onDeleted(record.id);
+    } catch (err: any) {
+      gooeyToast.error(err?.message || "Failed to delete record.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <>
+      <div
+        onClick={onClose}
+        style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.5)", backdropFilter: "blur(6px)", zIndex: 55 }}
+        aria-hidden="true"
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-modal-title"
+        style={{
+          position: "fixed", top: "50%", left: "50%",
+          transform: "translate(-50%,-50%)",
+          width: "90%", maxWidth: 440,
+          background: "var(--r-surface)",
+          border: "1.5px solid var(--r-border-mid)",
+          borderRadius: 20,
+          boxShadow: "0 25px 60px -12px rgba(0,0,0,0.3)",
+          zIndex: 60,
+          overflow: "hidden",
+          animation: "confirmModalIn 0.2s cubic-bezier(0.16,1,0.3,1)",
+        }}
+      >
+        {/* Header */}
+        <div style={{ padding: "28px 28px 16px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+          <div style={{
+            width: 56, height: 56, borderRadius: "50%",
+            background: "var(--p-rose-pale)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: "var(--p-rose)", marginBottom: 16,
+          }}>
+            <IconAlert />
+          </div>
+          <h3 id="delete-modal-title" style={{ fontSize: 20, fontWeight: 700, color: "var(--p-navy)", margin: "0 0 8px", fontFamily: "var(--font-body)" }}>
+            Delete Historical Record?
+          </h3>
+          <p style={{ fontSize: 15, color: "var(--r-text-muted)", margin: 0, lineHeight: 1.6, fontFamily: "var(--font-body)" }}>
+            You are about to permanently delete{" "}
+            <strong style={{ color: "var(--r-text)" }}>"{record.title}"</strong>
+            {" "}({record.yearStart}). This action cannot be undone.
+          </p>
+        </div>
+
+        {/* Warning box */}
+        <div style={{ padding: "0 28px" }}>
+          <div style={{
+            background: "var(--p-rose-pale)",
+            border: "1px solid rgba(244,63,94,0.2)",
+            borderRadius: 10,
+            padding: "10px 14px",
+            display: "flex", alignItems: "flex-start", gap: 10,
+          }}>
+            <IconAlert />
+            <p style={{ fontSize: 14, color: "var(--p-rose)", margin: 0, lineHeight: 1.5, fontFamily: "var(--font-body)", fontWeight: 500 }}>
+              This will permanently remove the record from the database and all public pages.
+            </p>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div style={{ padding: "20px 28px 28px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <button
+            ref={cancelRef}
+            type="button"
+            onClick={onClose}
+            disabled={deleting}
+            style={{
+              height: 52, borderRadius: 12, fontSize: 18, fontWeight: 600,
+              color: "var(--r-text-mid)", background: "var(--r-surface-2)",
+              border: "1px solid var(--r-border-mid)", cursor: deleting ? "not-allowed" : "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontFamily: "var(--font-body)",
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            id="confirm-delete-btn"
+            type="button"
+            onClick={handleDelete}
+            disabled={deleting}
+            style={{
+              height: 52, borderRadius: 12, fontSize: 18, fontWeight: 600,
+              color: "#fff", background: deleting ? "#c85a70" : "var(--p-rose)",
+              border: "none", cursor: deleting ? "not-allowed" : "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              fontFamily: "var(--font-body)", opacity: deleting ? 0.8 : 1,
+            }}
+          >
+            {deleting ? <Loader size={18} /> : <IconTrash />}
+            {deleting ? "Deleting..." : "Delete"}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── Main Page ───────────────────────────────────────────────────────────────
 
 export default function HistoryManagement() {
   const router = useRouter();
-  const [section, setSection] = useState<Section | null>(null);
+  const [records, setRecords] = useState<HistoricalRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const [title, setTitle] = useState("History of PAGE");
-  const [events, setEvents] = useState<TimelineEvent[]>([]);
+  const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
+  const [editingRecord, setEditingRecord] = useState<HistoricalRecord | undefined>(undefined);
+  const [deletingRecord, setDeletingRecord] = useState<HistoricalRecord | null>(null);
 
-  // ── Confirmation modal states ────────────────────────────────────────────
-  const [removeConfirmIndex, setRemoveConfirmIndex] = useState<number | null>(null);
-  const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
+  // Drag and Drop state
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [isReordering, setIsReordering] = useState(false);
 
-  const confirmCancelBtnRef = useRef<HTMLButtonElement>(null);
-
-  const hasUnsavedChanges =
-    title !== (section?.title || "") ||
-    JSON.stringify(events) !== (section?.content || "[]");
-
-  const isPublishButtonDisabled = (section?.status === "published") && !hasUnsavedChanges;
-
-  // Add event form states
-  const [newYear, setNewYear] = useState("");
-  const [newTitle, setNewTitle] = useState("");
-  const [newDesc, setNewDesc] = useState("");
-  const [newType, setNewType] = useState<"founding" | "conference" | "partnership" | "initiative" | "program">("initiative");
-  
-  // Optional list states
-  const [newListTitle, setNewListTitle] = useState("");
-  const [newListItems, setNewListItems] = useState("");
-
-  useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        setIsLoading(true);
-        const res = await api.get("/about-page/sections/history");
-        if (res.success) {
-          const s = res.data as Section;
-          setSection(s);
-          setTitle(s.title);
-          setEvents(JSON.parse(s.content) || []);
-        }
-      } catch (err) {
-        console.error(err);
-        gooeyToast.error("Failed to load History data.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchHistory();
-  }, []);
-
-  // ── ESC key closes any open modal ─────────────────────────────────────────
-  useEffect(() => {
-    const isAnyModalOpen = removeConfirmIndex !== null || publishConfirmOpen;
-    if (!isAnyModalOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setRemoveConfirmIndex(null);
-        setPublishConfirmOpen(false);
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [removeConfirmIndex, publishConfirmOpen]);
-
-  // Focus the Cancel button when modal opens (focus trap entry point)
-  useEffect(() => {
-    if ((removeConfirmIndex !== null || publishConfirmOpen) && confirmCancelBtnRef.current) {
-      confirmCancelBtnRef.current.focus();
-    }
-  }, [removeConfirmIndex, publishConfirmOpen]);
-
-  const handleSave = async (status: "draft" | "published") => {
-    setIsSaving(true);
+  // ── Fetch ────────────────────────────────────────────────────────────────
+  const fetchRecords = useCallback(async () => {
     try {
-      const res = await api.put("/about-page/sections/history", {
-        title,
-        content: JSON.stringify(events),
-        status,
-      });
-
+      setIsLoading(true);
+      const res = await api.get<{ success: boolean; data: HistoricalRecord[] }>("/historical-records");
       if (res.success) {
-        setSection(res.data);
-        gooeyToast.success("History timeline updated successfully!");
+        setRecords(res.data ?? []);
       }
     } catch (err) {
-      console.error(err);
-      gooeyToast.error("Failed to save History data.");
+      gooeyToast.error("Failed to load historical records.");
     } finally {
-      setIsSaving(false);
-      setPublishConfirmOpen(false);
+      setIsLoading(false);
     }
+  }, []);
+
+  useEffect(() => { fetchRecords(); }, [fetchRecords]);
+
+  // ── Filtered records ─────────────────────────────────────────────────────
+  const filtered = records.filter(r =>
+    r.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // ── Handlers ─────────────────────────────────────────────────────────────
+  const handleSaved = (record: HistoricalRecord) => {
+    setRecords(prev => {
+      const exists = prev.find(r => r.id === record.id);
+      const updated = exists
+        ? prev.map(r => r.id === record.id ? record : r)
+        : [...prev, record];
+      return updated.sort((a, b) => {
+        if (a.yearStart !== b.yearStart) {
+          return a.yearStart - b.yearStart;
+        }
+        return (a.sortOrder || 0) - (b.sortOrder || 0);
+      });
+    });
+    setModalMode(null);
+    setEditingRecord(undefined);
   };
 
-  const handleAddEvent = () => {
-    if (!newYear || !newTitle || !newDesc) {
-      gooeyToast.error("Year, Title, and Description are required.");
+  const handleDeleted = (id: string) => {
+    setRecords(prev => prev.filter(r => r.id !== id));
+    setDeletingRecord(null);
+  };
+
+  const openEdit = (record: HistoricalRecord) => {
+    setEditingRecord(record);
+    setModalMode("edit");
+  };
+
+  const openCreate = () => {
+    setEditingRecord(undefined);
+    setModalMode("create");
+  };
+
+  const closeModal = () => {
+    setModalMode(null);
+    setEditingRecord(undefined);
+  };
+
+  // Drag and Drop Handlers
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    if (searchQuery) return;
+    e.dataTransfer.effectAllowed = "move";
+    setDraggedIndex(index);
+    e.dataTransfer.setData("text/plain", String(index));
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (searchQuery || draggedIndex === null || draggedIndex === index) return;
+    setDragOverIndex(index);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    if (searchQuery) return;
+    if (draggedIndex === null || draggedIndex === targetIndex) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
       return;
     }
 
-    const event: TimelineEvent = {
-      year: newYear,
-      title: newTitle,
-      description: newDesc,
-      milestone_type: newType,
-    };
+    const reorderedList = [...records];
+    const [draggedItem] = reorderedList.splice(draggedIndex, 1);
+    reorderedList.splice(targetIndex, 0, draggedItem);
 
-    if (newListTitle && newListItems) {
-      event.list = {
-        title: newListTitle,
-        items: newListItems.split("\n").filter((item) => item.trim() !== ""),
-      };
+    // Update yearStart dynamically if dragged across years
+    const targetRecord = reorderedList[targetIndex];
+    let newYear = draggedItem.yearStart;
+    
+    if (targetIndex > 0 && targetIndex < reorderedList.length - 1) {
+      const prevItem = reorderedList[targetIndex - 1];
+      const nextItem = reorderedList[targetIndex + 1];
+      if (prevItem.yearStart === nextItem.yearStart) {
+        newYear = prevItem.yearStart;
+      } else {
+        newYear = targetRecord.yearStart;
+      }
+    } else if (targetIndex === 0) {
+      const nextItem = reorderedList[1];
+      if (nextItem && nextItem.yearStart < draggedItem.yearStart) {
+        newYear = nextItem.yearStart;
+      }
+    } else if (targetIndex === reorderedList.length - 1) {
+      const prevItem = reorderedList[reorderedList.length - 2];
+      if (prevItem && prevItem.yearStart > draggedItem.yearStart) {
+        newYear = prevItem.yearStart;
+      }
     }
 
-    setEvents([...events, event]);
+    draggedItem.yearStart = newYear;
 
-    // Reset inputs
-    setNewYear("");
-    setNewTitle("");
-    setNewDesc("");
-    setNewType("initiative");
-    setNewListTitle("");
-    setNewListItems("");
-    gooeyToast.success("Timeline milestone added. Remember to Save Changes!");
+    // Recalculate sortOrder for all records
+    const yearGroups: Record<number, typeof reorderedList> = {};
+    reorderedList.forEach(item => {
+      if (!yearGroups[item.yearStart]) {
+        yearGroups[item.yearStart] = [];
+      }
+      yearGroups[item.yearStart].push(item);
+    });
+
+    const finalizedList: typeof reorderedList = [];
+    const updatePayload: { id: string; sortOrder: number; yearStart: number }[] = [];
+
+    const sortedYears = Object.keys(yearGroups).map(Number).sort((a, b) => a - b);
+    sortedYears.forEach(year => {
+      yearGroups[year].forEach((item, index) => {
+        const updatedItem = {
+          ...item,
+          yearStart: year,
+          sortOrder: index + 1
+        };
+        finalizedList.push(updatedItem);
+        updatePayload.push({
+          id: item.id,
+          sortOrder: index + 1,
+          yearStart: year
+        });
+      });
+    });
+
+    setRecords(finalizedList);
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+
+    setIsReordering(true);
+    try {
+      const res = await api.patch<{ success: boolean }>("/historical-records-reorder", {
+        records: updatePayload
+      });
+      if (res.success) {
+        gooeyToast.success("New order saved!");
+      }
+    } catch (err) {
+      gooeyToast.error("Failed to save order. Reverting...");
+      fetchRecords();
+    } finally {
+      setIsReordering(false);
+    }
   };
 
-  // Opens confirmation modal instead of deleting immediately
-  const handleRequestRemove = (index: number) => {
-    setRemoveConfirmIndex(index);
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
   };
 
-  // Executes after user confirms removal
-  const handleConfirmRemove = () => {
-    if (removeConfirmIndex === null) return;
-    setEvents(events.filter((_, i) => i !== removeConfirmIndex));
-    setRemoveConfirmIndex(null);
-    gooeyToast.success("Milestone removed.");
-  };
-
-  if (isLoading) {
-    return (
-      <AdminSidebarLayout
-        pageClassName="admin-dashboard"
-        mainClassName="admin-main"
-        title="PAGE History"
-        subtitle="Loading History timeline..."
-      >
-        <div style={{ display: "flex", justifyContent: "center", padding: "80px" }}>
-          <Loader2 className="animate-spin" size={32} />
-        </div>
-      </AdminSidebarLayout>
-    );
-  }
-
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <AdminSidebarLayout
       pageClassName="admin-dashboard"
       mainClassName="admin-main"
-      title="PAGE HISTORY MANAGEMENT"
-      subtitle="Edit the foundation milestones, regional expansion timeline, and digital transforms of PAGE."
-      eyebrow="Section Editor"
+      title="HISTORY MANAGEMENT"
+      subtitle="Manage PAGE organizational milestones, conferences, seminars, and historical records."
+      eyebrow="About PAGE"
     >
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+
       <div className="admin-shell">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "12px" }}>
+        {/* ── Toolbar ──────────────────────────────────────────────────────── */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
           <button
+            id="back-to-dashboard-btn"
             type="button"
             className="about-btn about-btn--secondary"
             onClick={() => router.push("/admin-dashboard/about-page")}
           >
-            <ArrowLeft size={16} /> Back to dashboard
+            <IconBack /> Back
           </button>
 
-          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-            <button
-              type="button"
-              className="about-btn about-btn--primary"
-              disabled={isSaving || isPublishButtonDisabled}
-              onClick={() => setPublishConfirmOpen(true)}
-              style={{
-                opacity: (isSaving || isPublishButtonDisabled) ? 0.5 : 1,
-                cursor: (isSaving || isPublishButtonDisabled) ? "not-allowed" : "pointer",
-              }}
-            >
-              <Globe size={16} /> Publish Changes
-            </button>
+          <button
+            id="create-record-btn"
+            type="button"
+            className="about-btn about-btn--primary"
+            onClick={openCreate}
+          >
+            <IconPlus /> Add Historical Record
+          </button>
+        </div>
+
+        {/* ── Search Bar ───────────────────────────────────────────────────── */}
+        <div className="about-toolbar" style={{ marginBottom: 24 }}>
+          <div className="about-search-wrapper">
+            <span className="about-search-icon"><IconSearch /></span>
+            <input
+              id="search-records-input"
+              type="text"
+              placeholder="Search by title..."
+              className="about-search-input"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div style={{ fontSize: 15, color: "var(--r-text-muted)", whiteSpace: "nowrap", fontWeight: 500 }}>
+            {filtered.length} record{filtered.length !== 1 ? "s" : ""}
           </div>
         </div>
 
-        <section className="history-layout-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.2fr) minmax(0, 0.8fr)", gap: "24px", alignItems: "start" }}>
-          {/* Main events list */}
-          <div className="about-editor-card">
-            <h3 style={{ fontSize: "18px", color: "var(--p-navy)", marginBottom: "16px", fontWeight: 700 }}>
-              Timeline Milestones
-            </h3>
-
-            <div className="about-form-group">
-              <label className="about-form-label">Title Header</label>
-              <input
-                type="text"
-                className="about-input"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
+        {/* ── Table ────────────────────────────────────────────────────────── */}
+        <div className="about-editor-card" style={{ padding: 0, overflow: "hidden" }}>
+          {isLoading ? (
+            /* Loading skeleton */
+            <div style={{ padding: 40, display: "flex", flexDirection: "column", alignItems: "center", gap: 12, color: "var(--r-text-muted)" }}>
+              <Loader size={32} />
+              <p style={{ fontSize: 18, margin: 0, fontFamily: "var(--font-body)" }}>Loading historical records...</p>
             </div>
-
-            <hr style={{ border: 0, borderTop: "1px solid var(--r-border)", margin: "20px 0" }} />
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              {events.map((event, i) => (
-                <div
-                  key={i}
-                  className="history-timeline-card"
-                >
-                  {/* ── Card content area ─────────────────────────────── */}
-                  <div className="history-timeline-card__body">
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px", flexWrap: "wrap", gap: "6px" }}>
-                      <span
-                        style={{
+          ) : filtered.length === 0 ? (
+            /* Empty state */
+            <div style={{ padding: "60px 32px", textAlign: "center" }}>
+              <div style={{ fontSize: 48, marginBottom: 16 }}>🏛️</div>
+              <h3 style={{ fontSize: 20, fontWeight: 700, color: "var(--p-navy)", marginBottom: 8, fontFamily: "var(--font-body)" }}>
+                {searchQuery ? "No records found" : "No historical records yet"}
+              </h3>
+              <p style={{ fontSize: 18, color: "var(--r-text-muted)", marginBottom: 24, fontFamily: "var(--font-body)" }}>
+                {searchQuery
+                  ? `No records match "${searchQuery}". Try a different search.`
+                  : "Add the first historical milestone to get started."}
+              </p>
+              {!searchQuery && (
+                <button type="button" className="about-btn about-btn--primary" onClick={openCreate} id="empty-state-create-btn">
+                  <IconPlus /> Add First Record
+                </button>
+              )}
+            </div>
+          ) : (
+            /* Table */
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 640 }}>
+                <thead>
+                  <tr style={{ background: "var(--r-surface-2)", borderBottom: "2px solid var(--r-border)" }}>
+                    <th style={{ width: 50, padding: "14px 18px", textAlign: "center" }}></th>
+                    {["Year", "Title", "Program Type", "Description", "Actions"].map(h => (
+                      <th key={h} style={{
+                        padding: "14px 18px", textAlign: "left",
+                        fontSize: 13, fontWeight: 700, color: "var(--p-navy)",
+                        textTransform: "uppercase", letterSpacing: "0.5px",
+                        whiteSpace: "nowrap",
+                      }}>
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((record, i) => (
+                    <tr
+                      key={record.id}
+                      draggable={!searchQuery}
+                      onDragStart={(e) => handleDragStart(e, i)}
+                      onDragOver={(e) => handleDragOver(e, i)}
+                      onDragEnd={handleDragEnd}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, i)}
+                      style={{
+                        borderBottom: i < filtered.length - 1 ? "1px solid var(--r-border)" : "none",
+                        transition: "background 0.15s ease, opacity 0.15s ease",
+                        opacity: draggedIndex === i ? 0.4 : 1,
+                        background: dragOverIndex === i ? "var(--p-blue-pale)" : "transparent",
+                        cursor: searchQuery ? "default" : "grab",
+                      }}
+                      onMouseEnter={e => {
+                        if (dragOverIndex !== i) {
+                          e.currentTarget.style.background = "var(--r-surface-2)";
+                        }
+                      }}
+                      onMouseLeave={e => {
+                        if (dragOverIndex !== i) {
+                          e.currentTarget.style.background = "transparent";
+                        }
+                      }}
+                    >
+                      {/* Drag Handle */}
+                      <td style={{
+                        padding: "16px 18px",
+                        verticalAlign: "middle",
+                        textAlign: "center",
+                        color: "var(--r-text-muted)",
+                        userSelect: "none",
+                      }}
+                        title={searchQuery ? "Clear search to enable drag-and-drop reordering" : "Drag to reorder milestone"}
+                      >
+                        <span style={{ fontSize: 18, cursor: searchQuery ? "not-allowed" : "grab" }}>☰</span>
+                      </td>
+                      {/* Year */}
+                      <td style={{ padding: "16px 18px", verticalAlign: "top" }}>
+                        <span style={{
+                          display: "inline-block",
                           background: "var(--p-navy)",
                           color: "#fff",
-                          padding: "3px 10px",
-                          borderRadius: "6px",
-                          fontWeight: 600,
-                          fontSize: "14px",
-                        }}
-                      >
-                        {event.year}
-                      </span>
-                      <span
-                        className="about-status-badge"
-                        style={{ background: "rgba(30, 83, 142, 0.08)", color: "var(--p-blue)" }}
-                      >
-                        {event.milestone_type}
-                      </span>
-                    </div>
-
-                    <h4 style={{ fontWeight: 700, color: "var(--p-navy)", marginBottom: "6px", fontSize: "18px", lineHeight: 1.3 }}>{event.title}</h4>
-                    <p style={{ fontSize: "15px", color: "var(--r-text-mid)", lineHeight: 1.6 }}>
-                      {event.description}
-                    </p>
-
-                    {event.list && (
-                      <div style={{ marginTop: "10px", paddingLeft: "12px", borderLeft: "2px solid var(--r-border-mid)" }}>
-                        <span style={{ fontWeight: 700, fontSize: "14px", color: "var(--p-navy)", display: "block", marginBottom: "4px" }}>
-                          {event.list.title}
+                          padding: "4px 12px",
+                          borderRadius: 6,
+                          fontWeight: 700,
+                          fontSize: 16,
+                          whiteSpace: "nowrap",
+                        }}>
+                          {record.yearStart}
                         </span>
-                        <ul style={{ fontSize: "14px", paddingLeft: "16px", marginTop: "4px", color: "var(--r-text-muted)", lineHeight: 1.6 }}>
-                          {event.list.items.map((item, idx) => (
-                            <li key={idx}>{item}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* ── Footer action row — Remove button anchored here ── */}
-                  <div className="history-timeline-card__footer">
-                    <button
-                      type="button"
-                      className="about-btn about-btn--danger history-timeline-card__remove-btn"
-                      onClick={() => handleRequestRemove(i)}
-                    >
-                      <Trash size={12} /> Remove
-                    </button>
-                  </div>
-                </div>
-              ))}
+                      </td>
+                      {/* Title */}
+                      <td style={{ padding: "16px 18px", verticalAlign: "top" }}>
+                        <span style={{ fontSize: 18, fontWeight: 600, color: "var(--p-navy)", fontFamily: "var(--font-body)" }}>
+                          {record.title}
+                        </span>
+                      </td>
+                      {/* Program Type */}
+                      <td style={{ padding: "16px 18px", verticalAlign: "top" }}>
+                        <ProgramBadge type={record.programType} />
+                      </td>
+                      {/* Description (truncated) */}
+                      <td style={{ padding: "16px 18px", verticalAlign: "top", maxWidth: 300 }}>
+                        <span style={{
+                          fontSize: 15,
+                          color: "var(--r-text-muted)",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical" as const,
+                          overflow: "hidden",
+                          lineHeight: 1.5,
+                        }}>
+                          {record.description}
+                        </span>
+                      </td>
+                      {/* Actions */}
+                      <td style={{ padding: "16px 18px", verticalAlign: "top" }}>
+                        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "nowrap" }}>
+                          <button
+                            id={`edit-record-${record.id}`}
+                            type="button"
+                            onClick={() => openEdit(record)}
+                            title="Edit record"
+                            style={{
+                              height: 40, padding: "0 14px",
+                              borderRadius: 8, fontSize: 14, fontWeight: 600,
+                              display: "flex", alignItems: "center", gap: 6,
+                              background: "var(--p-blue-pale)", color: "var(--p-blue)",
+                              border: "none", cursor: "pointer", whiteSpace: "nowrap",
+                            }}
+                          >
+                            <IconEdit /> Edit
+                          </button>
+                          <button
+                            id={`delete-record-${record.id}`}
+                            type="button"
+                            onClick={() => setDeletingRecord(record)}
+                            title="Delete record"
+                            style={{
+                              height: 40, padding: "0 14px",
+                              borderRadius: 8, fontSize: 14, fontWeight: 600,
+                              display: "flex", alignItems: "center", gap: 6,
+                              background: "var(--p-rose-pale)", color: "var(--p-rose)",
+                              border: "none", cursor: "pointer", whiteSpace: "nowrap",
+                            }}
+                          >
+                            <IconTrash /> Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
-
-          {/* Add Milestone Form */}
-          <div className="about-editor-card">
-            <h3 style={{ fontSize: "18px", color: "var(--p-navy)", marginBottom: "16px", fontWeight: 700 }}>
-              Add Milestone Event
-            </h3>
-
-            <div className="about-form-group">
-              <label className="about-form-label">Year Tag</label>
-              <input
-                type="text"
-                placeholder="e.g. 1962 or 1960s"
-                className="about-input"
-                value={newYear}
-                onChange={(e) => setNewYear(e.target.value)}
-              />
-            </div>
-
-            <div className="about-form-group">
-              <label className="about-form-label">Milestone Title</label>
-              <input
-                type="text"
-                placeholder="e.g. Founding of PAGE"
-                className="about-input"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-              />
-            </div>
-
-            <div className="about-form-group">
-              <label className="about-form-label">Milestone Category</label>
-              <select
-                className="about-input"
-                value={newType}
-                onChange={(e) => setNewType(e.target.value as any)}
-              >
-                <option value="founding">founding</option>
-                <option value="initiative">initiative</option>
-                <option value="program">program</option>
-                <option value="partnership">partnership</option>
-                <option value="conference">conference</option>
-              </select>
-            </div>
-
-            <div className="about-form-group">
-              <label className="about-form-label">Description Narrative</label>
-              <textarea
-                rows={4}
-                className="about-textarea"
-                placeholder="Details about the timeline milestone event..."
-                value={newDesc}
-                onChange={(e) => setNewDesc(e.target.value)}
-              />
-            </div>
-
-            <fieldset
-              style={{
-                border: "1px dashed var(--r-border)",
-                borderRadius: "8px",
-                padding: "12px",
-                marginBottom: "16px",
-              }}
-            >
-              <legend style={{ fontSize: "14px", fontWeight: 600, color: "var(--p-navy)", padding: "0 6px" }}>
-                Optional Checklist (Nested List)
-              </legend>
-              <div className="about-form-group">
-                <input
-                  type="text"
-                  placeholder="Checklist Header (e.g. Founding Members)"
-                  className="about-input"
-                  style={{ height: "36px" }}
-                  value={newListTitle}
-                  onChange={(e) => setNewListTitle(e.target.value)}
-                />
-              </div>
-              <div className="about-form-group">
-                <textarea
-                  rows={3}
-                  className="about-textarea"
-                  placeholder="Items list (one item per line)..."
-                  value={newListItems}
-                  onChange={(e) => setNewListItems(e.target.value)}
-                />
-              </div>
-            </fieldset>
-
-            <button
-              type="button"
-              className="about-btn about-btn--primary"
-              style={{ width: "100%" }}
-              onClick={handleAddEvent}
-            >
-              <Plus size={14} /> Add Timeline Event
-            </button>
-          </div>
-        </section>
+          )}
+        </div>
       </div>
 
-      {/* ── CONFIRMATION MODAL: Remove History Entry ──────────────────────── */}
-      {removeConfirmIndex !== null && (
-        <>
-          {/* Backdrop */}
-          <div
-            onClick={() => setRemoveConfirmIndex(null)}
-            style={{
-              position: "fixed",
-              inset: 0,
-              background: "rgba(15, 23, 42, 0.45)",
-              backdropFilter: "blur(6px)",
-              WebkitBackdropFilter: "blur(6px)",
-              zIndex: 55,
-            }}
-            aria-hidden="true"
-          />
-          {/* Modal */}
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="remove-modal-title"
-            style={{
-              position: "fixed",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "90%",
-              maxWidth: 440,
-              background: "var(--r-surface)",
-              border: "1.5px solid var(--r-border-mid)",
-              borderRadius: 20,
-              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-              zIndex: 60,
-              display: "flex",
-              flexDirection: "column",
-              overflow: "hidden",
-              animation: "confirmModalIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
-            }}
-          >
-            <style>{`
-              @keyframes confirmModalIn {
-                from { opacity: 0; transform: translate(-50%, -48%) scale(0.96); }
-                to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-              }
-            `}</style>
-
-            {/* Header */}
-            <div style={{ padding: "28px 28px 16px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-              <div
-                style={{
-                  width: 56, height: 56, borderRadius: "50%",
-                  background: "var(--p-rose-pale)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  color: "var(--p-rose)", marginBottom: 16,
-                }}
-              >
-                <AlertTriangle size={26} />
-              </div>
-              <h3
-                id="remove-modal-title"
-                style={{ fontSize: "18px", fontWeight: 700, color: "var(--p-navy)", margin: "0 0 8px", fontFamily: "var(--font-body)" }}
-              >
-                Remove Timeline Entry
-              </h3>
-              <p style={{ fontSize: "14px", color: "var(--r-text-muted)", margin: 0, lineHeight: 1.6, fontFamily: "var(--font-body)" }}>
-                You are about to remove{" "}
-                <strong style={{ color: "var(--r-text)" }}>
-                  {events[removeConfirmIndex]?.year} — {events[removeConfirmIndex]?.title}
-                </strong>{" "}
-                from the timeline.
-              </p>
-            </div>
-
-            {/* Warning */}
-            <div style={{ padding: "0 28px" }}>
-              <div
-                style={{
-                  background: "var(--p-rose-pale)",
-                  border: "1px solid rgba(244, 63, 94, 0.2)",
-                  borderRadius: 10,
-                  padding: "10px 14px",
-                  display: "flex", alignItems: "flex-start", gap: 10,
-                }}
-              >
-                <AlertTriangle size={15} color="var(--p-rose)" style={{ flexShrink: 0, marginTop: 2 }} />
-                <p style={{ fontSize: "13px", color: "var(--p-rose)", margin: 0, lineHeight: 1.5, fontFamily: "var(--font-body)", fontWeight: 500 }}>
-                  This will remove the entry from the local list. Click <strong>Save Changes</strong> or <strong>Publish</strong> to make it permanent.
-                </p>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div
-              style={{
-                padding: "20px 28px 28px",
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 12,
-              }}
-            >
-              <button
-                ref={confirmCancelBtnRef}
-                type="button"
-                onClick={() => setRemoveConfirmIndex(null)}
-                style={{
-                  height: 52,
-                  borderRadius: 12,
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  color: "var(--r-text-mid)",
-                  background: "var(--r-surface-2)",
-                  border: "1px solid var(--r-border-mid)",
-                  cursor: "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontFamily: "var(--font-body)",
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmRemove}
-                style={{
-                  height: 52,
-                  borderRadius: 12,
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  color: "#fff",
-                  background: "var(--p-rose)",
-                  border: "none",
-                  cursor: "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                  fontFamily: "var(--font-body)",
-                }}
-              >
-                <Trash size={15} /> Remove Entry
-              </button>
-            </div>
-          </div>
-        </>
+      {/* ── Create / Edit Modal ───────────────────────────────────────────── */}
+      {modalMode && (
+        <RecordModal
+          mode={modalMode}
+          initialData={editingRecord}
+          onClose={closeModal}
+          onSaved={handleSaved}
+        />
       )}
 
-      {/* ── CONFIRMATION MODAL: Publish Changes ───────────────────────────── */}
-      {publishConfirmOpen && (
-        <>
-          {/* Backdrop */}
-          <div
-            onClick={() => !isSaving && setPublishConfirmOpen(false)}
-            style={{
-              position: "fixed",
-              inset: 0,
-              background: "rgba(15, 23, 42, 0.45)",
-              backdropFilter: "blur(6px)",
-              WebkitBackdropFilter: "blur(6px)",
-              zIndex: 55,
-            }}
-            aria-hidden="true"
-          />
-          {/* Modal */}
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="publish-modal-title"
-            style={{
-              position: "fixed",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "90%",
-              maxWidth: 440,
-              background: "var(--r-surface)",
-              border: "1.5px solid var(--r-border-mid)",
-              borderRadius: 20,
-              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-              zIndex: 60,
-              display: "flex",
-              flexDirection: "column",
-              overflow: "hidden",
-              animation: "confirmModalIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
-            }}
-          >
-            {/* Header */}
-            <div style={{ padding: "28px 28px 16px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-              <div
-                style={{
-                  width: 56, height: 56, borderRadius: "50%",
-                  background: "var(--p-blue-pale)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  color: "var(--p-blue)", marginBottom: 16,
-                }}
-              >
-                <Globe size={26} />
-              </div>
-              <h3
-                id="publish-modal-title"
-                style={{ fontSize: "18px", fontWeight: 700, color: "var(--p-navy)", margin: "0 0 8px", fontFamily: "var(--font-body)" }}
-              >
-                Publish Changes
-              </h3>
-              <p style={{ fontSize: "14px", color: "var(--r-text-muted)", margin: 0, lineHeight: 1.6, fontFamily: "var(--font-body)" }}>
-                You are about to publish the <strong style={{ color: "var(--r-text)" }}>PAGE History</strong> timeline. All changes will be visible to the public.
-              </p>
-            </div>
-
-            {/* Warning */}
-            <div style={{ padding: "0 28px" }}>
-              <div
-                style={{
-                  background: "var(--p-blue-pale)",
-                  border: "1px solid rgba(30, 83, 142, 0.15)",
-                  borderRadius: 10,
-                  padding: "10px 14px",
-                  display: "flex", alignItems: "flex-start", gap: 10,
-                }}
-              >
-                <Globe size={15} color="var(--p-blue)" style={{ flexShrink: 0, marginTop: 2 }} />
-                <p style={{ fontSize: "13px", color: "var(--p-blue)", margin: 0, lineHeight: 1.5, fontFamily: "var(--font-body)", fontWeight: 500 }}>
-                  Any unsaved form changes will be saved and published in one step. This will make the timeline publicly visible.
-                </p>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div
-              style={{
-                padding: "20px 28px 28px",
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 12,
-              }}
-            >
-              <button
-                type="button"
-                disabled={isSaving}
-                onClick={() => setPublishConfirmOpen(false)}
-                style={{
-                  height: 52,
-                  borderRadius: 12,
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  color: "var(--r-text-mid)",
-                  background: "var(--r-surface-2)",
-                  border: "1px solid var(--r-border-mid)",
-                  cursor: isSaving ? "not-allowed" : "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontFamily: "var(--font-body)",
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                disabled={isSaving}
-                onClick={() => handleSave("published")}
-                style={{
-                  height: 52,
-                  borderRadius: 12,
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  color: "#fff",
-                  background: isSaving ? "#4a7098" : "var(--p-blue)",
-                  border: "none",
-                  cursor: isSaving ? "not-allowed" : "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                  fontFamily: "var(--font-body)",
-                  opacity: isSaving ? 0.7 : 1,
-                }}
-              >
-                {isSaving ? <Loader2 className="animate-spin" size={16} /> : <Globe size={15} />}
-                {isSaving ? "Publishing..." : "Confirm Publish"}
-              </button>
-            </div>
-          </div>
-        </>
+      {/* ── Delete Confirm Modal ──────────────────────────────────────────── */}
+      {deletingRecord && (
+        <DeleteModal
+          record={deletingRecord}
+          onClose={() => setDeletingRecord(null)}
+          onDeleted={handleDeleted}
+        />
       )}
     </AdminSidebarLayout>
-  );
-}
-
-// Simple loader helper
-function Loader2(props: { className?: string; size?: number; color?: string }) {
-  return (
-    <svg
-      className={props.className}
-      width={props.size || 24}
-      height={props.size || 24}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke={props.color || "currentColor"}
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{ animation: "spin 1s linear infinite" }}
-    >
-      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-    </svg>
   );
 }

@@ -404,7 +404,11 @@ function MissionVision() {
 }
 
 // ── Our History Timeline ──────────────────────────────────────────────────
-function OurHistory() {
+function OurHistory({ historicalRecords }: { historicalRecords?: Array<{ id: string; title: string; yearStart: number; programType: string; description: string }> }) {
+  const displayEvents = historicalRecords && historicalRecords.length > 0
+    ? historicalRecords.map(r => ({ year: String(r.yearStart), title: r.title, desc: r.description }))
+    : TIMELINE_EVENTS;
+
   return (
     <section className="history">
       <div className="container">
@@ -419,9 +423,9 @@ function OurHistory() {
 
         <div className="history__timeline">
           <div className="history__line" />
-          {TIMELINE_EVENTS.map((event, i) => (
+          {displayEvents.map((event, i) => (
             <div
-              key={event.year}
+              key={event.year + i}
               className={`history__item${i % 2 === 0 ? " history__item--left" : " history__item--right"}`}
             >
               <div className="history__card">
@@ -625,6 +629,7 @@ export default function AboutPage() {
   const [logoDescription, setLogoDescription] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [officersList, setOfficersList] = useState<any[]>([]);
+  const [historicalRecords, setHistoricalRecords] = useState<any[]>([]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
@@ -664,6 +669,12 @@ export default function AboutPage() {
           });
           setOfficersList(mapped);
         }
+
+        // Fetch historical records
+        const histRes = await api.get<{ success: boolean; data: any[] }>("/public/historical-records");
+        if (histRes.success && histRes.data && histRes.data.length > 0) {
+          setHistoricalRecords(histRes.data);
+        }
       } catch (err) {
         console.error("Error loading dynamic about page content:", err);
       }
@@ -681,7 +692,7 @@ export default function AboutPage() {
         <AboutHero />
         <AboutOrganization description={logoDescription} logoUrl={logoUrl} />
         <MissionVision />
-        <OurHistory />
+        <OurHistory historicalRecords={historicalRecords} />
         <OurOfficers officersList={officersList} />
         <CoreValues />
       </main>

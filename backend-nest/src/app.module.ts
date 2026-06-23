@@ -10,6 +10,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { UsersModule } from './users/users.module';
 import { AboutPageModule } from './about-page/about-page.module';
 import { CblModule } from './about-page/cbl/cbl.module';
+import { HistoricalRecordsModule } from './historical-records/historical-records.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CblModule } from './about-page/cbl/cbl.module';
     UsersModule,
     AboutPageModule,
     CblModule,
+    HistoricalRecordsModule,
   ],
 })
 export class AppModule {}
