@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, Globe, Plus, Trash, Edit, Check } from "lucide-react";
+import { ArrowLeft, Globe, Plus, Trash, AlertTriangle } from "lucide-react";
 import AdminSidebarLayout from "../../components/AdminSidebarLayout";
 import { api } from "../../../lib/api-client";
 import { gooeyToast } from "goey-toast";
@@ -38,6 +38,12 @@ export default function HistoryManagement() {
 
   const [title, setTitle] = useState("History of PAGE");
   const [events, setEvents] = useState<TimelineEvent[]>([]);
+
+  // ── Confirmation modal states ────────────────────────────────────────────
+  const [removeConfirmIndex, setRemoveConfirmIndex] = useState<number | null>(null);
+  const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
+
+  const confirmCancelBtnRef = useRef<HTMLButtonElement>(null);
 
   const hasUnsavedChanges =
     title !== (section?.title || "") ||
@@ -76,6 +82,28 @@ export default function HistoryManagement() {
     fetchHistory();
   }, []);
 
+  // ── ESC key closes any open modal ─────────────────────────────────────────
+  useEffect(() => {
+    const isAnyModalOpen = removeConfirmIndex !== null || publishConfirmOpen;
+    if (!isAnyModalOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setRemoveConfirmIndex(null);
+        setPublishConfirmOpen(false);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [removeConfirmIndex, publishConfirmOpen]);
+
+  // Focus the Cancel button when modal opens (focus trap entry point)
+  useEffect(() => {
+    if ((removeConfirmIndex !== null || publishConfirmOpen) && confirmCancelBtnRef.current) {
+      confirmCancelBtnRef.current.focus();
+    }
+  }, [removeConfirmIndex, publishConfirmOpen]);
+
   const handleSave = async (status: "draft" | "published") => {
     setIsSaving(true);
     try {
@@ -94,6 +122,7 @@ export default function HistoryManagement() {
       gooeyToast.error("Failed to save History data.");
     } finally {
       setIsSaving(false);
+      setPublishConfirmOpen(false);
     }
   };
 
@@ -117,7 +146,6 @@ export default function HistoryManagement() {
       };
     }
 
-    // Insert sorted or append
     setEvents([...events, event]);
 
     // Reset inputs
@@ -130,8 +158,17 @@ export default function HistoryManagement() {
     gooeyToast.success("Timeline milestone added. Remember to Save Changes!");
   };
 
-  const handleDeleteEvent = (index: number) => {
-    setEvents(events.filter((_, i) => i !== index));
+  // Opens confirmation modal instead of deleting immediately
+  const handleRequestRemove = (index: number) => {
+    setRemoveConfirmIndex(index);
+  };
+
+  // Executes after user confirms removal
+  const handleConfirmRemove = () => {
+    if (removeConfirmIndex === null) return;
+    setEvents(events.filter((_, i) => i !== removeConfirmIndex));
+    setRemoveConfirmIndex(null);
+    gooeyToast.success("Milestone removed.");
   };
 
   if (isLoading) {
@@ -172,7 +209,7 @@ export default function HistoryManagement() {
               type="button"
               className="about-btn about-btn--primary"
               disabled={isSaving || isPublishButtonDisabled}
-              onClick={() => handleSave("published")}
+              onClick={() => setPublishConfirmOpen(true)}
               style={{
                 opacity: (isSaving || isPublishButtonDisabled) ? 0.5 : 1,
                 cursor: (isSaving || isPublishButtonDisabled) ? "not-allowed" : "pointer",
@@ -206,61 +243,60 @@ export default function HistoryManagement() {
               {events.map((event, i) => (
                 <div
                   key={i}
-                  style={{
-                    background: "var(--r-surface-2)",
-                    border: "1px solid var(--r-border)",
-                    borderRadius: "12px",
-                    padding: "16px",
-                    position: "relative",
-                  }}
+                  className="history-timeline-card"
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                    <span
-                      style={{
-                        background: "var(--p-navy)",
-                        color: "#fff",
-                        padding: "2px 8px",
-                        borderRadius: "6px",
-                        fontWeight: 600,
-                        fontSize: "12px",
-                      }}
-                    >
-                      {event.year}
-                    </span>
-                    <span
-                      className="about-status-badge"
-                      style={{ fontSize: "10px", background: "rgba(30, 83, 142, 0.08)", color: "var(--p-blue)" }}
-                    >
-                      {event.milestone_type}
-                    </span>
+                  {/* ── Card content area ─────────────────────────────── */}
+                  <div className="history-timeline-card__body">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                      <span
+                        style={{
+                          background: "var(--p-navy)",
+                          color: "#fff",
+                          padding: "2px 8px",
+                          borderRadius: "6px",
+                          fontWeight: 600,
+                          fontSize: "12px",
+                        }}
+                      >
+                        {event.year}
+                      </span>
+                      <span
+                        className="about-status-badge"
+                        style={{ fontSize: "10px", background: "rgba(30, 83, 142, 0.08)", color: "var(--p-blue)" }}
+                      >
+                        {event.milestone_type}
+                      </span>
+                    </div>
+
+                    <h4 style={{ fontWeight: 600, color: "var(--p-navy)", marginBottom: "6px" }}>{event.title}</h4>
+                    <p style={{ fontSize: "13px", color: "var(--r-text-mid)", lineHeight: 1.5 }}>
+                      {event.description}
+                    </p>
+
+                    {event.list && (
+                      <div style={{ marginTop: "10px", paddingLeft: "12px", borderLeft: "2px solid var(--r-border-mid)" }}>
+                        <span style={{ fontWeight: 600, fontSize: "12px", color: "var(--p-navy)" }}>
+                          {event.list.title}
+                        </span>
+                        <ul style={{ fontSize: "12px", paddingLeft: "16px", marginTop: "4px", color: "var(--r-text-muted)" }}>
+                          {event.list.items.map((item, idx) => (
+                            <li key={idx}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
 
-                  <h4 style={{ fontWeight: 600, color: "var(--p-navy)", marginBottom: "6px" }}>{event.title}</h4>
-                  <p style={{ fontSize: "13px", color: "var(--r-text-mid)", lineHeight: 1.5 }}>
-                    {event.description}
-                  </p>
-
-                  {event.list && (
-                    <div style={{ marginTop: "10px", paddingLeft: "12px", borderLeft: "2px solid var(--r-border-mid)" }}>
-                      <span style={{ fontWeight: 600, fontSize: "12px", color: "var(--p-navy)" }}>
-                        {event.list.title}
-                      </span>
-                      <ul style={{ fontSize: "12px", paddingLeft: "16px", marginTop: "4px", color: "var(--r-text-muted)" }}>
-                        {event.list.items.map((item, idx) => (
-                          <li key={idx}>{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  <button
-                    type="button"
-                    className="about-btn about-btn--danger"
-                    style={{ position: "absolute", bottom: "16px", right: "16px", height: "30px", padding: "0 10px" }}
-                    onClick={() => handleDeleteEvent(i)}
-                  >
-                    <Trash size={12} /> Remove
-                  </button>
+                  {/* ── Footer action row — Remove button anchored here ── */}
+                  <div className="history-timeline-card__footer">
+                    <button
+                      type="button"
+                      className="about-btn about-btn--danger history-timeline-card__remove-btn"
+                      onClick={() => handleRequestRemove(i)}
+                    >
+                      <Trash size={12} /> Remove
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -363,6 +399,282 @@ export default function HistoryManagement() {
           </div>
         </section>
       </div>
+
+      {/* ── CONFIRMATION MODAL: Remove History Entry ──────────────────────── */}
+      {removeConfirmIndex !== null && (
+        <>
+          {/* Backdrop */}
+          <div
+            onClick={() => setRemoveConfirmIndex(null)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(15, 23, 42, 0.45)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
+              zIndex: 55,
+            }}
+            aria-hidden="true"
+          />
+          {/* Modal */}
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="remove-modal-title"
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "90%",
+              maxWidth: 440,
+              background: "var(--r-surface)",
+              border: "1.5px solid var(--r-border-mid)",
+              borderRadius: 20,
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+              zIndex: 60,
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              animation: "confirmModalIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+          >
+            <style>{`
+              @keyframes confirmModalIn {
+                from { opacity: 0; transform: translate(-50%, -48%) scale(0.96); }
+                to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+              }
+            `}</style>
+
+            {/* Header */}
+            <div style={{ padding: "28px 28px 16px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+              <div
+                style={{
+                  width: 56, height: 56, borderRadius: "50%",
+                  background: "var(--p-rose-pale)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  color: "var(--p-rose)", marginBottom: 16,
+                }}
+              >
+                <AlertTriangle size={26} />
+              </div>
+              <h3
+                id="remove-modal-title"
+                style={{ fontSize: "18px", fontWeight: 700, color: "var(--p-navy)", margin: "0 0 8px", fontFamily: "var(--font-body)" }}
+              >
+                Remove Timeline Entry
+              </h3>
+              <p style={{ fontSize: "14px", color: "var(--r-text-muted)", margin: 0, lineHeight: 1.6, fontFamily: "var(--font-body)" }}>
+                You are about to remove{" "}
+                <strong style={{ color: "var(--r-text)" }}>
+                  {events[removeConfirmIndex]?.year} — {events[removeConfirmIndex]?.title}
+                </strong>{" "}
+                from the timeline.
+              </p>
+            </div>
+
+            {/* Warning */}
+            <div style={{ padding: "0 28px" }}>
+              <div
+                style={{
+                  background: "var(--p-rose-pale)",
+                  border: "1px solid rgba(244, 63, 94, 0.2)",
+                  borderRadius: 10,
+                  padding: "10px 14px",
+                  display: "flex", alignItems: "flex-start", gap: 10,
+                }}
+              >
+                <AlertTriangle size={15} color="var(--p-rose)" style={{ flexShrink: 0, marginTop: 2 }} />
+                <p style={{ fontSize: "13px", color: "var(--p-rose)", margin: 0, lineHeight: 1.5, fontFamily: "var(--font-body)", fontWeight: 500 }}>
+                  This will remove the entry from the local list. Click <strong>Save Changes</strong> or <strong>Publish</strong> to make it permanent.
+                </p>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div
+              style={{
+                padding: "20px 28px 28px",
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 12,
+              }}
+            >
+              <button
+                ref={confirmCancelBtnRef}
+                type="button"
+                onClick={() => setRemoveConfirmIndex(null)}
+                style={{
+                  height: 52,
+                  borderRadius: 12,
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "var(--r-text-mid)",
+                  background: "var(--r-surface-2)",
+                  border: "1px solid var(--r-border-mid)",
+                  cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmRemove}
+                style={{
+                  height: 52,
+                  borderRadius: 12,
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "#fff",
+                  background: "var(--p-rose)",
+                  border: "none",
+                  cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                <Trash size={15} /> Remove Entry
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── CONFIRMATION MODAL: Publish Changes ───────────────────────────── */}
+      {publishConfirmOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            onClick={() => !isSaving && setPublishConfirmOpen(false)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(15, 23, 42, 0.45)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
+              zIndex: 55,
+            }}
+            aria-hidden="true"
+          />
+          {/* Modal */}
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="publish-modal-title"
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "90%",
+              maxWidth: 440,
+              background: "var(--r-surface)",
+              border: "1.5px solid var(--r-border-mid)",
+              borderRadius: 20,
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+              zIndex: 60,
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              animation: "confirmModalIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+          >
+            {/* Header */}
+            <div style={{ padding: "28px 28px 16px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+              <div
+                style={{
+                  width: 56, height: 56, borderRadius: "50%",
+                  background: "var(--p-blue-pale)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  color: "var(--p-blue)", marginBottom: 16,
+                }}
+              >
+                <Globe size={26} />
+              </div>
+              <h3
+                id="publish-modal-title"
+                style={{ fontSize: "18px", fontWeight: 700, color: "var(--p-navy)", margin: "0 0 8px", fontFamily: "var(--font-body)" }}
+              >
+                Publish Changes
+              </h3>
+              <p style={{ fontSize: "14px", color: "var(--r-text-muted)", margin: 0, lineHeight: 1.6, fontFamily: "var(--font-body)" }}>
+                You are about to publish the <strong style={{ color: "var(--r-text)" }}>PAGE History</strong> timeline. All changes will be visible to the public.
+              </p>
+            </div>
+
+            {/* Warning */}
+            <div style={{ padding: "0 28px" }}>
+              <div
+                style={{
+                  background: "var(--p-blue-pale)",
+                  border: "1px solid rgba(30, 83, 142, 0.15)",
+                  borderRadius: 10,
+                  padding: "10px 14px",
+                  display: "flex", alignItems: "flex-start", gap: 10,
+                }}
+              >
+                <Globe size={15} color="var(--p-blue)" style={{ flexShrink: 0, marginTop: 2 }} />
+                <p style={{ fontSize: "13px", color: "var(--p-blue)", margin: 0, lineHeight: 1.5, fontFamily: "var(--font-body)", fontWeight: 500 }}>
+                  Any unsaved form changes will be saved and published in one step. This will make the timeline publicly visible.
+                </p>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div
+              style={{
+                padding: "20px 28px 28px",
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 12,
+              }}
+            >
+              <button
+                type="button"
+                disabled={isSaving}
+                onClick={() => setPublishConfirmOpen(false)}
+                style={{
+                  height: 52,
+                  borderRadius: 12,
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "var(--r-text-mid)",
+                  background: "var(--r-surface-2)",
+                  border: "1px solid var(--r-border-mid)",
+                  cursor: isSaving ? "not-allowed" : "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isSaving}
+                onClick={() => handleSave("published")}
+                style={{
+                  height: 52,
+                  borderRadius: 12,
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "#fff",
+                  background: isSaving ? "#4a7098" : "var(--p-blue)",
+                  border: "none",
+                  cursor: isSaving ? "not-allowed" : "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                  fontFamily: "var(--font-body)",
+                  opacity: isSaving ? 0.7 : 1,
+                }}
+              >
+                {isSaving ? <Loader2 className="animate-spin" size={16} /> : <Globe size={15} />}
+                {isSaving ? "Publishing..." : "Confirm Publish"}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </AdminSidebarLayout>
   );
 }

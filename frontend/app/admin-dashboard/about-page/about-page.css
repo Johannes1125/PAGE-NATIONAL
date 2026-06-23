@@ -377,6 +377,39 @@
   text-transform: uppercase;
 }
 
+/* ─── History Timeline Card Layout ─── */
+/*
+ * TC-03 fix: Uses flex column so footer row is always below content.
+ * No absolute positioning — Remove button lives in the footer, never overlaps text.
+ */
+.history-timeline-card {
+  background: var(--r-surface-2);
+  border: 1px solid var(--r-border);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.history-timeline-card__body {
+  padding: 16px 16px 12px;
+  flex: 1;
+}
+
+.history-timeline-card__footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 10px 14px 14px;
+  border-top: 1px solid var(--r-border);
+}
+
+.history-timeline-card__remove-btn {
+  height: 36px !important;
+  padding: 0 14px !important;
+  font-size: 12px !important;
+  min-height: unset;
+}
+
 /* Responsive queries */
 @media (max-width: 1200px) {
   .about-cards-grid {

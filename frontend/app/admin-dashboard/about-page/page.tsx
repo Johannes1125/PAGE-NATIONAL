@@ -10,18 +10,16 @@ import {
   Shield,
   FileCheck,
   Search,
-  Eye,
   Edit,
   Globe,
-  FileText,
   Loader2,
-  Calendar,
   LayoutGrid,
   FilePen,
   Clock,
   ArrowLeft,
   Archive,
   CheckCircle2,
+  AlertTriangle,
 } from "lucide-react";
 import AdminSidebarLayout from "../components/AdminSidebarLayout";
 import { api } from "../../lib/api-client";
@@ -98,6 +96,23 @@ export default function AboutPageManagement() {
   
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+
+  // ── Publish/Unpublish confirmation modal ──────────────────────────────────
+  const [publishConfirm, setPublishConfirm] = useState<{
+    section: Section;
+    action: "publish" | "unpublish";
+  } | null>(null);
+  const [isToggling, setIsToggling] = useState(false);
+
+  // ESC closes the confirmation modal
+  useEffect(() => {
+    if (!publishConfirm) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !isToggling) setPublishConfirm(null);
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [publishConfirm, isToggling]);
 
   useEffect(() => {
     // Basic Admin Role Authorization Guard
@@ -187,6 +202,7 @@ export default function AboutPageManagement() {
   const handlePublishToggle = async (section: Section) => {
     const isPublished = section.status === "published";
     const endpoint = `/about-page/sections/${section.section_key}/${isPublished ? "unpublish" : "publish"}`;
+    setIsToggling(true);
     try {
       const res = await api.post(endpoint, {});
       if (res.success) {
@@ -194,10 +210,13 @@ export default function AboutPageManagement() {
           prev.map((s) => (s.section_key === section.section_key ? res.data : s))
         );
         gooeyToast.success(`${section.title} status updated successfully.`);
+        setPublishConfirm(null);
       }
     } catch (err) {
       console.error(err);
       gooeyToast.error("Failed to update section publication status.");
+    } finally {
+      setIsToggling(false);
     }
   };
 
@@ -221,6 +240,7 @@ export default function AboutPageManagement() {
   };
 
   return (
+    <>
     <AdminSidebarLayout
       pageClassName="admin-dashboard"
       mainClassName="admin-main"
@@ -368,7 +388,12 @@ export default function AboutPageManagement() {
                     <button
                       type="button"
                       className={`about-btn ${section.status === "published" ? "about-btn--danger" : "about-btn--primary"}`}
-                      onClick={() => handlePublishToggle(section)}
+                      onClick={() =>
+                        setPublishConfirm({
+                          section,
+                          action: section.status === "published" ? "unpublish" : "publish",
+                        })
+                      }
                     >
                       <Globe size={13} /> {section.status === "published" ? "Unpublish" : "Publish"}
                     </button>
@@ -380,5 +405,187 @@ export default function AboutPageManagement() {
         )}
       </section>
     </AdminSidebarLayout>
+
+      {/* ── CONFIRMATION MODAL: Publish / Unpublish Section ─────────────── */}
+      {publishConfirm && (
+        <>
+          {/* Backdrop */}
+          <div
+            onClick={() => !isToggling && setPublishConfirm(null)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(15, 23, 42, 0.45)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
+              zIndex: 55,
+            }}
+            aria-hidden="true"
+          />
+          {/* Modal */}
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="section-publish-modal-title"
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "90%",
+              maxWidth: 460,
+              background: "var(--r-surface)",
+              border: "1.5px solid var(--r-border-mid)",
+              borderRadius: 20,
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+              zIndex: 60,
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              animation: "sectionModalIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+          >
+            <style>{`
+              @keyframes sectionModalIn {
+                from { opacity: 0; transform: translate(-50%, -48%) scale(0.96); }
+                to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+              }
+            `}</style>
+
+            {/* Header */}
+            <div style={{ padding: "28px 28px 16px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+              <div
+                style={{
+                  width: 56, height: 56, borderRadius: "50%",
+                  background: publishConfirm.action === "publish" ? "var(--p-blue-pale)" : "var(--p-rose-pale)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  color: publishConfirm.action === "publish" ? "var(--p-blue)" : "var(--p-rose)",
+                  marginBottom: 16,
+                }}
+              >
+                {publishConfirm.action === "publish"
+                  ? <Globe size={26} />
+                  : <AlertTriangle size={26} />}
+              </div>
+              <h3
+                id="section-publish-modal-title"
+                style={{
+                  fontSize: "18px", fontWeight: 700,
+                  color: "var(--p-navy)", margin: "0 0 8px",
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                {publishConfirm.action === "publish" ? "Publish Section" : "Unpublish Section"}
+              </h3>
+              <p style={{ fontSize: "14px", color: "var(--r-text-muted)", margin: 0, lineHeight: 1.6, fontFamily: "var(--font-body)" }}>
+                You are about to{" "}
+                <strong style={{ color: "var(--r-text)" }}>
+                  {publishConfirm.action === "publish" ? "publish" : "unpublish"}
+                </strong>{" "}
+                <strong style={{ color: "var(--p-navy)" }}>
+                  {publishConfirm.section.title}
+                </strong>.
+              </p>
+            </div>
+
+            {/* Warning */}
+            <div style={{ padding: "0 28px" }}>
+              <div
+                style={{
+                  background: publishConfirm.action === "publish" ? "var(--p-blue-pale)" : "var(--p-rose-pale)",
+                  border: `1px solid ${publishConfirm.action === "publish" ? "rgba(30,83,142,0.15)" : "rgba(244,63,94,0.2)"}`,
+                  borderRadius: 10,
+                  padding: "10px 14px",
+                  display: "flex", alignItems: "flex-start", gap: 10,
+                }}
+              >
+                <AlertTriangle
+                  size={15}
+                  color={publishConfirm.action === "publish" ? "var(--p-blue)" : "var(--p-rose)"}
+                  style={{ flexShrink: 0, marginTop: 2 }}
+                />
+                <p
+                  style={{
+                    fontSize: "13px",
+                    color: publishConfirm.action === "publish" ? "var(--p-blue)" : "var(--p-rose)",
+                    margin: 0, lineHeight: 1.5,
+                    fontFamily: "var(--font-body)", fontWeight: 500,
+                  }}
+                >
+                  {publishConfirm.action === "publish"
+                    ? "This section will become publicly visible on the PAGE website immediately after confirmation."
+                    : "This section will be hidden from the public and moved back to draft status."}
+                </p>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div
+              style={{
+                padding: "20px 28px 28px",
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 12,
+              }}
+            >
+              <button
+                type="button"
+                disabled={isToggling}
+                onClick={() => setPublishConfirm(null)}
+                style={{
+                  height: 52,
+                  borderRadius: 12,
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "var(--r-text-mid)",
+                  background: "var(--r-surface-2)",
+                  border: "1px solid var(--r-border-mid)",
+                  cursor: isToggling ? "not-allowed" : "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontFamily: "var(--font-body)",
+                  opacity: isToggling ? 0.6 : 1,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isToggling}
+                onClick={() => handlePublishToggle(publishConfirm.section)}
+                style={{
+                  height: 52,
+                  borderRadius: 12,
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "#fff",
+                  background: isToggling
+                    ? "#4a7098"
+                    : publishConfirm.action === "publish"
+                    ? "var(--p-blue)"
+                    : "var(--p-rose)",
+                  border: "none",
+                  cursor: isToggling ? "not-allowed" : "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                  fontFamily: "var(--font-body)",
+                  opacity: isToggling ? 0.7 : 1,
+                  transition: "background 0.18s ease",
+                }}
+              >
+                {isToggling ? (
+                  <Loader2 className="animate-spin" size={16} />
+                ) : (
+                  <Globe size={15} />
+                )}
+                {isToggling
+                  ? "Updating..."
+                  : publishConfirm.action === "publish"
+                  ? "Confirm Publish"
+                  : "Confirm Unpublish"}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+    </>
   );
 }
