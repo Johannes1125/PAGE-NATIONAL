@@ -631,19 +631,22 @@ export default function CblInformationManagement() {
       >
         <div
           style={{
-            padding: "0 28px", height: 56,
-            display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16,
+            padding: "10px 20px",
+            minHeight: 56,
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            gap: 12, flexWrap: "wrap",
           }}
         >
           {/* Back + Tabs */}
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", rowGap: 8 }}>
             <button
               type="button"
               onClick={() => router.push("/admin-dashboard/about-page")}
               style={{
                 display: "flex", alignItems: "center", gap: 6,
                 color: T.slate500, fontSize: T.fs_sm, fontWeight: 600,
-                background: "none", border: "none", cursor: "pointer", padding: "6px 0",
+                background: "none", border: "none", cursor: "pointer",
+                padding: "8px 4px", minHeight: 44, /* touch target */
               }}
             >
               <ArrowLeft size={16} /> Back
@@ -652,14 +655,14 @@ export default function CblInformationManagement() {
             {/* Compact Tabs */}
             <div
               style={{
-                display: "flex", alignItems: "center", gap: 4,
+                display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap",
                 background: "var(--r-surface-2)",
                 border: "1px solid var(--r-border)",
                 borderRadius: 12, padding: 4,
               }}
             >
               {(["process", "governance"] as const).map((tab) => {
-                const labels = { process: "Process Information", governance: "Governance Document" };
+                const labels = { process: "Process Info", governance: "Governance Doc" };
                 const isActive = activeTab === tab;
                 return (
                   <button
@@ -667,7 +670,7 @@ export default function CblInformationManagement() {
                     type="button"
                     onClick={() => setActiveTab(tab)}
                     style={{
-                      height: 36,
+                      height: 44, /* ≥44px touch target */
                       padding: "0 16px",
                       borderRadius: 9,
                       fontSize: T.fs_sm,
@@ -689,14 +692,14 @@ export default function CblInformationManagement() {
           </div>
 
           {/* Action Buttons */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <button
               type="button"
               disabled={isSaving || isPublishButtonDisabled}
               onClick={() => handlePublishToggle(true)}
               style={{
                 ...primaryBtn,
-                height: T.btnHSm,
+                height: T.btnH, /* use full btnH = 48px for touch target compliance */
                 fontSize: T.fs_sm,
                 padding: "0 18px",
                 borderRadius: 8,
@@ -902,35 +905,35 @@ export default function CblInformationManagement() {
                             {formatDate(art.updated_at)}
                           </div>
                         </td>
-                        <td style={{ padding: "14px 24px", textAlign: "right" }}>
+                        <td style={{ padding: "12px 20px", textAlign: "right" }}>
                           <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                            {/* View */}
+                            {/* View — min 44×44 touch target */}
                             <button
                               type="button" title="View article"
                               onClick={() => setPreviewArticle(art)}
                               style={{
-                                width: 36, height: 36, borderRadius: 7,
+                                width: 44, height: 44, borderRadius: 8,
                                 border: `1.5px solid ${T.slate200}`,
                                 background: T.white, cursor: "pointer",
                                 display: "flex", alignItems: "center", justifyContent: "center",
-                                color: T.slate500,
+                                color: T.slate500, flexShrink: 0,
                               }}
                             >
-                              <Eye size={15} />
+                              <Eye size={16} />
                             </button>
-                            {/* Edit */}
+                            {/* Edit — min 44×44 touch target */}
                             <button
                               type="button" title="Edit article"
                               onClick={() => handleOpenEditDrawer(art)}
                               style={{
-                                width: 36, height: 36, borderRadius: 7,
+                                width: 44, height: 44, borderRadius: 8,
                                 border: `1.5px solid #bfdbfe`,
                                 background: "#eff6ff", cursor: "pointer",
                                 display: "flex", alignItems: "center", justifyContent: "center",
-                                color: T.accent,
+                                color: T.accent, flexShrink: 0,
                               }}
                             >
-                              <Edit size={15} />
+                              <Edit size={16} />
                             </button>
                           </div>
                         </td>
@@ -1095,7 +1098,7 @@ export default function CblInformationManagement() {
                       </div>
                     </div>
 
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginTop: 18, paddingTop: 18, borderTop: "1px solid var(--r-border)" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 14, marginTop: 18, paddingTop: 18, borderTop: "1px solid var(--r-border)" }}>
                       {[
                         { label: "Uploaded By", value: governanceDoc.uploaded_by || "—" },
                         { label: "Upload Date", value: formatDate(governanceDoc.created_at) },
@@ -1250,10 +1253,11 @@ export default function CblInformationManagement() {
         {/* Drawer Footer */}
         <div
           style={{
-            padding: "16px 24px",
+            padding: "14px 20px",
             borderTop: `1px solid ${T.slate100}`,
             background: T.slate50, flexShrink: 0,
-            display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            gap: 10, flexWrap: "wrap", rowGap: 10,
           }}
         >
           {/* Left: Delete */}
@@ -1269,7 +1273,7 @@ export default function CblInformationManagement() {
           </div>
 
           {/* Right: Cancel + Save */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <button type="button" onClick={handleCloseDrawer} style={secondaryBtn}>
               Cancel
             </button>

@@ -195,7 +195,7 @@ export default function HistoryManagement() {
       eyebrow="Section Editor"
     >
       <div className="admin-shell">
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "12px" }}>
           <button
             type="button"
             className="about-btn about-btn--secondary"
@@ -204,7 +204,7 @@ export default function HistoryManagement() {
             <ArrowLeft size={16} /> Back to dashboard
           </button>
 
-          <div style={{ display: "flex", gap: "8px" }}>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
             <button
               type="button"
               className="about-btn about-btn--primary"
@@ -220,10 +220,10 @@ export default function HistoryManagement() {
           </div>
         </div>
 
-        <section style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: "24px", alignItems: "start" }}>
+        <section className="history-layout-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.2fr) minmax(0, 0.8fr)", gap: "24px", alignItems: "start" }}>
           {/* Main events list */}
           <div className="about-editor-card">
-            <h3 style={{ fontSize: "16px", color: "var(--p-navy)", marginBottom: "16px", fontWeight: 600 }}>
+            <h3 style={{ fontSize: "18px", color: "var(--p-navy)", marginBottom: "16px", fontWeight: 700 }}>
               Timeline Milestones
             </h3>
 
@@ -247,38 +247,38 @@ export default function HistoryManagement() {
                 >
                   {/* ── Card content area ─────────────────────────────── */}
                   <div className="history-timeline-card__body">
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px", flexWrap: "wrap", gap: "6px" }}>
                       <span
                         style={{
                           background: "var(--p-navy)",
                           color: "#fff",
-                          padding: "2px 8px",
+                          padding: "3px 10px",
                           borderRadius: "6px",
                           fontWeight: 600,
-                          fontSize: "12px",
+                          fontSize: "14px",
                         }}
                       >
                         {event.year}
                       </span>
                       <span
                         className="about-status-badge"
-                        style={{ fontSize: "10px", background: "rgba(30, 83, 142, 0.08)", color: "var(--p-blue)" }}
+                        style={{ background: "rgba(30, 83, 142, 0.08)", color: "var(--p-blue)" }}
                       >
                         {event.milestone_type}
                       </span>
                     </div>
 
-                    <h4 style={{ fontWeight: 600, color: "var(--p-navy)", marginBottom: "6px" }}>{event.title}</h4>
-                    <p style={{ fontSize: "13px", color: "var(--r-text-mid)", lineHeight: 1.5 }}>
+                    <h4 style={{ fontWeight: 700, color: "var(--p-navy)", marginBottom: "6px", fontSize: "18px", lineHeight: 1.3 }}>{event.title}</h4>
+                    <p style={{ fontSize: "15px", color: "var(--r-text-mid)", lineHeight: 1.6 }}>
                       {event.description}
                     </p>
 
                     {event.list && (
                       <div style={{ marginTop: "10px", paddingLeft: "12px", borderLeft: "2px solid var(--r-border-mid)" }}>
-                        <span style={{ fontWeight: 600, fontSize: "12px", color: "var(--p-navy)" }}>
+                        <span style={{ fontWeight: 700, fontSize: "14px", color: "var(--p-navy)", display: "block", marginBottom: "4px" }}>
                           {event.list.title}
                         </span>
-                        <ul style={{ fontSize: "12px", paddingLeft: "16px", marginTop: "4px", color: "var(--r-text-muted)" }}>
+                        <ul style={{ fontSize: "14px", paddingLeft: "16px", marginTop: "4px", color: "var(--r-text-muted)", lineHeight: 1.6 }}>
                           {event.list.items.map((item, idx) => (
                             <li key={idx}>{item}</li>
                           ))}
@@ -304,7 +304,7 @@ export default function HistoryManagement() {
 
           {/* Add Milestone Form */}
           <div className="about-editor-card">
-            <h3 style={{ fontSize: "15px", color: "var(--p-navy)", marginBottom: "16px", fontWeight: 600 }}>
+            <h3 style={{ fontSize: "18px", color: "var(--p-navy)", marginBottom: "16px", fontWeight: 700 }}>
               Add Milestone Event
             </h3>
 
@@ -364,7 +364,7 @@ export default function HistoryManagement() {
                 marginBottom: "16px",
               }}
             >
-              <legend style={{ fontSize: "11px", fontWeight: 600, color: "var(--p-navy)", padding: "0 6px" }}>
+              <legend style={{ fontSize: "14px", fontWeight: 600, color: "var(--p-navy)", padding: "0 6px" }}>
                 Optional Checklist (Nested List)
               </legend>
               <div className="about-form-group">

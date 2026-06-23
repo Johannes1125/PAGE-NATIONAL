@@ -1,23 +1,24 @@
 /* ─── About PAGE Dashboard & Commands Stylesheet ─── */
+/* Responsive Audit Pass — all breakpoints: 375 / 768 / 1024 / 1440px      */
 
 .about-page-container {
   display: grid;
   gap: 24px;
 }
 
-/* Statistics Grid */
+/* ─── Statistics Grid ─────────────────────────────────────────────────────── */
 .about-stats-row {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
 }
 
-/* Search & Filter Bar */
+/* ─── Search & Filter Bar ─────────────────────────────────────────────────── */
 .about-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   background: var(--r-surface);
   border: 1px solid var(--r-border);
   border-radius: 14px;
@@ -29,7 +30,7 @@
 .about-search-wrapper {
   position: relative;
   flex: 1;
-  min-width: 260px;
+  min-width: 0; /* no fixed min-width — prevents overflow at 375px */
 }
 
 .about-search-icon {
@@ -43,14 +44,14 @@
 
 .about-search-input {
   width: 100%;
-  height: 40px;
+  height: 52px; /* ≥44px touch target */
   background: var(--r-bg);
   border: 1px solid var(--r-border);
   border-radius: 10px;
-  padding: 0 12px 0 38px;
+  padding: 0 12px 0 40px;
   color: var(--r-text);
   font-family: var(--font-body);
-  font-size: 13.5px;
+  font-size: 18px; /* PAGE minimum */
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -68,17 +69,18 @@
 }
 
 .about-filter-btn {
-  height: 38px;
-  padding: 0 16px;
+  height: 52px; /* ≥44px touch target — PAGE standard */
+  padding: 0 20px;
   background: transparent;
   border: 1px solid var(--r-border);
   border-radius: 10px;
   color: var(--r-text-mid);
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 18px; /* PAGE minimum */
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .about-filter-btn:hover {
@@ -92,7 +94,7 @@
   color: #ffffff;
 }
 
-/* Management Cards Grid */
+/* ─── Management Cards Grid ───────────────────────────────────────────────── */
 .about-cards-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -125,8 +127,8 @@
 }
 
 .about-card-icon-wrapper {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
   display: grid;
   place-items: center;
@@ -136,7 +138,7 @@
 }
 
 .about-card-title {
-  font-size: 17px;
+  font-size: 18px; /* PAGE minimum */
   font-weight: 700;
   color: var(--p-navy);
   margin-top: 4px;
@@ -147,8 +149,8 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin: 16px 0;
-  font-size: 12.5px;
+  margin: 14px 0;
+  font-size: 14px; /* supplementary — secondary text floor */
   color: var(--r-text-muted);
 }
 
@@ -156,6 +158,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .about-meta-label {
@@ -168,17 +172,19 @@
   color: var(--r-text-mid);
 }
 
-/* Status Badges */
+/* ─── Status Badges ───────────────────────────────────────────────────────── */
 .about-status-badge {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 5px 11px;
+  padding: 5px 12px;
   border-radius: 999px;
-  font-size: 11.5px;
+  font-size: 13px; /* raised from 11.5px — minimum legible supplementary */
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.4px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .about-status-badge--published {
@@ -201,7 +207,7 @@
   color: var(--p-blue);
 }
 
-/* Card Actions */
+/* ─── Card Actions ────────────────────────────────────────────────────────── */
 .about-card-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -214,14 +220,15 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 44px;
+  height: 52px; /* PAGE minimum: 52px button height */
   border-radius: 10px;
-  font-size: 13px;
+  font-size: 18px; /* PAGE minimum */
   font-weight: 600;
   cursor: pointer;
   transition: background 0.18s ease, border-color 0.18s ease;
   font-family: var(--font-body);
   white-space: nowrap;
+  padding: 0 12px;
 }
 
 .about-btn--primary {
@@ -256,7 +263,7 @@
   background: #ffe4e9;
 }
 
-/* Action Bar — header-level pill buttons */
+/* ─── Action Bar — header-level pill buttons ──────────────────────────────── */
 .about-action-bar {
   display: flex;
   align-items: center;
@@ -268,10 +275,10 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 52px;
+  height: 52px; /* PAGE minimum */
   padding: 0 22px;
   border-radius: 999px;
-  font-size: 14px;
+  font-size: 18px; /* PAGE minimum */
   font-weight: 600;
   cursor: pointer;
   font-family: var(--font-body);
@@ -292,7 +299,7 @@
   color: var(--p-navy);
 }
 
-/* Editor forms layout */
+/* ─── Editor forms layout ─────────────────────────────────────────────────── */
 .about-editor-card {
   background: var(--r-surface);
   border: 1px solid var(--r-border);
@@ -304,49 +311,52 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
 .about-form-label {
-  font-size: 13px;
+  font-size: 18px; /* PAGE minimum */
   font-weight: 600;
   color: var(--p-navy);
 }
 
 .about-input {
-  height: 42px;
+  height: 52px; /* ≥44px touch target */
   background: var(--r-surface-2);
   border: 1px solid var(--r-border);
   border-radius: 8px;
-  padding: 0 12px;
+  padding: 0 14px;
   color: var(--r-text);
   font-family: var(--font-body);
-  font-size: 13.5px;
+  font-size: 18px; /* PAGE minimum */
   width: 100%;
 }
 
-.about-input:focus, .about-textarea:focus {
+.about-input:focus,
+.about-textarea:focus {
   outline: none;
   border-color: var(--p-blue);
+  box-shadow: 0 0 0 2px rgba(30, 83, 142, 0.1);
 }
 
 .about-textarea {
   background: var(--r-surface-2);
   border: 1px solid var(--r-border);
   border-radius: 8px;
-  padding: 12px;
+  padding: 14px;
   color: var(--r-text);
   font-family: var(--font-body);
-  font-size: 13.5px;
+  font-size: 18px; /* PAGE minimum */
   width: 100%;
   resize: vertical;
+  min-height: 100px;
 }
 
-/* Document Table & Upload area */
+/* ─── Document Table & Upload area ───────────────────────────────────────── */
 .about-upload-zone {
   border: 2px dashed var(--r-border-mid);
   border-radius: 12px;
-  padding: 30px;
+  padding: 30px 20px;
   text-align: center;
   background: var(--r-surface-2);
   cursor: pointer;
@@ -364,8 +374,9 @@
   margin-top: 20px;
 }
 
-.about-doc-table th, .about-doc-table td {
-  padding: 12px 16px;
+.about-doc-table th,
+.about-doc-table td {
+  padding: 14px 16px;
   text-align: left;
   border-bottom: 1px solid var(--r-border);
 }
@@ -373,14 +384,15 @@
 .about-doc-table th {
   font-weight: 600;
   color: var(--p-navy);
-  font-size: 12px;
+  font-size: 14px; /* header labels — secondary text */
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* ─── History Timeline Card Layout ─── */
+/* ─── History Timeline Card Layout ───────────────────────────────────────── */
 /*
  * TC-03 fix: Uses flex column so footer row is always below content.
- * No absolute positioning — Remove button lives in the footer, never overlaps text.
+ * No absolute positioning — Remove button lives in footer, never overlaps text.
  */
 .history-timeline-card {
   background: var(--r-surface-2);
@@ -395,6 +407,18 @@
   flex: 1;
 }
 
+/* Year badge — inline style in TSX but named here for reference */
+.history-timeline-card__year {
+  background: var(--p-navy);
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px; /* compact tag — supplementary */
+}
+
+/* Title and description uplifted via inline styles in page.tsx */
+
 .history-timeline-card__footer {
   display: flex;
   justify-content: flex-end;
@@ -404,34 +428,166 @@
 }
 
 .history-timeline-card__remove-btn {
-  height: 36px !important;
-  padding: 0 14px !important;
-  font-size: 12px !important;
-  min-height: unset;
+  height: 44px !important;   /* raised from 36px — minimum 44px touch target */
+  padding: 0 16px !important;
+  font-size: 14px !important; /* compact remove btn — supplementary */
+  min-height: 44px;
 }
 
-/* Responsive queries */
+/* ─── History Layout Grid — responsive ────────────────────────────────────── */
+/*
+ * The history page uses a 2-column layout: milestones list + add-event form.
+ * On narrow screens it should stack to single column.
+ */
+@media (max-width: 768px) {
+  .history-layout-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ─── Responsive — 1200px ─────────────────────────────────────────────────── */
 @media (max-width: 1200px) {
   .about-cards-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
+/* ─── Responsive — 980px ──────────────────────────────────────────────────── */
 @media (max-width: 980px) {
   .about-stats-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
+/* ─── Responsive — 768px ──────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .about-stats-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .about-cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .about-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+
+  .about-filters {
+    justify-content: flex-start;
+  }
+
+  .about-action-bar {
+    gap: 8px;
+  }
+
+  .about-action-pill {
+    font-size: 16px;
+    padding: 0 16px;
+  }
+}
+
+/* ─── Responsive — 640px ──────────────────────────────────────────────────── */
 @media (max-width: 640px) {
   .about-stats-row {
     grid-template-columns: 1fr;
   }
+
   .about-cards-grid {
     grid-template-columns: 1fr;
   }
+
   .about-toolbar {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .about-editor-card {
+    padding: 16px;
+  }
+
+  .about-card-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .about-btn {
+    width: 100%;
+  }
+}
+
+/* ─── Responsive — 375px ──────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .about-stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .about-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .about-filters {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .about-filter-btn {
+    text-align: center;
+    padding: 0 8px;
+    font-size: 16px;
+  }
+
+  .about-card-actions {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .about-btn {
+    width: 100%;
+  }
+
+  .about-action-pill {
+    font-size: 16px;
+    height: 48px;
+  }
+
+  .about-form-label {
+    font-size: 18px;
+  }
+
+  .about-input {
+    font-size: 16px; /* iOS safe — prevents zoom on focus */
+  }
+
+  .about-textarea {
+    font-size: 16px; /* iOS safe — prevents zoom on focus */
+  }
+}
+
+/* ─── Modal Responsive Safety ─────────────────────────────────────────────── */
+/*
+ * These rules ensure all fixed-position modals (rendered via inline styles
+ * in page.tsx) remain accessible on small/short viewports.
+ * The modal containers already use position:fixed + transform translate.
+ * We add a max-height guard via a utility class and viewport-relative units.
+ */
+
+/* Ensure any modal rendered via portal/fixed does not exceed viewport */
+[role="dialog"] {
+  max-height: 90dvh;    /* dynamic viewport height — safe on mobile browsers */
+  overflow-y: auto;
+}
+
+/* On very narrow screens, switch modal action button grids to single column */
+@media (max-width: 480px) {
+  /* The modal action areas use inline grid — override via descendant */
+  [role="dialog"] > div:last-child {
+    grid-template-columns: 1fr !important;
   }
 }
