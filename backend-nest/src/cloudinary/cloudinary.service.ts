@@ -37,4 +37,49 @@ export class CloudinaryService {
       return null;
     }
   }
+
+  async uploadWithPublicId(
+    file: Express.Multer.File,
+    folder: string = 'page_portal',
+  ): Promise<{ imageUrl: string; imagePublicId: string } | null> {
+    try {
+      return new Promise((resolve) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder,
+            resource_type: 'auto',
+          },
+          (error, result) => {
+            if (error) {
+              this.logger.error('Cloudinary upload failed: ' + JSON.stringify(error));
+              return resolve(null);
+            }
+            if (result && result.secure_url) {
+              resolve({
+                imageUrl: result.secure_url,
+                imagePublicId: result.public_id,
+              });
+            } else {
+              resolve(null);
+            }
+          },
+        );
+        uploadStream.end(file.buffer);
+      });
+    } catch (e: any) {
+      this.logger.error('Cloudinary upload exception: ' + e.message);
+      return null;
+    }
+  }
+
+  async delete(publicId: string): Promise<boolean> {
+    try {
+      const result = await cloudinary.uploader.destroy(publicId);
+      return result.result === 'ok';
+    } catch (e: any) {
+      this.logger.error('Cloudinary delete exception: ' + e.message);
+      return false;
+    }
+  }
 }
+

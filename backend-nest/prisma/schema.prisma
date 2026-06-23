@@ -258,3 +258,15 @@ model historical_records {
   createdAt   DateTime @default(now()) @db.Timestamp(0)
   updatedAt   DateTime @default(now()) @updatedAt @db.Timestamp(0)
 }
+
+model page_logos {
+  id              Int       @id @default(autoincrement())
+  sequenceNumber  String    @unique
+  title           String    @db.VarChar(255)
+  description     String    @db.Text
+  imageUrl        String    @db.VarChar(255)
+  imagePublicId   String?   @db.VarChar(255)
+  createdAt       DateTime  @default(now()) @db.Timestamp(0)
+  updatedAt       DateTime  @default(now()) @updatedAt @db.Timestamp(0)
+}
+

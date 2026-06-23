@@ -11,6 +11,7 @@ import { UsersModule } from './users/users.module';
 import { AboutPageModule } from './about-page/about-page.module';
 import { CblModule } from './about-page/cbl/cbl.module';
 import { HistoricalRecordsModule } from './historical-records/historical-records.module';
+import { PageLogoModule } from './page-logo/page-logo.module';
 
 @Module({
   imports: [
@@ -26,7 +27,9 @@ import { HistoricalRecordsModule } from './historical-records/historical-records
     AboutPageModule,
     CblModule,
     HistoricalRecordsModule,
+    PageLogoModule,
   ],
 })
 export class AppModule {}
+
 

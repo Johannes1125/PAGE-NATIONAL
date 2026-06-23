@@ -83,6 +83,7 @@ const SECTION_METAS: Record<string, SectionMeta> = {
     description: "Manage official tax exemption files and TIN papers.",
     contentCountLabel: "Documents",
   },
+
 };
 
 export default function AboutPageManagement() {
@@ -92,6 +93,7 @@ export default function AboutPageManagement() {
   const [secDocCount, setSecDocCount] = useState(0);
   const [birDocCount, setBirDocCount] = useState(0);
   const [logoDocCount, setLogoDocCount] = useState(0);
+
   const [isLoading, setIsLoading] = useState(true);
   
   const [searchQuery, setSearchQuery] = useState("");
@@ -143,11 +145,15 @@ export default function AboutPageManagement() {
           api.get("/about-page/documents/logo_description"),
         ]);
 
-        if (secRes.success) setSections(secRes.data);
+        if (secRes.success) {
+          setSections(secRes.data);
+        }
         if (offRes.success) setOfficerCount(offRes.data.length);
         if (secDocRes.success) setSecDocCount(secDocRes.data.length);
         if (birDocRes.success) setBirDocCount(birDocRes.data.length);
         if (logoDocRes.success) setLogoDocCount(logoDocRes.data.length);
+
+
       } catch (err) {
         console.error("Failed to fetch dashboard data", err);
         gooeyToast.error("Failed to load About PAGE database records.");
@@ -184,6 +190,7 @@ export default function AboutPageManagement() {
       if (key === "sec_registration") return secDocCount;
       if (key === "bir_certification") return birDocCount;
       if (key === "logo_description") return logoDocCount;
+
 
       const parsed = JSON.parse(content);
       if (key === "cbl_information") return parsed.articles?.length || 0;
@@ -385,18 +392,20 @@ export default function AboutPageManagement() {
                     >
                       <Edit size={13} /> Edit
                     </button>
-                    <button
-                      type="button"
-                      className={`about-btn ${section.status === "published" ? "about-btn--danger" : "about-btn--primary"}`}
-                      onClick={() =>
-                        setPublishConfirm({
-                          section,
-                          action: section.status === "published" ? "unpublish" : "publish",
-                        })
-                      }
-                    >
-                      <Globe size={13} /> {section.status === "published" ? "Unpublish" : "Publish"}
-                    </button>
+                    {section.section_key !== "page_logo" && (
+                      <button
+                        type="button"
+                        className={`about-btn ${section.status === "published" ? "about-btn--danger" : "about-btn--primary"}`}
+                        onClick={() =>
+                          setPublishConfirm({
+                            section,
+                            action: section.status === "published" ? "unpublish" : "publish",
+                          })
+                        }
+                      >
+                        <Globe size={13} /> {section.status === "published" ? "Unpublish" : "Publish"}
+                      </button>
+                    )}
                   </div>
                 </article>
               );

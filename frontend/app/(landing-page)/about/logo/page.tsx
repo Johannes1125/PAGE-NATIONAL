@@ -1,11 +1,9 @@
 "use client";
 import Navbar from "../../components/Navbar";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { LOGO_DATA } from "./mock-data";
 import { api } from "../../../lib/api-client";
 import "./logo.css";
@@ -105,9 +103,6 @@ const dropdownVariants: Variants = {
   visible: { opacity: 1, y: 0,  scale: 1,    transition: { duration: 0.18, ease: "easeOut" } },
   exit:    { opacity: 0, y: -6, scale: 0.97, transition: { duration: 0.13 } },
 };
-
-// ── Navbar ─────────────────────────────────────────────────────────────────
-
 
 // ── About Page Header ──────────────────────────────────────────────────────
 function AboutHero({ title, subtitle }: { title?: string; subtitle?: string }) {
@@ -269,7 +264,11 @@ export default function LogoDescriptionPage() {
   const [loading, setLoading] = useState(true);
   const [sectionTitle, setSectionTitle] = useState("");
   const [logoDescription, setLogoDescription] = useState("");
+  const [designPhilosophy, setDesignPhilosophy] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
+
+  const [symbolBreakdown, setSymbolBreakdown] = useState<any[]>(LOGO_DATA.symbol_breakdown);
+  const [colorPalette, setColorPalette] = useState<any[]>(LOGO_DATA.color_palette);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
@@ -282,7 +281,26 @@ export default function LogoDescriptionPage() {
         const descRes = await api.get("/public/about-page/sections/logo_description");
         if (descRes.success && descRes.data) {
           setSectionTitle(descRes.data.title);
-          setLogoDescription(descRes.data.content);
+          
+          try {
+            const parsed = JSON.parse(descRes.data.content);
+            if (parsed && typeof parsed === "object") {
+              setLogoDescription(parsed.description || "");
+              setDesignPhilosophy(parsed.design_philosophy || LOGO_DATA.design_philosophy);
+              if (parsed.symbol_breakdown && Array.isArray(parsed.symbol_breakdown)) {
+                setSymbolBreakdown(parsed.symbol_breakdown);
+              }
+              if (parsed.color_palette && Array.isArray(parsed.color_palette)) {
+                setColorPalette(parsed.color_palette);
+              }
+            } else {
+              setLogoDescription(descRes.data.content);
+              setDesignPhilosophy(LOGO_DATA.design_philosophy);
+            }
+          } catch (e) {
+            setLogoDescription(descRes.data.content);
+            setDesignPhilosophy(LOGO_DATA.design_philosophy);
+          }
         }
 
         // Fetch logo documents
@@ -313,7 +331,7 @@ export default function LogoDescriptionPage() {
     <>
       <Navbar scrolled={scrolled} />
       <main>
-        <AboutHero title={sectionTitle} />
+        <AboutHero title={sectionTitle} subtitle={logoDescription || LOGO_DATA.subtitle} />
         
         <section className="logo-section">
           <div className="container">
@@ -324,6 +342,7 @@ export default function LogoDescriptionPage() {
                 variants={showcaseVariants}
                 initial="hidden"
                 animate="visible"
+                style={{ display: "flex", flexDirection: "column", gap: "80px" }}
               >
                 {/* Showcase + Breakdown Row */}
                 <div className="logo-showcase">
@@ -341,9 +360,9 @@ export default function LogoDescriptionPage() {
                   
                   {/* Right Side: Symbol meaning breakdown */}
                   <div className="breakdown-list">
-                    {LOGO_DATA.symbol_breakdown.map((item, idx) => (
+                    {symbolBreakdown.map((item, idx) => (
                       <motion.div
-                        key={item.element}
+                        key={item.element + "_" + idx}
                         className="breakdown-item"
                         variants={itemVariants}
                       >
@@ -360,13 +379,13 @@ export default function LogoDescriptionPage() {
                 </div>
                 
                 {/* Details Row (Color + Philosophy) */}
-                <div className="logo-details">
+                <div className="logo-details" style={{ borderTop: "1px solid var(--rule)", paddingTop: "80px" }}>
                   {/* Color Swatches */}
                   <motion.div className="logo-details__color-palette" variants={itemVariants}>
                     <h2 className="logo-details__section-title">Color Palette</h2>
                     <div className="swatches">
-                      {LOGO_DATA.color_palette.map(swatch => (
-                        <div key={swatch.hex} className="swatch-item">
+                      {colorPalette.map((swatch, idx) => (
+                        <div key={swatch.hex + "_" + idx} className="swatch-item">
                           <div
                             className="swatch-item__color-box"
                             style={{ backgroundColor: swatch.hex }}
@@ -388,7 +407,7 @@ export default function LogoDescriptionPage() {
                     <h2 className="logo-details__section-title">Design Philosophy</h2>
                     <div className="philosophy-card">
                       <p className="philosophy-text" style={{ whiteSpace: "pre-line" }}>
-                        {logoDescription || LOGO_DATA.design_philosophy}
+                        {designPhilosophy || LOGO_DATA.design_philosophy}
                       </p>
                     </div>
                   </motion.div>

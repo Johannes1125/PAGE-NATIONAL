@@ -19,6 +19,7 @@ interface HistoricalRecord {
   yearStart: number;
   programType: ProgramType;
   description: string;
+  sortOrder: number;
   createdAt: string;
   updatedAt: string;
 }
