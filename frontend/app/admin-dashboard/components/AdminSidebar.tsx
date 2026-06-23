@@ -101,7 +101,9 @@ export default function AdminSidebar({
 
           <nav className={styles.nav} id="admin-navigation">
             {adminNavItems.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = item.href === "/admin-dashboard"
+                ? pathname === "/admin-dashboard"
+                : pathname.startsWith(item.href);
 
               return (
                 <Link

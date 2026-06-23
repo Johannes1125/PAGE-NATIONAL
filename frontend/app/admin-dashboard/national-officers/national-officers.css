@@ -1,0 +1,602 @@
+/* ─── National Officers Management Stylesheet ─── */
+/* PAGE Senior-Friendly Accessibility & Layout Standards */
+
+:root {
+  --accessible-font-title: 36px;
+  --accessible-font-section: 28px;
+  --accessible-font-body: 18px;
+  --accessible-font-label: 18px;
+  --accessible-control-height: 52px;
+}
+
+/* ─── Page Title Header Overrides ─── */
+[class*="AdminHeader_title"] {
+  font-size: var(--accessible-font-title) !important;
+  line-height: 1.25 !important;
+  margin-top: 10px !important;
+  color: var(--p-navy, #102a43) !important;
+}
+
+[class*="AdminHeader_subtitle"] {
+  font-size: var(--accessible-font-body) !important;
+  line-height: 1.6 !important;
+  margin-top: 8px !important;
+  color: var(--r-text-mid, #334e6e) !important;
+  max-width: 850px !important;
+}
+
+[class*="AdminHeader_eyebrow"] {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  color: var(--p-blue, #1e538e) !important;
+}
+
+[class*="AdminHeader_intro"] {
+  padding-bottom: 24px !important;
+}
+
+/* ─── Page Container ─── */
+.officers-container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 32px 40px 48px;
+}
+
+@media (max-width: 640px) {
+  .officers-container {
+    padding: 24px 16px 32px;
+    gap: 24px;
+  }
+}
+
+.back-btn-wrapper {
+  margin-bottom: 20px;
+}
+
+/* ─── Layout Grid (Now Full Width Block) ─── */
+.officers-layout-grid {
+  display: block;
+  width: 100%;
+}
+
+/* ─── Cards & Panels ─── */
+.officers-card {
+  background: var(--r-surface, #ffffff);
+  border: 1.5px solid var(--r-border-mid, #cbd5e1);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 16px rgba(20, 49, 82, 0.03);
+}
+
+@media (max-width: 640px) {
+  .officers-card {
+    padding: 24px;
+  }
+}
+
+.card-title-lg {
+  font-size: var(--accessible-font-section);
+  font-weight: 700;
+  color: var(--p-navy, #102a43);
+  margin-bottom: 8px;
+  font-family: var(--font-body);
+}
+
+.registry-subtitle {
+  font-size: 16px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Eyebrow for Form */
+.form-eyebrow {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--p-blue, #1e538e);
+  letter-spacing: 0.8px;
+  margin-bottom: 4px;
+}
+
+/* Registry Header Row */
+.registry-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.registry-actions-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .registry-actions-header {
+    width: 100%;
+    align-items: stretch;
+  }
+}
+
+/* Search Bar Pill Design */
+.search-bar-wrapper {
+  position: relative;
+  width: 320px;
+}
+
+@media (max-width: 640px) {
+  .search-bar-wrapper {
+    width: 100%;
+  }
+}
+
+.search-icon-inside {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.search-input-field {
+  width: 100%;
+  height: 48px;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 9999px; /* Pill design */
+  padding: 0 16px 0 44px;
+  font-size: 16px;
+  color: var(--r-text);
+  font-family: var(--font-body);
+  transition: all 0.2s ease;
+}
+
+.search-input-field:focus {
+  outline: none;
+  border-color: var(--p-blue);
+  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.1);
+}
+
+/* Avatar Circle */
+.avatar-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--p-blue-pale, #e8f1fb);
+  color: var(--p-blue, #1e538e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.name-cell-text {
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--p-navy, #143152);
+}
+
+.member-role-text {
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--p-navy, #143152);
+}
+
+.description-text {
+  color: var(--r-text-muted, #6b87a4);
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.member-actions-col {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* ─── Pill Badges ─── */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+.badge-national-officers {
+  background: var(--p-blue-pale, #e8f1fb);
+  color: var(--p-blue, #1e538e);
+}
+
+.badge-board-directors {
+  background: var(--p-amber-pale, #fef3cd);
+  color: var(--p-amber, #f59e0b);
+}
+
+.badge-generic {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* ─── Table View Spacing ─── */
+.table-responsive-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1.5px solid var(--r-border-mid, #cbd5e1);
+  margin-top: 14px;
+}
+
+.officers-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.officers-table th,
+.officers-table td {
+  padding: 18px 24px; /* Generous padding */
+  border-bottom: 1.5px solid #f1f5f9;
+  font-size: var(--accessible-font-body);
+  line-height: 1.5;
+}
+
+.officers-table tr {
+  min-height: 56px;
+}
+
+.officers-table th {
+  background: var(--r-surface-2, #f8fafc);
+  font-weight: 700;
+  color: var(--p-navy, #102a43);
+  text-transform: uppercase;
+  font-size: 15px;
+  letter-spacing: 0.8px;
+  border-bottom: 2px solid var(--r-border-mid, #cbd5e1);
+}
+
+.officers-table tr:hover td {
+  background: rgba(30, 83, 142, 0.02);
+}
+
+/* Roster Row Action Buttons */
+.action-btn-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px; /* Rounded box as shown in mockup */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.edit-btn {
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  color: #64748b;
+}
+
+.edit-btn:hover {
+  background: #f8fafc;
+  color: var(--p-navy);
+  border-color: #94a3b8;
+}
+
+.delete-btn {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.delete-btn:hover {
+  background: #fecdd3;
+  color: #dc2626;
+}
+
+.empty-state-cell {
+  text-align: center;
+  color: #64748b;
+  padding: 64px 32px;
+  font-size: var(--accessible-font-body);
+  font-weight: 500;
+}
+
+/* ─── Form Elements & Layout ─── */
+.officers-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-group-accessible {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.label-accessible {
+  font-size: var(--accessible-font-label);
+  font-weight: 600;
+  color: var(--p-navy, #102a43);
+  cursor: pointer;
+}
+
+.label-optional {
+  font-size: 14px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.input-accessible {
+  height: var(--accessible-control-height);
+  background: var(--r-surface-2, #fdfdfd);
+  border: 1.5px solid var(--r-border-mid, #cbd5e1);
+  border-radius: 10px;
+  padding: 0 16px;
+  color: var(--r-text, #1e293b);
+  font-family: var(--font-body);
+  font-size: var(--accessible-font-body);
+  width: 100%;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Custom Select Dropdown chevron wrapper */
+.select-wrapper-accessible {
+  position: relative;
+  width: 100%;
+}
+
+.select-accessible {
+  height: var(--accessible-control-height);
+  background: var(--r-surface-2, #fdfdfd);
+  border: 1.5px solid var(--r-border-mid, #cbd5e1);
+  border-radius: 10px;
+  padding: 0 40px 0 16px;
+  color: var(--r-text, #1e293b);
+  font-family: var(--font-body);
+  font-size: var(--accessible-font-body);
+  width: 100%;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.select-chevron-icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  pointer-events: none;
+}
+
+.textarea-accessible {
+  background: var(--r-surface-2, #fdfdfd);
+  border: 1.5px solid var(--r-border-mid, #cbd5e1);
+  border-radius: 10px;
+  padding: 16px;
+  color: var(--r-text, #1e293b);
+  font-family: var(--font-body);
+  font-size: var(--accessible-font-body);
+  width: 100%;
+  min-height: 140px;
+  resize: vertical;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-accessible:focus,
+.select-accessible:focus,
+.textarea-accessible:focus {
+  outline: none;
+  border-color: var(--p-blue, #1e538e);
+  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.15);
+}
+
+.validation-error-text {
+  font-size: 15px;
+  color: var(--p-rose, #e11d48);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* Button overrides */
+.btn-accessible {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: var(--accessible-control-height);
+  border-radius: 10px;
+  font-size: var(--accessible-font-body);
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-body);
+  padding: 0 28px;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-accessible:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-accessible-primary {
+  background: var(--p-blue, #1e538e);
+  color: #ffffff;
+}
+
+.btn-accessible-primary:hover:not(:disabled) {
+  background: var(--p-blue-light, #2d62ae);
+  transform: translateY(-1px);
+}
+
+.btn-accessible-secondary {
+  background: var(--r-surface-2, #f1f5f9);
+  border: 1.5px solid var(--r-border-mid, #cbd5e1);
+  color: var(--r-text-mid, #475569);
+}
+
+.btn-accessible-secondary:hover:not(:disabled) {
+  background: rgba(20, 49, 82, 0.06);
+  color: var(--p-navy, #102a43);
+}
+
+/* ─── Form Add/Edit Officer Modal ─── */
+.form-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(8px);
+  z-index: 999;
+}
+
+.form-modal-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 600px;
+  background: #ffffff;
+  border: 1.5px solid var(--r-border-mid, #cbd5e1);
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-height: 90vh; /* Scrollable on small screens */
+  overflow-y: auto;
+}
+
+.form-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1.5px solid #f1f5f9;
+  padding-bottom: 16px;
+}
+
+.form-modal-close-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.form-modal-close-btn:hover {
+  background: #f1f5f9;
+  color: var(--p-navy);
+}
+
+/* ─── Delete Confirmation Modal ─── */
+.modal-backdrop-accessible {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(8px);
+  z-index: 999;
+}
+
+.modal-dialog-accessible {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 500px;
+  background: #ffffff;
+  border: 1.5px solid var(--r-border-mid, #cbd5e1);
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  overflow: hidden;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.modal-header-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+}
+
+.modal-icon-danger {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--p-rose-pale, #ffe4e6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--p-rose, #e11d48);
+}
+
+.modal-title-accessible {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--p-navy, #102a43);
+  font-family: var(--font-body);
+}
+
+.modal-body-accessible {
+  font-size: var(--accessible-font-body);
+  color: var(--r-text, #1e293b);
+  line-height: 1.6;
+  text-align: center;
+}
+
+.modal-actions-accessible {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 480px) {
+  .modal-actions-accessible {
+    grid-template-columns: 1fr;
+  }
+}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Save,
   Globe,
@@ -118,26 +119,29 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = "140px" }: R
   const toolBtn = (cmd?: string): React.CSSProperties => {
     const active = cmd ? activeFormats[cmd] : false;
     return {
-      width: 36,
-      height: 36,
-      borderRadius: 8,
-      border: active ? `1.5px solid var(--p-blue)` : "1px solid var(--r-border-mid)",
+      width: 48,
+      height: 48,
+      borderRadius: 10,
+      border: active ? `2px solid var(--p-blue)` : "1px solid var(--r-border-mid)",
       background: active ? "var(--p-blue-pale)" : "var(--r-surface)",
       cursor: "pointer",
-      display: "flex",
+      display: "inline-flex",
       alignItems: "center",
       justifyContent: "center",
       color: active ? "var(--p-blue)" : "var(--r-text-mid)",
       flexShrink: 0,
-      fontWeight: active ? 600 : 400,
-      fontFamily: "var(--font-body)",
       transition: "background 0.15s, border 0.15s, color 0.15s",
+      boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
     };
   };
 
   const separatorStyle: React.CSSProperties = {
-    width: 1, height: 20, background: "var(--r-border-mid)", margin: "0 4px",
+    width: 1, height: 28, background: "var(--r-border-mid)", margin: "0 6px",
   };
+
+  const cleanText = (value || "").replace(/<[^>]*>/g, "");
+  const charCount = cleanText.length;
+  const wordCount = cleanText.trim().split(/\s+/).filter(Boolean).length;
 
   return (
     <div
@@ -160,20 +164,26 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = "140px" }: R
           flexWrap: "wrap",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
           {/* Undo / Redo */}
-          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("undo")} style={toolBtn()} title="Undo"><Undo2 size={15} /></button>
-          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("redo")} style={toolBtn()} title="Redo"><Redo2 size={15} /></button>
+          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("undo")} style={toolBtn()} title="Undo (Ctrl+Z)">
+            <Undo2 size={18} />
+          </button>
+          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("redo")} style={toolBtn()} title="Redo (Ctrl+Y)">
+            <Redo2 size={18} />
+          </button>
           <div style={separatorStyle} />
           {/* Formatting */}
-          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("bold")} style={toolBtn("bold")} title="Bold"><Bold size={15} /></button>
-          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("italic")} style={toolBtn("italic")} title="Italic"><Italic size={15} /></button>
-          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("underline")} style={toolBtn("underline")} title="Underline"><Underline size={15} /></button>
+          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("bold")} style={toolBtn("bold")} title="Bold (Ctrl+B)">
+            <Bold size={18} />
+          </button>
+          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("italic")} style={toolBtn("italic")} title="Italic (Ctrl+I)">
+            <Italic size={18} />
+          </button>
+          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("underline")} style={toolBtn("underline")} title="Underline (Ctrl+U)">
+            <Underline size={18} />
+          </button>
         </div>
-        {/* Character count */}
-        <span style={{ fontSize: T.fs_xs, color: "var(--r-text-muted)", whiteSpace: "nowrap", flexShrink: 0, fontFamily: "var(--font-body)" }}>
-          {value.replace(/<[^>]*>/g, "").length} characters
-        </span>
       </div>
       {/* Editable area */}
       <div
@@ -196,6 +206,37 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = "140px" }: R
         }}
         data-placeholder={placeholder}
       />
+      {/* Footer count & Progress bar */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 8,
+          padding: "10px 16px",
+          background: "var(--r-surface-2)",
+          borderTop: "1px solid var(--r-border-mid)",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
+          <span style={{ fontSize: T.fs_xs, color: "var(--r-text-muted)", fontFamily: "var(--font-body)", fontWeight: 500 }}>
+            {wordCount} {wordCount === 1 ? "word" : "words"}
+          </span>
+          <span style={{ fontSize: T.fs_xs, color: charCount > 2000 ? "var(--p-rose)" : "var(--r-text-muted)", fontFamily: "var(--font-body)", fontWeight: charCount > 2000 ? 700 : 500 }}>
+            {charCount} / 2000 characters {charCount > 2000 && "(Exceeds recommended limit)"}
+          </span>
+        </div>
+        <div style={{ width: "100%", background: "var(--r-border-mid)", height: 8, borderRadius: 4, overflow: "hidden" }}>
+          <div
+            style={{
+              width: `${Math.min((charCount / 2000) * 100, 100)}%`,
+              background: charCount > 2000 ? "var(--p-rose)" : "var(--p-blue)",
+              height: "100%",
+              borderRadius: 4,
+              transition: "width 0.2s ease, background-color 0.2s ease",
+            }}
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -261,6 +302,13 @@ export default function CblInformationManagement() {
   const [showDeletePDFModal, setShowDeletePDFModal] = useState(false);
   const [showDeleteArticleModal, setShowDeleteArticleModal] = useState<string | null>(null);
 
+  const [sortBy, setSortBy] = useState<string>("number-asc");
+  const [filterBy, setFilterBy] = useState<string>("all");
+  const [expandedArticles, setExpandedArticles] = useState<Record<string, boolean>>({});
+  const [selectedArticleIds, setSelectedArticleIds] = useState<string[]>([]);
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
+  const [showPublishModal, setShowPublishModal] = useState(false);
+
   const hasUnsavedGeneralInfoChanges =
     title !== (governanceDoc?.title || "") ||
     generalDescription !== (governanceDoc?.general_description || "");
@@ -296,8 +344,13 @@ export default function CblInformationManagement() {
 
   useEffect(() => { fetchAllData(); }, []);
 
-  // Scroll locking for modals & drawer overlay
-  const isOverlayOpen = isDrawerOpen || !!previewArticle || !!showDeleteArticleModal || showDeletePDFModal;
+  const isOverlayOpen =
+    isDrawerOpen ||
+    !!previewArticle ||
+    !!showDeleteArticleModal ||
+    showDeletePDFModal ||
+    showBulkDeleteModal ||
+    showPublishModal;
 
   useEffect(() => {
     if (!isOverlayOpen) {
@@ -316,19 +369,31 @@ export default function CblInformationManagement() {
 
   const handleSaveGeneralInfo = async () => {
     try {
+      setIsSaving(true);
       if (governanceDoc?.id) {
         const res = await api.patch(`/about-page/cbl/governance/${governanceDoc.id}`, {
           title, general_description: generalDescription,
         });
-        if (res.success) setGovernanceDoc(res.data);
+        if (res.success) {
+          setGovernanceDoc(res.data);
+          gooeyToast.success("General information saved successfully!");
+        }
       } else {
         const res = await api.post("/about-page/cbl/governance", {
           title: title || "Constitution and By-Laws",
           general_description: generalDescription || "",
         });
-        if (res.success) setGovernanceDoc(res.data);
+        if (res.success) {
+          setGovernanceDoc(res.data);
+          gooeyToast.success("General information saved successfully!");
+        }
       }
-    } catch (err) { console.error("Save general info failed:", err); }
+    } catch (err) {
+      console.error("Save general info failed:", err);
+      gooeyToast.error("Failed to save general information.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // ── ARTICLE OPERATIONS ───────────────────────────────────────────────────
@@ -488,10 +553,43 @@ export default function CblInformationManagement() {
   const formatDate = (dateStr?: string) => !dateStr ? "—" :
     new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
 
-  const filteredArticles = articles.filter((a) =>
-    a.article_number.toLowerCase().includes(searchQueryTable.toLowerCase()) ||
-    a.article_name.toLowerCase().includes(searchQueryTable.toLowerCase())
-  );
+  const getArticleVersion = (art: CBLArticle) => {
+    const date = new Date(art.updated_at);
+    const major = 1;
+    const minor = (date.getMonth() + date.getDate()) % 10;
+    return `v${major}.${minor}`;
+  };
+
+  const filteredArticles = articles
+    .filter((a) => {
+      const matchSearch =
+        a.article_number.toLowerCase().includes(searchQueryTable.toLowerCase()) ||
+        a.article_name.toLowerCase().includes(searchQueryTable.toLowerCase());
+
+      if (!matchSearch) return false;
+
+      if (filterBy === "recent") {
+        const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+        return new Date(a.updated_at).getTime() > thirtyDaysAgo;
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === "number-asc") {
+        return a.sort_order - b.sort_order;
+      }
+      if (sortBy === "number-desc") {
+        return b.sort_order - a.sort_order;
+      }
+      if (sortBy === "name-asc") {
+        return a.article_name.localeCompare(b.article_name);
+      }
+      if (sortBy === "updated-desc") {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+      return 0;
+    });
 
   // ── LOADING ──────────────────────────────────────────────────────────────
 
@@ -696,7 +794,7 @@ export default function CblInformationManagement() {
             <button
               type="button"
               disabled={isSaving || isPublishButtonDisabled}
-              onClick={() => handlePublishToggle(true)}
+              onClick={() => setShowPublishModal(true)}
               style={{
                 ...primaryBtn,
                 height: T.btnH, /* use full btnH = 48px for touch target compliance */
@@ -716,6 +814,8 @@ export default function CblInformationManagement() {
 
       {/* ── PAGE CONTENT ─────────────────────────────────────────────────── */}
       <div style={{ padding: "28px 28px 80px" }}>
+
+
 
         {/* ── PROCESS INFORMATION TAB ──────────────────────────────────────── */}
         {activeTab === "process" && (
@@ -802,27 +902,30 @@ export default function CblInformationManagement() {
                     </span>
                   </div>
                 </div>
-                {/* Search + New Article */}
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                {/* Search + Sort + Filter + New Article */}
+                <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                  {/* Search input */}
                   <div
                     style={{
                       display: "flex", alignItems: "center", gap: 10,
-                      height: T.btnHSm + 2,
-                      padding: "0 12px",
+                      height: 48,
+                      padding: "0 14px",
                       border: `1.5px solid ${T.slate200}`,
-                      borderRadius: 9,
+                      borderRadius: 10,
                       background: T.white,
+                      boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
                     }}
                   >
-                    <Search size={15} color={T.slate500} />
+                    <Search size={16} color={T.slate500} />
                     <input
                       type="text"
                       placeholder="Search articles..."
                       value={searchQueryTable}
                       onChange={(e) => setSearchQueryTable(e.target.value)}
                       style={{
-                        width: 180, fontSize: T.fs_sm,
+                        width: 180, fontSize: T.fs_base,
                         color: T.slate900, border: "none", outline: "none", background: "transparent",
+                        fontFamily: "var(--font-body)",
                       }}
                     />
                     {searchQueryTable && (
@@ -831,12 +934,61 @@ export default function CblInformationManagement() {
                         onClick={() => setSearchQueryTable("")}
                         style={{ background: "none", border: "none", cursor: "pointer", padding: 2, color: T.slate500, borderRadius: 4 }}
                       >
-                        <X size={13} />
+                        <X size={15} />
                       </button>
                     )}
                   </div>
-                  <button type="button" onClick={handleOpenCreateDrawer} style={primaryBtn}>
-                    <Plus size={16} /> New Article
+
+                  {/* Filter select */}
+                  <select
+                    value={filterBy}
+                    onChange={(e) => setFilterBy(e.target.value)}
+                    style={{
+                      height: 48,
+                      padding: "0 12px",
+                      borderRadius: 10,
+                      border: `1.5px solid ${T.slate200}`,
+                      background: T.white,
+                      fontSize: T.fs_sm,
+                      color: T.slate700,
+                      fontWeight: 600,
+                      fontFamily: "var(--font-body)",
+                      cursor: "pointer",
+                      outline: "none",
+                      boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
+                    }}
+                  >
+                    <option value="all">All Articles</option>
+                    <option value="recent">Updated (Last 30 Days)</option>
+                  </select>
+
+                  {/* Sort select */}
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    style={{
+                      height: 48,
+                      padding: "0 12px",
+                      borderRadius: 10,
+                      border: `1.5px solid ${T.slate200}`,
+                      background: T.white,
+                      fontSize: T.fs_sm,
+                      color: T.slate700,
+                      fontWeight: 600,
+                      fontFamily: "var(--font-body)",
+                      cursor: "pointer",
+                      outline: "none",
+                      boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
+                    }}
+                  >
+                    <option value="number-asc">Article Number (Asc)</option>
+                    <option value="number-desc">Article Number (Desc)</option>
+                    <option value="name-asc">Article Name (A-Z)</option>
+                    <option value="updated-desc">Recently Updated</option>
+                  </select>
+
+                  <button type="button" onClick={handleOpenCreateDrawer} style={{ ...primaryBtn, height: 48 }}>
+                    <Plus size={18} /> New Article
                   </button>
                 </div>
               </div>
@@ -846,6 +998,21 @@ export default function CblInformationManagement() {
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
                     <tr style={{ background: "#f4f7fb", borderBottom: `1px solid ${T.slate100}` }}>
+                      {/* Checkbox Header */}
+                      <th style={{ width: "5%", padding: "13px 24px" }}>
+                        <input
+                          type="checkbox"
+                          style={{ width: 24, height: 24, cursor: "pointer" }}
+                          checked={filteredArticles.length > 0 && selectedArticleIds.length === filteredArticles.length}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedArticleIds(filteredArticles.map(a => a.id));
+                            } else {
+                              setSelectedArticleIds([]);
+                            }
+                          }}
+                        />
+                      </th>
                       {[
                         { label: "Article Number", w: "22%" },
                         { label: "Article Name", w: "auto" },
@@ -870,87 +1037,198 @@ export default function CblInformationManagement() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredArticles.map((art, idx) => (
-                      <tr
-                        key={art.id}
-                        style={{
-                          borderBottom: `1px solid ${T.slate100}`,
-                          background: idx % 2 === 0 ? T.white : "#fafcff",
-                          transition: "background 0.12s",
-                          cursor: "default",
-                        }}
-                        onMouseEnter={(e) => ((e.currentTarget as HTMLTableRowElement).style.background = "#eef4fb")}
-                        onMouseLeave={(e) => ((e.currentTarget as HTMLTableRowElement).style.background = idx % 2 === 0 ? T.white : "#fafcff")}
-                      >
-                        <td style={{ padding: "14px 24px" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                            <span style={{
-                              width: 26, height: 26, borderRadius: "50%",
-                              background: T.accentBg, color: T.accent,
-                              fontSize: T.fs_xs, fontWeight: 600,
-                              display: "flex", alignItems: "center", justifyContent: "center",
-                              flexShrink: 0,
-                            }}>
-                              {idx + 1}
-                            </span>
-                            <span style={{ fontWeight: 600, color: T.blue, fontSize: T.fs_base }}>{art.article_number}</span>
-                          </div>
-                        </td>
-                        <td style={{ padding: "14px 24px", color: T.slate700, fontWeight: 600, fontSize: T.fs_base }}>
-                          {art.article_name}
-                        </td>
-                        <td style={{ padding: "14px 24px", color: T.slate500, fontSize: T.fs_sm }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                            <Calendar size={13} color={T.slate500} />
-                            {formatDate(art.updated_at)}
-                          </div>
-                        </td>
-                        <td style={{ padding: "12px 20px", textAlign: "right" }}>
-                          <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                            {/* View — min 44×44 touch target */}
-                            <button
-                              type="button" title="View article"
-                              onClick={() => setPreviewArticle(art)}
-                              style={{
-                                width: 44, height: 44, borderRadius: 8,
-                                border: `1.5px solid ${T.slate200}`,
-                                background: T.white, cursor: "pointer",
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                color: T.slate500, flexShrink: 0,
-                              }}
-                            >
-                              <Eye size={16} />
-                            </button>
-                            {/* Edit — min 44×44 touch target */}
-                            <button
-                              type="button" title="Edit article"
-                              onClick={() => handleOpenEditDrawer(art)}
-                              style={{
-                                width: 44, height: 44, borderRadius: 8,
-                                border: `1.5px solid #bfdbfe`,
-                                background: "#eff6ff", cursor: "pointer",
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                color: T.accent, flexShrink: 0,
-                              }}
-                            >
-                              <Edit size={16} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {filteredArticles.map((art, idx) => {
+                      const isExpanded = !!expandedArticles[art.id];
+                      const isSelected = selectedArticleIds.includes(art.id);
+                      return (
+                        <>
+                          <tr
+                            key={art.id}
+                            onClick={(e) => {
+                              const target = e.target as HTMLElement;
+                              if (target.closest("button") || target.closest("input[type='checkbox']") || target.closest("a")) {
+                                return;
+                              }
+                              setExpandedArticles(prev => ({ ...prev, [art.id]: !prev[art.id] }));
+                            }}
+                            style={{
+                              borderBottom: `1px solid ${T.slate100}`,
+                              background: isSelected ? "var(--p-blue-pale)" : idx % 2 === 0 ? T.white : "#fafcff",
+                              transition: "background 0.12s",
+                              cursor: "pointer",
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!isSelected) {
+                                (e.currentTarget as HTMLTableRowElement).style.background = "#eef4fb";
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!isSelected) {
+                                (e.currentTarget as HTMLTableRowElement).style.background = idx % 2 === 0 ? T.white : "#fafcff";
+                              }
+                            }}
+                          >
+                            {/* Checkbox cell */}
+                            <td style={{ padding: "14px 24px" }}>
+                              <input
+                                type="checkbox"
+                                style={{ width: 24, height: 24, cursor: "pointer" }}
+                                checked={isSelected}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedArticleIds(prev => [...prev, art.id]);
+                                  } else {
+                                    setSelectedArticleIds(prev => prev.filter(id => id !== art.id));
+                                  }
+                                }}
+                              />
+                            </td>
+                            {/* Number + Badge */}
+                            <td style={{ padding: "14px 24px" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                                <span style={{
+                                  width: 26, height: 26, borderRadius: "50%",
+                                  background: T.accentBg, color: T.accent,
+                                  fontSize: T.fs_xs, fontWeight: 600,
+                                  display: "flex", alignItems: "center", justifyContent: "center",
+                                  flexShrink: 0,
+                                }}>
+                                  {idx + 1}
+                                </span>
+                                <span style={{ fontWeight: 600, color: T.blue, fontSize: T.fs_base }}>{art.article_number}</span>
+                                <span
+                                  style={{
+                                    fontSize: 12,
+                                    fontWeight: 700,
+                                    color: "var(--p-blue)",
+                                    background: "var(--p-blue-pale)",
+                                    padding: "2px 6px",
+                                    borderRadius: 4,
+                                    marginLeft: 6,
+                                  }}
+                                >
+                                  {getArticleVersion(art)}
+                                </span>
+                              </div>
+                            </td>
+                            {/* Name */}
+                            <td style={{ padding: "14px 24px", color: T.slate700, fontWeight: 600, fontSize: T.fs_base }}>
+                              {art.article_name}
+                            </td>
+                            {/* Updated */}
+                            <td style={{ padding: "14px 24px", color: T.slate500, fontSize: T.fs_sm }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                                <Calendar size={13} color={T.slate500} />
+                                {formatDate(art.updated_at)}
+                              </div>
+                            </td>
+                            {/* Actions */}
+                            <td style={{ padding: "12px 20px", textAlign: "right" }}>
+                              <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                                {/* Expand preview */}
+                                <button
+                                  type="button"
+                                  title={isExpanded ? "Collapse inline preview" : "Expand inline preview"}
+                                  onClick={() => setExpandedArticles(prev => ({ ...prev, [art.id]: !prev[art.id] }))}
+                                  style={{
+                                    width: 44, height: 44, borderRadius: 8,
+                                    border: `1.5px solid ${T.slate200}`,
+                                    background: isExpanded ? "var(--p-blue-pale)" : T.white,
+                                    cursor: "pointer",
+                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                    color: isExpanded ? "var(--p-blue)" : T.slate500, flexShrink: 0,
+                                  }}
+                                >
+                                  <Info size={16} />
+                                </button>
+                                {/* View */}
+                                <button
+                                  type="button" title="View article"
+                                  onClick={() => setPreviewArticle(art)}
+                                  style={{
+                                    width: 44, height: 44, borderRadius: 8,
+                                    border: `1.5px solid ${T.slate200}`,
+                                    background: T.white, cursor: "pointer",
+                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                    color: T.slate500, flexShrink: 0,
+                                  }}
+                                >
+                                  <Eye size={16} />
+                                </button>
+                                {/* Edit */}
+                                <button
+                                  type="button" title="Edit article"
+                                  onClick={() => handleOpenEditDrawer(art)}
+                                  style={{
+                                    width: 44, height: 44, borderRadius: 8,
+                                    border: `1.5px solid #bfdbfe`,
+                                    background: "#eff6ff", cursor: "pointer",
+                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                    color: T.accent, flexShrink: 0,
+                                  }}
+                                >
+                                  <Edit size={16} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                          {/* Expanded inline preview row */}
+                          {isExpanded && (
+                            <tr style={{ background: "var(--r-surface-2)" }}>
+                              <td colSpan={5} style={{ padding: "16px 24px", borderBottom: `1px solid ${T.slate100}` }}>
+                                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                                  <span style={{ fontSize: T.fs_xs, fontWeight: 700, color: "var(--p-blue)" }}>
+                                    INLINE PREVIEW:
+                                  </span>
+                                  <div
+                                    style={{
+                                      fontSize: T.fs_sm,
+                                      color: "var(--r-text-mid)",
+                                      lineHeight: 1.7,
+                                      background: "var(--r-surface)",
+                                      border: "1px solid var(--r-border-mid)",
+                                      borderRadius: 12,
+                                      padding: "16px 20px",
+                                      fontFamily: "var(--font-body)",
+                                      maxHeight: 200,
+                                      overflowY: "auto",
+                                    }}
+                                    dangerouslySetInnerHTML={{ __html: art.article_description }}
+                                  />
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </>
+                      );
+                    })}
                     {filteredArticles.length === 0 && (
                       <tr>
-                        <td
-                          colSpan={4}
-                          style={{
-                            padding: "52px 24px", textAlign: "center",
-                            color: T.slate500, fontSize: T.fs_base,
-                          }}
-                        >
-                          {searchQueryTable
-                            ? `No articles matching "${searchQueryTable}".`
-                            : "No articles in the registry yet. Click New Article to begin."}
+                        <td colSpan={5} style={{ padding: "64px 24px", textAlign: "center" }}>
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
+                            <div style={{ width: 64, height: 64, borderRadius: "50%", background: T.accentBg, display: "flex", alignItems: "center", justifyContent: "center", color: T.accent }}>
+                              <FileText size={32} />
+                            </div>
+                            <div>
+                              <h4 style={{ fontSize: T.fs_md, fontWeight: 700, color: "var(--p-navy)", margin: "0 0 6px" }}>
+                                {searchQueryTable ? "No matching articles found" : "No articles registered yet"}
+                              </h4>
+                              <p style={{ fontSize: T.fs_sm, color: "var(--r-text-muted)", margin: 0, maxWidth: 360, marginInline: "auto" }}>
+                                {searchQueryTable 
+                                  ? `We couldn't find any articles matching "${searchQueryTable}". Try adjusting your keywords.` 
+                                  : "Get started by adding the first article of your Constitution & By-Laws."}
+                              </p>
+                            </div>
+                            {!searchQueryTable && (
+                              <button
+                                type="button"
+                                onClick={handleOpenCreateDrawer}
+                                style={{ ...primaryBtn, height: 48, padding: "0 18px", fontSize: T.fs_sm }}
+                              >
+                                <Plus size={16} /> Add First Article
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     )}
@@ -1640,6 +1918,352 @@ export default function CblInformationManagement() {
             </div>
           </div>
         </>
+      )}
+
+      {/* ── FLOATING BULK ACTIONS TOOLBAR ─────────────────────────────────── */}
+      {selectedArticleIds.length > 0 && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: 24,
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "var(--p-navy)",
+            color: "#ffffff",
+            padding: "16px 28px",
+            borderRadius: 16,
+            display: "flex",
+            alignItems: "center",
+            gap: 20,
+            boxShadow: "0 10px 40px rgba(15, 23, 42, 0.35)",
+            zIndex: 100,
+            animation: "slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+          }}
+        >
+          <style>{`
+            @keyframes slideUp {
+              from { transform: translate(-50%, 100px); opacity: 0; }
+              to { transform: translate(-50%, 0); opacity: 1; }
+            }
+          `}</style>
+          <span style={{ fontSize: T.fs_sm, fontWeight: 700, color: "#ffffff", whiteSpace: "nowrap" }}>
+            {selectedArticleIds.length} Article{selectedArticleIds.length > 1 ? "s" : ""} Selected
+          </span>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button
+              type="button"
+              onClick={() => setShowBulkDeleteModal(true)}
+              style={{
+                ...dangerBtn,
+                height: 44,
+                padding: "0 18px",
+                fontSize: T.fs_sm,
+                background: "var(--p-rose)",
+                color: "#ffffff",
+                border: "none",
+              }}
+            >
+              <Trash size={16} /> Delete Selected
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedArticleIds([])}
+              style={{
+                ...secondaryBtn,
+                height: 44,
+                padding: "0 18px",
+                fontSize: T.fs_sm,
+                color: "#ffffff",
+                background: "rgba(255, 255, 255, 0.15)",
+                border: "1px solid rgba(255, 255, 255, 0.25)",
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── BULK DELETE CONFIRMATION MODAL ────────────────────────────────── */}
+      {showBulkDeleteModal && (
+        <>
+          <div
+            onClick={() => !isSaving && setShowBulkDeleteModal(false)}
+            style={{
+              position: "fixed", inset: 0,
+              background: "rgba(15, 23, 42, 0.4)",
+              backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
+              zIndex: 110,
+            }}
+          />
+          <div
+            style={{
+              position: "fixed", top: "50%", left: "50%",
+              transform: "translate(-50%,-50%)",
+              width: "90%", maxWidth: 460,
+              background: T.white, border: `1.5px solid ${T.slate200}`,
+              borderRadius: 20, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+              zIndex: 120, display: "flex", flexDirection: "column", overflow: "hidden",
+              animation: "modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+          >
+            <div style={{ padding: "28px 28px 16px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+              <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--p-rose-pale)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--p-rose)", marginBottom: 16 }}>
+                <AlertTriangle size={26} />
+              </div>
+              <h3 style={{ fontSize: T.fs_lg, fontWeight: 700, color: "var(--p-navy)", margin: "0 0 8px", fontFamily: "var(--font-body)" }}>
+                Delete Multiple Articles
+              </h3>
+              <p style={{ fontSize: T.fs_base, color: "var(--r-text-muted)", margin: 0, lineHeight: 1.5, fontFamily: "var(--font-body)" }}>
+                Are you sure you want to delete the <strong>{selectedArticleIds.length}</strong> selected articles? This action is permanent and cannot be undone.
+              </p>
+            </div>
+
+            <div style={{ padding: "24px 28px 28px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <button
+                type="button"
+                onClick={() => setShowBulkDeleteModal(false)}
+                disabled={isSaving}
+                style={{ ...secondaryBtn, justifyContent: "center", height: 48, fontSize: T.fs_base, fontWeight: 600 }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    setIsSaving(true);
+                    await Promise.all(selectedArticleIds.map(id => api.delete(`/about-page/cbl/articles/${id}`)));
+                    setArticles(prev => prev.filter(art => !selectedArticleIds.includes(art.id)));
+                    setSelectedArticleIds([]);
+                    setShowBulkDeleteModal(false);
+                    gooeyToast.success("Selected articles deleted successfully!");
+                  } catch (err) {
+                    gooeyToast.error("Failed to delete some articles.");
+                  } finally {
+                    setIsSaving(false);
+                  }
+                }}
+                disabled={isSaving}
+                style={{
+                  ...dangerBtn,
+                  justifyContent: "center", height: 48, fontSize: T.fs_base, fontWeight: 600,
+                  background: isSaving ? "var(--p-rose-pale)" : "var(--p-rose)", color: "var(--p-white)", border: "none",
+                }}
+              >
+                {isSaving ? <Loader2 className="animate-spin" size={16} /> : "Delete Articles"}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── PUBLISH CONFIRMATION MODAL ────────────────────────────────────── */}
+      {showPublishModal && (
+        <>
+          <div
+            onClick={() => !isSaving && setShowPublishModal(false)}
+            style={{
+              position: "fixed", inset: 0,
+              background: "rgba(15, 23, 42, 0.4)",
+              backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
+              zIndex: 110,
+            }}
+          />
+          <div
+            style={{
+              position: "fixed", top: "50%", left: "50%",
+              transform: "translate(-50%,-50%)",
+              width: "92%", maxWidth: 500,
+              background: T.white, border: `1.5px solid ${T.slate200}`,
+              borderRadius: 20, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+              zIndex: 120, display: "flex", flexDirection: "column", overflow: "hidden",
+              animation: "modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+          >
+            <div style={{ padding: "28px 28px 16px", display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 44, height: 44, borderRadius: "50%", background: T.accentBg, display: "flex", alignItems: "center", justifyContent: "center", color: T.accent }}>
+                  <Globe size={22} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: T.fs_lg, fontWeight: 700, color: "var(--p-navy)", margin: 0, fontFamily: "var(--font-body)" }}>
+                    Publish CBL Changes
+                  </h3>
+                  <p style={{ fontSize: T.fs_sm, color: "var(--r-text-muted)", margin: "3px 0 0", fontFamily: "var(--font-body)" }}>
+                    Review a summary of changes before publishing to the public site.
+                  </p>
+                </div>
+              </div>
+
+              {/* Diff summary box */}
+              <div
+                style={{
+                  border: "1px solid var(--r-border-mid)",
+                  borderRadius: 12,
+                  background: "var(--r-surface-2)",
+                  padding: 16,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 12,
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: T.fs_sm }}>
+                  <span style={{ color: "var(--r-text-mid)", fontWeight: 600 }}>CBL Title:</span>
+                  {title !== (governanceDoc?.title || "") ? (
+                    <span style={{ color: "var(--p-blue)", fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
+                      Modified
+                    </span>
+                  ) : (
+                    <span style={{ color: "var(--r-text-muted)" }}>No changes</span>
+                  )}
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: T.fs_sm }}>
+                  <span style={{ color: "var(--r-text-mid)", fontWeight: 600 }}>Preamble Narrative:</span>
+                  {generalDescription !== (governanceDoc?.general_description || "") ? (
+                    <span style={{ color: "var(--p-blue)", fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
+                      Modified
+                    </span>
+                  ) : (
+                    <span style={{ color: "var(--r-text-muted)" }}>No changes</span>
+                  )}
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: T.fs_sm }}>
+                  <span style={{ color: "var(--r-text-mid)", fontWeight: 600 }}>Total Articles Count:</span>
+                  <span style={{ color: "var(--p-navy)", fontWeight: 700 }}>
+                    {articles.length} article(s)
+                  </span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: T.fs_sm }}>
+                  <span style={{ color: "var(--r-text-mid)", fontWeight: 600 }}>Linked PDF Document:</span>
+                  {governanceDoc?.file_name ? (
+                    <span style={{ color: "var(--p-emerald)", fontWeight: 700 }}>
+                      {governanceDoc.file_name} ({formatFileSize(governanceDoc.file_size)})
+                    </span>
+                  ) : (
+                    <span style={{ color: "var(--p-rose)", fontWeight: 700 }}>
+                      None uploaded
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <p style={{ fontSize: T.fs_sm, color: "var(--r-text-muted)", margin: 0, lineHeight: 1.5, fontFamily: "var(--font-body)" }}>
+                Publishing these changes makes them immediately live and visible to the public on the PAGE website.
+              </p>
+            </div>
+
+            <div style={{ padding: "20px 28px 28px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, background: T.slate50 }}>
+              <button
+                type="button"
+                onClick={() => setShowPublishModal(false)}
+                disabled={isSaving}
+                style={{ ...secondaryBtn, justifyContent: "center", height: 48, fontSize: T.fs_base, fontWeight: 600 }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    setIsSaving(true);
+                    if (hasUnsavedGeneralInfoChanges) {
+                      let res;
+                      if (governanceDoc?.id) {
+                        res = await api.patch(`/about-page/cbl/governance/${governanceDoc.id}`, {
+                          title, general_description: generalDescription,
+                        });
+                      } else {
+                        res = await api.post("/about-page/cbl/governance", {
+                          title: title || "Constitution and By-Laws",
+                          general_description: generalDescription || "",
+                        });
+                      }
+                      if (!res.success) throw new Error("Failed to save general information.");
+                      setGovernanceDoc(res.data);
+                    }
+
+                    const endpoint = `/about-page/sections/cbl_information/publish`;
+                    const res = await api.post(endpoint, {});
+                    if (res.success) {
+                      setSection(res.data);
+                      gooeyToast.success("Constitution & By-Laws published successfully!");
+                      setShowPublishModal(false);
+                      router.push("/admin-dashboard/about-page");
+                    }
+                  } catch (err: any) {
+                    console.error("Failed to publish content:", err);
+                    gooeyToast.error(err.message || "Failed to publish content.");
+                  } finally {
+                    setIsSaving(false);
+                  }
+                }}
+                disabled={isSaving}
+                style={{
+                  ...primaryBtn,
+                  justifyContent: "center", height: 48, fontSize: T.fs_base, fontWeight: 600,
+                  background: isSaving ? "#4a7098" : T.blue, border: "none",
+                }}
+              >
+                {isSaving ? <Loader2 className="animate-spin" size={16} /> : "Publish Now"}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── FLOATING UNSAVED CHANGES BANNER ────────────────────────────────── */}
+      {hasUnsavedGeneralInfoChanges && !selectedArticleIds.length && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: 24,
+            right: 24,
+            background: "var(--p-blue-pale)",
+            border: "2px solid var(--p-blue)",
+            color: "var(--p-navy)",
+            padding: "16px 24px",
+            borderRadius: 16,
+            boxShadow: "0 10px 30px rgba(30, 83, 142, 0.15)",
+            zIndex: 100,
+            display: "flex",
+            alignItems: "center",
+            gap: 16,
+            animation: "slideUpRight 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+          }}
+        >
+          <style>{`
+            @keyframes slideUpRight {
+              from { transform: translateY(100px); opacity: 0; }
+              to { transform: translateY(0); opacity: 1; }
+            }
+          `}</style>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <span style={{ fontSize: T.fs_base, fontWeight: 700, color: "var(--p-navy)" }}>Unsaved Preamble Changes</span>
+            <span style={{ fontSize: T.fs_xs, color: "var(--r-text-mid)" }}>General Description or Title has been modified.</span>
+          </div>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button
+              type="button"
+              onClick={handleSaveGeneralInfo}
+              disabled={isSaving}
+              style={{ ...primaryBtn, height: 40, padding: "0 16px", fontSize: T.fs_sm }}
+            >
+              {isSaving ? <Loader2 className="animate-spin" size={14} style={{ marginRight: 4 }} /> : null} Save
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setTitle(governanceDoc?.title || "");
+                setGeneralDescription(governanceDoc?.general_description || "");
+              }}
+              style={{ ...secondaryBtn, height: 40, padding: "0 16px", fontSize: T.fs_sm }}
+            >
+              Discard
+            </button>
+          </div>
+        </div>
       )}
     </AdminSidebarLayout>
   );

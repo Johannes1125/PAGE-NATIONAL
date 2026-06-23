@@ -67,7 +67,7 @@ const SECTION_METAS: Record<string, SectionMeta> = {
   },
   national_officers: {
     icon: Users,
-    route: "/admin-dashboard/about-page/national-officers",
+    route: "/admin-dashboard/national-officers",
     description: "Manage executive officers, board directors, and roles.",
     contentCountLabel: "Officers Listed",
   },
@@ -139,7 +139,7 @@ export default function AboutPageManagement() {
         setIsLoading(true);
         const [secRes, offRes, secDocRes, birDocRes, logoDocRes] = await Promise.all([
           api.get("/about-page/sections"),
-          api.get("/about-page/officers"),
+          api.get("/national-officers"),
           api.get("/about-page/documents/sec_registration"),
           api.get("/about-page/documents/bir_certification"),
           api.get("/about-page/documents/logo_description"),

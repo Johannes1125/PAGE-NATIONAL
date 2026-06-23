@@ -262,16 +262,15 @@ export default function OfficersPage() {
     const fetchOfficers = async () => {
       try {
         setLoading(true);
-        const res = await api.get("/public/about-page/officers");
+        const res = await api.get("/national-officers");
         if (res.success && res.data) {
           const mapped: Officer[] = res.data.map((off: any) => {
-            const isBoard = off.position.toLowerCase().includes("board of director") || off.position.toLowerCase().includes("board member");
             return {
-              name: off.name,
-              position: off.position,
-              category: isBoard ? "Board of Directors" : "National Officers",
-              bio: off.chapter ? `Representing ${off.chapter} chapter.` : "PAGE National Officer.",
-              photo_url: off.photo_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(off.name)}&backgroundColor=1e5390&textColor=ffffff`,
+              name: off.memberName,
+              position: off.role,
+              category: off.positionCategory as "National Officers" | "Board of Directors",
+              bio: off.description || `${off.role} of PAGE.`,
+              photo_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(off.memberName)}&backgroundColor=1e5390&textColor=ffffff`,
             };
           });
           setOfficersList(mapped);

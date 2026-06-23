@@ -270,3 +270,14 @@ model page_logos {
   updatedAt       DateTime  @default(now()) @updatedAt @db.Timestamp(0)
 }
 
+model NationalOfficer {
+  id               String   @id @default(cuid())
+  memberName       String
+  positionCategory String
+  role             String
+  description      String?
+  sortOrder        Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
