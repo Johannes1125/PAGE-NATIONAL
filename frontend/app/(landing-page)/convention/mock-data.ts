@@ -4,12 +4,12 @@ export const CONVENTIONS_DATA: Convention[] = [
   {
     slug: "56th-national-convention",
     convention_number: "56th",
-    theme: "Reimagining Graduate Research in a Cyber-Physical Academic Ecosystem",
-    year: 2026,
-    location: "Manila Hotel, Metro Manila",
-    date_range: "October 21–23, 2026",
+    theme: "Advancing Philippine Graduate Education through Artificial Intelligence",
+    year: 2025,
+    location: "Baguio City, Philippines",
+    date_range: "September 4–6, 2025",
     cover_image_url: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=600&auto=format&fit=crop",
-    intro_paragraph: "The 56th PAGE National Convention focuses on the future of academic inquiry, centering on cyber-physical ecosystems, hybrid graduate education delivery, and cutting-edge methodologies.",
+    intro_paragraph: "The 56th PAGE National Convention brought together graduate educators, administrators, researchers, and students from across the Philippines to examine the transformative role of artificial intelligence in graduate education. Centered on the theme 'Advancing Philippine Graduate Education through Artificial Intelligence,' the convention explored opportunities, challenges, and responsible approaches to integrating AI into teaching, research, and academic leadership.",
     program_schedule: [
       {
         day_number: 1,
@@ -132,12 +132,12 @@ export const CONVENTIONS_DATA: Convention[] = [
   {
     slug: "54th-national-convention",
     convention_number: "54th",
-    theme: "Innovating Graduate Education: AI, Ethics, and Global Research Standards",
-    year: 2024,
-    location: "Manila Hotel, Manila City",
-    date_range: "October 16–18, 2024",
+    theme: "Adaptive, Innovative and Responsive: Making Graduate Education Reform Work",
+    year: 2023,
+    location: "Grand Menseng Hotel, Davao City, Philippines",
+    date_range: "September 21–23, 2023",
     cover_image_url: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=600&auto=format&fit=crop",
-    intro_paragraph: "The 54th PAGE National Convention brings together graduate school deans, program coordinators, and researchers from across the Philippines. This year's focus is on integrating Artificial Intelligence into research methodologies while preserving strict ethical standards and maintaining alignment with international higher education frameworks.",
+    intro_paragraph: "The 54th PAGE National Convention brought together graduate educators, administrators, researchers, and students from across the Philippines to discuss ongoing reforms in graduate education. Guided by the theme 'Adaptive, Innovative and Responsive: Making Graduate Education Reform Work,' the convention explored strategies for strengthening graduate education through innovation, adaptability, and responsive institutional practices.",
     program_schedule: [
       {
         day_number: 1,
@@ -368,12 +368,12 @@ export const CONVENTIONS_DATA: Convention[] = [
   {
     slug: "53rd-national-convention",
     convention_number: "53rd",
-    theme: "Strengthening Multidisciplinary Alliances in Post-Pandemic Graduate Studies",
-    year: 2023,
-    location: "Radisson Blu, Cebu City",
-    date_range: "October 18–20, 2023",
+    theme: "Trajectories of Transition and Transformation in Graduate Education",
+    year: 2022,
+    location: "Manny Reyes Hall, San Beda College-Alabang, Muntinlupa, Philippines",
+    date_range: "June 17–18, 2022",
     cover_image_url: "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=600&auto=format&fit=crop",
-    intro_paragraph: "The 53rd PAGE National Convention focused on repairing educational connections ruptured during remote periods. Deans and educators focused on collaborative research across institutional boundaries to create resilient academic systems.",
+    intro_paragraph: "Held during the Philippines' post-pandemic recovery, the 53rd PAGE National Convention brought together graduate education leaders, researchers, and students to discuss the transition and transformation of graduate education. Participants examined policies, quality assurance practices, and innovative strategies aimed at building a more resilient and responsive graduate education system.",
     program_schedule: [
       {
         day_number: 1,
