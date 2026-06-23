@@ -33,38 +33,39 @@ import "../../admin-dashboard.css";
 
 // ── DESIGN TOKENS (Elder-friendly) ───────────────────────────────────────────
 const T = {
-  blue:       "#103152",
-  blueLight:  "#1a4a7a",
-  accent:     "#2563eb",
-  accentBg:   "#eff6ff",
-  red:        "#dc2626",
-  redBg:      "#fef2f2",
-  redBorder:  "#fecaca",
-  green:      "#16a34a",
-  slate50:    "#f8fafc",
-  slate100:   "#f1f5f9",
-  slate200:   "#e2e8f0",
-  slate300:   "#cbd5e1",
-  slate500:   "#64748b",
-  slate600:   "#475569",
-  slate700:   "#334155",
-  slate900:   "#0f172a",
-  white:      "#ffffff",
-  border:     "#d1d9e2",
+  blue:       "var(--p-navy)",
+  blueLight:  "var(--p-blue)",
+  accent:     "var(--p-blue)",
+  accentBg:   "var(--p-blue-pale)",
+  red:        "var(--p-rose)",
+  redBg:      "var(--p-rose-pale)",
+  redBorder:  "var(--p-rose-pale)",
+  green:      "var(--p-emerald)",
+  slate50:    "var(--r-surface-2)",
+  slate100:   "var(--r-bg)",
+  slate200:   "var(--r-border-mid)",
+  slate300:   "var(--r-border-mid)",
+  slate500:   "var(--r-text-muted)",
+  slate600:   "var(--r-text-mid)",
+  slate700:   "var(--r-text)",
+  slate900:   "var(--r-text)",
+  white:      "var(--r-surface)",
+  border:     "var(--r-border)",
 
-  // Font sizes – bumped for readability
-  fs_xs:      13,
-  fs_sm:      14,
-  fs_base:    15,
-  fs_md:      16,
-  fs_lg:      18,
-  fs_xl:      20,
+  // Font sizes – bumped to follow PAGE Senior-Friendly Design Standards:
+  // "Minimum text size 18px. Minimum heading size 24px."
+  fs_xs:      18,
+  fs_sm:      18,
+  fs_base:    18,
+  fs_md:      24,
+  fs_lg:      24,
+  fs_xl:      28,
 
   // Heights – larger touch targets
-  inputH:     44,
-  btnH:       42,
-  btnHSm:     36,
-  rowH:       52,
+  inputH:     48,
+  btnH:       48,
+  btnHSm:     40,
+  rowH:       56,
 } as const;
 
 // ── CUSTOM WYSIWYG RICH TEXT EDITOR ──────────────────────────────────────────
@@ -119,31 +120,32 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = "140px" }: R
     return {
       width: 36,
       height: 36,
-      borderRadius: 6,
-      border: active ? `1.5px solid ${T.accent}` : "1px solid #e2e8f0",
-      background: active ? T.accentBg : T.white,
+      borderRadius: 8,
+      border: active ? `1.5px solid var(--p-blue)` : "1px solid var(--r-border-mid)",
+      background: active ? "var(--p-blue-pale)" : "var(--r-surface)",
       cursor: "pointer",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      color: active ? T.accent : T.slate700,
+      color: active ? "var(--p-blue)" : "var(--r-text-mid)",
       flexShrink: 0,
-      fontWeight: active ? 700 : 400,
+      fontWeight: active ? 600 : 400,
+      fontFamily: "var(--font-body)",
       transition: "background 0.15s, border 0.15s, color 0.15s",
     };
   };
 
   const separatorStyle: React.CSSProperties = {
-    width: 1, height: 20, background: T.slate300, margin: "0 4px",
+    width: 1, height: 20, background: "var(--r-border-mid)", margin: "0 4px",
   };
 
   return (
     <div
       style={{
-        border: `1.5px solid ${T.slate200}`,
-        borderRadius: 10,
+        border: "1px solid var(--r-border-mid)",
+        borderRadius: 12,
         overflow: "hidden",
-        background: T.white,
+        background: "var(--r-surface)",
       }}
     >
       {/* Toolbar */}
@@ -153,8 +155,8 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = "140px" }: R
           alignItems: "center",
           gap: 6,
           padding: "8px 12px",
-          background: T.slate50,
-          borderBottom: `1px solid ${T.slate200}`,
+          background: "var(--r-surface-2)",
+          borderBottom: "1px solid var(--r-border-mid)",
           flexWrap: "wrap",
         }}
       >
@@ -169,7 +171,7 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = "140px" }: R
           <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("underline")} style={toolBtn("underline")} title="Underline"><Underline size={15} /></button>
         </div>
         {/* Character count */}
-        <span style={{ fontSize: T.fs_xs, color: T.slate500, whiteSpace: "nowrap", flexShrink: 0 }}>
+        <span style={{ fontSize: T.fs_xs, color: "var(--r-text-muted)", whiteSpace: "nowrap", flexShrink: 0, fontFamily: "var(--font-body)" }}>
           {value.replace(/<[^>]*>/g, "").length} characters
         </span>
       </div>
@@ -186,10 +188,11 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = "140px" }: R
           padding: "14px 16px",
           outline: "none",
           fontSize: T.fs_base,
-          color: T.slate900,
+          color: "var(--r-text)",
           lineHeight: 1.75,
           minHeight,
           overflowY: "auto",
+          fontFamily: "var(--font-body)",
         }}
         data-placeholder={placeholder}
       />
@@ -292,6 +295,22 @@ export default function CblInformationManagement() {
   };
 
   useEffect(() => { fetchAllData(); }, []);
+
+  // Scroll locking for modals & drawer overlay
+  const isOverlayOpen = isDrawerOpen || !!previewArticle || !!showDeleteArticleModal || showDeletePDFModal;
+
+  useEffect(() => {
+    if (!isOverlayOpen) {
+      document.body.style.removeProperty("overflow");
+      return;
+    }
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOverlayOpen]);
 
   // ── GENERAL INFO SAVE ────────────────────────────────────────────────────
 
@@ -492,34 +511,36 @@ export default function CblInformationManagement() {
   const labelStyle: React.CSSProperties = {
     display: "block",
     fontSize: T.fs_sm,
-    fontWeight: 700,
-    color: T.slate600,
+    fontWeight: 600,
+    color: "var(--r-text-mid)",
     marginBottom: 7,
     letterSpacing: "0.01em",
+    fontFamily: "var(--font-body)",
   };
 
   const inputStyle: React.CSSProperties = {
     width: "100%",
     height: T.inputH,
     padding: "0 14px",
-    border: `1.5px solid ${T.slate200}`,
-    borderRadius: 9,
+    border: "1px solid var(--r-border-mid)",
+    borderRadius: 12,
     fontSize: T.fs_base,
-    color: T.slate900,
+    color: "var(--r-text)",
     outline: "none",
     boxSizing: "border-box",
-    background: T.white,
-    transition: "border-color 0.15s",
+    background: "var(--r-surface)",
+    transition: "border-color 0.15s, box-shadow 0.15s",
+    fontFamily: "var(--font-body)",
   };
 
   const primaryBtn: React.CSSProperties = {
     height: T.btnH,
     padding: "0 22px",
-    borderRadius: 9,
+    borderRadius: 12,
     fontSize: T.fs_base,
-    fontWeight: 700,
-    color: T.white,
-    background: T.blue,
+    fontWeight: 600,
+    color: "var(--p-white)",
+    background: "var(--p-blue)",
     border: "none",
     cursor: "pointer",
     display: "flex",
@@ -527,61 +548,66 @@ export default function CblInformationManagement() {
     gap: 8,
     whiteSpace: "nowrap",
     letterSpacing: "0.01em",
+    fontFamily: "var(--font-body)",
   };
 
   const secondaryBtn: React.CSSProperties = {
     height: T.btnH,
     padding: "0 18px",
-    borderRadius: 9,
+    borderRadius: 12,
     fontSize: T.fs_base,
     fontWeight: 600,
-    color: T.slate600,
-    background: T.slate100,
-    border: `1.5px solid ${T.slate200}`,
+    color: "var(--r-text-mid)",
+    background: "var(--r-surface-2)",
+    border: "1px solid var(--r-border-mid)",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
     gap: 8,
     whiteSpace: "nowrap",
+    fontFamily: "var(--font-body)",
   };
 
   const dangerBtn: React.CSSProperties = {
     height: T.btnH,
     padding: "0 18px",
-    borderRadius: 9,
+    borderRadius: 12,
     fontSize: T.fs_base,
     fontWeight: 600,
-    color: T.red,
-    background: T.redBg,
-    border: `1.5px solid ${T.redBorder}`,
+    color: "var(--p-rose)",
+    background: "var(--p-rose-pale)",
+    border: "1px solid var(--p-rose-pale)",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
     gap: 8,
     whiteSpace: "nowrap",
+    fontFamily: "var(--font-body)",
   };
 
   const cardStyle: React.CSSProperties = {
-    background: T.white,
-    border: `1px solid ${T.border}`,
-    borderRadius: 14,
+    background: "var(--r-surface)",
+    border: "1px solid var(--r-border)",
+    borderRadius: 16,
     overflow: "hidden",
+    boxShadow: "0 2px 8px rgba(20, 49, 82, 0.02)",
   };
 
   const cardHeaderStyle: React.CSSProperties = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "16px 24px",
-    borderBottom: `1px solid ${T.slate100}`,
-    background: T.white,
+    padding: "18px 24px",
+    borderBottom: "1px solid var(--r-border)",
+    background: "var(--r-surface)",
   };
 
   const cardTitleStyle: React.CSSProperties = {
     fontSize: T.fs_md,
-    fontWeight: 700,
-    color: T.blue,
+    fontWeight: 600,
+    color: "var(--p-navy)",
     margin: 0,
+    fontFamily: "var(--font-body)",
   };
 
   // ── MAIN RENDER ──────────────────────────────────────────────────────────
@@ -626,8 +652,10 @@ export default function CblInformationManagement() {
             {/* Compact Tabs */}
             <div
               style={{
-                display: "flex", alignItems: "center", gap: 2,
-                background: T.slate100, borderRadius: 9, padding: 3,
+                display: "flex", alignItems: "center", gap: 4,
+                background: "var(--r-surface-2)",
+                border: "1px solid var(--r-border)",
+                borderRadius: 12, padding: 4,
               }}
             >
               {(["process", "governance"] as const).map((tab) => {
@@ -639,16 +667,17 @@ export default function CblInformationManagement() {
                     type="button"
                     onClick={() => setActiveTab(tab)}
                     style={{
-                      height: 34,
+                      height: 36,
                       padding: "0 16px",
-                      borderRadius: 7,
+                      borderRadius: 9,
                       fontSize: T.fs_sm,
-                      fontWeight: isActive ? 700 : 500,
-                      color: isActive ? T.blue : T.slate500,
-                      background: isActive ? T.white : "transparent",
-                      border: isActive ? `1px solid ${T.slate200}` : "1px solid transparent",
+                      fontWeight: isActive ? 600 : 500,
+                      color: isActive ? "var(--p-navy)" : "var(--r-text-muted)",
+                      background: isActive ? "var(--r-surface)" : "transparent",
+                      border: isActive ? "1px solid var(--r-border-mid)" : "1px solid transparent",
                       cursor: "pointer",
                       boxShadow: isActive ? "0 1px 3px rgba(0,0,0,0.06)" : "none",
+                      fontFamily: "var(--font-body)",
                       transition: "all 0.15s", whiteSpace: "nowrap",
                     }}
                   >
@@ -705,7 +734,7 @@ export default function CblInformationManagement() {
                 <span
                   style={{
                     fontSize: T.fs_xs,
-                    fontWeight: 700,
+                    fontWeight: 600,
                     color: T.accent,
                     background: T.accentBg,
                     padding: "4px 10px",
@@ -825,7 +854,7 @@ export default function CblInformationManagement() {
                           style={{
                             padding: "13px 24px",
                             textAlign: col.right ? "right" : "left",
-                            fontWeight: 700,
+                            fontWeight: 600,
                             color: T.slate600,
                             fontSize: T.fs_sm,
                             width: col.w,
@@ -855,13 +884,13 @@ export default function CblInformationManagement() {
                             <span style={{
                               width: 26, height: 26, borderRadius: "50%",
                               background: T.accentBg, color: T.accent,
-                              fontSize: T.fs_xs, fontWeight: 700,
+                              fontSize: T.fs_xs, fontWeight: 600,
                               display: "flex", alignItems: "center", justifyContent: "center",
                               flexShrink: 0,
                             }}>
                               {idx + 1}
                             </span>
-                            <span style={{ fontWeight: 700, color: T.blue, fontSize: T.fs_base }}>{art.article_number}</span>
+                            <span style={{ fontWeight: 600, color: T.blue, fontSize: T.fs_base }}>{art.article_number}</span>
                           </div>
                         </td>
                         <td style={{ padding: "14px 24px", color: T.slate700, fontWeight: 600, fontSize: T.fs_base }}>
@@ -953,27 +982,28 @@ export default function CblInformationManagement() {
               <div style={cardHeaderStyle}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <div style={{
-                    width: 34, height: 34, borderRadius: 9,
-                    background: T.accentBg,
+                    width: 34, height: 34, borderRadius: 12,
+                    background: "var(--p-blue-pale)",
                     display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
-                    <FileText size={16} color={T.accent} />
+                    <FileText size={16} color="var(--p-blue)" />
                   </div>
                   <h3 style={cardTitleStyle}>Preamble Sync Preview</h3>
                 </div>
               </div>
               <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
                 <div>
-                  <span style={{ fontSize: T.fs_xs, fontWeight: 700, color: T.slate500, textTransform: "uppercase", letterSpacing: "0.06em" }}>CBL Title</span>
-                  <p style={{ fontSize: T.fs_base, fontWeight: 600, color: T.slate900, margin: "6px 0 0" }}>{title || "—"}</p>
+                  <span style={{ fontSize: T.fs_xs, fontWeight: 500, color: "var(--r-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", fontFamily: "var(--font-body)" }}>CBL Title</span>
+                  <p style={{ fontSize: T.fs_base, fontWeight: 600, color: "var(--r-text)", margin: "6px 0 0", fontFamily: "var(--font-body)" }}>{title || "—"}</p>
                 </div>
                 <div>
-                  <span style={{ fontSize: T.fs_xs, fontWeight: 700, color: T.slate500, textTransform: "uppercase", letterSpacing: "0.06em" }}>General Description</span>
+                  <span style={{ fontSize: T.fs_xs, fontWeight: 500, color: "var(--r-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", fontFamily: "var(--font-body)" }}>General Description</span>
                   <div
                     style={{
-                      fontSize: T.fs_base, color: T.slate700, marginTop: 8,
-                      border: `1px solid ${T.slate200}`, background: T.slate50,
-                      borderRadius: 9, padding: "12px 16px", maxHeight: 180, overflowY: "auto", lineHeight: 1.7,
+                      fontSize: T.fs_base, color: "var(--r-text-mid)", marginTop: 8,
+                      border: "1px solid var(--r-border-mid)", background: "var(--r-surface-2)",
+                      borderRadius: 12, padding: "12px 16px", maxHeight: 180, overflowY: "auto", lineHeight: 1.7,
+                      fontFamily: "var(--font-body)",
                     }}
                     dangerouslySetInnerHTML={{ __html: generalDescription || "Preamble content empty." }}
                   />
@@ -986,44 +1016,45 @@ export default function CblInformationManagement() {
               <div style={cardHeaderStyle}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <div style={{
-                    width: 34, height: 34, borderRadius: 9,
-                    background: T.accentBg,
+                    width: 34, height: 34, borderRadius: 12,
+                    background: "var(--p-blue-pale)",
                     display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
-                    <FileText size={16} color={T.accent} />
+                    <FileText size={16} color="var(--p-blue)" />
                   </div>
                   <h3 style={cardTitleStyle}>Governance PDF Document</h3>
                 </div>
-                <Info size={17} color={T.slate500} />
+                <Info size={17} color="var(--r-text-muted)" />
               </div>
               <div style={{ padding: "24px" }}>
                 {!governanceDoc?.file_url ? (
                   <label
                     style={{
-                      border: `2px dashed ${T.slate300}`,
-                      borderRadius: 14, padding: "50px 24px",
+                      border: "2px dashed var(--r-border-mid)",
+                      borderRadius: 16, padding: "50px 24px",
                       display: "flex", flexDirection: "column", alignItems: "center",
                       justifyContent: "center", cursor: "pointer", textAlign: "center",
-                      background: T.slate50,
+                      background: "var(--r-surface-2)",
                     }}
                   >
                     {isUploading ? (
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-                        <Loader2 className="animate-spin" size={32} style={{ color: T.blue }} />
-                        <p style={{ fontSize: T.fs_base, fontWeight: 600, color: T.slate600, margin: 0 }}>Uploading file, please wait...</p>
+                        <Loader2 className="animate-spin" size={32} style={{ color: "var(--p-blue)" }} />
+                        <p style={{ fontSize: T.fs_base, fontWeight: 600, color: "var(--r-text-mid)", margin: 0, fontFamily: "var(--font-body)" }}>Uploading file, please wait...</p>
                       </div>
                     ) : (
                       <>
-                        <div style={{ width: 56, height: 56, background: T.accentBg, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
-                          <Upload size={24} color={T.blue} />
+                        <div style={{ width: 56, height: 56, background: "var(--p-blue-pale)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+                          <Upload size={24} color="var(--p-blue)" />
                         </div>
-                        <p style={{ fontSize: T.fs_lg, fontWeight: 700, color: T.slate900, margin: "0 0 6px" }}>Drop PDF here or click to upload</p>
-                        <p style={{ fontSize: T.fs_sm, color: T.slate500, margin: "0 0 16px" }}>Only PDF documents are supported. Maximum size: 10 MB.</p>
+                        <p style={{ fontSize: T.fs_lg, fontWeight: 600, color: "var(--p-navy)", margin: "0 0 6px", fontFamily: "var(--font-body)" }}>Drop PDF here or click to upload</p>
+                        <p style={{ fontSize: T.fs_sm, color: "var(--r-text-muted)", margin: "0 0 16px", fontFamily: "var(--font-body)" }}>Only PDF documents are supported. Maximum size: 10 MB.</p>
                         <span style={{
                           display: "inline-flex", alignItems: "center", gap: 7,
-                          padding: "0 18px", height: 38,
-                          background: T.blue, color: T.white,
-                          borderRadius: 8, fontSize: T.fs_sm, fontWeight: 600,
+                          padding: "0 18px", height: T.btnHSm,
+                          background: "var(--p-blue)", color: "var(--p-white)",
+                          borderRadius: 12, fontSize: T.fs_sm, fontWeight: 600,
+                          fontFamily: "var(--font-body)",
                           pointerEvents: "none",
                         }}>
                           <Upload size={14} /> Choose PDF file
@@ -1033,15 +1064,15 @@ export default function CblInformationManagement() {
                     <input type="file" accept="application/pdf" style={{ display: "none" }} onChange={handleFileUpload} disabled={isUploading} />
                   </label>
                 ) : (
-                  <div style={{ border: `1.5px solid ${T.slate200}`, borderRadius: 12, padding: 20 }}>
+                  <div style={{ border: "1px solid var(--r-border-mid)", borderRadius: 12, padding: 20 }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                        <div style={{ width: 52, height: 52, background: T.redBg, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <FileText size={24} color={T.red} />
+                        <div style={{ width: 52, height: 52, background: "var(--p-rose-pale)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <FileText size={24} color="var(--p-rose)" />
                         </div>
                         <div>
-                          <p style={{ fontSize: T.fs_base, fontWeight: 700, color: T.slate900, margin: 0 }}>{governanceDoc.file_name}</p>
-                          <p style={{ fontSize: T.fs_sm, color: T.slate500, margin: "3px 0 0" }}>
+                          <p style={{ fontSize: T.fs_base, fontWeight: 600, color: "var(--r-text)", margin: 0, fontFamily: "var(--font-body)" }}>{governanceDoc.file_name}</p>
+                          <p style={{ fontSize: T.fs_sm, color: "var(--r-text-muted)", margin: "3px 0 0", fontFamily: "var(--font-body)" }}>
                             {formatFileSize(governanceDoc.file_size)} · Uploaded {formatDate(governanceDoc.created_at)}
                           </p>
                         </div>
@@ -1049,33 +1080,33 @@ export default function CblInformationManagement() {
                       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                         <a
                           href={governanceDoc.file_url} target="_blank" rel="noreferrer"
-                          style={{ ...secondaryBtn, textDecoration: "none", height: 38, fontSize: T.fs_sm }}
+                          style={{ ...secondaryBtn, textDecoration: "none", height: T.btnHSm, fontSize: T.fs_sm }}
                         >
                           Preview File
                         </a>
-                        <label style={{ ...secondaryBtn, height: 38, fontSize: T.fs_sm, cursor: "pointer" }}>
+                        <label style={{ ...secondaryBtn, height: T.btnHSm, fontSize: T.fs_sm, cursor: "pointer" }}>
                           Replace
                           <input type="file" accept="application/pdf" style={{ display: "none" }} onChange={handleFileUpload} disabled={isUploading} />
                         </label>
                         <button type="button" onClick={() => setShowDeletePDFModal(true)} disabled={isUploading}
-                          style={{ ...dangerBtn, height: 38, fontSize: T.fs_sm }}>
+                          style={{ ...dangerBtn, height: T.btnHSm, fontSize: T.fs_sm }}>
                           <Trash size={15} /> Remove
                         </button>
                       </div>
                     </div>
 
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginTop: 18, paddingTop: 18, borderTop: `1px solid ${T.slate100}` }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginTop: 18, paddingTop: 18, borderTop: "1px solid var(--r-border)" }}>
                       {[
                         { label: "Uploaded By", value: governanceDoc.uploaded_by || "—" },
                         { label: "Upload Date", value: formatDate(governanceDoc.created_at) },
                         { label: "Last Modified", value: formatDate(governanceDoc.updated_at) },
-                        { label: "Link Status", value: "Active PDF", icon: <Check size={13} color={T.green} /> },
+                        { label: "Link Status", value: "Active PDF", icon: <Check size={13} color="var(--p-emerald)" /> },
                       ].map((meta) => (
                         <div key={meta.label}>
-                          <span style={{ fontSize: T.fs_xs, fontWeight: 700, color: T.slate500, textTransform: "uppercase", letterSpacing: "0.06em", display: "block" }}>
+                          <span style={{ fontSize: T.fs_xs, fontWeight: 500, color: "var(--r-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", display: "block", fontFamily: "var(--font-body)" }}>
                             {meta.label}
                           </span>
-                          <span style={{ fontSize: T.fs_sm, fontWeight: 700, color: T.slate600, display: "flex", alignItems: "center", gap: 4, marginTop: 5 }}>
+                          <span style={{ fontSize: T.fs_sm, fontWeight: 600, color: "var(--r-text-mid)", display: "flex", alignItems: "center", gap: 4, marginTop: 5, fontFamily: "var(--font-body)" }}>
                             {meta.icon} {meta.value}
                           </span>
                         </div>
@@ -1126,7 +1157,7 @@ export default function CblInformationManagement() {
           }}
         >
           <div>
-            <h3 style={{ fontSize: T.fs_lg, fontWeight: 700, color: T.blue, margin: 0 }}>
+            <h3 style={{ fontSize: T.fs_lg, fontWeight: 600, color: T.blue, margin: 0 }}>
               {selectedArticleId ? "Edit Article" : "New Article"}
             </h3>
             <p style={{ fontSize: T.fs_sm, color: T.slate500, margin: "3px 0 0" }}>
@@ -1179,8 +1210,8 @@ export default function CblInformationManagement() {
                     onChange={(e) => setArticleNumber(e.target.value)}
                     style={{
                       ...inputStyle,
-                      background: "#f8fafc",
-                      fontWeight: 700,
+                      background: "var(--r-surface-2)",
+                      fontWeight: 600,
                       color: T.blue,
                     }}
                   />
@@ -1290,7 +1321,7 @@ export default function CblInformationManagement() {
               <div>
                 <span
                   style={{
-                    fontSize: 11, fontWeight: 700, color: T.slate500,
+                    fontSize: T.fs_xs, fontWeight: 600, color: T.slate500,
                     background: T.slate200, padding: "3px 8px", borderRadius: 4,
                     textTransform: "uppercase", letterSpacing: "0.06em",
                     display: "inline-block", marginBottom: 6,
@@ -1298,7 +1329,7 @@ export default function CblInformationManagement() {
                 >
                   Article Preview
                 </span>
-                <h3 style={{ fontSize: T.fs_lg, fontWeight: 700, color: T.blue, margin: 0 }}>
+                <h3 style={{ fontSize: T.fs_lg, fontWeight: 600, color: T.blue, margin: 0 }}>
                   {previewArticle.article_number}: {previewArticle.article_name}
                 </h3>
               </div>
@@ -1380,20 +1411,20 @@ export default function CblInformationManagement() {
                   width: 56,
                   height: 56,
                   borderRadius: "50%",
-                  background: T.redBg,
+                  background: "var(--p-rose-pale)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: T.red,
+                  color: "var(--p-rose)",
                   marginBottom: 16,
                 }}
               >
                 <AlertTriangle size={26} />
               </div>
-              <h3 style={{ fontSize: T.fs_lg, fontWeight: 800, color: T.blue, margin: "0 0 8px" }}>
+              <h3 style={{ fontSize: T.fs_lg, fontWeight: 600, color: "var(--p-navy)", margin: "0 0 8px", fontFamily: "var(--font-body)" }}>
                 Remove CBL Article
               </h3>
-              <p style={{ fontSize: T.fs_base, color: T.slate500, margin: 0, lineHeight: 1.5 }}>
+              <p style={{ fontSize: T.fs_base, color: "var(--r-text-muted)", margin: 0, lineHeight: 1.5, fontFamily: "var(--font-body)" }}>
                 Are you sure you want to delete this article? This action cannot be undone.
               </p>
             </div>
@@ -1405,8 +1436,8 @@ export default function CblInformationManagement() {
                 <div style={{ padding: "0 28px" }}>
                   <div
                     style={{
-                      background: T.slate50,
-                      border: `1px solid ${T.slate200}`,
+                      background: "var(--r-surface-2)",
+                      border: "1px solid var(--r-border-mid)",
                       borderRadius: 12,
                       padding: "12px 16px",
                       display: "flex",
@@ -1414,12 +1445,12 @@ export default function CblInformationManagement() {
                       gap: 12,
                     }}
                   >
-                    <FileText size={20} color={T.red} style={{ flexShrink: 0 }} />
+                    <FileText size={20} color="var(--p-rose)" style={{ flexShrink: 0 }} />
                     <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, textAlign: "left" }}>
-                      <div style={{ fontSize: T.fs_sm, fontWeight: 700, color: T.slate700 }}>
+                      <div style={{ fontSize: T.fs_sm, fontWeight: 600, color: "var(--r-text)", fontFamily: "var(--font-body)" }}>
                         {art.article_number}
                       </div>
-                      <div style={{ fontSize: T.fs_xs, color: T.slate500, marginTop: 2 }}>
+                      <div style={{ fontSize: T.fs_xs, color: "var(--r-text-muted)", marginTop: 2, fontFamily: "var(--font-body)" }}>
                         {art.article_name}
                       </div>
                     </div>
@@ -1445,7 +1476,7 @@ export default function CblInformationManagement() {
                   justifyContent: "center",
                   height: 44,
                   fontSize: T.fs_base,
-                  fontWeight: 700,
+                  fontWeight: 600,
                 }}
               >
                 Cancel
@@ -1459,9 +1490,9 @@ export default function CblInformationManagement() {
                   justifyContent: "center",
                   height: 44,
                   fontSize: T.fs_base,
-                  fontWeight: 700,
-                  background: isSaving ? "#fca5a5" : T.red,
-                  color: T.white,
+                  fontWeight: 600,
+                  background: isSaving ? "var(--p-rose-pale)" : "var(--p-rose)",
+                  color: "var(--p-white)",
                   border: "none",
                 }}
               >
@@ -1495,8 +1526,8 @@ export default function CblInformationManagement() {
               transform: "translate(-50%,-50%)",
               width: "90%",
               maxWidth: 440,
-              background: T.white,
-              border: `1.5px solid ${T.slate200}`,
+              background: "var(--r-surface)",
+              border: "1px solid var(--r-border-mid)",
               borderRadius: 20,
               boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
               zIndex: 60,
@@ -1519,20 +1550,20 @@ export default function CblInformationManagement() {
                   width: 56,
                   height: 56,
                   borderRadius: "50%",
-                  background: T.redBg,
+                  background: "var(--p-rose-pale)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: T.red,
+                  color: "var(--p-rose)",
                   marginBottom: 16,
                 }}
               >
                 <AlertTriangle size={26} />
               </div>
-              <h3 style={{ fontSize: T.fs_lg, fontWeight: 800, color: T.blue, margin: "0 0 8px" }}>
+              <h3 style={{ fontSize: T.fs_lg, fontWeight: 600, color: "var(--p-navy)", margin: "0 0 8px", fontFamily: "var(--font-body)" }}>
                 Remove Governance PDF
               </h3>
-              <p style={{ fontSize: T.fs_base, color: T.slate500, margin: 0, lineHeight: 1.5 }}>
+              <p style={{ fontSize: T.fs_base, color: "var(--r-text-muted)", margin: 0, lineHeight: 1.5, fontFamily: "var(--font-body)" }}>
                 Are you sure you want to remove the governance document PDF? This action cannot be undone.
               </p>
             </div>
@@ -1541,8 +1572,8 @@ export default function CblInformationManagement() {
               <div style={{ padding: "0 28px" }}>
                 <div
                   style={{
-                    background: T.slate50,
-                    border: `1px solid ${T.slate200}`,
+                    background: "var(--r-surface-2)",
+                    border: "1px solid var(--r-border-mid)",
                     borderRadius: 12,
                     padding: "12px 16px",
                     display: "flex",
@@ -1550,12 +1581,12 @@ export default function CblInformationManagement() {
                     gap: 12,
                   }}
                 >
-                  <FileText size={20} color={T.red} style={{ flexShrink: 0 }} />
+                  <FileText size={20} color="var(--p-rose)" style={{ flexShrink: 0 }} />
                   <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, textAlign: "left" }}>
-                    <div style={{ fontSize: T.fs_sm, fontWeight: 700, color: T.slate700 }}>
+                    <div style={{ fontSize: T.fs_sm, fontWeight: 600, color: "var(--r-text)", fontFamily: "var(--font-body)" }}>
                       {governanceDoc.file_name}
                     </div>
-                    <div style={{ fontSize: T.fs_xs, color: T.slate500, marginTop: 2 }}>
+                    <div style={{ fontSize: T.fs_xs, color: "var(--r-text-muted)", marginTop: 2, fontFamily: "var(--font-body)" }}>
                       {formatFileSize(governanceDoc.file_size)}
                     </div>
                   </div>
@@ -1580,7 +1611,7 @@ export default function CblInformationManagement() {
                   justifyContent: "center",
                   height: 44,
                   fontSize: T.fs_base,
-                  fontWeight: 700,
+                  fontWeight: 600,
                 }}
               >
                 Cancel
@@ -1594,9 +1625,9 @@ export default function CblInformationManagement() {
                   justifyContent: "center",
                   height: 44,
                   fontSize: T.fs_base,
-                  fontWeight: 700,
-                  background: isUploading ? "#fca5a5" : T.red,
-                  color: T.white,
+                  fontWeight: 600,
+                  background: isUploading ? "var(--p-rose-pale)" : "var(--p-rose)",
+                  color: "var(--p-white)",
                   border: "none",
                 }}
               >
