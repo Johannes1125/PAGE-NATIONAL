@@ -10,13 +10,18 @@ import {
   Shield,
   FileCheck,
   Search,
-  Filter,
   Eye,
   Edit,
   Globe,
   FileText,
   Loader2,
   Calendar,
+  LayoutGrid,
+  FilePen,
+  Clock,
+  ArrowLeft,
+  Archive,
+  CheckCircle2,
 } from "lucide-react";
 import AdminSidebarLayout from "../components/AdminSidebarLayout";
 import { api } from "../../lib/api-client";
@@ -224,46 +229,58 @@ export default function AboutPageManagement() {
       eyebrow="Content Command Center"
     >
       <section className="admin-shell admin-shell--main">
-        {/* Statistics Summary Row */}
+      {/* Statistics Summary Row */}
         <section className="about-stats-row admin-summary-grid">
-          <article className="admin-hero-card admin-hero-card--blue">
-            <div className="admin-hero-card__top">
-              <div className="admin-hero-card__icon"><FileText size={16} /></div>
-              <p className="admin-hero-card__title">Total Sections</p>
+          <article className="admin-hero-card admin-hero-card--navy">
+            <div className="admin-hero-card__icon"><LayoutGrid size={24} /></div>
+            <div>
+              <p className="admin-hero-card__title">Total Content</p>
+              <p className="admin-hero-card__value">{stats.total}</p>
             </div>
-            <p className="admin-hero-card__value">{stats.total}</p>
-            <p className="admin-hero-card__meta">Core Management Cards</p>
+            <p className="admin-hero-card__meta">Modules</p>
           </article>
-          
+
           <article className="admin-hero-card admin-hero-card--green">
-            <div className="admin-hero-card__top">
-              <div className="admin-hero-card__icon"><Globe size={16} /></div>
-              <p className="admin-hero-card__title">Published Sections</p>
+            <div className="admin-hero-card__icon"><Globe size={24} /></div>
+            <div>
+              <p className="admin-hero-card__title">Published</p>
+              <p className="admin-hero-card__value">{stats.published}</p>
             </div>
-            <p className="admin-hero-card__value">{stats.published}</p>
-            <p className="admin-hero-card__meta">Live on Public Landing Pages</p>
+            <p className="admin-hero-card__meta">Live</p>
           </article>
 
           <article className="admin-hero-card admin-hero-card--gold">
-            <div className="admin-hero-card__top">
-              <div className="admin-hero-card__icon"><Edit size={16} /></div>
-              <p className="admin-hero-card__title">Draft Sections</p>
+            <div className="admin-hero-card__icon"><FilePen size={24} /></div>
+            <div>
+              <p className="admin-hero-card__title">Draft</p>
+              <p className="admin-hero-card__value">{stats.draft}</p>
             </div>
-            <p className="admin-hero-card__value">{stats.draft}</p>
-            <p className="admin-hero-card__meta">Work In Progress Drafts</p>
+            <p className="admin-hero-card__meta">Pending</p>
           </article>
 
-          <article className="admin-hero-card admin-hero-card--red">
-            <div className="admin-hero-card__top">
-              <div className="admin-hero-card__icon"><Calendar size={16} /></div>
+          <article className="admin-hero-card admin-hero-card--blue">
+            <div className="admin-hero-card__icon"><Clock size={24} /></div>
+            <div>
               <p className="admin-hero-card__title">Recently Updated</p>
+              <p className="admin-hero-card__value" style={{ fontSize: "clamp(14px, 1.4vw, 18px)", fontWeight: 700, letterSpacing: 0 }}>
+                {stats.lastUpdatedTitle}
+              </p>
             </div>
-            <p className="admin-hero-card__value" style={{ fontSize: "16px", marginTop: "10px" }}>
-              {stats.lastUpdatedTitle}
-            </p>
-            <p className="admin-hero-card__meta">Latest content change saved</p>
+            <p className="admin-hero-card__meta">Last Change</p>
           </article>
         </section>
+
+        {/* Action Bar */}
+        <div className="about-action-bar">
+          <button
+            type="button"
+            className="about-action-pill about-action-pill--ghost"
+            onClick={() => router.push("/admin-dashboard")}
+          >
+            <ArrowLeft size={16} />
+            Back to Dashboard
+          </button>
+        </div>
 
         {/* Toolbar: Search and Status Filters */}
         <section className="about-toolbar">
@@ -317,14 +334,14 @@ export default function AboutPageManagement() {
                         <IconComponent size={20} />
                       </div>
                       <span className={`about-status-badge about-status-badge--${section.status}`}>
+                        {section.status === "published" && <CheckCircle2 size={11} />}
+                        {section.status === "draft" && <FilePen size={11} />}
+                        {section.status === "archived" && <Archive size={11} />}
                         {section.status}
                       </span>
                     </div>
 
                     <h3 className="about-card-title">{section.title}</h3>
-                    <p style={{ fontSize: "12px", color: "var(--r-text-muted)", marginTop: "4px" }}>
-                      {meta.description}
-                    </p>
 
                     <div className="about-card-meta">
                       <div className="about-meta-row">
@@ -332,7 +349,9 @@ export default function AboutPageManagement() {
                         <span className="about-meta-value">{count}</span>
                       </div>
                       <div className="about-meta-row">
-                        <span className="about-meta-label">Last Updated:</span>
+                        <span className="about-meta-label" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                          <Clock size={12} /> Updated:
+                        </span>
                         <span className="about-meta-value">{formatDate(section.updated_at)}</span>
                       </div>
                     </div>
