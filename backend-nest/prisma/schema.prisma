@@ -281,3 +281,15 @@ model NationalOfficer {
   updatedAt        DateTime @updatedAt
 }
 
+model SecRegistration {
+  id                 String   @id @default(cuid())
+  registrationName   String
+  registrationNumber String
+  dateOfIncorporation DateTime
+  exemptionCategory  String
+  imageUrl           String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+

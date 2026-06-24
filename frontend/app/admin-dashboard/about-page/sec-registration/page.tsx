@@ -154,6 +154,8 @@ export default function SecRegistrationManagement() {
         mainClassName="admin-main"
         title="SEC Registration"
         subtitle="Loading SEC configurations..."
+        eyebrow="Content Manager"
+        seniorFriendlyHeader={true}
       >
         <div style={{ display: "flex", justifyContent: "center", padding: "80px" }}>
           <Loader2 className="animate-spin" size={32} />
@@ -166,9 +168,10 @@ export default function SecRegistrationManagement() {
     <AdminSidebarLayout
       pageClassName="admin-dashboard"
       mainClassName="admin-main"
-      title="SEC REGISTRATION MANAGEMENT"
-      subtitle="Edit legal descriptions and upload official Securities and Exchange Commission (SEC) incorporation sheets."
-      eyebrow="Section Editor"
+      title="SEC Registration"
+      subtitle="Official Securities and Exchange Commission (SEC) incorporation certificate content management"
+      eyebrow="Content Manager"
+      seniorFriendlyHeader={true}
     >
       <div className="admin-shell">
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>

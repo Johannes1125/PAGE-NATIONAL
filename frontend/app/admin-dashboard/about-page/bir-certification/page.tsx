@@ -153,6 +153,8 @@ export default function BirCertificationManagement() {
         mainClassName="admin-main"
         title="BIR Certification"
         subtitle="Loading BIR configurations..."
+        eyebrow="Content Manager"
+        seniorFriendlyHeader={true}
       >
         <div style={{ display: "flex", justifyContent: "center", padding: "80px" }}>
           <Loader2 className="animate-spin" size={32} />
@@ -165,9 +167,10 @@ export default function BirCertificationManagement() {
     <AdminSidebarLayout
       pageClassName="admin-dashboard"
       mainClassName="admin-main"
-      title="BIR CERTIFICATION MANAGEMENT"
-      subtitle="Edit legal details and upload official Bureau of Internal Revenue (BIR) tax exemption sheets."
-      eyebrow="Section Editor"
+      title="BIR Certification"
+      subtitle="Official Bureau of Internal Revenue (BIR) tax exemption content management"
+      eyebrow="Content Manager"
+      seniorFriendlyHeader={true}
     >
       <div className="admin-shell">
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>

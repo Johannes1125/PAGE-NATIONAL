@@ -72,7 +72,7 @@ const SECTION_METAS: Record<string, SectionMeta> = {
   },
   sec_registration: {
     icon: Shield,
-    route: "/admin-dashboard/about-page/sec-registration",
+    route: "/admin-dashboard/about/sec-registrations",
     description: "Manage official SEC incorporation certificates and PDFs.",
     contentCountLabel: "Documents",
   },
@@ -250,9 +250,10 @@ export default function AboutPageManagement() {
     <AdminSidebarLayout
       pageClassName="admin-dashboard"
       mainClassName="admin-main"
-      title="ABOUT PAGE MANAGEMENT"
+      title="About Page Management"
       subtitle="Manage organization information, certifications, leadership profiles, branding assets, and history."
       eyebrow="Content Command Center"
+      seniorFriendlyHeader={true}
     >
       <section className="admin-shell admin-shell--main">
       {/* Statistics Summary Row */}

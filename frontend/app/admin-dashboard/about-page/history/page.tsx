@@ -742,9 +742,10 @@ export default function HistoryManagement() {
     <AdminSidebarLayout
       pageClassName="admin-dashboard"
       mainClassName="admin-main"
-      title="HISTORY MANAGEMENT"
-      subtitle="Manage PAGE organizational milestones, conferences, seminars, and historical records."
-      eyebrow="About PAGE"
+      title="History"
+      subtitle="Milestones and foundation timeline content management"
+      eyebrow="Content Manager"
+      seniorFriendlyHeader={true}
     >
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 

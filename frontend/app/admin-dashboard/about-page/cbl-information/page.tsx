@@ -585,8 +585,14 @@ export default function CblInformationManagement() {
 
   if (isLoading) {
     return (
-      <AdminSidebarLayout pageClassName="admin-dashboard" mainClassName="admin-main"
-        title="Constitution & By-Laws" subtitle="Loading CBL Configurations...">
+      <AdminSidebarLayout
+        pageClassName="admin-dashboard"
+        mainClassName="admin-main"
+        title="CBL Information"
+        subtitle="Loading CBL configurations..."
+        eyebrow="Content Manager"
+        seniorFriendlyHeader={true}
+      >
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "80px 0" }}>
           <Loader2 className="animate-spin" size={40} style={{ color: T.blue }} />
         </div>

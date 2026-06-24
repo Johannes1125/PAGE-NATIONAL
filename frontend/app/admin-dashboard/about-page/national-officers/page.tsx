@@ -204,8 +204,10 @@ export default function NationalOfficersManagement() {
       <AdminSidebarLayout
         pageClassName="admin-dashboard"
         mainClassName="admin-main"
-        title="National Officers"
+        title="National Officers & Board"
         subtitle="Loading Officers roster..."
+        eyebrow="Content Manager"
+        seniorFriendlyHeader={true}
       >
         <div style={{ display: "flex", justifyContent: "center", padding: "80px" }}>
           <Loader2 className="animate-spin" size={32} />
@@ -218,9 +220,10 @@ export default function NationalOfficersManagement() {
     <AdminSidebarLayout
       pageClassName="admin-dashboard"
       mainClassName="admin-main"
-      title="PAGE OFFICERS MANAGEMENT"
-      subtitle="Manage, reorder, and update profiles of National Officers and Board Directors."
-      eyebrow="Roster Registry"
+      title="National Officers & Board"
+      subtitle="Executive officers and board directors content management"
+      eyebrow="Content Manager"
+      seniorFriendlyHeader={true}
     >
       <div className="admin-shell">
         <div style={{ marginBottom: "20px" }}>

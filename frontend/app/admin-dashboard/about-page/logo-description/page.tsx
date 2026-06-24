@@ -337,8 +337,10 @@ export default function LogoDescriptionManagement() {
       <AdminSidebarLayout
         pageClassName="admin-dashboard"
         mainClassName="admin-main"
-        title="Branding Assets"
-        subtitle="Loading branding configurations..."
+        title="Logo & Description"
+        subtitle="Loading Logo & Description configurations..."
+        eyebrow="Content Manager"
+        seniorFriendlyHeader={true}
       >
         <div style={{ display: "flex", justifyContent: "center", padding: "80px" }}>
           <Loader2 className="animate-spin" size={32} />
@@ -353,9 +355,10 @@ export default function LogoDescriptionManagement() {
     <AdminSidebarLayout
       pageClassName="admin-dashboard"
       mainClassName="admin-main"
-      title="PAGE LOGO & DESCRIPTION"
-      subtitle="Upload official high-resolution logos, and edit the icon description metadata."
-      eyebrow="Section Editor"
+      title="Logo & Description"
+      subtitle="Official branding logo and organization description content management"
+      eyebrow="Content Manager"
+      seniorFriendlyHeader={true}
     >
       <div className="admin-shell">
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>

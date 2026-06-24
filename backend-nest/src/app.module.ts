@@ -14,6 +14,7 @@ import { CblModule } from './about-page/cbl/cbl.module';
 import { HistoricalRecordsModule } from './historical-records/historical-records.module';
 import { PageLogoModule } from './page-logo/page-logo.module';
 import { NationalOfficersModule } from './national-officers/national-officers.module';
+import { SecRegistrationsModule } from './sec-registrations/sec-registrations.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { NationalOfficersModule } from './national-officers/national-officers.mo
     HistoricalRecordsModule,
     PageLogoModule,
     NationalOfficersModule,
+    SecRegistrationsModule,
   ],
 })
 export class AppModule {}
