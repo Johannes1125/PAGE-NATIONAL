@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { SupabaseModule } from './supabase/supabase.module';
 import { AuthModule } from './auth/auth.module';
 import { PostsModule } from './posts/posts.module';
 import { ArticlesModule } from './articles/articles.module';
@@ -19,6 +20,7 @@ import { NationalOfficersModule } from './national-officers/national-officers.mo
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
     CloudinaryModule,
+    SupabaseModule,
     AuthModule,
     PostsModule,
     ArticlesModule,

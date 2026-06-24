@@ -21,10 +21,14 @@ import {
   Eye,
   X,
   ArrowLeft,
+  ChevronLeft,
+  Cloud,
   AlertTriangle,
   Calendar,
   Info,
+  CheckCircle,
 } from "lucide-react";
+import { motion } from "framer-motion";
 import AdminSidebarLayout from "../../components/AdminSidebarLayout";
 import { api } from "../../../lib/api-client";
 import { gooeyToast } from "goey-toast";
@@ -116,27 +120,13 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = "140px" }: R
   // Prevent the editor from losing focus/selection when a toolbar button is clicked
   const preventBlur = (e: React.MouseEvent) => e.preventDefault();
 
-  const toolBtn = (cmd?: string): React.CSSProperties => {
+  const getToolBtnClass = (cmd?: string): string => {
     const active = cmd ? activeFormats[cmd] : false;
-    return {
-      width: 48,
-      height: 48,
-      borderRadius: 10,
-      border: active ? `2px solid var(--p-blue)` : "1px solid var(--r-border-mid)",
-      background: active ? "var(--p-blue-pale)" : "var(--r-surface)",
-      cursor: "pointer",
-      display: "inline-flex",
-      alignItems: "center",
-      justifyContent: "center",
-      color: active ? "var(--p-blue)" : "var(--r-text-mid)",
-      flexShrink: 0,
-      transition: "background 0.15s, border 0.15s, color 0.15s",
-      boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-    };
+    return `cbl-editor-btn ${active ? "cbl-editor-btn--active" : ""}`;
   };
 
   const separatorStyle: React.CSSProperties = {
-    width: 1, height: 28, background: "var(--r-border-mid)", margin: "0 6px",
+    width: 1, height: 28, background: "#e2e8f0", margin: "0 8px",
   };
 
   const cleanText = (value || "").replace(/<[^>]*>/g, "");
@@ -146,7 +136,7 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = "140px" }: R
   return (
     <div
       style={{
-        border: "1px solid var(--r-border-mid)",
+        border: "1px solid #e2e8f0",
         borderRadius: 12,
         overflow: "hidden",
         background: "var(--r-surface)",
@@ -158,29 +148,29 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = "140px" }: R
           display: "flex",
           alignItems: "center",
           gap: 6,
-          padding: "8px 12px",
+          padding: "10px 14px",
           background: "var(--r-surface-2)",
-          borderBottom: "1px solid var(--r-border-mid)",
+          borderBottom: "1px solid #e2e8f0",
           flexWrap: "wrap",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
           {/* Undo / Redo */}
-          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("undo")} style={toolBtn()} title="Undo (Ctrl+Z)">
+          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("undo")} className={getToolBtnClass()} title="Undo (Ctrl+Z)">
             <Undo2 size={18} />
           </button>
-          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("redo")} style={toolBtn()} title="Redo (Ctrl+Y)">
+          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("redo")} className={getToolBtnClass()} title="Redo (Ctrl+Y)">
             <Redo2 size={18} />
           </button>
           <div style={separatorStyle} />
           {/* Formatting */}
-          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("bold")} style={toolBtn("bold")} title="Bold (Ctrl+B)">
+          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("bold")} className={getToolBtnClass("bold")} title="Bold (Ctrl+B)">
             <Bold size={18} />
           </button>
-          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("italic")} style={toolBtn("italic")} title="Italic (Ctrl+I)">
+          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("italic")} className={getToolBtnClass("italic")} title="Italic (Ctrl+I)">
             <Italic size={18} />
           </button>
-          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("underline")} style={toolBtn("underline")} title="Underline (Ctrl+U)">
+          <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("underline")} className={getToolBtnClass("underline")} title="Underline (Ctrl+U)">
             <Underline size={18} />
           </button>
         </div>
@@ -195,9 +185,9 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = "140px" }: R
         onKeyUp={handleKeyUp}
         onMouseUp={handleMouseUp}
         style={{
-          padding: "14px 16px",
+          padding: "16px",
           outline: "none",
-          fontSize: T.fs_base,
+          fontSize: "18px",
           color: "var(--r-text)",
           lineHeight: 1.75,
           minHeight,
@@ -212,26 +202,26 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = "140px" }: R
           display: "flex",
           flexDirection: "column",
           gap: 8,
-          padding: "10px 16px",
+          padding: "12px 16px",
           background: "var(--r-surface-2)",
-          borderTop: "1px solid var(--r-border-mid)",
+          borderTop: "1px solid #e2e8f0",
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
-          <span style={{ fontSize: T.fs_xs, color: "var(--r-text-muted)", fontFamily: "var(--font-body)", fontWeight: 500 }}>
+          <span style={{ fontSize: "15px", color: "#94a3b8", fontFamily: "var(--font-body)", fontWeight: 500 }}>
             {wordCount} {wordCount === 1 ? "word" : "words"}
           </span>
-          <span style={{ fontSize: T.fs_xs, color: charCount > 2000 ? "var(--p-rose)" : "var(--r-text-muted)", fontFamily: "var(--font-body)", fontWeight: charCount > 2000 ? 700 : 500 }}>
-            {charCount} / 2000 characters {charCount > 2000 && "(Exceeds recommended limit)"}
+          <span style={{ fontSize: "15px", color: charCount > 2000 ? "var(--p-rose)" : "#94a3b8", fontFamily: "var(--font-body)", fontWeight: charCount > 2000 ? 700 : 500 }}>
+            {charCount} / 2000 characters {charCount > 2000 && "(Exceeds limit)"}
           </span>
         </div>
-        <div style={{ width: "100%", background: "var(--r-border-mid)", height: 8, borderRadius: 4, overflow: "hidden" }}>
+        <div style={{ width: "100%", background: "#e2e8f0", height: 4, borderRadius: 2, overflow: "hidden" }}>
           <div
             style={{
               width: `${Math.min((charCount / 2000) * 100, 100)}%`,
-              background: charCount > 2000 ? "var(--p-rose)" : "var(--p-blue)",
+              background: charCount > 2000 ? "var(--p-rose)" : "#1e3a5f",
               height: "100%",
-              borderRadius: 4,
+              borderRadius: 2,
               transition: "width 0.2s ease, background-color 0.2s ease",
             }}
           />
@@ -608,9 +598,9 @@ export default function CblInformationManagement() {
 
   const labelStyle: React.CSSProperties = {
     display: "block",
-    fontSize: T.fs_sm,
+    fontSize: "18px",
     fontWeight: 600,
-    color: "var(--r-text-mid)",
+    color: "#0f172a",
     marginBottom: 7,
     letterSpacing: "0.01em",
     fontFamily: "var(--font-body)",
@@ -684,26 +674,26 @@ export default function CblInformationManagement() {
   };
 
   const cardStyle: React.CSSProperties = {
-    background: "var(--r-surface)",
-    border: "1px solid var(--r-border)",
-    borderRadius: 16,
-    overflow: "hidden",
-    boxShadow: "0 2px 8px rgba(20, 49, 82, 0.02)",
+    background: "white",
+    border: "1px solid #e2e8f0",
+    borderRadius: 12,
+    boxShadow: "0 1px 4px rgba(0, 0, 0, 0.06)",
   };
 
   const cardHeaderStyle: React.CSSProperties = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "18px 24px",
-    borderBottom: "1px solid var(--r-border)",
-    background: "var(--r-surface)",
+    paddingBottom: "20px",
+    marginBottom: "24px",
+    borderBottom: "1px solid #f1f5f9",
+    background: "transparent",
   };
 
   const cardTitleStyle: React.CSSProperties = {
-    fontSize: T.fs_md,
-    fontWeight: 600,
-    color: "var(--p-navy)",
+    fontSize: "20px",
+    fontWeight: 700,
+    color: "#0f172a",
     margin: 0,
     fontFamily: "var(--font-body)",
   };
@@ -717,48 +707,21 @@ export default function CblInformationManagement() {
       title="CBL Information"
       subtitle="Constitution & By-Laws content management"
       eyebrow="Content Manager"
+      seniorFriendlyHeader={true}
     >
-      {/* ── STICKY HEADER ─────────────────────────────────────────────────── */}
-      <div
-        style={{
-          position: "sticky", top: 0, zIndex: 30,
-          background: "#ffffff",
-          borderBottom: `1px solid ${T.slate200}`,
-          boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-        }}
-      >
-        <div
-          style={{
-            padding: "10px 20px",
-            minHeight: 56,
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            gap: 12, flexWrap: "wrap",
-          }}
-        >
-          {/* Back + Tabs */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", rowGap: 8 }}>
+      {/* ── NAVIGATION & ACTION CARD ─────────────────────────────────────────── */}
+      <div className="cbl-nav-card shadow-md">
+        <div className="cbl-nav-row">
+          <div className="cbl-nav-left">
             <button
               type="button"
+              className="cbl-back-btn cbl-focus-ring"
               onClick={() => router.push("/admin-dashboard/about-page")}
-              style={{
-                display: "flex", alignItems: "center", gap: 6,
-                color: T.slate500, fontSize: T.fs_sm, fontWeight: 600,
-                background: "none", border: "none", cursor: "pointer",
-                padding: "8px 4px", minHeight: 44, /* touch target */
-              }}
             >
-              <ArrowLeft size={16} /> Back
+              <ChevronLeft size={20} /> Back
             </button>
-
-            {/* Compact Tabs */}
-            <div
-              style={{
-                display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap",
-                background: "var(--r-surface-2)",
-                border: "1px solid var(--r-border)",
-                borderRadius: 12, padding: 4,
-              }}
-            >
+            <div className="cbl-divider" />
+            <div className="cbl-tabs-track">
               {(["process", "governance"] as const).map((tab) => {
                 const labels = { process: "Process Info", governance: "Governance Doc" };
                 const isActive = activeTab === tab;
@@ -767,20 +730,7 @@ export default function CblInformationManagement() {
                     key={tab}
                     type="button"
                     onClick={() => setActiveTab(tab)}
-                    style={{
-                      height: 44, /* ≥44px touch target */
-                      padding: "0 16px",
-                      borderRadius: 9,
-                      fontSize: T.fs_sm,
-                      fontWeight: isActive ? 600 : 500,
-                      color: isActive ? "var(--p-navy)" : "var(--r-text-muted)",
-                      background: isActive ? "var(--r-surface)" : "transparent",
-                      border: isActive ? "1px solid var(--r-border-mid)" : "1px solid transparent",
-                      cursor: "pointer",
-                      boxShadow: isActive ? "0 1px 3px rgba(0,0,0,0.06)" : "none",
-                      fontFamily: "var(--font-body)",
-                      transition: "all 0.15s", whiteSpace: "nowrap",
-                    }}
+                    className={`cbl-tab-btn cbl-focus-ring ${isActive ? "cbl-tab-btn--active" : "text-slate-500 hover:text-slate-700 bg-transparent"}`}
                   >
                     {labels[tab]}
                   </button>
@@ -788,71 +738,78 @@ export default function CblInformationManagement() {
               })}
             </div>
           </div>
+          
+          <div className="cbl-nav-right">
+            {/* Status Information */}
+            <div className="cbl-status-group flex items-center gap-3">
+              {hasUnsavedGeneralInfoChanges ? (
+                <span className="cbl-status-badge cbl-status-badge--unsaved">
+                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: "currentColor", display: "inline-block" }} />
+                  Unsaved Changes
+                </span>
+              ) : section?.status === "published" ? (
+                <span className="cbl-status-badge cbl-status-badge--published">
+                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: "currentColor", display: "inline-block" }} />
+                  Published
+                </span>
+              ) : (
+                <span className="cbl-status-badge cbl-status-badge--draft">
+                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: "currentColor", display: "inline-block" }} />
+                  Draft
+                </span>
+              )}
+            </div>
 
-          {/* Action Buttons */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <button
               type="button"
-              disabled={isSaving || isPublishButtonDisabled}
+              disabled={isPublishButtonDisabled}
               onClick={() => setShowPublishModal(true)}
-              style={{
-                ...primaryBtn,
-                height: T.btnH, /* use full btnH = 48px for touch target compliance */
-                fontSize: T.fs_sm,
-                padding: "0 18px",
-                borderRadius: 8,
-                background: (isSaving || isPublishButtonDisabled) ? "#4a7098" : T.blue,
-                opacity: (isSaving || isPublishButtonDisabled) ? 0.5 : 1,
-                cursor: (isSaving || isPublishButtonDisabled) ? "not-allowed" : "pointer",
-              }}
+              className="cbl-publish-btn cbl-focus-ring"
             >
-              <Globe size={15} /> Publish Changes
+              <Cloud size={20} /> Publish Changes
             </button>
           </div>
         </div>
       </div>
 
-      {/* ── PAGE CONTENT ─────────────────────────────────────────────────── */}
+      {/* ── PAGE CONTENT ── */}
       <div style={{ padding: "28px 28px 80px" }}>
-
-
-
-        {/* ── PROCESS INFORMATION TAB ──────────────────────────────────────── */}
+        {/* Wrap process tab content in Framer Motion transition */}
         {activeTab === "process" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.18 }}
+            className="flex flex-col gap-6"
+          >
             {/* SECTION 1 — General Information */}
-            <div style={cardStyle}>
+            <div className="cbl-section-card" style={cardStyle}>
               <div style={cardHeaderStyle}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{
-                    width: 34, height: 34, borderRadius: 9,
-                    background: T.accentBg,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}>
-                    <FileText size={16} color={T.accent} />
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div className="w-11 h-11 bg-[#1e3a5f]/10 text-[#1e3a5f] rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <FileText size={22} style={{ color: "#1e3a5f" }} />
                   </div>
                   <h3 style={cardTitleStyle}>General Information</h3>
                 </div>
                 <span
                   style={{
-                    fontSize: T.fs_xs,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "6px 16px",
+                    borderRadius: "9999px",
+                    fontSize: "16px",
                     fontWeight: 600,
-                    color: T.accent,
-                    background: T.accentBg,
-                    padding: "4px 10px",
-                    borderRadius: 20,
-                    letterSpacing: "0.06em",
-                    textTransform: "uppercase",
-                    display: "flex", alignItems: "center", gap: 5,
+                    backgroundColor: "#dcfce7",
+                    color: "#15803d",
                   }}
                 >
-                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: T.accent, display: "inline-block" }} />
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "currentColor", display: "inline-block" }} />
                   Preamble
                 </span>
               </div>
 
-              <div style={{ padding: "22px 24px", display: "flex", flexDirection: "column", gap: 20 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                 {/* CBL Title */}
                 <div>
                   <label style={labelStyle}>CBL Title <span style={{ color: T.red }}>*</span></label>
@@ -861,7 +818,7 @@ export default function CblInformationManagement() {
                     placeholder="e.g. Constitution and By-Laws"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    style={inputStyle}
+                    className="w-full min-h-[52px] rounded-lg border border-[#cbd5e1] px-4 text-[18px] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:border-[#1e3a5f] bg-white transition-all cbl-focus-ring"
                   />
                 </div>
 
@@ -879,25 +836,16 @@ export default function CblInformationManagement() {
             </div>
 
             {/* SECTION 2 — Articles Registry */}
-            <div style={cardStyle}>
+            <div className="cbl-section-card" style={cardStyle}>
               {/* Card Title Header */}
-              <div
-                style={{
-                  display: "flex", alignItems: "center", justifyContent: "space-between",
-                  padding: "18px 24px 14px",
-                  borderBottom: `1px solid ${T.slate100}`,
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{
-                    width: 34, height: 34, borderRadius: 9,
-                    background: T.accentBg, display: "flex", alignItems: "center", justifyContent: "center",
-                  }}>
-                    <FileText size={16} color={T.accent} />
+              <div style={cardHeaderStyle}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div className="w-11 h-11 bg-[#1e3a5f]/10 text-[#1e3a5f] rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <FileText size={22} style={{ color: "#1e3a5f" }} />
                   </div>
                   <div>
                     <h3 style={{ ...cardTitleStyle, margin: 0 }}>Articles</h3>
-                    <span style={{ fontSize: T.fs_xs, color: T.slate500 }}>
+                    <span style={{ fontSize: "16px", color: "var(--r-text-muted)", fontWeight: 500 }}>
                       {filteredArticles.length} of {articles.length} article{articles.length !== 1 ? "s" : ""}
                     </span>
                   </div>
@@ -906,25 +854,21 @@ export default function CblInformationManagement() {
                 <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
                   {/* Search input */}
                   <div
+                    className="flex items-center gap-2 px-3 border border-slate-300 rounded-lg bg-white transition-all focus-within:ring-2 focus-within:ring-[#1e3a5f] focus-within:border-[#1e3a5f]"
                     style={{
-                      display: "flex", alignItems: "center", gap: 10,
                       height: 48,
-                      padding: "0 14px",
-                      border: `1.5px solid ${T.slate200}`,
-                      borderRadius: 10,
-                      background: T.white,
+                      width: 260,
                       boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
                     }}
                   >
-                    <Search size={16} color={T.slate500} />
+                    <Search size={18} className="text-slate-400" />
                     <input
                       type="text"
                       placeholder="Search articles..."
                       value={searchQueryTable}
                       onChange={(e) => setSearchQueryTable(e.target.value)}
+                      className="w-full text-[18px] text-slate-800 border-none outline-none bg-transparent placeholder-slate-400"
                       style={{
-                        width: 180, fontSize: T.fs_base,
-                        color: T.slate900, border: "none", outline: "none", background: "transparent",
                         fontFamily: "var(--font-body)",
                       }}
                     />
@@ -932,62 +876,19 @@ export default function CblInformationManagement() {
                       <button
                         type="button"
                         onClick={() => setSearchQueryTable("")}
-                        style={{ background: "none", border: "none", cursor: "pointer", padding: 2, color: T.slate500, borderRadius: 4 }}
+                        className="bg-transparent border-none cursor-pointer p-0.5 text-slate-400 hover:text-slate-600 rounded"
                       >
-                        <X size={15} />
+                        <X size={16} />
                       </button>
                     )}
                   </div>
 
-                  {/* Filter select */}
-                  <select
-                    value={filterBy}
-                    onChange={(e) => setFilterBy(e.target.value)}
-                    style={{
-                      height: 48,
-                      padding: "0 12px",
-                      borderRadius: 10,
-                      border: `1.5px solid ${T.slate200}`,
-                      background: T.white,
-                      fontSize: T.fs_sm,
-                      color: T.slate700,
-                      fontWeight: 600,
-                      fontFamily: "var(--font-body)",
-                      cursor: "pointer",
-                      outline: "none",
-                      boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
-                    }}
+                  <button
+                    type="button"
+                    onClick={handleOpenCreateDrawer}
+                    className="bg-[#1e3a5f] hover:bg-[#152943] text-white font-semibold px-6 rounded-lg flex items-center justify-center gap-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1e3a5f] focus-visible:ring-offset-2 cursor-pointer text-[17px]"
+                    style={{ height: 48 }}
                   >
-                    <option value="all">All Articles</option>
-                    <option value="recent">Updated (Last 30 Days)</option>
-                  </select>
-
-                  {/* Sort select */}
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    style={{
-                      height: 48,
-                      padding: "0 12px",
-                      borderRadius: 10,
-                      border: `1.5px solid ${T.slate200}`,
-                      background: T.white,
-                      fontSize: T.fs_sm,
-                      color: T.slate700,
-                      fontWeight: 600,
-                      fontFamily: "var(--font-body)",
-                      cursor: "pointer",
-                      outline: "none",
-                      boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
-                    }}
-                  >
-                    <option value="number-asc">Article Number (Asc)</option>
-                    <option value="number-desc">Article Number (Desc)</option>
-                    <option value="name-asc">Article Name (A-Z)</option>
-                    <option value="updated-desc">Recently Updated</option>
-                  </select>
-
-                  <button type="button" onClick={handleOpenCreateDrawer} style={{ ...primaryBtn, height: 48 }}>
                     <Plus size={18} /> New Article
                   </button>
                 </div>
@@ -997,22 +898,7 @@ export default function CblInformationManagement() {
               <div style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
-                    <tr style={{ background: "#f4f7fb", borderBottom: `1px solid ${T.slate100}` }}>
-                      {/* Checkbox Header */}
-                      <th style={{ width: "5%", padding: "13px 24px" }}>
-                        <input
-                          type="checkbox"
-                          style={{ width: 24, height: 24, cursor: "pointer" }}
-                          checked={filteredArticles.length > 0 && selectedArticleIds.length === filteredArticles.length}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedArticleIds(filteredArticles.map(a => a.id));
-                            } else {
-                              setSelectedArticleIds([]);
-                            }
-                          }}
-                        />
-                      </th>
+                    <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
                       {[
                         { label: "Article Number", w: "22%" },
                         { label: "Article Name", w: "auto" },
@@ -1022,13 +908,14 @@ export default function CblInformationManagement() {
                         <th
                           key={col.label}
                           style={{
-                            padding: "13px 24px",
+                            padding: "16px 24px",
                             textAlign: col.right ? "right" : "left",
-                            fontWeight: 600,
-                            color: T.slate600,
-                            fontSize: T.fs_sm,
+                            fontWeight: 700,
+                            color: "#64748b",
+                            fontSize: "13px",
                             width: col.w,
-                            letterSpacing: "0.01em",
+                            letterSpacing: "0.06em",
+                            textTransform: "uppercase",
                           }}
                         >
                           {col.label}
@@ -1038,182 +925,95 @@ export default function CblInformationManagement() {
                   </thead>
                   <tbody>
                     {filteredArticles.map((art, idx) => {
-                      const isExpanded = !!expandedArticles[art.id];
-                      const isSelected = selectedArticleIds.includes(art.id);
                       return (
-                        <>
-                          <tr
-                            key={art.id}
-                            onClick={(e) => {
-                              const target = e.target as HTMLElement;
-                              if (target.closest("button") || target.closest("input[type='checkbox']") || target.closest("a")) {
-                                return;
-                              }
-                              setExpandedArticles(prev => ({ ...prev, [art.id]: !prev[art.id] }));
-                            }}
-                            style={{
-                              borderBottom: `1px solid ${T.slate100}`,
-                              background: isSelected ? "var(--p-blue-pale)" : idx % 2 === 0 ? T.white : "#fafcff",
-                              transition: "background 0.12s",
-                              cursor: "pointer",
-                            }}
-                            onMouseEnter={(e) => {
-                              if (!isSelected) {
-                                (e.currentTarget as HTMLTableRowElement).style.background = "#eef4fb";
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (!isSelected) {
-                                (e.currentTarget as HTMLTableRowElement).style.background = idx % 2 === 0 ? T.white : "#fafcff";
-                              }
-                            }}
-                          >
-                            {/* Checkbox cell */}
-                            <td style={{ padding: "14px 24px" }}>
-                              <input
-                                type="checkbox"
-                                style={{ width: 24, height: 24, cursor: "pointer" }}
-                                checked={isSelected}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setSelectedArticleIds(prev => [...prev, art.id]);
-                                  } else {
-                                    setSelectedArticleIds(prev => prev.filter(id => id !== art.id));
-                                  }
+                        <tr
+                          key={art.id}
+                          style={{
+                            borderBottom: "1px solid #f1f5f9",
+                            background: idx % 2 === 0 ? "#ffffff" : "#f8fafc",
+                            fontSize: "18px",
+                            color: "#0f172a",
+                            height: 56,
+                          }}
+                        >
+                          {/* Number + Badge */}
+                          <td style={{ padding: "16px 24px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                              <span style={{
+                                width: 32, height: 32, borderRadius: "50%",
+                                background: "#1e3a5f", color: "#ffffff",
+                                fontSize: "14px", fontWeight: 700,
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                flexShrink: 0,
+                              }}>
+                                {idx + 1}
+                              </span>
+                              <span style={{ fontWeight: 700, color: "#1e3a5f", fontSize: "18px" }}>{art.article_number}</span>
+                            </div>
+                          </td>
+                          {/* Name */}
+                          <td style={{ padding: "16px 24px", color: "var(--r-text)", fontWeight: 600, fontSize: "18px" }}>
+                            {art.article_name}
+                          </td>
+                          {/* Updated */}
+                          <td style={{ padding: "16px 24px", color: "var(--r-text-muted)", fontSize: "18px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <Calendar size={18} className="text-slate-400" />
+                              {formatDate(art.updated_at)}
+                            </div>
+                          </td>
+                          {/* Actions */}
+                          <td style={{ padding: "16px 24px", textAlign: "right" }}>
+                            <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                              {/* View */}
+                              <button
+                                type="button"
+                                onClick={() => setPreviewArticle(art)}
+                                className="cbl-focus-ring flex items-center gap-2 text-[#334155] hover:bg-[#f1f5f9] rounded-md transition-all cursor-pointer"
+                                style={{
+                                  border: "1px solid #e2e8f0",
+                                  height: 36,
+                                  padding: "0 14px",
+                                  fontSize: "15px",
+                                  fontWeight: 600,
+                                  background: "white",
                                 }}
-                              />
-                            </td>
-                            {/* Number + Badge */}
-                            <td style={{ padding: "14px 24px" }}>
-                              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                                <span style={{
-                                  width: 26, height: 26, borderRadius: "50%",
-                                  background: T.accentBg, color: T.accent,
-                                  fontSize: T.fs_xs, fontWeight: 600,
-                                  display: "flex", alignItems: "center", justifyContent: "center",
-                                  flexShrink: 0,
-                                }}>
-                                  {idx + 1}
-                                </span>
-                                <span style={{ fontWeight: 600, color: T.blue, fontSize: T.fs_base }}>{art.article_number}</span>
-                                <span
-                                  style={{
-                                    fontSize: 12,
-                                    fontWeight: 700,
-                                    color: "var(--p-blue)",
-                                    background: "var(--p-blue-pale)",
-                                    padding: "2px 6px",
-                                    borderRadius: 4,
-                                    marginLeft: 6,
-                                  }}
-                                >
-                                  {getArticleVersion(art)}
-                                </span>
-                              </div>
-                            </td>
-                            {/* Name */}
-                            <td style={{ padding: "14px 24px", color: T.slate700, fontWeight: 600, fontSize: T.fs_base }}>
-                              {art.article_name}
-                            </td>
-                            {/* Updated */}
-                            <td style={{ padding: "14px 24px", color: T.slate500, fontSize: T.fs_sm }}>
-                              <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                                <Calendar size={13} color={T.slate500} />
-                                {formatDate(art.updated_at)}
-                              </div>
-                            </td>
-                            {/* Actions */}
-                            <td style={{ padding: "12px 20px", textAlign: "right" }}>
-                              <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                                {/* Expand preview */}
-                                <button
-                                  type="button"
-                                  title={isExpanded ? "Collapse inline preview" : "Expand inline preview"}
-                                  onClick={() => setExpandedArticles(prev => ({ ...prev, [art.id]: !prev[art.id] }))}
-                                  style={{
-                                    width: 44, height: 44, borderRadius: 8,
-                                    border: `1.5px solid ${T.slate200}`,
-                                    background: isExpanded ? "var(--p-blue-pale)" : T.white,
-                                    cursor: "pointer",
-                                    display: "flex", alignItems: "center", justifyContent: "center",
-                                    color: isExpanded ? "var(--p-blue)" : T.slate500, flexShrink: 0,
-                                  }}
-                                >
-                                  <Info size={16} />
-                                </button>
-                                {/* View */}
-                                <button
-                                  type="button" title="View article"
-                                  onClick={() => setPreviewArticle(art)}
-                                  style={{
-                                    width: 44, height: 44, borderRadius: 8,
-                                    border: `1.5px solid ${T.slate200}`,
-                                    background: T.white, cursor: "pointer",
-                                    display: "flex", alignItems: "center", justifyContent: "center",
-                                    color: T.slate500, flexShrink: 0,
-                                  }}
-                                >
-                                  <Eye size={16} />
-                                </button>
-                                {/* Edit */}
-                                <button
-                                  type="button" title="Edit article"
-                                  onClick={() => handleOpenEditDrawer(art)}
-                                  style={{
-                                    width: 44, height: 44, borderRadius: 8,
-                                    border: `1.5px solid #bfdbfe`,
-                                    background: "#eff6ff", cursor: "pointer",
-                                    display: "flex", alignItems: "center", justifyContent: "center",
-                                    color: T.accent, flexShrink: 0,
-                                  }}
-                                >
-                                  <Edit size={16} />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                          {/* Expanded inline preview row */}
-                          {isExpanded && (
-                            <tr style={{ background: "var(--r-surface-2)" }}>
-                              <td colSpan={5} style={{ padding: "16px 24px", borderBottom: `1px solid ${T.slate100}` }}>
-                                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                                  <span style={{ fontSize: T.fs_xs, fontWeight: 700, color: "var(--p-blue)" }}>
-                                    INLINE PREVIEW:
-                                  </span>
-                                  <div
-                                    style={{
-                                      fontSize: T.fs_sm,
-                                      color: "var(--r-text-mid)",
-                                      lineHeight: 1.7,
-                                      background: "var(--r-surface)",
-                                      border: "1px solid var(--r-border-mid)",
-                                      borderRadius: 12,
-                                      padding: "16px 20px",
-                                      fontFamily: "var(--font-body)",
-                                      maxHeight: 200,
-                                      overflowY: "auto",
-                                    }}
-                                    dangerouslySetInnerHTML={{ __html: art.article_description }}
-                                  />
-                                </div>
-                              </td>
-                            </tr>
-                          )}
-                        </>
+                              >
+                                <Eye size={16} /> View
+                              </button>
+                              {/* Edit */}
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEditDrawer(art)}
+                                className="cbl-focus-ring flex items-center gap-2 text-[#1e3a5f] hover:bg-[#f1f5f9] rounded-md transition-all cursor-pointer"
+                                style={{
+                                  border: "1px solid #e2e8f0",
+                                  height: 36,
+                                  padding: "0 14px",
+                                  fontSize: "15px",
+                                  fontWeight: 600,
+                                  background: "white",
+                                }}
+                              >
+                                <Edit size={16} /> Edit
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
                       );
                     })}
                     {filteredArticles.length === 0 && (
                       <tr>
-                        <td colSpan={5} style={{ padding: "64px 24px", textAlign: "center" }}>
+                        <td colSpan={4} style={{ padding: "64px 24px", textAlign: "center" }}>
                           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
-                            <div style={{ width: 64, height: 64, borderRadius: "50%", background: T.accentBg, display: "flex", alignItems: "center", justifyContent: "center", color: T.accent }}>
+                            <div style={{ width: 64, height: 64, borderRadius: "50%", background: "var(--p-blue-pale)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--p-blue)" }}>
                               <FileText size={32} />
                             </div>
                             <div>
-                              <h4 style={{ fontSize: T.fs_md, fontWeight: 700, color: "var(--p-navy)", margin: "0 0 6px" }}>
+                              <h4 style={{ fontSize: "24px", fontWeight: 700, color: "var(--p-navy)", margin: "0 0 6px" }}>
                                 {searchQueryTable ? "No matching articles found" : "No articles registered yet"}
                               </h4>
-                              <p style={{ fontSize: T.fs_sm, color: "var(--r-text-muted)", margin: 0, maxWidth: 360, marginInline: "auto" }}>
+                              <p style={{ fontSize: "18px", color: "var(--r-text-muted)", margin: 0, maxWidth: 360, marginInline: "auto" }}>
                                 {searchQueryTable 
                                   ? `We couldn't find any articles matching "${searchQueryTable}". Try adjusting your keywords.` 
                                   : "Get started by adding the first article of your Constitution & By-Laws."}
@@ -1223,9 +1023,9 @@ export default function CblInformationManagement() {
                               <button
                                 type="button"
                                 onClick={handleOpenCreateDrawer}
-                                style={{ ...primaryBtn, height: 48, padding: "0 18px", fontSize: T.fs_sm }}
+                                className="cbl-focus-ring min-h-[48px] px-5 bg-[#1e3a5f] hover:bg-[#152943] text-white font-semibold text-[18px] rounded-lg flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
                               >
-                                <Plus size={16} /> Add First Article
+                                <Plus size={18} /> Add First Article
                               </button>
                             )}
                           </div>
@@ -1240,50 +1040,61 @@ export default function CblInformationManagement() {
               {filteredArticles.length > 0 && (
                 <div
                   style={{
-                    padding: "10px 24px",
-                    borderTop: `1px solid ${T.slate100}`,
-                    fontSize: T.fs_sm,
-                    color: T.slate500,
-                    background: T.slate50,
+                    padding: "16px 24px",
+                    borderTop: "1px solid #e2e8f0",
+                    fontSize: "16px",
+                    color: "var(--r-text-muted)",
+                    background: "var(--r-surface-2)",
+                    fontWeight: 500,
                   }}
                 >
                   Showing {filteredArticles.length} of {articles.length} article{articles.length !== 1 ? "s" : ""}
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* ── GOVERNANCE DOCUMENT TAB ───────────────────────────────────────── */}
         {activeTab === "governance" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.18 }}
+            className="flex flex-col gap-6"
+          >
             {/* Preamble Preview */}
-            <div style={cardStyle}>
+            <div className="cbl-section-card" style={{ ...cardStyle, background: "#f8fafc" }}>
               <div style={cardHeaderStyle}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{
-                    width: 34, height: 34, borderRadius: 12,
-                    background: "var(--p-blue-pale)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}>
-                    <FileText size={16} color="var(--p-blue)" />
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div className="w-11 h-11 bg-[#1e3a5f]/10 text-[#1e3a5f] rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <FileText size={22} style={{ color: "#1e3a5f" }} />
                   </div>
                   <h3 style={cardTitleStyle}>Preamble Sync Preview</h3>
                 </div>
+                <span
+                  style={{
+                    fontSize: "13px",
+                    color: "#94a3b8",
+                    fontStyle: "italic",
+                    fontWeight: 500,
+                  }}
+                >
+                  Read-only preview
+                </span>
               </div>
-              <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <div>
-                  <span style={{ fontSize: T.fs_xs, fontWeight: 500, color: "var(--r-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", fontFamily: "var(--font-body)" }}>CBL Title</span>
-                  <p style={{ fontSize: T.fs_base, fontWeight: 600, color: "var(--r-text)", margin: "6px 0 0", fontFamily: "var(--font-body)" }}>{title || "—"}</p>
+                  <span style={{ fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "var(--font-body)", display: "block" }}>CBL Title</span>
+                  <p style={{ fontSize: "18px", fontWeight: 700, color: "#0f172a", margin: "6px 0 0", fontFamily: "var(--font-body)" }}>{title || "—"}</p>
                 </div>
                 <div>
-                  <span style={{ fontSize: T.fs_xs, fontWeight: 500, color: "var(--r-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", fontFamily: "var(--font-body)" }}>General Description</span>
+                  <span style={{ fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "var(--font-body)", display: "block" }}>General Description</span>
                   <div
                     style={{
-                      fontSize: T.fs_base, color: "var(--r-text-mid)", marginTop: 8,
-                      border: "1px solid var(--r-border-mid)", background: "var(--r-surface-2)",
-                      borderRadius: 12, padding: "12px 16px", maxHeight: 180, overflowY: "auto", lineHeight: 1.7,
+                      fontSize: "18px", color: "#1e293b", marginTop: 8,
+                      border: "1px solid #e2e8f0", background: "white",
+                      borderRadius: 12, padding: "20px", maxHeight: 180, overflowY: "auto", lineHeight: 1.7,
                       fontFamily: "var(--font-body)",
                     }}
                     dangerouslySetInnerHTML={{ __html: generalDescription || "Preamble content empty." }}
@@ -1293,101 +1104,118 @@ export default function CblInformationManagement() {
             </div>
 
             {/* Governance PDF */}
-            <div style={cardStyle}>
+            <div className="cbl-section-card" style={cardStyle}>
               <div style={cardHeaderStyle}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{
-                    width: 34, height: 34, borderRadius: 12,
-                    background: "var(--p-blue-pale)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}>
-                    <FileText size={16} color="var(--p-blue)" />
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div className="w-11 h-11 bg-[#1e3a5f]/10 text-[#1e3a5f] rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <FileText size={22} style={{ color: "#1e3a5f" }} />
                   </div>
                   <h3 style={cardTitleStyle}>Governance PDF Document</h3>
                 </div>
-                <Info size={17} color="var(--r-text-muted)" />
+                <Info size={20} className="text-slate-400" />
               </div>
-              <div style={{ padding: "24px" }}>
-                {!governanceDoc?.file_url ? (
+              <div style={{ padding: "0 8px" }}>
+                {isUploading ? (
+                  <div
+                    style={{
+                      border: "2.5px dashed var(--r-border-mid)",
+                      borderRadius: 16, padding: "60px 24px",
+                      display: "flex", flexDirection: "column", alignItems: "center",
+                      justifyContent: "center", textAlign: "center",
+                      background: "var(--r-surface-2)",
+                    }}
+                  >
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+                      <Loader2 className="animate-spin" size={36} style={{ color: "var(--p-blue)" }} />
+                      <p style={{ fontSize: "18px", fontWeight: 600, color: "var(--r-text-mid)", margin: 0, fontFamily: "var(--font-body)" }}>Uploading file, please wait...</p>
+                    </div>
+                  </div>
+                ) : !governanceDoc?.file_url ? (
                   <label
                     style={{
-                      border: "2px dashed var(--r-border-mid)",
-                      borderRadius: 16, padding: "50px 24px",
+                      border: "2.5px dashed var(--r-border-mid)",
+                      borderRadius: 16, padding: "60px 24px",
                       display: "flex", flexDirection: "column", alignItems: "center",
                       justifyContent: "center", cursor: "pointer", textAlign: "center",
                       background: "var(--r-surface-2)",
                     }}
+                    className="hover:bg-slate-50/50 transition-all cbl-focus-ring"
                   >
-                    {isUploading ? (
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-                        <Loader2 className="animate-spin" size={32} style={{ color: "var(--p-blue)" }} />
-                        <p style={{ fontSize: T.fs_base, fontWeight: 600, color: "var(--r-text-mid)", margin: 0, fontFamily: "var(--font-body)" }}>Uploading file, please wait...</p>
-                      </div>
-                    ) : (
-                      <>
-                        <div style={{ width: 56, height: 56, background: "var(--p-blue-pale)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
-                          <Upload size={24} color="var(--p-blue)" />
-                        </div>
-                        <p style={{ fontSize: T.fs_lg, fontWeight: 600, color: "var(--p-navy)", margin: "0 0 6px", fontFamily: "var(--font-body)" }}>Drop PDF here or click to upload</p>
-                        <p style={{ fontSize: T.fs_sm, color: "var(--r-text-muted)", margin: "0 0 16px", fontFamily: "var(--font-body)" }}>Only PDF documents are supported. Maximum size: 10 MB.</p>
-                        <span style={{
-                          display: "inline-flex", alignItems: "center", gap: 7,
-                          padding: "0 18px", height: T.btnHSm,
-                          background: "var(--p-blue)", color: "var(--p-white)",
-                          borderRadius: 12, fontSize: T.fs_sm, fontWeight: 600,
-                          fontFamily: "var(--font-body)",
-                          pointerEvents: "none",
-                        }}>
-                          <Upload size={14} /> Choose PDF file
-                        </span>
-                      </>
-                    )}
+                    <div style={{ width: 64, height: 64, background: "var(--p-blue-pale)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+                      <Upload size={28} color="var(--p-blue)" />
+                    </div>
+                    <p style={{ fontSize: "20px", fontWeight: 700, color: "var(--p-navy)", margin: "0 0 6px", fontFamily: "var(--font-body)" }}>Drop PDF here or click to upload</p>
+                    <p style={{ fontSize: "16px", color: "var(--r-text-muted)", margin: "0 0 20px", fontFamily: "var(--font-body)" }}>Only PDF documents are supported. Maximum size: 10 MB.</p>
+                    <span style={{
+                      display: "inline-flex", alignItems: "center", gap: 8,
+                      padding: "0 22px", height: 48,
+                      background: "var(--p-blue)", color: "var(--p-white)",
+                      borderRadius: 12, fontSize: "18px", fontWeight: 600,
+                      fontFamily: "var(--font-body)",
+                      pointerEvents: "none",
+                    }}>
+                      <Upload size={16} /> Choose PDF file
+                    </span>
                     <input type="file" accept="application/pdf" style={{ display: "none" }} onChange={handleFileUpload} disabled={isUploading} />
                   </label>
                 ) : (
-                  <div style={{ border: "1px solid var(--r-border-mid)", borderRadius: 12, padding: 20 }}>
+                  <div style={{ border: "1px solid #e2e8f0", borderRadius: 10, padding: "20px 24px", background: "#f8fafc" }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                        <div style={{ width: 52, height: 52, background: "var(--p-rose-pale)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <FileText size={24} color="var(--p-rose)" />
+                      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                        <div style={{ width: 48, height: 48, background: "#fee2e2", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <FileText size={24} color="#dc2626" />
                         </div>
                         <div>
-                          <p style={{ fontSize: T.fs_base, fontWeight: 600, color: "var(--r-text)", margin: 0, fontFamily: "var(--font-body)" }}>{governanceDoc.file_name}</p>
-                          <p style={{ fontSize: T.fs_sm, color: "var(--r-text-muted)", margin: "3px 0 0", fontFamily: "var(--font-body)" }}>
+                          <p style={{ fontSize: "18px", fontWeight: 700, color: "#0f172a", margin: 0, fontFamily: "var(--font-body)" }}>{governanceDoc.file_name}</p>
+                          <p style={{ fontSize: "15px", color: "#64748b", margin: "4px 0 0", fontFamily: "var(--font-body)" }}>
                             {formatFileSize(governanceDoc.file_size)} · Uploaded {formatDate(governanceDoc.created_at)}
                           </p>
                         </div>
                       </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
                         <a
                           href={governanceDoc.file_url} target="_blank" rel="noreferrer"
-                          style={{ ...secondaryBtn, textDecoration: "none", height: T.btnHSm, fontSize: T.fs_sm }}
+                          className="cbl-focus-ring border border-[#cbd5e1] hover:bg-slate-50 text-[#334155] font-semibold rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+                          style={{ textDecoration: "none", fontSize: "16px", height: 44, padding: "0 18px", fontFamily: "var(--font-body)" }}
                         >
                           Preview File
                         </a>
-                        <label style={{ ...secondaryBtn, height: T.btnHSm, fontSize: T.fs_sm, cursor: "pointer" }}>
+                        <label className="cbl-focus-ring border border-[#cbd5e1] hover:bg-slate-50 text-[#334155] font-semibold rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer" style={{ fontSize: "16px", height: 44, padding: "0 18px", fontFamily: "var(--font-body)" }}>
                           Replace
                           <input type="file" accept="application/pdf" style={{ display: "none" }} onChange={handleFileUpload} disabled={isUploading} />
                         </label>
-                        <button type="button" onClick={() => setShowDeletePDFModal(true)} disabled={isUploading}
-                          style={{ ...dangerBtn, height: T.btnHSm, fontSize: T.fs_sm }}>
-                          <Trash size={15} /> Remove
+                        <button
+                          type="button"
+                          onClick={() => setShowDeletePDFModal(true)}
+                          disabled={isUploading}
+                          className="cbl-focus-ring hover:bg-rose-50/50 font-semibold rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+                          style={{
+                            fontSize: "16px",
+                            height: 44,
+                            padding: "0 18px",
+                            fontFamily: "var(--font-body)",
+                            border: "1px solid #fca5a5",
+                            color: "#dc2626",
+                            background: "white",
+                          }}
+                        >
+                          <Trash size={16} /> Remove File
                         </button>
                       </div>
                     </div>
 
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 14, marginTop: 18, paddingTop: 18, borderTop: "1px solid var(--r-border)" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 16, marginTop: 24, paddingTop: 24, borderTop: "1px solid #e2e8f0" }}>
                       {[
                         { label: "Uploaded By", value: governanceDoc.uploaded_by || "—" },
                         { label: "Upload Date", value: formatDate(governanceDoc.created_at) },
                         { label: "Last Modified", value: formatDate(governanceDoc.updated_at) },
-                        { label: "Link Status", value: "Active PDF", icon: <Check size={13} color="var(--p-emerald)" /> },
+                        { label: "Link Status", value: "Active PDF", icon: <CheckCircle size={16} style={{ color: "#16a34a" }} /> },
                       ].map((meta) => (
                         <div key={meta.label}>
-                          <span style={{ fontSize: T.fs_xs, fontWeight: 500, color: "var(--r-text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", display: "block", fontFamily: "var(--font-body)" }}>
+                          <span style={{ fontSize: "13px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em", display: "block", fontFamily: "var(--font-body)" }}>
                             {meta.label}
                           </span>
-                          <span style={{ fontSize: T.fs_sm, fontWeight: 600, color: "var(--r-text-mid)", display: "flex", alignItems: "center", gap: 4, marginTop: 5, fontFamily: "var(--font-body)" }}>
+                          <span style={{ fontSize: "17px", fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: 6, marginTop: 6, fontFamily: "var(--font-body)" }}>
                             {meta.icon} {meta.value}
                           </span>
                         </div>
@@ -1397,7 +1225,7 @@ export default function CblInformationManagement() {
                 )}
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
 
@@ -1438,15 +1266,16 @@ export default function CblInformationManagement() {
           }}
         >
           <div>
-            <h3 style={{ fontSize: T.fs_lg, fontWeight: 600, color: T.blue, margin: 0 }}>
+            <h3 style={{ fontSize: "24px", fontWeight: 700, color: "#1e3a5f", margin: 0 }}>
               {selectedArticleId ? "Edit Article" : "New Article"}
             </h3>
-            <p style={{ fontSize: T.fs_sm, color: T.slate500, margin: "3px 0 0" }}>
+            <p style={{ fontSize: "16px", color: "var(--r-text-muted)", margin: "3px 0 0" }}>
               Fill in the constitutional article details
             </p>
           </div>
           <button
             type="button" onClick={handleCloseDrawer}
+            className="cbl-focus-ring"
             style={{
               width: 38, height: 38, borderRadius: 8,
               border: `1.5px solid ${T.slate200}`,
@@ -1476,9 +1305,10 @@ export default function CblInformationManagement() {
                     value={articleNumber}
                     onChange={(e) => setArticleNumber(e.target.value)}
                     autoFocus
-                    style={inputStyle}
+                    className="w-full min-h-[52px] rounded-lg border border-slate-300 px-4 text-[18px] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:border-[#1e3a5f] bg-white transition-all cbl-focus-ring"
+                    style={{ fontFamily: "var(--font-body)" }}
                   />
-                  <p style={{ margin: "7px 0 0", fontSize: T.fs_xs, color: T.slate500, lineHeight: 1.5 }}>
+                  <p style={{ margin: "7px 0 0", fontSize: "16px", color: "var(--r-text-muted)", lineHeight: 1.5 }}>
                     Enter a unique article identifier. Use Roman numerals or a custom label (e.g. Article I, Article II).
                   </p>
                 </>
@@ -1489,14 +1319,14 @@ export default function CblInformationManagement() {
                     type="text"
                     value={articleNumber}
                     onChange={(e) => setArticleNumber(e.target.value)}
+                    className="w-full min-h-[52px] rounded-lg border border-slate-300 px-4 text-[18px] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:border-[#1e3a5f] bg-white transition-all cbl-focus-ring"
                     style={{
-                      ...inputStyle,
-                      background: "var(--r-surface-2)",
                       fontWeight: 600,
-                      color: T.blue,
+                      color: "#1e3a5f",
+                      fontFamily: "var(--font-body)",
                     }}
                   />
-                  <p style={{ margin: "7px 0 0", fontSize: T.fs_xs, color: T.slate500, lineHeight: 1.5 }}>
+                  <p style={{ margin: "7px 0 0", fontSize: "16px", color: "var(--r-text-muted)", lineHeight: 1.5 }}>
                     You may rename the article number. Changes take effect when you save.
                   </p>
                 </>
@@ -1511,7 +1341,8 @@ export default function CblInformationManagement() {
                 placeholder="e.g. Purposes and Objectives"
                 value={articleName}
                 onChange={(e) => setArticleName(e.target.value)}
-                style={inputStyle}
+                className="w-full min-h-[52px] rounded-lg border border-slate-300 px-4 text-[18px] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:border-[#1e3a5f] bg-white transition-all cbl-focus-ring"
+                style={{ fontFamily: "var(--font-body)" }}
               />
             </div>
 
@@ -1531,33 +1362,43 @@ export default function CblInformationManagement() {
         {/* Drawer Footer */}
         <div
           style={{
-            padding: "14px 20px",
+            padding: "16px 20px",
             borderTop: `1px solid ${T.slate100}`,
             background: T.slate50, flexShrink: 0,
             display: "flex", alignItems: "center", justifyContent: "space-between",
-            gap: 10, flexWrap: "wrap", rowGap: 10,
+            gap: 12, flexWrap: "wrap",
           }}
         >
           {/* Left: Delete */}
           <div>
             {selectedArticleId && (
-              <button type="button" disabled={isSaving}
+              <button
+                type="button"
+                disabled={isSaving}
                 onClick={() => setShowDeleteArticleModal(selectedArticleId)}
-                style={dangerBtn}
+                className="cbl-focus-ring min-h-[52px] px-6 bg-rose-50 border-2 border-rose-200 text-rose-700 hover:bg-rose-100/70 font-semibold text-[18px] rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
-                <Trash size={16} /> Delete Article
+                <Trash size={18} /> Delete Article
               </button>
             )}
           </div>
 
           {/* Right: Cancel + Save */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-            <button type="button" onClick={handleCloseDrawer} style={secondaryBtn}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <button
+              type="button"
+              onClick={handleCloseDrawer}
+              className="cbl-focus-ring min-h-[52px] px-6 border-2 border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-[18px] rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+            >
               Cancel
             </button>
-            <button type="button" onClick={handleSaveArticle} disabled={isSaving}
-              style={{ ...primaryBtn, background: isSaving ? "#4a7098" : T.blue }}>
-              {isSaving ? <Loader2 className="animate-spin" size={16} /> : <Check size={16} />}
+            <button
+              type="button"
+              onClick={handleSaveArticle}
+              disabled={isSaving}
+              className="cbl-focus-ring min-h-[52px] px-6 bg-[#1e3a5f] hover:bg-[#152943] text-white font-semibold text-[18px] rounded-lg flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
+            >
+              {isSaving ? <Loader2 className="animate-spin" size={18} /> : <Check size={18} />}
               Save Article
             </button>
           </div>

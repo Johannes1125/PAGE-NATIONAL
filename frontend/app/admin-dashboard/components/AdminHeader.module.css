@@ -282,3 +282,29 @@
     display: none;
   }
 }
+
+/* Senior-friendly Admin Header Intro Redesign */
+.introSeniorFriendly {
+  padding: 36px clamp(20px, 3.5vw, 40px) 32px;
+  background: var(--r-surface-2, #f1f5f9);
+  border-bottom: 1px solid var(--r-border-mid, #cbd5e1);
+}
+
+.eyebrowSeniorFriendly {
+  font-size: 18px !important;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.titleSeniorFriendly {
+  font-size: clamp(32px, 3.5vw, 42px) !important;
+  font-weight: 700;
+}
+
+.subtitleSeniorFriendly {
+  font-size: 18px !important;
+  margin-top: 10px;
+  line-height: 1.6;
+}
+

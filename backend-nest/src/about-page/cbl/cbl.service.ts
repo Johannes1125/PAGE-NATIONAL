@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CloudinaryService } from '../../cloudinary/cloudinary.service';
+import { SupabaseService } from '../../supabase/supabase.service';
 import { CreateCblArticleDto } from './dto/create-cbl-article.dto';
 import { UpdateCblArticleDto } from './dto/update-cbl-article.dto';
 import { CreateGovernanceDocumentDto } from './dto/create-governance-document.dto';
@@ -10,7 +10,7 @@ import { UpdateGovernanceDocumentDto } from './dto/update-governance-document.dt
 export class CblService {
   constructor(
     private prisma: PrismaService,
-    private cloudinary: CloudinaryService,
+    private supabase: SupabaseService,
   ) {}
 
   // ── ARTICLES METHODS ──────────────────────────────────────────────────────
@@ -133,9 +133,9 @@ export class CblService {
         throw new BadRequestException('Only PDF files are allowed.');
       }
       const folder = 'about_page/cbl_governance';
-      const url = await this.cloudinary.upload(file, folder);
+      const url = await this.supabase.upload(file, 'governance', folder);
       if (!url) {
-        throw new BadRequestException('Failed to upload file to Cloudinary.');
+        throw new BadRequestException('Failed to upload file to Supabase.');
       }
       fileUrl = url;
       fileName = file.originalname;
@@ -192,9 +192,9 @@ export class CblService {
         throw new BadRequestException('Only PDF files are allowed.');
       }
       const folder = 'about_page/cbl_governance';
-      const url = await this.cloudinary.upload(file, folder);
+      const url = await this.supabase.upload(file, 'governance', folder);
       if (!url) {
-        throw new BadRequestException('Failed to upload file to Cloudinary.');
+        throw new BadRequestException('Failed to upload file to Supabase.');
       }
       fileUrl = url;
       fileName = file.originalname;

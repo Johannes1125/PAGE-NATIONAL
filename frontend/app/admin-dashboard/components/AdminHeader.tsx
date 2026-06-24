@@ -30,6 +30,7 @@ type AdminHeaderProps = {
   title: string;
   subtitle: string;
   eyebrow?: string;
+  seniorFriendlyHeader?: boolean;
 };
 
 function joinClasses(...parts: Array<string | false | undefined>) {
@@ -46,6 +47,7 @@ export default function AdminHeader({
   title,
   subtitle,
   eyebrow = "Admin panel",
+  seniorFriendlyHeader = false,
 }: AdminHeaderProps) {
   const pathname = usePathname();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -195,10 +197,10 @@ export default function AdminHeader({
         </div>
       </header>
 
-      <section className={styles.intro}>
-        <p className={styles.eyebrow}>{eyebrow}</p>
-        <h1 className={styles.title}>{title}</h1>
-        <p className={styles.subtitle}>{subtitle}</p>
+      <section className={joinClasses(styles.intro, seniorFriendlyHeader && styles.introSeniorFriendly)}>
+        <p className={joinClasses(styles.eyebrow, seniorFriendlyHeader && styles.eyebrowSeniorFriendly)}>{eyebrow}</p>
+        <h1 className={joinClasses(styles.title, seniorFriendlyHeader && styles.titleSeniorFriendly)}>{title}</h1>
+        <p className={joinClasses(styles.subtitle, seniorFriendlyHeader && styles.subtitleSeniorFriendly)}>{subtitle}</p>
       </section>
     </>
   );

@@ -16,7 +16,6 @@ import {
   LayoutGrid,
   FilePen,
   Clock,
-  ArrowLeft,
   Archive,
   CheckCircle2,
   AlertTriangle,
@@ -296,18 +295,6 @@ export default function AboutPageManagement() {
             <p className="admin-hero-card__meta">Last Change</p>
           </article>
         </section>
-
-        {/* Action Bar */}
-        <div className="about-action-bar">
-          <button
-            type="button"
-            className="about-action-pill about-action-pill--ghost"
-            onClick={() => router.push("/admin-dashboard")}
-          >
-            <ArrowLeft size={16} />
-            Back to Dashboard
-          </button>
-        </div>
 
         {/* Toolbar: Search and Status Filters */}
         <section className="about-toolbar">
