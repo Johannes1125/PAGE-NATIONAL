@@ -29,19 +29,25 @@ PAGE-NATIONAL/
 │   │   ├── schema.prisma     # Prisma schema defining the PostgreSQL DB schema
 │   │   └── seed.ts           # Seeding logic for development database
 │   ├── src/                  # Application source code
+│   │   ├── about-page/       # Serves about page sections, documents, and board of officers
 │   │   ├── articles/         # Article/journal submission services & controllers
 │   │   ├── auth/             # JWT/Token authentication, guards, roles decorator
 │   │   ├── cloudinary/       # File upload service logic using Cloudinary
 │   │   ├── common/           # Shared classes, interceptors, and utility functions
 │   │   ├── dashboard/        # Dashboard stats and administration data handlers
+│   │   ├── historical-records/ # Historical milestones and timeline records management
 │   │   ├── messages/         # Real-time messaging service between users and administrators
+│   │   ├── national-officers/ # National board officers management endpoints
+│   │   ├── page-logo/        # PAGE logos history management endpoints
 │   │   ├── posts/            # Announcement, news, and blog post management
 │   │   ├── prisma/           # Prisma client instantiation module
-│   │   ├── users/            # User profile data management
+│   │   ├── sec-registrations/ # SEC registration records management endpoints
+│   │   ├── supabase/         # File upload helper module utilizing Supabase Storage
+│   │   ├── users/            # User profile and role management
 │   │   ├── app.module.ts     # Root module configuration
 │   │   └── main.ts           # Entrypoint for NestJS application
 │   ├── test/                 # Integration/E2E test files
-│   ├── .env                  # Environment secrets (JWT secret, DB URL, Cloudinary configuration)
+│   ├── .env                  # Environment secrets (JWT secret, DB URL, Supabase/Cloudinary keys)
 │   ├── .env.example          # Environment variable template
 │   ├── nest-cli.json         # NestJS CLI configuration options
 │   ├── package.json          # Node script commands and package dependencies
@@ -52,7 +58,14 @@ PAGE-NATIONAL/
     ├── app/                  # Next.js App Router pages and assets
     │   ├── (landing-page)/   # Group of public-facing pages
     │   │   ├── (home)/       # Main homepage layout and CSS
-    │   │   ├── about/        # About Us page
+    │   │   ├── about/        # About Us page, featuring detailed section routes:
+    │   │   │   ├── bir/      # BIR Certification page
+    │   │   │   ├── cbl/      # Constitution & By-Laws page
+    │   │   │   ├── history/  # Historical Milestones page
+    │   │   │   ├── logo/     # LOGO Description page
+    │   │   │   ├── officers/ # Board of Officers page
+    │   │   │   ├── sec/      # SEC Registration page
+    │   │   │   └── page.tsx  # About Us main entry page
     │   │   ├── activities/   # Events and activities listings
     │   │   ├── chapters/     # Chapters page
     │   │   ├── components/   # Navbar, Lightbox and shared landing components
@@ -64,6 +77,13 @@ PAGE-NATIONAL/
     │   │   ├── news/         # Blogs/Posts announcements feeds
     │   │   └── partners/     # Supporting partners
     │   ├── admin-dashboard/  # Admin Portal components and views
+    │   │   ├── about-page/   # About PAGE subsections manager (BIR, CBL, History, Logo, Officers, SEC)
+    │   │   │   ├── bir-certification/
+    │   │   │   ├── cbl-information/
+    │   │   │   ├── history/
+    │   │   │   ├── logo-description/
+    │   │   │   ├── national-officers/
+    │   │   │   └── sec-registrations/
     │   │   ├── approve-post/ # View to moderate draft posts
     │   │   ├── audit-log/    # Log page to monitor actions
     │   │   ├── components/   # Dashboard navigation and structure components
@@ -71,6 +91,7 @@ PAGE-NATIONAL/
     │   │   ├── lib/          # Helper modules
     │   │   ├── manage-users/ # Admin view to manage users and roles
     │   │   ├── membership-applications/ # Verification portal for new members
+    │   │   ├── national-officers/ # Separate national officers records manager
     │   │   └── view-messages/# Dashboard communication client
     │   ├── admin-login/      # Admin authentication page
     │   ├── org-dashboard/    # Dashboard layout for organizations
@@ -92,6 +113,25 @@ PAGE-NATIONAL/
 
 ---
 
+## 🗄️ Database Schema & Models (`prisma/schema.prisma`)
+
+The database uses PostgreSQL via Prisma ORM. Key tables include:
+- **`users`**: Core credentials and profiles for administration, members, and organizations.
+- **`article_submissions`**: Academic/journal articles submitted by organizations for admin review.
+- **`messages` & `message_attachments`**: Live dashboard/messaging system records and documents.
+- **`posts` & `post_attachments`**: Announcements, news, and library posts managed by administrative users.
+- **`about_page_sections` & `about_page_documents`**: Dynamic content segments and attached documents for public display on the About page.
+- **`about_page_officers`**: Administrative listing of officers displayed on the Board of Officers view.
+- **`cbl_articles` & `cbl_governance_documents`**: Articles and download files related to Constitution & By-Laws.
+- **`historical_records`**: Milestones defining PAGE's organization history timeline.
+- **`page_logos`**: Timestamps and asset paths for brand/logo iterations.
+- **`NationalOfficer`**: Model for storing and managing board officers.
+- **`SecRegistration`**: Model storing official SEC registration items and files.
+- **`user_activities`**: Action audit logs for administrators.
+- Other system metadata tables: `cache`, `cache_locks`, `failed_jobs`, `job_batches`, `jobs`, `sessions`, `migrations`, `password_reset_tokens`.
+
+---
+
 ## 🛠️ Technology Stack & Dependencies
 
 ### 1. Backend (`backend-nest`)
@@ -101,14 +141,15 @@ PAGE-NATIONAL/
 - **Database ORM**: [Prisma 7](https://www.prisma.io/) (v7.8.0)
 - **Database Engine**: PostgreSQL
 - **Key Backend Dependencies**:
-  - `@nestjs/common`, `@nestjs/config`, `@nestjs/core`, `@nestjs/platform-express`: NestJS core and configuration.
+  - `@nestjs/common`, `@nestjs/config`, `@nestjs/core`, `@nestjs/platform-express`: NestJS framework core and config injection.
   - `@prisma/client`: Auto-generated database client query builder.
-  - `@prisma/adapter-pg`, `pg`: PostgreSQL database driver integration.
-  - `bcryptjs`: Secure password hashing.
-  - `class-validator` & `class-transformer`: Input schema validation and serialization for DTOs.
-  - `cloudinary`: Media storage integration for uploaded assets (images, PDFs, documents).
-  - `rxjs`: Reactive Extensions for JavaScript (NestJS asynchronous operation streams).
-  - `jest` & `supertest`: Testing framework and HTTP assertion engine.
+  - `@prisma/adapter-pg`, `pg`: PostgreSQL database client integration.
+  - `@supabase/supabase-js`: Integration with Supabase Storage for secure static uploads.
+  - `bcryptjs`: Password hashing utility.
+  - `class-validator` & `class-transformer`: Input schema verification and data transfer object (DTO) validation.
+  - `cloudinary`: Image and media CDN asset hosting.
+  - `dotenv`: Local environment configuration variables management.
+  - `rxjs`: Reactive Extensions for JavaScript.
 
 ---
 
@@ -118,9 +159,9 @@ PAGE-NATIONAL/
 - **Language**: TypeScript (v5)
 - **Styling**: [Tailwind CSS 4](https://tailwindcss.com/) (via `@tailwindcss/postcss`)
 - **Key Frontend Dependencies**:
-  - `framer-motion`: Smooth UI transitions and animations.
-  - `lucide-react`: Modern vector icon library.
-  - `@fortawesome/react-fontawesome` & `@fortawesome/free-solid-svg-icons`: SVG Icon rendering package.
-  - `recharts`: D3-based charting library for displaying dashboard metrics.
-  - `goey-toast` & `react-toastify`: Rich pop-up alerts and user notification toasts.
-  - `eslint` & `eslint-config-next`: Linter configuration for code cleanliness.
+  - `framer-motion`: Animation suite for smooth page/modal transitions.
+  - `lucide-react`: Modern SVG vector icons framework.
+  - `@fortawesome/react-fontawesome`, `@fortawesome/fontawesome-svg-core`, `@fortawesome/free-solid-svg-icons`: SVG icon packs integration.
+  - `recharts`: D3-based charting layout library for dashboard usage.
+  - `goey-toast` & `react-toastify`: Interface notifications and alert pop-ups.
+  - `eslint` & `eslint-config-next`: Static code quality review scripts.

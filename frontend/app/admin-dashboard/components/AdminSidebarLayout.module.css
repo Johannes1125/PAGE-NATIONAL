@@ -50,3 +50,8 @@
     padding-left: 0;
   }
 }
+
+.noTransition,
+.noTransition * {
+  transition: none !important;
+}

@@ -8,6 +8,13 @@ import layoutStyles from "./AdminSidebarLayout.module.css";
 
 export const ADMIN_MOBILE_BREAKPOINT_PX = 980;
 
+let hasHydrated = false;
+let globalIsSidebarCollapsed = false;
+
+if (typeof window !== "undefined") {
+  globalIsSidebarCollapsed = window.localStorage.getItem("admin-sidebar-collapsed") === "true";
+}
+
 type AdminSidebarLayoutProps = {
   pageClassName: string;
   mainClassName: string;
@@ -32,22 +39,40 @@ export default function AdminSidebarLayout({
   seniorFriendlyHeader = false,
 }: AdminSidebarLayoutProps) {
   const pathname = usePathname();
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    if (hasHydrated) {
+      return globalIsSidebarCollapsed;
+    }
+    return false;
+  });
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   const [hasLoadedConfig, setHasLoadedConfig] = useState(false);
+  const [disableTransition, setDisableTransition] = useState(true);
 
   useEffect(() => {
+    hasHydrated = true;
     const collapsed = window.localStorage.getItem("admin-sidebar-collapsed") === "true";
     setIsSidebarCollapsed(collapsed);
+    globalIsSidebarCollapsed = collapsed;
     setHasLoadedConfig(true);
   }, []);
 
   useEffect(() => {
     if (hasLoadedConfig) {
       window.localStorage.setItem("admin-sidebar-collapsed", String(isSidebarCollapsed));
+      globalIsSidebarCollapsed = isSidebarCollapsed;
     }
   }, [isSidebarCollapsed, hasLoadedConfig]);
+
+  useEffect(() => {
+    if (hasLoadedConfig) {
+      const timer = setTimeout(() => {
+        setDisableTransition(false);
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [hasLoadedConfig]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(`(max-width: ${ADMIN_MOBILE_BREAKPOINT_PX}px)`);
@@ -95,6 +120,7 @@ export default function AdminSidebarLayout({
     pageClassName,
     layoutStyles.shell,
     isDesktopCollapsed && layoutStyles.shellCollapsed,
+    disableTransition && layoutStyles.noTransition,
   );
 
   const handleSidebarToggle = () => {
