@@ -15,6 +15,7 @@ import { HistoricalRecordsModule } from './historical-records/historical-records
 import { PageLogoModule } from './page-logo/page-logo.module';
 import { NationalOfficersModule } from './national-officers/national-officers.module';
 import { SecRegistrationsModule } from './sec-registrations/sec-registrations.module';
+import { BirCertificationsModule } from './bir-certifications/bir-certifications.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { SecRegistrationsModule } from './sec-registrations/sec-registrations.mo
     PageLogoModule,
     NationalOfficersModule,
     SecRegistrationsModule,
+    BirCertificationsModule,
   ],
 })
 export class AppModule {}

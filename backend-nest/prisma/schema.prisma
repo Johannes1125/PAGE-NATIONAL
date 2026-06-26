@@ -292,4 +292,20 @@ model SecRegistration {
   updatedAt          DateTime @updatedAt
 }
 
+model BirCertification {
+  id                  String   @id @default(uuid())
+  registrationName    String
+  tinNumber           String
+  certificationNumber String
+  exemptionCategory   String
+  dateOfIssuance      DateTime
+  imageUrl            String?
+  imagePublicId       String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("bir_certifications")
+}
+
+
 

@@ -6,16 +6,6 @@ import { Shield, FileText, Award, Calendar, CheckCircle } from "lucide-react";
 import { api } from "../../../lib/api-client";
 import "../about-page.css";
 
-// ── Mock SEC Data ─────────────────────────────────────────────────────────
-const SEC_DETAILS = {
-  companyName: "PHILIPPINE ASSOCIATION FOR GRADUATE EDUCATION PHILIPPINES, (PAGE) INC.",
-  registrationNumber: "2024090169660-00",
-  dateRegistered: "September 1, 2024",
-  status: "Active / Registered",
-  type: "Non-Stock, Non-Profit Corporation",
-  signatory: "Emilio B. Aquino (Securities and Exchange Commission Chairperson)",
-};
-
 export default function SecRegistrationPage() {
   const [scrolled, setScrolled] = useState(false);
   const [description, setDescription] = useState("PAGE is a duly registered non-stock, non-profit organization under the Securities and Exchange Commission (SEC) of the Philippines.");
@@ -75,7 +65,12 @@ export default function SecRegistrationPage() {
     registrationNumber: activeRecord.registrationNumber,
     dateRegistered: formatDate(activeRecord.dateOfIncorporation),
     type: activeRecord.exemptionCategory,
-  } : SEC_DETAILS;
+  } : {
+    companyName: "No SEC registration record found",
+    registrationNumber: "—",
+    dateRegistered: "—",
+    type: "—",
+  };
 
   const hasDocuments = documents.length > 0 || secRecords.some(r => r.imageUrl);
 
@@ -254,8 +249,8 @@ export default function SecRegistrationPage() {
                     </p>
 
                     <div style={{ marginTop: "auto", width: "100%" }}>
-                      <p style={{ fontSize: "10px", fontWeight: 600, margin: 0 }}>Company Reg. No. {SEC_DETAILS.registrationNumber}</p>
-                      <p style={{ fontSize: "9px", color: "#666", margin: "4px 0 0" }}>Signed: {SEC_DETAILS.signatory}</p>
+                      <p style={{ fontSize: "10px", fontWeight: 600, margin: 0 }}>Company Reg. No. —</p>
+                      <p style={{ fontSize: "9px", color: "#666", margin: "4px 0 0" }}>Please configure SEC details in the admin panel.</p>
                     </div>
                   </>
                 )}

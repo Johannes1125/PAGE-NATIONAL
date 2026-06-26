@@ -1,369 +1,443 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, Globe, Upload, Trash, Eye, FileText } from "lucide-react";
+import { Plus, Loader2, ArrowLeft, AlertTriangle, FileText, Hash, Shield, Calendar, Edit, Trash2 } from "lucide-react";
 import AdminSidebarLayout from "../../components/AdminSidebarLayout";
 import { api } from "../../../lib/api-client";
 import { gooeyToast } from "goey-toast";
 import "goey-toast/styles.css";
+
+import "./bir-certification.css";
 import "../about-page.css";
 import "../../admin-dashboard.css";
 
-type Document = {
-  id: string;
-  file_name: string;
-  file_url: string;
-  file_type: string;
-  created_at: string;
-};
+import BirCertificationModal from "./components/BirCertificationModal";
+import BirCertificationForm from "./components/BirCertificationForm";
 
-type Section = {
+interface BirCertification {
   id: string;
-  section_key: string;
-  title: string;
-  content: string;
-  status: "draft" | "published" | "archived";
-  updated_at: string;
-};
+  registrationName: string;
+  tinNumber: string;
+  certificationNumber: string;
+  exemptionCategory: string;
+  dateOfIssuance: string;
+  imageUrl: string | null;
+  imagePublicId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
 
-export default function BirCertificationManagement() {
+export default function BirCertificationPage() {
   const router = useRouter();
-  const [section, setSection] = useState<Section | null>(null);
-  const [documents, setDocuments] = useState<Document[]>([]);
+
+  // Data State
+  const [record, setRecord] = useState<BirCertification | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
 
-  const [title, setTitle] = useState("BIR Certification");
-  const [content, setContent] = useState("");
+  // Modals state
+  const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const hasUnsavedChanges =
-    title !== (section?.title || "") ||
-    content !== (section?.content || "");
+  // Security role verification
+  const verifySession = useCallback(async () => {
+    try {
+      const res = await api.get<{ success: boolean; user: { role: string } }>("/me");
+      if (!res.success || res.user.role !== "admin") {
+        router.push("/admin-login");
+      }
+    } catch (err) {
+      router.push("/admin-login");
+    }
+  }, [router]);
 
-  const isPublishButtonDisabled = (section?.status === "published") && !hasUnsavedChanges;
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  // Fetch Records (gets list, uses first)
+  const fetchRecord = useCallback(async () => {
     try {
       setIsLoading(true);
-      const [birRes, docRes] = await Promise.all([
-        api.get("/about-page/sections/bir_certification"),
-        api.get("/about-page/documents/bir_certification"),
-      ]);
-
-      if (birRes.success) {
-        setSection(birRes.data);
-        setTitle(birRes.data.title);
-        setContent(birRes.data.content);
-      }
-      if (docRes.success) {
-        setDocuments(docRes.data);
+      const response = await api.get<{ success: boolean; data: BirCertification[] }>("/bir-certifications");
+      if (response.success && response.data && response.data.length > 0) {
+        setRecord(response.data[0]);
+      } else {
+        setRecord(null);
       }
     } catch (err) {
       console.error(err);
-      gooeyToast.error("Failed to load BIR Certification data.");
+      gooeyToast.error("Failed to load BIR certification.");
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const handleSave = async (status: "draft" | "published") => {
-    setIsSaving(true);
+  // Check auth and fetch on mount
+  useEffect(() => {
+    const init = async () => {
+      await verifySession();
+      await fetchRecord();
+    };
+    init();
+  }, [verifySession, fetchRecord]);
+
+  // Format date helper
+  const formatDate = (dateStr: string) => {
     try {
-      const res = await api.put("/about-page/sections/bir_certification", {
-        title,
-        content,
-        status,
+      return new Date(dateStr).toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
       });
-
-      if (res.success) {
-        setSection(res.data);
-        gooeyToast.success("BIR certification text updated successfully!");
-      }
-    } catch (err) {
-      console.error(err);
-      gooeyToast.error("Failed to save BIR certification text.");
-    } finally {
-      setIsSaving(false);
+    } catch (e) {
+      return dateStr;
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, replaceId?: string) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+  // Helper to determine if file is PDF
+  const isPdf = (url: string | null | undefined): boolean => {
+    if (!url) return false;
+    const cleanUrl = url.split(/[?#]/)[0];
+    return cleanUrl.toLowerCase().endsWith(".pdf");
+  };
 
-    setIsUploading(true);
-    const formData = new FormData();
-    formData.append("file", files[0]);
-
+  // Handle Form Submission (Create or Edit)
+  const handleFormSubmit = async (
+    values: any,
+    imageFile: File | null,
+    clearImage: boolean
+  ) => {
+    setIsSubmitting(true);
     try {
-      if (replaceId) {
-        await api.delete(`/about-page/documents/${replaceId}`);
+      const formData = new FormData();
+      formData.append("registrationName", values.registrationName);
+      formData.append("tinNumber", values.tinNumber);
+      formData.append("certificationNumber", values.certificationNumber);
+      formData.append("exemptionCategory", values.exemptionCategory);
+      formData.append("dateOfIssuance", values.dateOfIssuance);
+
+      if (imageFile) {
+        formData.append("image", imageFile);
       }
 
-      const res = await api.postMultipart("/about-page/documents/bir_certification", formData);
-      if (res.success) {
-        if (replaceId) {
-          setDocuments((prev) => prev.filter((d) => d.id !== replaceId).concat(res.data));
-          gooeyToast.success("BIR Document replaced successfully!");
+      if (modalMode === "create") {
+        const res = await api.postMultipart<{ success: boolean }>("/bir-certifications", formData);
+        if (res.success) {
+          gooeyToast.success("BIR certification created successfully");
+          setModalMode(null);
+          fetchRecord();
         } else {
-          setDocuments((prev) => [...prev, res.data]);
-          gooeyToast.success("BIR Document uploaded successfully!");
+          gooeyToast.error("Failed to create record");
+        }
+      } else if (modalMode === "edit" && record) {
+        const res = await api.patchMultipart<{ success: boolean }>(
+          `/bir-certifications/${record.id}`,
+          formData
+        );
+        if (res.success) {
+          gooeyToast.success("BIR certification updated successfully");
+          setModalMode(null);
+          fetchRecord();
+        } else {
+          gooeyToast.error("Failed to update record");
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      gooeyToast.error("Failed to upload BIR Document.");
+      const errMsg = err.message || "Failed to save record";
+      gooeyToast.error(errMsg);
     } finally {
-      setIsUploading(false);
-      fetchData();
+      setIsSubmitting(false);
     }
   };
 
-  const handleDeleteDocument = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this document?")) return;
-
+  // Handle Delete Confirmation
+  const handleDeleteConfirm = async () => {
+    if (!record) return;
+    setIsDeleting(true);
     try {
-      const res = await api.delete(`/about-page/documents/${id}`);
+      const res = await api.delete<{ success: boolean }>(`/bir-certifications/${record.id}`);
       if (res.success) {
-        setDocuments(documents.filter((d) => d.id !== id));
-        gooeyToast.success("Document deleted successfully.");
+        gooeyToast.success("BIR certification deleted successfully");
+        setShowDeleteModal(false);
+        setRecord(null);
+      } else {
+        gooeyToast.error("Failed to delete record");
       }
     } catch (err) {
       console.error(err);
-      gooeyToast.error("Failed to delete document.");
+      gooeyToast.error("Failed to delete record");
+    } finally {
+      setIsDeleting(false);
     }
   };
-
-  const formatDate = (dateStr?: string) => {
-    if (!dateStr) return "—";
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
-  };
-
-  if (isLoading) {
-    return (
-      <AdminSidebarLayout
-        pageClassName="admin-dashboard"
-        mainClassName="admin-main"
-        title="BIR Certification"
-        subtitle="Loading BIR configurations..."
-        eyebrow="Content Manager"
-        seniorFriendlyHeader={true}
-      >
-        <div style={{ display: "flex", justifyContent: "center", padding: "80px" }}>
-          <Loader2 className="animate-spin" size={32} />
-        </div>
-      </AdminSidebarLayout>
-    );
-  }
 
   return (
     <AdminSidebarLayout
       pageClassName="admin-dashboard"
       mainClassName="admin-main"
       title="BIR Certification"
-      subtitle="Official Bureau of Internal Revenue (BIR) tax exemption content management"
+      subtitle="Manage the official BIR tax exemption record and certification document"
       eyebrow="Content Manager"
       seniorFriendlyHeader={true}
     >
-      <div className="admin-shell">
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
+      <div className="admin-shell admin-shell--main bir-certification-container">
+        
+        {/* Navigation Bar */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <button
             type="button"
             className="about-btn about-btn--secondary"
             onClick={() => router.push("/admin-dashboard/about-page")}
           >
-            <ArrowLeft size={16} /> Back
+            <ArrowLeft size={18} /> Back
           </button>
+        </div>
 
-          <div style={{ display: "flex", gap: "8px" }}>
+        {/* Content Display */}
+        {isLoading ? (
+          <div className="about-editor-card" style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "80px 0" }}>
+            <Loader2 className="animate-spin" size={40} style={{ color: "var(--p-blue)" }} />
+          </div>
+        ) : record ? (
+          /* Active Record Card Display */
+          <div className="about-editor-card" style={{ padding: "32px", display: "flex", flexDirection: "column", gap: "32px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--r-border-mid)", paddingBottom: "20px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <div style={{ background: "rgba(30, 83, 142, 0.08)", padding: "10px", borderRadius: "10px", color: "var(--p-blue)" }}>
+                  <Shield size={24} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: "20px", fontWeight: 700, color: "var(--p-navy)", margin: 0 }}>Active BIR Certification</h3>
+                  <p style={{ fontSize: "14px", color: "var(--r-text-muted)", margin: "4px 0 0" }}>Currently synced with the website landing page.</p>
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: "12px" }}>
+                <button
+                  type="button"
+                  onClick={() => setModalMode("edit")}
+                  className="about-btn about-btn--primary"
+                  style={{ height: "46px", padding: "0 20px" }}
+                >
+                  <Edit size={16} /> Edit Details
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteModal(true)}
+                  className="about-btn about-btn--danger"
+                  style={{ height: "46px", padding: "0 20px" }}
+                >
+                  <Trash2 size={16} /> Delete
+                </button>
+              </div>
+            </div>
+
+            {/* Two-Column Grid layout */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px", alignItems: "start" }}>
+              
+              {/* Left Column: Details */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                <div>
+                  <span style={{ fontSize: "13px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Registration Name</span>
+                  <p style={{ fontSize: "18px", fontWeight: 600, color: "var(--p-navy)", margin: "6px 0 0" }}>{record.registrationName}</p>
+                </div>
+                <div>
+                  <span style={{ fontSize: "13px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Tax Identification Number (TIN)</span>
+                  <p style={{ fontSize: "18px", fontWeight: 600, color: "var(--p-navy)", margin: "6px 0 0", fontFamily: "monospace" }}>{record.tinNumber}</p>
+                </div>
+                <div>
+                  <span style={{ fontSize: "13px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Certification Number</span>
+                  <p style={{ fontSize: "18px", fontWeight: 600, color: "var(--p-navy)", margin: "6px 0 0", fontFamily: "monospace" }}>{record.certificationNumber}</p>
+                </div>
+                <div>
+                  <span style={{ fontSize: "13px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Exemption Category</span>
+                  <p style={{ fontSize: "17px", fontWeight: 500, color: "var(--r-text-mid)", margin: "6px 0 0" }}>{record.exemptionCategory}</p>
+                </div>
+                <div>
+                  <span style={{ fontSize: "13px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Date of Issuance</span>
+                  <p style={{ fontSize: "17px", fontWeight: 500, color: "var(--r-text-mid)", margin: "6px 0 0" }}>{formatDate(record.dateOfIssuance)}</p>
+                </div>
+              </div>
+
+              {/* Right Column: Certificate Preview */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
+                <span style={{ fontSize: "13px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px", alignSelf: "flex-start" }}>Certificate Document</span>
+                {record.imageUrl ? (
+                  <div style={{
+                    width: "100%",
+                    maxWidth: "280px",
+                    height: "360px",
+                    borderRadius: "12px",
+                    border: "1px solid var(--r-border-mid)",
+                    background: "#f8fafc",
+                    overflow: "hidden",
+                    boxShadow: "0 10px 20px rgba(0,0,0,0.05)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "16px",
+                    position: "relative"
+                  }}>
+                    {isPdf(record.imageUrl) ? (
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px" }}>
+                        <FileText size={64} style={{ color: "var(--p-rose)" }} />
+                        <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--p-navy)" }}>PDF Certificate</span>
+                        <a
+                          href={record.imageUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="about-btn about-btn--secondary"
+                          style={{ height: "38px", padding: "0 16px", fontSize: "13px" }}
+                        >
+                          View File
+                        </a>
+                      </div>
+                    ) : (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={record.imageUrl}
+                        alt="BIR Certificate Document"
+                        style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <p style={{ color: "var(--r-text-muted)", fontStyle: "italic", fontSize: "15px" }}>No document uploaded.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Empty Placeholder State */
+          <div className="about-editor-card" style={{ padding: "60px 32px", textAlign: "center" }}>
+            <div style={{ fontSize: "64px", marginBottom: "20px" }}>📄</div>
+            <h3 style={{ fontSize: "24px", fontWeight: 700, color: "var(--p-navy)", marginBottom: "12px" }}>
+              No BIR Certification record configured
+            </h3>
+            <p style={{ fontSize: "16px", color: "var(--r-text-muted)", marginBottom: "28px", maxWidth: "480px", marginLeft: "auto", marginRight: "auto" }}>
+              Add the official tax exemption details to sync and display them on the website landing page.
+            </p>
             <button
               type="button"
+              onClick={() => setModalMode("create")}
               className="about-btn about-btn--primary"
-              disabled={isSaving || isPublishButtonDisabled}
-              onClick={() => handleSave("published")}
+              style={{ height: "52px", fontSize: "16px", padding: "0 28px", marginLeft: "auto", marginRight: "auto" }}
+            >
+              <Plus size={20} strokeWidth={2.5} /> Add BIR Certification
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Create / Edit Form Modal */}
+      <BirCertificationModal
+        isOpen={modalMode !== null}
+        onClose={() => {
+          setModalMode(null);
+        }}
+        title={modalMode === "create" ? "Add BIR Certification" : "Edit BIR Certification"}
+        subtitle={modalMode === "create" 
+          ? "Fill in the details below to configure the tax exemption record." 
+          : "Fill in the details below to update the tax exemption record."
+        }
+        contentPadding="0px"
+        scrollable={false}
+      >
+        <BirCertificationForm
+          initialValues={record && modalMode === "edit" ? {
+            registrationName: record.registrationName,
+            tinNumber: record.tinNumber,
+            certificationNumber: record.certificationNumber,
+            exemptionCategory: record.exemptionCategory,
+            dateOfIssuance: record.dateOfIssuance,
+            imageUrl: record.imageUrl || undefined,
+          } : undefined}
+          onSubmit={handleFormSubmit}
+          onCancel={() => {
+            setModalMode(null);
+          }}
+          isSubmitting={isSubmitting}
+        />
+      </BirCertificationModal>
+
+      {/* Delete Confirmation Modal */}
+      <BirCertificationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        title="Confirm Delete"
+        contentPadding="32px"
+        scrollable={false}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+          <div style={{ 
+            background: "var(--p-rose-pale)", 
+            border: "1px solid rgba(244,63,94,0.2)", 
+            borderRadius: "12px", 
+            padding: "16px 24px",
+            display: "flex", 
+            alignItems: "flex-start", 
+            gap: "12px",
+          }}>
+            <AlertTriangle size={24} style={{ color: "var(--p-rose)", flexShrink: 0, marginTop: "2px" }} />
+            <div>
+              <h4 style={{ fontSize: "18px", fontWeight: 700, color: "var(--p-rose)", margin: "0 0 6px 0" }}>
+                Warning: Permanent Action
+              </h4>
+              <p style={{ fontSize: "16px", color: "var(--p-rose)", margin: 0, lineHeight: 1.5 }}>
+                Are you sure you want to delete the active BIR certification record?
+                This action is permanent and will delete the document file from storage.
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+            <button
+              type="button"
+              onClick={() => setShowDeleteModal(false)}
+              disabled={isDeleting}
+              className="focus-ring"
               style={{
-                opacity: (isSaving || isPublishButtonDisabled) ? 0.5 : 1,
-                cursor: (isSaving || isPublishButtonDisabled) ? "not-allowed" : "pointer",
+                height: "52px",
+                borderRadius: "12px",
+                fontSize: "18px",
+                fontWeight: 600,
+                color: "var(--r-text-mid)",
+                background: "var(--r-surface-2)",
+                border: "1px solid var(--r-border-mid)",
+                cursor: isDeleting ? "not-allowed" : "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              <Globe size={16} /> Publish Changes
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+              className="focus-ring"
+              style={{
+                height: "52px",
+                borderRadius: "12px",
+                fontSize: "18px",
+                fontWeight: 600,
+                color: "#fff",
+                background: isDeleting ? "#c85a70" : "var(--p-rose)",
+                border: "none",
+                cursor: isDeleting ? "not-allowed" : "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+              }}
+            >
+              {isDeleting && <Loader2 className="animate-spin" size={18} />}
+              {isDeleting ? "Deleting..." : "Delete Record"}
             </button>
           </div>
         </div>
-
-        <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", alignItems: "start" }}>
-          {/* Main descriptions editor */}
-          <div className="about-editor-card">
-            <h3 style={{ fontSize: "16px", color: "var(--p-navy)", marginBottom: "16px", fontWeight: 600 }}>
-              TIN & Tax Status Details
-            </h3>
-
-            <div className="about-form-group">
-              <label className="about-form-label">Section Title</label>
-              <input
-                type="text"
-                className="about-input"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
-
-            <div className="about-form-group">
-              <label className="about-form-label">Tax Exemption Description</label>
-              <textarea
-                rows={10}
-                className="about-textarea"
-                placeholder="Details of the tax exemption and TIN registration..."
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* BIR Upload list */}
-          <div className="about-editor-card">
-            <h3 style={{ fontSize: "16px", color: "var(--p-navy)", marginBottom: "16px", fontWeight: 600 }}>
-              BIR Certification Certificate
-            </h3>
-
-            <label className="about-upload-zone" style={{ display: "block" }}>
-              {isUploading ? (
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
-                  <Loader2 className="animate-spin" size={24} />
-                  <span style={{ fontSize: "12.5px", color: "var(--r-text-muted)" }}>Uploading document...</span>
-                </div>
-              ) : (
-                <>
-                  <Upload size={24} style={{ color: "var(--p-blue)", marginBottom: "8px" }} />
-                  <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--p-navy)" }}>
-                    Choose Certificate file or drag here
-                  </p>
-                  <p style={{ fontSize: "11px", color: "var(--r-text-muted)", marginTop: "4px" }}>
-                    PDF, PNG, JPG, or WEBP (Max 4MB)
-                  </p>
-                </>
-              )}
-              <input
-                type="file"
-                accept="application/pdf,image/*"
-                style={{ display: "none" }}
-                onChange={(e) => handleFileUpload(e)}
-                disabled={isUploading}
-              />
-            </label>
-
-            {/* Document table list */}
-            <div style={{ marginTop: "24px" }}>
-              <h4 style={{ fontSize: "13px", fontWeight: 600, color: "var(--p-navy)", marginBottom: "12px" }}>
-                Active Documents List
-              </h4>
-
-              <table className="about-doc-table" style={{ fontSize: "12.5px" }}>
-                <thead>
-                  <tr>
-                    <th>File Name</th>
-                    <th>Uploaded At</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {documents.map((doc) => (
-                    <tr key={doc.id}>
-                      <td style={{ fontWeight: 500 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                          <FileText size={14} color="var(--p-blue)" />
-                          <span
-                            title={doc.file_name}
-                            style={{
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                              maxWidth: "180px",
-                            }}
-                          >
-                            {doc.file_name}
-                          </span>
-                        </div>
-                      </td>
-                      <td>{formatDate(doc.created_at)}</td>
-                      <td>
-                        <div style={{ display: "flex", gap: "4px" }}>
-                          <a
-                            href={doc.file_url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="about-btn about-btn--secondary"
-                            style={{ height: "28px", width: "28px", padding: 0 }}
-                          >
-                            <Eye size={12} />
-                          </a>
-                          
-                          {/* Replace Action */}
-                          <label
-                            className="about-btn about-btn--secondary"
-                            style={{ height: "28px", width: "28px", padding: 0, display: "inline-flex", cursor: "pointer" }}
-                          >
-                            <Upload size={12} />
-                            <input
-                              type="file"
-                              accept="application/pdf,image/*"
-                              style={{ display: "none" }}
-                              onChange={(e) => handleFileUpload(e, doc.id)}
-                            />
-                          </label>
-
-                          <button
-                            type="button"
-                            className="about-btn about-btn--danger"
-                            style={{ height: "28px", width: "28px", padding: 0 }}
-                            onClick={() => handleDeleteDocument(doc.id)}
-                          >
-                            <Trash size={12} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {documents.length === 0 && (
-                    <tr>
-                      <td colSpan={3} style={{ textAlign: "center", color: "#6b7280", padding: "20px" }}>
-                        No files uploaded yet.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-      </div>
+      </BirCertificationModal>
     </AdminSidebarLayout>
-  );
-}
-
-// Simple loader helper
-function Loader2(props: { className?: string; size?: number; color?: string }) {
-  return (
-    <svg
-      className={props.className}
-      width={props.size || 24}
-      height={props.size || 24}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke={props.color || "currentColor"}
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{ animation: "spin 1s linear infinite" }}
-    >
-      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-    </svg>
   );
 }

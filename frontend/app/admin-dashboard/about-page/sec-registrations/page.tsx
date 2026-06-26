@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, Loader2, ArrowLeft, AlertTriangle } from "lucide-react";
+import { Plus, Loader2, ArrowLeft, AlertTriangle, FileText, Shield, Edit, Trash2 } from "lucide-react";
 import AdminSidebarLayout from "../../components/AdminSidebarLayout";
 import { api } from "../../../lib/api-client";
 import { gooeyToast } from "goey-toast";
@@ -11,7 +11,6 @@ import "goey-toast/styles.css";
 import "../about-page.css";
 import "../../admin-dashboard.css";
 
-import SecRegistrationTable from "./components/SecRegistrationTable";
 import SecRegistrationModal from "./components/SecRegistrationModal";
 import SecRegistrationForm from "./components/SecRegistrationForm";
 
@@ -29,66 +28,77 @@ export default function SecRegistrationsPage() {
   const router = useRouter();
   
   // Data State
-  const [records, setRecords] = useState<SecRegistration[]>([]);
+  const [record, setRecord] = useState<SecRegistration | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [pagination, setPagination] = useState({
-    total: 0,
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-  });
-
-  // Search Filters
-  const [searchName, setSearchName] = useState("");
-  const [searchNumber, setSearchNumber] = useState("");
 
   // Modals state
   const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
-  const [selectedRecord, setSelectedRecord] = useState<SecRegistration | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [deletingRecord, setDeletingRecord] = useState<SecRegistration | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch Records
-  const fetchRecords = useCallback(async (page = 1) => {
+  // Fetch single active record (first item of list)
+  const fetchRecord = useCallback(async () => {
     try {
       setIsLoading(true);
-      const queryParams = new URLSearchParams();
-      queryParams.append("page", String(page));
-      queryParams.append("limit", "10");
-      if (searchName.trim()) queryParams.append("name", searchName);
-      if (searchNumber.trim()) queryParams.append("number", searchNumber);
-
       const response = await api.get<{
         success: boolean;
         data: SecRegistration[];
-        meta: { total: number; page: number; limit: number; totalPages: number };
-      }>(`/sec-registrations?${queryParams.toString()}`);
+      }>("/sec-registrations?limit=1");
 
-      if (response.success) {
-        setRecords(response.data || []);
-        setPagination({
-          total: response.meta.total,
-          page: response.meta.page,
-          limit: response.meta.limit,
-          totalPages: response.meta.totalPages,
-        });
+      if (response.success && response.data && response.data.length > 0) {
+        setRecord(response.data[0]);
+      } else {
+        setRecord(null);
       }
     } catch (err) {
       console.error(err);
-      gooeyToast.error("Failed to load SEC registrations.");
+      gooeyToast.error("Failed to load SEC registration.");
     } finally {
       setIsLoading(false);
     }
-  }, [searchName, searchNumber]);
+  }, []);
 
   useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      fetchRecords(1);
-    }, 400);
+    // Basic Admin Role Authorization Guard
+    const userStr = localStorage.getItem("page_user_payload");
+    if (!userStr) {
+      window.location.href = "/admin-login";
+      return;
+    }
+    try {
+      const user = JSON.parse(userStr);
+      if (user.role !== "admin") {
+        window.location.href = "/admin-login";
+        return;
+      }
+    } catch (e) {
+      window.location.href = "/admin-login";
+      return;
+    }
 
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchName, searchNumber, fetchRecords]);
+    fetchRecord();
+  }, [fetchRecord]);
+
+  // Format date helper
+  const formatDate = (dateStr: string) => {
+    try {
+      return new Date(dateStr).toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+    } catch (e) {
+      return dateStr;
+    }
+  };
+
+  // Helper to determine if file is PDF
+  const isPdf = (url: string | null | undefined): boolean => {
+    if (!url) return false;
+    const cleanUrl = url.split(/[?#]/)[0];
+    return cleanUrl.toLowerCase().endsWith(".pdf");
+  };
 
   // Handle Create or Update Submission
   const handleFormSubmit = async (
@@ -142,28 +152,23 @@ export default function SecRegistrationsPage() {
         if (res.success) {
           gooeyToast.success("SEC registration created successfully");
           setModalMode(null);
-          fetchRecords(1);
+          fetchRecord();
         } else {
           gooeyToast.error("Failed to create record");
         }
-      } else if (modalMode === "edit" && selectedRecord) {
-        const res = await api.put(`/sec-registrations/${selectedRecord.id}`, payload);
+      } else if (modalMode === "edit" && record) {
+        const res = await api.put(`/sec-registrations/${record.id}`, payload);
         if (res.success) {
           gooeyToast.success("SEC registration updated successfully");
           setModalMode(null);
-          setSelectedRecord(null);
-          fetchRecords(pagination.page);
+          fetchRecord();
         } else {
           gooeyToast.error("Failed to update record");
         }
       }
     } catch (err: any) {
       console.error(err);
-      if (modalMode === "create") {
-        gooeyToast.error("Failed to create record");
-      } else {
-        gooeyToast.error("Failed to update record");
-      }
+      gooeyToast.error("Failed to save record");
     } finally {
       setIsSubmitting(false);
     }
@@ -171,14 +176,14 @@ export default function SecRegistrationsPage() {
 
   // Handle Delete Confirmation
   const handleDeleteConfirm = async () => {
-    if (!deletingRecord) return;
+    if (!record) return;
     setIsDeleting(true);
     try {
-      const res = await api.delete(`/sec-registrations/${deletingRecord.id}`);
+      const res = await api.delete(`/sec-registrations/${record.id}`);
       if (res.success) {
         gooeyToast.success("SEC registration deleted successfully");
-        setDeletingRecord(null);
-        fetchRecords(1);
+        setShowDeleteModal(false);
+        setRecord(null);
       } else {
         gooeyToast.error("Failed to delete record");
       }
@@ -195,14 +200,14 @@ export default function SecRegistrationsPage() {
       pageClassName="admin-dashboard"
       mainClassName="admin-main"
       title="SEC Registration"
-      subtitle="Manage official SEC registration records and certificate documents"
+      subtitle="Manage the official SEC registration record and certificate document"
       eyebrow="Content Manager"
       seniorFriendlyHeader={true}
     >
-      <div className="admin-shell admin-shell--main">
+      <div className="admin-shell admin-shell--main" style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
         
-        {/* Back and Add Bar */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
+        {/* Back and Action Bar */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <button
             type="button"
             className="about-btn about-btn--secondary"
@@ -210,138 +215,165 @@ export default function SecRegistrationsPage() {
           >
             <ArrowLeft size={18} /> Back
           </button>
-          
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedRecord(null);
-              setModalMode("create");
-            }}
-            className="about-btn about-btn--primary"
-          >
-            <Plus size={20} strokeWidth={2.5} />
-            Add SEC Registration
-          </button>
         </div>
 
-        {/* Search & Filters */}
-        <div 
-          className="about-editor-card"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "24px",
-          }}
-        >
-          <div className="about-form-group" style={{ marginBottom: 0 }}>
-            <label htmlFor="searchName" className="about-form-label">
-              Search by Registration Name
-            </label>
-            <div style={{ position: "relative" }}>
-              <Search 
-                size={18} 
-                style={{ 
-                  position: "absolute", 
-                  left: "16px", 
-                  top: "50%", 
-                  transform: "translateY(-50%)", 
-                  color: "var(--r-text-muted)" 
-                }} 
-              />
-              <input
-                id="searchName"
-                type="text"
-                placeholder="Enter registration name..."
-                value={searchName}
-                onChange={(e) => setSearchName(e.target.value)}
-                className="about-input focus-ring"
-                style={{
-                  paddingLeft: "44px",
-                }}
-              />
+        {/* Content Display */}
+        {isLoading ? (
+          <div className="about-editor-card" style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "80px 0" }}>
+            <Loader2 className="animate-spin" size={40} style={{ color: "var(--p-blue)" }} />
+          </div>
+        ) : record ? (
+          /* Active Record Card Display */
+          <div className="about-editor-card" style={{ padding: "32px", display: "flex", flexDirection: "column", gap: "32px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--r-border-mid)", paddingBottom: "20px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <div style={{ background: "rgba(30, 83, 142, 0.08)", padding: "10px", borderRadius: "10px", color: "var(--p-blue)" }}>
+                  <Shield size={24} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: "20px", fontWeight: 700, color: "var(--p-navy)", margin: 0 }}>Active SEC Registration</h3>
+                  <p style={{ fontSize: "14px", color: "var(--r-text-muted)", margin: "4px 0 0" }}>Currently synced with the website landing page.</p>
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: "12px" }}>
+                <button
+                  type="button"
+                  onClick={() => setModalMode("edit")}
+                  className="about-btn about-btn--primary"
+                  style={{ height: "46px", padding: "0 20px" }}
+                >
+                  <Edit size={16} /> Edit Details
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteModal(true)}
+                  className="about-btn about-btn--danger"
+                  style={{ height: "46px", padding: "0 20px" }}
+                >
+                  <Trash2 size={16} /> Delete
+                </button>
+              </div>
+            </div>
+
+            {/* Grid Layout */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px", alignItems: "start" }}>
+              
+              {/* Left Column: Details */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                <div>
+                  <span style={{ fontSize: "13px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Registration Name</span>
+                  <p style={{ fontSize: "18px", fontWeight: 600, color: "var(--p-navy)", margin: "6px 0 0" }}>{record.registrationName}</p>
+                </div>
+                <div>
+                  <span style={{ fontSize: "13px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Registration Number</span>
+                  <p style={{ fontSize: "18px", fontWeight: 600, color: "var(--p-navy)", margin: "6px 0 0", fontFamily: "monospace" }}>{record.registrationNumber}</p>
+                </div>
+                <div>
+                  <span style={{ fontSize: "13px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Date of Incorporation</span>
+                  <p style={{ fontSize: "18px", fontWeight: 600, color: "var(--p-navy)", margin: "6px 0 0" }}>{formatDate(record.dateOfIncorporation)}</p>
+                </div>
+                <div>
+                  <span style={{ fontSize: "13px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Corporation Type</span>
+                  <p style={{ fontSize: "17px", fontWeight: 500, color: "var(--r-text-mid)", margin: "6px 0 0" }}>{record.exemptionCategory}</p>
+                </div>
+              </div>
+
+              {/* Right Column: Certificate Preview */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
+                <span style={{ fontSize: "13px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px", alignSelf: "flex-start" }}>Certificate Document</span>
+                {record.imageUrl ? (
+                  <div style={{
+                    width: "100%",
+                    maxWidth: "280px",
+                    height: "360px",
+                    borderRadius: "12px",
+                    border: "1px solid var(--r-border-mid)",
+                    background: "#f8fafc",
+                    overflow: "hidden",
+                    boxShadow: "0 10px 20px rgba(0,0,0,0.05)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "16px",
+                    position: "relative"
+                  }}>
+                    {isPdf(record.imageUrl) ? (
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px" }}>
+                        <FileText size={64} style={{ color: "var(--p-rose)" }} />
+                        <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--p-navy)" }}>PDF Certificate</span>
+                        <a
+                          href={record.imageUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="about-btn about-btn--secondary"
+                          style={{ height: "38px", padding: "0 16px", fontSize: "13px" }}
+                        >
+                          View File
+                        </a>
+                      </div>
+                    ) : (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={record.imageUrl}
+                        alt="SEC Certificate Document"
+                        style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <p style={{ color: "var(--r-text-muted)", fontStyle: "italic", fontSize: "15px" }}>No document uploaded.</p>
+                )}
+              </div>
             </div>
           </div>
-
-          <div className="about-form-group" style={{ marginBottom: 0 }}>
-            <label htmlFor="searchNumber" className="about-form-label">
-              Search by Registration Number
-            </label>
-            <div style={{ position: "relative" }}>
-              <Search 
-                size={18} 
-                style={{ 
-                  position: "absolute", 
-                  left: "16px", 
-                  top: "50%", 
-                  transform: "translateY(-50%)", 
-                  color: "var(--r-text-muted)" 
-                }} 
-              />
-              <input
-                id="searchNumber"
-                type="text"
-                placeholder="Enter registration number..."
-                value={searchNumber}
-                onChange={(e) => setSearchNumber(e.target.value)}
-                className="about-input focus-ring"
-                style={{
-                  paddingLeft: "44px",
-                }}
-              />
-            </div>
+        ) : (
+          /* Empty Placeholder State */
+          <div className="about-editor-card" style={{ padding: "60px 32px", textAlign: "center" }}>
+            <div style={{ fontSize: "64px", marginBottom: "20px" }}>📄</div>
+            <h3 style={{ fontSize: "24px", fontWeight: 700, color: "var(--p-navy)", marginBottom: "12px" }}>
+              No SEC Registration record configured
+            </h3>
+            <p style={{ fontSize: "16px", color: "var(--r-text-muted)", marginBottom: "28px", maxWidth: "480px", marginLeft: "auto", marginRight: "auto" }}>
+              Add the official SEC incorporation details to sync and display them on the website landing page.
+            </p>
+            <button
+              type="button"
+              onClick={() => setModalMode("create")}
+              className="about-btn about-btn--primary"
+              style={{ height: "52px", fontSize: "16px", padding: "0 28px", marginLeft: "auto", marginRight: "auto" }}
+            >
+              <Plus size={20} strokeWidth={2.5} /> Add SEC Registration
+            </button>
           </div>
-        </div>
-
-        {/* Content Table Card */}
-        <div className="about-editor-card" style={{ padding: 0, overflow: "hidden" }}>
-          {isLoading ? (
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "80px 0" }}>
-              <Loader2 className="animate-spin" size={40} style={{ color: "var(--p-blue)" }} />
-            </div>
-          ) : (
-            <SecRegistrationTable
-              records={records}
-              onEdit={(record) => {
-                setSelectedRecord(record);
-                setModalMode("edit");
-              }}
-              onDelete={(record) => {
-                setDeletingRecord(record);
-              }}
-              pagination={pagination}
-              onPageChange={(page) => fetchRecords(page)}
-            />
-          )}
-        </div>
+        )}
       </div>
 
-      {/* Create / Edit Modal */}
+      {/* Create / Edit Form Modal */}
       <SecRegistrationModal
         isOpen={modalMode !== null}
         onClose={() => {
           setModalMode(null);
-          setSelectedRecord(null);
         }}
         title={modalMode === "create" ? "Add SEC Registration Record" : "Edit SEC Registration Record"}
         subtitle={modalMode === "create" 
-          ? "Fill in the details below to add a new SEC registration record." 
+          ? "Fill in the details below to configure the SEC registration record." 
           : "Fill in the details below to update the SEC registration record."
         }
         contentPadding="0px"
         scrollable={false}
       >
         <SecRegistrationForm
-          initialValues={selectedRecord ? {
-            registrationName: selectedRecord.registrationName,
-            registrationNumber: selectedRecord.registrationNumber,
-            dateOfIncorporation: selectedRecord.dateOfIncorporation,
-            exemptionCategory: selectedRecord.exemptionCategory,
-            imageUrl: selectedRecord.imageUrl || undefined,
+          initialValues={record && modalMode === "edit" ? {
+            registrationName: record.registrationName,
+            registrationNumber: record.registrationNumber,
+            dateOfIncorporation: record.dateOfIncorporation,
+            exemptionCategory: record.exemptionCategory,
+            imageUrl: record.imageUrl || undefined,
           } : undefined}
           onSubmit={handleFormSubmit}
           onCancel={() => {
             setModalMode(null);
-            setSelectedRecord(null);
           }}
           isSubmitting={isSubmitting}
         />
@@ -349,8 +381,8 @@ export default function SecRegistrationsPage() {
 
       {/* Delete Confirmation Modal */}
       <SecRegistrationModal
-        isOpen={deletingRecord !== null}
-        onClose={() => setDeletingRecord(null)}
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
         title="Confirm Delete"
         contentPadding="32px"
         scrollable={false}
@@ -371,8 +403,8 @@ export default function SecRegistrationsPage() {
                 Warning: Permanent Action
               </h4>
               <p style={{ fontSize: "16px", color: "var(--p-rose)", margin: 0, lineHeight: 1.5 }}>
-                Are you sure you want to delete the SEC registration for <strong>{deletingRecord?.registrationName}</strong>?
-                This action is permanent and cannot be undone.
+                Are you sure you want to delete the active SEC registration record?
+                This action is permanent and will delete the document file from storage.
               </p>
             </div>
           </div>
@@ -380,7 +412,7 @@ export default function SecRegistrationsPage() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <button
               type="button"
-              onClick={() => setDeletingRecord(null)}
+              onClick={() => setShowDeleteModal(false)}
               disabled={isDeleting}
               className="focus-ring"
               style={{
