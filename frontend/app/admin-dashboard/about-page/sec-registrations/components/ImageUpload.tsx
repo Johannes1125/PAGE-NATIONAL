@@ -16,6 +16,7 @@ export default function ImageUpload({
 }: ImageUploadProps) {
   const [dragActive, setDragActive] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -55,8 +56,10 @@ export default function ImageUpload({
       }
       const localUrl = URL.createObjectURL(file);
       setPreviewUrl(localUrl);
+      setSelectedFile(file);
       onFileSelect(file);
     } else {
+      setSelectedFile(null);
       onFileSelect(null);
     }
   };
@@ -95,6 +98,7 @@ export default function ImageUpload({
       URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
     }
+    setSelectedFile(null);
     setError(null);
     onFileSelect(null);
     
@@ -114,35 +118,59 @@ export default function ImageUpload({
   const hasImage = previewUrl || existingImageUrl;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-      <label 
-        id="image-upload-label"
-        style={{ fontSize: "18px", fontWeight: 600, color: "var(--p-navy)" }}
-      >
-        Registration Image Certificate
-      </label>
+    <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%" }}>
+      <style>{`
+        .sec-upload-card {
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+          border: 1.5px dashed var(--p-blue-light);
+          border-radius: 12px;
+          background: rgba(30, 83, 142, 0.02);
+          padding: 24px 32px;
+          gap: 20px;
+          transition: all 0.2s ease;
+        }
+
+        .sec-upload-left {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          gap: 20px;
+        }
+
+        @media (max-width: 720px) {
+          .sec-upload-card {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 24px 16px;
+          }
+          .sec-upload-left {
+            flex-direction: column;
+            align-items: center;
+          }
+          .sec-upload-text-container {
+            text-align: center !important;
+          }
+        }
+      `}</style>
 
       <div
         onDragEnter={handleDrag}
         onDragOver={handleDrag}
         onDragLeave={handleDrag}
         onDrop={handleDrop}
-        style={{
-          border: `2px dashed ${dragActive ? "var(--p-blue)" : "var(--r-border-mid)"}`,
-          borderRadius: "12px",
-          padding: "24px",
-          textAlign: "center",
-          background: dragActive ? "rgba(30, 83, 142, 0.04)" : "var(--r-surface)",
-          transition: "all 0.2s ease",
-          position: "relative",
-          minHeight: "160px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          outline: "none",
-        }}
         className="focus-ring"
+        style={{
+          width: "100%",
+          borderRadius: "12px",
+          outline: "none",
+          background: dragActive ? "var(--p-blue-xpale)" : "transparent",
+          transition: "background 0.2s ease",
+        }}
       >
         <input
           ref={fileInputRef}
@@ -155,56 +183,78 @@ export default function ImageUpload({
         />
 
         {hasImage ? (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", width: "100%" }}>
-            <div style={{ position: "relative", width: "180px", height: "180px", borderRadius: "8px", overflow: "hidden", border: "1px solid var(--r-border)" }}>
+          <div 
+            style={{ 
+              display: "flex", 
+              flexDirection: "column", 
+              alignItems: "center", 
+              gap: "16px", 
+              width: "100%", 
+              padding: "24px",
+              border: "1.5px dashed var(--p-blue-light)",
+              borderRadius: "12px",
+              background: "rgba(30, 83, 142, 0.02)"
+            }}
+          >
+            <div style={{ 
+              position: "relative", 
+              width: "200px", 
+              height: "200px", 
+              borderRadius: "12px", 
+              overflow: "hidden", 
+              border: "1px solid var(--r-border-mid)", 
+              background: "#f8fafc",
+              boxShadow: "inset 0 2px 4px rgba(0,0,0,0.06)"
+            }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={previewUrl || existingImageUrl}
                 alt="Registration Preview"
-                style={{ width: "100%", height: "100%", objectFit: "contain", background: "#f9fafb" }}
+                style={{ width: "100%", height: "100%", objectFit: "contain", padding: "8px" }}
               />
             </div>
             
-            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", justifyContent: "center" }}>
+            <div style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: "4px" }}>
+              <p style={{ fontSize: "18px", fontWeight: 600, color: "var(--p-navy)", margin: 0, wordBreak: "break-all" }}>
+                {selectedFile ? selectedFile.name : "Current Certificate Image"}
+              </p>
+              {selectedFile && (
+                <p style={{ fontSize: "14px", color: "var(--r-text-muted)", margin: 0 }}>
+                  Size: {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+                </p>
+              )}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", width: "100%", maxWidth: "340px", marginTop: "8px" }}>
               <button
                 type="button"
                 onClick={triggerInput}
-                className="focus-ring"
-                style={{
-                  height: "52px",
-                  padding: "0 18px",
-                  borderRadius: "10px",
-                  fontSize: "18px",
-                  fontWeight: 600,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  cursor: "pointer",
-                  border: "1px solid var(--r-border-mid)",
-                  background: "var(--r-surface-2)",
-                  color: "var(--r-text-mid)",
+                className="about-btn about-btn--secondary focus-ring"
+                style={{ 
+                  height: "48px", 
+                  fontSize: "16px", 
+                  borderRadius: "10px", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center", 
+                  gap: "8px" 
                 }}
               >
                 <RefreshCw size={18} />
-                Replace Image
+                Replace
               </button>
               <button
                 type="button"
                 onClick={handleClear}
-                className="focus-ring"
-                style={{
-                  height: "52px",
-                  padding: "0 18px",
-                  borderRadius: "10px",
-                  fontSize: "18px",
-                  fontWeight: 600,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  cursor: "pointer",
-                  border: "none",
-                  background: "var(--p-rose-pale)",
-                  color: "var(--p-rose)",
+                className="about-btn about-btn--danger focus-ring"
+                style={{ 
+                  height: "48px", 
+                  fontSize: "16px", 
+                  borderRadius: "10px", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center", 
+                  gap: "8px" 
                 }}
               >
                 <X size={18} />
@@ -213,29 +263,65 @@ export default function ImageUpload({
             </div>
           </div>
         ) : (
-          <div 
-            style={{ cursor: "pointer", width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}
-            onClick={triggerInput}
-          >
-            <div style={{ 
-              width: "56px", 
-              height: "56px", 
-              borderRadius: "50%", 
-              background: "rgba(30, 83, 142, 0.08)", 
-              display: "flex", 
-              alignItems: "center", 
-              justifyContent: "center",
-              color: "var(--p-blue)",
-              marginBottom: "12px"
-            }}>
-              <Upload size={24} />
+          <div className="sec-upload-card">
+            {/* Left Section */}
+            <div className="sec-upload-left">
+              {/* Cloud Icon */}
+              <div 
+                style={{ 
+                  width: "64px", 
+                  height: "64px", 
+                  borderRadius: "12px", 
+                  background: "rgba(30, 83, 142, 0.08)", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center",
+                  color: "var(--p-blue)",
+                  flexShrink: 0
+                }}
+              >
+                <Upload size={28} />
+              </div>
+              
+              {/* Upload Texts */}
+              <div className="sec-upload-text-container" style={{ display: "flex", flexDirection: "column", gap: "4px", textAlign: "left" }}>
+                <p style={{ fontSize: "18px", fontWeight: 700, color: "var(--p-navy)", margin: 0 }}>
+                  Upload certificate image
+                </p>
+                <p style={{ fontSize: "15px", color: "var(--r-text-mid)", margin: 0 }}>
+                  Drag and drop your file here, or <span onClick={triggerInput} style={{ color: "var(--p-blue)", fontWeight: 600, textDecoration: "underline", cursor: "pointer" }}>click to browse</span>
+                </p>
+                <p style={{ fontSize: "13px", color: "var(--r-text-muted)", margin: 0 }}>
+                  Supported formats: JPG, PNG, PDF (Max 5MB)
+                </p>
+              </div>
             </div>
-            <p style={{ fontSize: "18px", fontWeight: 600, color: "var(--p-navy)", margin: "0 0 4px 0" }}>
-              Click to upload or drag image here
-            </p>
-            <p style={{ fontSize: "14px", color: "var(--r-text-muted)", margin: 0 }}>
-              Supports JPG, JPEG, PNG, or WEBP (Max 5MB)
-            </p>
+
+            {/* Right Section / Choose File Button */}
+            <button
+              type="button"
+              onClick={triggerInput}
+              className="focus-ring"
+              style={{
+                background: "#fff",
+                border: "1.5px solid var(--p-blue)",
+                borderRadius: "10px",
+                height: "48px",
+                padding: "0 24px",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                color: "var(--p-blue)",
+                fontSize: "16px",
+                fontWeight: 600,
+                cursor: "pointer",
+                flexShrink: 0,
+                transition: "all 0.2s ease"
+              }}
+            >
+              <Upload size={18} />
+              Choose File
+            </button>
           </div>
         )}
       </div>

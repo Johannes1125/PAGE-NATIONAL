@@ -72,7 +72,7 @@ const SECTION_METAS: Record<string, SectionMeta> = {
   },
   sec_registration: {
     icon: Shield,
-    route: "/admin-dashboard/about/sec-registrations",
+    route: "/admin-dashboard/about-page/sec-registrations",
     description: "Manage official SEC incorporation certificates and PDFs.",
     contentCountLabel: "Documents",
   },

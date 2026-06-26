@@ -179,7 +179,7 @@ export default function BirCertificationManagement() {
             className="about-btn about-btn--secondary"
             onClick={() => router.push("/admin-dashboard/about-page")}
           >
-            <ArrowLeft size={16} /> Back to dashboard
+            <ArrowLeft size={16} /> Back
           </button>
 
           <div style={{ display: "flex", gap: "8px" }}>

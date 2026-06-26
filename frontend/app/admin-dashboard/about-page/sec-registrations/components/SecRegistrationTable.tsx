@@ -46,7 +46,7 @@ export default function SecRegistrationTable({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%" }}>
-      <div style={{ overflowX: "auto", border: "1px solid var(--r-border)", borderRadius: "14px", background: "var(--r-surface)" }}>
+      <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "800px", textAlign: "left" }}>
           <thead>
             <tr style={{ 
@@ -56,12 +56,12 @@ export default function SecRegistrationTable({
               top: 0,
               zIndex: 10
             }}>
-              <th style={{ padding: "18px 24px", fontSize: "18px", fontWeight: 700, color: "var(--p-navy)" }}>Registration Name</th>
-              <th style={{ padding: "18px 24px", fontSize: "18px", fontWeight: 700, color: "var(--p-navy)" }}>Registration Number</th>
-              <th style={{ padding: "18px 24px", fontSize: "18px", fontWeight: 700, color: "var(--p-navy)" }}>Date of Incorporation</th>
-              <th style={{ padding: "18px 24px", fontSize: "18px", fontWeight: 700, color: "var(--p-navy)" }}>Exemption Category</th>
-              <th style={{ padding: "18px 24px", fontSize: "18px", fontWeight: 700, color: "var(--p-navy)", textAlign: "center" }}>Certificate</th>
-              <th style={{ padding: "18px 24px", fontSize: "18px", fontWeight: 700, color: "var(--p-navy)", textAlign: "right" }}>Actions</th>
+              <th style={{ padding: "14px 20px", fontSize: "14px", fontWeight: 700, color: "var(--p-navy)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Registration Name</th>
+              <th style={{ padding: "14px 20px", fontSize: "14px", fontWeight: 700, color: "var(--p-navy)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Registration Number</th>
+              <th style={{ padding: "14px 20px", fontSize: "14px", fontWeight: 700, color: "var(--p-navy)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Date of Incorporation</th>
+              <th style={{ padding: "14px 20px", fontSize: "14px", fontWeight: 700, color: "var(--p-navy)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Exemption Category</th>
+              <th style={{ padding: "14px 20px", fontSize: "14px", fontWeight: 700, color: "var(--p-navy)", textTransform: "uppercase", letterSpacing: "0.5px", textAlign: "center" }}>Certificate</th>
+              <th style={{ padding: "14px 20px", fontSize: "14px", fontWeight: 700, color: "var(--p-navy)", textTransform: "uppercase", letterSpacing: "0.5px", textAlign: "right" }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -75,21 +75,21 @@ export default function SecRegistrationTable({
                   }}
                   className="table-row-hover"
                 >
-                  <td style={{ padding: "24px", fontSize: "18px", fontWeight: 600, color: "var(--r-text)", verticalAlign: "middle" }}>
+                  <td style={{ padding: "16px 20px", fontSize: "16px", fontWeight: 600, color: "var(--r-text)", verticalAlign: "middle" }}>
                     {record.registrationName}
                   </td>
-                  <td style={{ padding: "24px", fontSize: "18px", color: "var(--r-text-mid)", verticalAlign: "middle" }}>
-                    <code style={{ background: "rgba(30, 83, 142, 0.06)", padding: "4px 8px", borderRadius: "6px", fontSize: "16px" }}>
+                  <td style={{ padding: "16px 20px", fontSize: "16px", color: "var(--r-text-mid)", verticalAlign: "middle" }}>
+                    <code style={{ background: "rgba(30, 83, 142, 0.06)", padding: "4px 8px", borderRadius: "6px", fontSize: "14px" }}>
                       {record.registrationNumber}
                     </code>
                   </td>
-                  <td style={{ padding: "24px", fontSize: "18px", color: "var(--r-text-mid)", verticalAlign: "middle" }}>
+                  <td style={{ padding: "16px 20px", fontSize: "16px", color: "var(--r-text-mid)", verticalAlign: "middle" }}>
                     {formatDate(record.dateOfIncorporation)}
                   </td>
-                  <td style={{ padding: "24px", fontSize: "18px", color: "var(--r-text-mid)", verticalAlign: "middle" }}>
+                  <td style={{ padding: "16px 20px", fontSize: "16px", color: "var(--r-text-mid)", verticalAlign: "middle" }}>
                     {record.exemptionCategory}
                   </td>
-                  <td style={{ padding: "24px", textAlign: "center", verticalAlign: "middle" }}>
+                  <td style={{ padding: "16px 20px", textAlign: "center", verticalAlign: "middle" }}>
                     {record.imageUrl ? (
                       <a
                         href={record.imageUrl}
@@ -100,9 +100,9 @@ export default function SecRegistrationTable({
                           display: "inline-flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          width: "56px",
-                          height: "56px",
-                          borderRadius: "10px",
+                          width: "44px",
+                          height: "44px",
+                          borderRadius: "8px",
                           border: "1px solid var(--r-border-mid)",
                           background: "#f9fafb",
                           overflow: "hidden",
@@ -116,20 +116,20 @@ export default function SecRegistrationTable({
                         />
                       </a>
                     ) : (
-                      <span style={{ fontSize: "18px", color: "var(--r-text-muted)", fontStyle: "italic" }}>None</span>
+                      <span style={{ fontSize: "15px", color: "var(--r-text-muted)", fontStyle: "italic" }}>None</span>
                     )}
                   </td>
-                  <td style={{ padding: "24px", verticalAlign: "middle" }}>
-                    <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+                  <td style={{ padding: "16px 20px", verticalAlign: "middle" }}>
+                    <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
                       <button
                         type="button"
                         onClick={() => onEdit(record)}
                         className="focus-ring"
                         aria-label={`Edit record for ${record.registrationName}`}
                         style={{
-                          height: "52px",
-                          width: "52px",
-                          borderRadius: "10px",
+                          height: "40px",
+                          width: "40px",
+                          borderRadius: "8px",
                           border: "1px solid var(--r-border-mid)",
                           background: "var(--r-surface-2)",
                           color: "var(--p-blue)",
@@ -139,7 +139,7 @@ export default function SecRegistrationTable({
                           cursor: "pointer",
                         }}
                       >
-                        <Edit2 size={18} />
+                        <Edit2 size={16} />
                       </button>
                       <button
                         type="button"
@@ -147,9 +147,9 @@ export default function SecRegistrationTable({
                         className="focus-ring"
                         aria-label={`Delete record for ${record.registrationName}`}
                         style={{
-                          height: "52px",
-                          width: "52px",
-                          borderRadius: "10px",
+                          height: "40px",
+                          width: "40px",
+                          borderRadius: "8px",
                           border: "none",
                           background: "var(--p-rose-pale)",
                           color: "var(--p-rose)",
@@ -159,7 +159,7 @@ export default function SecRegistrationTable({
                           cursor: "pointer",
                         }}
                       >
-                        <Trash2 size={18} />
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   </td>
@@ -167,8 +167,14 @@ export default function SecRegistrationTable({
               ))
             ) : (
               <tr>
-                <td colSpan={6} style={{ padding: "48px", textAlign: "center", fontSize: "18px", color: "var(--r-text-muted)" }}>
-                  No SEC registration records found.
+                <td colSpan={6} style={{ padding: "60px 32px", textAlign: "center" }}>
+                  <div style={{ fontSize: "48px", marginBottom: "16px" }}>📄</div>
+                  <h3 style={{ fontSize: "20px", fontWeight: 700, color: "var(--p-navy)", marginBottom: "8px" }}>
+                    No SEC registrations found
+                  </h3>
+                  <p style={{ fontSize: "16px", color: "var(--r-text-muted)", margin: 0 }}>
+                    Add the first SEC registration record to get started.
+                  </p>
                 </td>
               </tr>
             )}
@@ -178,8 +184,8 @@ export default function SecRegistrationTable({
 
       {/* Pagination Controls */}
       {pagination.totalPages > 1 && (
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px" }}>
-          <span style={{ fontSize: "18px", fontWeight: 500, color: "var(--r-text-muted)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px", padding: "0 20px 20px" }}>
+          <span style={{ fontSize: "16px", fontWeight: 500, color: "var(--r-text-muted)" }}>
             Showing page {pagination.page} of {pagination.totalPages}
           </span>
           <div style={{ display: "flex", gap: "12px" }}>
@@ -189,10 +195,10 @@ export default function SecRegistrationTable({
               onClick={() => onPageChange(pagination.page - 1)}
               className="focus-ring"
               style={{
-                height: "52px",
-                padding: "0 24px",
-                borderRadius: "10px",
-                fontSize: "18px",
+                height: "44px",
+                padding: "0 18px",
+                borderRadius: "8px",
+                fontSize: "16px",
                 fontWeight: 600,
                 color: pagination.page <= 1 ? "var(--r-text-muted)" : "var(--r-text-mid)",
                 background: "var(--r-surface-2)",
@@ -209,10 +215,10 @@ export default function SecRegistrationTable({
               onClick={() => onPageChange(pagination.page + 1)}
               className="focus-ring"
               style={{
-                height: "52px",
-                padding: "0 24px",
-                borderRadius: "10px",
-                fontSize: "18px",
+                height: "44px",
+                padding: "0 18px",
+                borderRadius: "8px",
+                fontSize: "16px",
                 fontWeight: 600,
                 color: pagination.page >= pagination.totalPages ? "var(--r-text-muted)" : "var(--r-text-mid)",
                 background: "var(--r-surface-2)",

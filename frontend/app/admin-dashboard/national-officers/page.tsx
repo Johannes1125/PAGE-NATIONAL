@@ -271,7 +271,7 @@ export default function NationalOfficersManagement() {
             className="btn-accessible btn-accessible-secondary"
             onClick={() => router.push("/admin-dashboard/about-page")}
           >
-            <ArrowLeft size={18} /> Back to dashboard
+            <ArrowLeft size={18} /> Back
           </button>
         </div>
 

@@ -8,6 +8,9 @@ import { api } from "../../../lib/api-client";
 import { gooeyToast } from "goey-toast";
 import "goey-toast/styles.css";
 
+import "../about-page.css";
+import "../../admin-dashboard.css";
+
 import SecRegistrationTable from "./components/SecRegistrationTable";
 import SecRegistrationModal from "./components/SecRegistrationModal";
 import SecRegistrationForm from "./components/SecRegistrationForm";
@@ -196,7 +199,7 @@ export default function SecRegistrationsPage() {
       eyebrow="Content Manager"
       seniorFriendlyHeader={true}
     >
-      <div className="admin-shell" style={{ display: "flex", flexDirection: "column", gap: "32px", width: "100%", maxWidth: "1400px" }}>
+      <div className="admin-shell admin-shell--main">
         
         {/* Back and Add Bar */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
@@ -204,17 +207,8 @@ export default function SecRegistrationsPage() {
             type="button"
             className="about-btn about-btn--secondary"
             onClick={() => router.push("/admin-dashboard/about-page")}
-            style={{
-              height: "52px",
-              padding: "0 24px",
-              fontSize: "18px",
-              fontWeight: 600,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
           >
-            <ArrowLeft size={18} /> Back to Dashboard
+            <ArrowLeft size={18} /> Back
           </button>
           
           <button
@@ -223,21 +217,7 @@ export default function SecRegistrationsPage() {
               setSelectedRecord(null);
               setModalMode("create");
             }}
-            className="focus-ring"
-            style={{
-              height: "52px",
-              padding: "0 24px",
-              borderRadius: "12px",
-              fontSize: "18px",
-              fontWeight: 700,
-              background: "var(--p-navy)",
-              color: "#ffffff",
-              border: "none",
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
+            className="about-btn about-btn--primary"
           >
             <Plus size={20} strokeWidth={2.5} />
             Add SEC Registration
@@ -246,23 +226,20 @@ export default function SecRegistrationsPage() {
 
         {/* Search & Filters */}
         <div 
+          className="about-editor-card"
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
             gap: "24px",
-            background: "var(--r-surface)",
-            border: "1px solid var(--r-border)",
-            borderRadius: "16px",
-            padding: "32px",
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <label htmlFor="searchName" style={{ fontSize: "18px", fontWeight: 600, color: "var(--p-navy)" }}>
+          <div className="about-form-group" style={{ marginBottom: 0 }}>
+            <label htmlFor="searchName" className="about-form-label">
               Search by Registration Name
             </label>
             <div style={{ position: "relative" }}>
               <Search 
-                size={20} 
+                size={18} 
                 style={{ 
                   position: "absolute", 
                   left: "16px", 
@@ -277,29 +254,21 @@ export default function SecRegistrationsPage() {
                 placeholder="Enter registration name..."
                 value={searchName}
                 onChange={(e) => setSearchName(e.target.value)}
+                className="about-input focus-ring"
                 style={{
-                  width: "100%",
-                  height: "52px",
-                  fontSize: "18px",
-                  padding: "0 16px 0 48px",
-                  borderRadius: "10px",
-                  border: "1px solid var(--r-border-mid)",
-                  background: "var(--r-bg)",
-                  color: "var(--r-text)",
-                  outline: "none",
+                  paddingLeft: "44px",
                 }}
-                className="focus-ring"
               />
             </div>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <label htmlFor="searchNumber" style={{ fontSize: "18px", fontWeight: 600, color: "var(--p-navy)" }}>
+          <div className="about-form-group" style={{ marginBottom: 0 }}>
+            <label htmlFor="searchNumber" className="about-form-label">
               Search by Registration Number
             </label>
             <div style={{ position: "relative" }}>
               <Search 
-                size={20} 
+                size={18} 
                 style={{ 
                   position: "absolute", 
                   left: "16px", 
@@ -314,25 +283,17 @@ export default function SecRegistrationsPage() {
                 placeholder="Enter registration number..."
                 value={searchNumber}
                 onChange={(e) => setSearchNumber(e.target.value)}
+                className="about-input focus-ring"
                 style={{
-                  width: "100%",
-                  height: "52px",
-                  fontSize: "18px",
-                  padding: "0 16px 0 48px",
-                  borderRadius: "10px",
-                  border: "1px solid var(--r-border-mid)",
-                  background: "var(--r-bg)",
-                  color: "var(--r-text)",
-                  outline: "none",
+                  paddingLeft: "44px",
                 }}
-                className="focus-ring"
               />
             </div>
           </div>
         </div>
 
         {/* Content Table Card */}
-        <div style={{ background: "var(--r-surface)", border: "1px solid var(--r-border)", borderRadius: "16px", padding: "32px" }}>
+        <div className="about-editor-card" style={{ padding: 0, overflow: "hidden" }}>
           {isLoading ? (
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "80px 0" }}>
               <Loader2 className="animate-spin" size={40} style={{ color: "var(--p-blue)" }} />
@@ -362,6 +323,12 @@ export default function SecRegistrationsPage() {
           setSelectedRecord(null);
         }}
         title={modalMode === "create" ? "Add SEC Registration Record" : "Edit SEC Registration Record"}
+        subtitle={modalMode === "create" 
+          ? "Fill in the details below to add a new SEC registration record." 
+          : "Fill in the details below to update the SEC registration record."
+        }
+        contentPadding="0px"
+        scrollable={false}
       >
         <SecRegistrationForm
           initialValues={selectedRecord ? {
@@ -385,6 +352,8 @@ export default function SecRegistrationsPage() {
         isOpen={deletingRecord !== null}
         onClose={() => setDeletingRecord(null)}
         title="Confirm Delete"
+        contentPadding="32px"
+        scrollable={false}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
           <div style={{ 
