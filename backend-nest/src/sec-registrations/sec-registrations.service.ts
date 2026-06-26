@@ -14,31 +14,31 @@ export class SecRegistrationsService {
   // Helper file validator
   validateFile(file: Express.Multer.File) {
     if (!file) {
-      throw new BadRequestException('Image file is required.');
+      throw new BadRequestException('File is required.');
     }
 
-    const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf'];
     if (!allowedMimes.includes(file.mimetype)) {
-      throw new BadRequestException('Invalid image format. Only JPG, JPEG, PNG, and WEBP are allowed.');
+      throw new BadRequestException('Invalid file format. Only JPG, JPEG, PNG, WEBP, and PDF are allowed.');
     }
 
     // 5MB limit
     if (file.size > 5 * 1024 * 1024) {
-      throw new BadRequestException('Image exceeds 5 MB.');
+      throw new BadRequestException('File exceeds 5 MB.');
     }
   }
 
-  // Upload registration image to Supabase
+  // Upload registration file to Supabase
   async uploadImage(file: Express.Multer.File) {
     this.validateFile(file);
-    const url = await this.supabase.upload(file, 'about-page', 'sec-registrations');
+    const url = await this.supabase.upload(file, 'governance', 'sec-registrations');
     if (!url) {
       throw new BadRequestException('Upload failed');
     }
     return {
       success: true,
       imageUrl: url,
-      message: 'Image uploaded successfully.',
+      message: 'File uploaded successfully.',
     };
   }
 

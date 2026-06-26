@@ -119,9 +119,9 @@ export default function SecRegistrationsPage() {
           console.error(uploadErr);
           const errText = uploadErr.message || "";
           if (errText.includes("exceeds") || errText.includes("5MB")) {
-            gooeyToast.error("Image exceeds 5 MB");
+            gooeyToast.error("File exceeds 5 MB");
           } else if (errText.includes("format") || errText.includes("only")) {
-            gooeyToast.error("Invalid image format");
+            gooeyToast.error("Invalid file format. Only JPG, JPEG, PNG, WEBP, and PDF are allowed.");
           } else {
             gooeyToast.error("Upload failed");
           }

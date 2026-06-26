@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, Edit2, Trash2 } from "lucide-react";
+import { Eye, Edit2, Trash2, FileText } from "lucide-react";
 
 interface SecRegistration {
   id: string;
@@ -32,6 +32,12 @@ export default function SecRegistrationTable({
   pagination,
   onPageChange,
 }: SecRegistrationTableProps) {
+  const isPdf = (url: string | null | undefined): boolean => {
+    if (!url) return false;
+    const cleanUrl = url.split(/[?#]/)[0];
+    return cleanUrl.toLowerCase().endsWith(".pdf");
+  };
+
   const formatDate = (dateStr: string) => {
     try {
       return new Date(dateStr).toLocaleDateString("en-US", {
@@ -68,12 +74,12 @@ export default function SecRegistrationTable({
             {records.length > 0 ? (
               records.map((record) => (
                 <tr 
-                  key={record.id} 
-                  style={{ 
-                    borderBottom: "1px solid var(--r-border-mid)",
-                    transition: "background 0.2s ease",
-                  }}
-                  className="table-row-hover"
+                   key={record.id} 
+                   style={{ 
+                     borderBottom: "1px solid var(--r-border-mid)",
+                     transition: "background 0.2s ease",
+                   }}
+                   className="table-row-hover"
                 >
                   <td style={{ padding: "16px 20px", fontSize: "16px", fontWeight: 600, color: "var(--r-text)", verticalAlign: "middle" }}>
                     {record.registrationName}
@@ -106,14 +112,19 @@ export default function SecRegistrationTable({
                           border: "1px solid var(--r-border-mid)",
                           background: "#f9fafb",
                           overflow: "hidden",
+                          color: "var(--p-rose)",
                         }}
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={record.imageUrl}
-                          alt="Certificate Thumbnail"
-                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                        />
+                        {isPdf(record.imageUrl) ? (
+                          <FileText size={20} />
+                        ) : (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={record.imageUrl}
+                            alt="Certificate Thumbnail"
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          />
+                        )}
                       </a>
                     ) : (
                       <span style={{ fontSize: "15px", color: "var(--r-text-muted)", fontStyle: "italic" }}>None</span>

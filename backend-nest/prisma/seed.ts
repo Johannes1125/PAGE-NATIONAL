@@ -502,7 +502,7 @@ async function main() {
     data: {
       section_key: 'sec_registration',
       title: 'SEC Registration',
-      content: 'Duly registered non-stock, non-profit organization.',
+      content: 'PAGE is a duly registered non-stock, non-profit organization under the Securities and Exchange Commission (SEC) of the Republic of the Philippines. This registration verifies our legal corporate identity, operational authority, and compliance with national governance standards to support graduate education.',
       status: 'published',
       published_at: new Date(),
     }

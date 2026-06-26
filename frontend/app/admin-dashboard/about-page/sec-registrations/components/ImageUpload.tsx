@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Upload, X, RefreshCw } from "lucide-react";
+import { Upload, X, RefreshCw, FileText } from "lucide-react";
 
 interface ImageUploadProps {
   existingImageUrl?: string;
@@ -33,16 +33,16 @@ export default function ImageUpload({
     setError(null);
 
     // Validate type
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "application/pdf"];
     if (!allowedTypes.includes(file.type)) {
-      setError("Invalid image format. Only JPG, JPEG, PNG, and WEBP are allowed.");
+      setError("Invalid file format. Only JPG, JPEG, PNG, WEBP, and PDF are allowed.");
       return false;
     }
 
     // Validate size (5MB)
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      setError("Image exceeds the 5 MB size limit.");
+      setError("File exceeds the 5 MB size limit.");
       return false;
     }
 
@@ -115,6 +115,16 @@ export default function ImageUpload({
     fileInputRef.current?.click();
   };
 
+  const isPdf = (url: string | null): boolean => {
+    if (!url) return false;
+    const cleanUrl = url.split(/[?#]/)[0];
+    return cleanUrl.toLowerCase().endsWith(".pdf");
+  };
+
+  const isPdfFile = selectedFile 
+    ? selectedFile.type === "application/pdf"
+    : isPdf(existingImageUrl || null);
+
   const hasImage = previewUrl || existingImageUrl;
 
   return (
@@ -175,7 +185,7 @@ export default function ImageUpload({
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/jpeg,image/jpg,image/png,image/webp"
+          accept="image/jpeg,image/jpg,image/png,image/webp,application/pdf"
           onChange={handleInputChange}
           style={{ display: "none" }}
           id="sec-registration-file-input"
@@ -204,19 +214,32 @@ export default function ImageUpload({
               overflow: "hidden", 
               border: "1px solid var(--r-border-mid)", 
               background: "#f8fafc",
-              boxShadow: "inset 0 2px 4px rgba(0,0,0,0.06)"
+              boxShadow: "inset 0 2px 4px rgba(0,0,0,0.06)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              padding: "16px"
             }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={previewUrl || existingImageUrl}
-                alt="Registration Preview"
-                style={{ width: "100%", height: "100%", objectFit: "contain", padding: "8px" }}
-              />
+              {isPdfFile ? (
+                <>
+                  <FileText size={64} style={{ color: "var(--p-rose)" }} />
+                  <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--p-navy)" }}>PDF Certificate</span>
+                </>
+              ) : (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={previewUrl || existingImageUrl}
+                  alt="Registration Preview"
+                  style={{ width: "100%", height: "100%", objectFit: "contain", padding: "8px" }}
+                />
+              )}
             </div>
             
             <div style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: "4px" }}>
               <p style={{ fontSize: "18px", fontWeight: 600, color: "var(--p-navy)", margin: 0, wordBreak: "break-all" }}>
-                {selectedFile ? selectedFile.name : "Current Certificate Image"}
+                {selectedFile ? selectedFile.name : (isPdfFile ? "Current SEC Certificate (PDF)" : "Current Certificate Image")}
               </p>
               {selectedFile && (
                 <p style={{ fontSize: "14px", color: "var(--r-text-muted)", margin: 0 }}>
@@ -286,7 +309,7 @@ export default function ImageUpload({
               {/* Upload Texts */}
               <div className="sec-upload-text-container" style={{ display: "flex", flexDirection: "column", gap: "4px", textAlign: "left" }}>
                 <p style={{ fontSize: "18px", fontWeight: 700, color: "var(--p-navy)", margin: 0 }}>
-                  Upload certificate image
+                  Upload certificate file
                 </p>
                 <p style={{ fontSize: "15px", color: "var(--r-text-mid)", margin: 0 }}>
                   Drag and drop your file here, or <span onClick={triggerInput} style={{ color: "var(--p-blue)", fontWeight: 600, textDecoration: "underline", cursor: "pointer" }}>click to browse</span>
