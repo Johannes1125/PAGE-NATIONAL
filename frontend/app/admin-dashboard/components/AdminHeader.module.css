@@ -5,9 +5,10 @@
   right: 0;
   z-index: 150;
   height: var(--admin-header-height);
-  background: rgba(253, 253, 253, 0.96);
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--r-border);
+  border-bottom: 1px solid #e6eef8;
+  box-shadow: 0 1px 4px rgba(30, 83, 142, 0.04);
   transition: left 0.26s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: visible;
 }
@@ -106,7 +107,7 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 18px;
   margin-left: auto;
   flex-shrink: 0;
   overflow: visible;
@@ -119,8 +120,8 @@
 .profileButton {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 12px 6px 6px;
+  gap: 12px;
+  padding: 6px 16px 6px 8px;
   border-radius: 12px;
   background: transparent;
   border: 1px solid transparent;
@@ -131,7 +132,7 @@
 .profileButton:hover,
 .profileMenuOpen .profileButton {
   background: var(--r-surface-2);
-  border-color: var(--r-border);
+  border-color: #cbd5e1;
 }
 
 .profileButton:focus-visible {
@@ -159,7 +160,7 @@
 
 .profileName {
   color: var(--r-text);
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
   line-height: 1.2;
 }
@@ -174,12 +175,12 @@
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  min-width: 200px;
-  padding: 6px;
-  border-radius: 12px;
-  border: 1px solid var(--r-border-mid);
+  min-width: 210px;
+  padding: 8px;
+  border-radius: 14px;
+  border: 1px solid rgba(30, 83, 142, 0.08);
   background: var(--r-surface);
-  box-shadow: 0 8px 32px rgba(20, 49, 82, 0.12);
+  box-shadow: 0 12px 30px rgba(30, 83, 142, 0.08);
   opacity: 0;
   pointer-events: none;
   transform: translateY(-6px);
@@ -307,4 +308,90 @@
   margin-top: 10px;
   line-height: 1.6;
 }
+
+/* Premium Header Redesign for About Page */
+.introPremium {
+  position: relative;
+  background: linear-gradient(135deg, #f7fafc 0%, #edf4fc 50%, #e6eef8 100%) !important;
+  border-bottom: 1px solid #e6eef8 !important;
+  padding: 48px clamp(24px, 4vw, 52px) 44px !important;
+  overflow: hidden;
+}
+
+.introPremium::before {
+  content: "";
+  position: absolute;
+  top: -80px;
+  right: 15%;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(30, 79, 145, 0.08) 0%, transparent 70%);
+  filter: blur(25px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.introPremium::after {
+  content: "";
+  position: absolute;
+  bottom: -120px;
+  left: 25%;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(91, 163, 232, 0.07) 0%, transparent 70%);
+  filter: blur(35px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.introContent {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.introLeft {
+  flex: 1;
+  max-width: 720px;
+}
+
+.introIllustration {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 320px;
+  height: 220px;
+}
+
+.heroSvg {
+  width: 100%;
+  height: auto;
+  max-height: 220px;
+}
+
+@media (max-width: 980px) {
+  .introPremium {
+    padding: 36px 24px !important;
+  }
+  
+  .introContent {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 28px;
+  }
+  
+  .introIllustration {
+    align-self: center;
+    max-width: 280px;
+    height: 190px;
+  }
+}
+
 

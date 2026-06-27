@@ -9,7 +9,6 @@ import {
   Users,
   Shield,
   FileCheck,
-  Search,
   Edit,
   Globe,
   Loader2,
@@ -19,7 +18,9 @@ import {
   Archive,
   CheckCircle2,
   AlertTriangle,
+  ArrowRight,
 } from "lucide-react";
+import { motion } from "framer-motion";
 import AdminSidebarLayout from "../components/AdminSidebarLayout";
 import { api } from "../../lib/api-client";
 import { gooeyToast } from "goey-toast";
@@ -95,8 +96,6 @@ export default function AboutPageManagement() {
 
   const [isLoading, setIsLoading] = useState(true);
   
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
 
   // ── Publish/Unpublish confirmation modal ──────────────────────────────────
   const [publishConfirm, setPublishConfirm] = useState<{
@@ -167,20 +166,28 @@ export default function AboutPageManagement() {
   // Compute stats
   const stats = useMemo(() => {
     const total = 6; // Fixed 6 modules
-    const published = sections.filter((s) => s.status === "published").length;
-    const draft = sections.filter((s) => s.status === "draft").length;
     
     // Find last updated
     let lastUpdatedTitle = "—";
+    let lastUpdatedTime = "";
     if (sections.length > 0) {
       const sorted = [...sections].sort(
         (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
       );
       lastUpdatedTitle = sorted[0].title;
+      lastUpdatedTime = sorted[0].updated_at;
     }
 
-    return { total, published, draft, lastUpdatedTitle };
+    return { total, lastUpdatedTitle, lastUpdatedTime };
   }, [sections]);
+
+  const formatDateTime = (dateStr?: string) => {
+    if (!dateStr) return "—";
+    const d = new Date(dateStr);
+    const dateFormatted = d.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
+    const timeFormatted = d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+    return `${dateFormatted} • ${timeFormatted}`;
+  };
 
   // Compute dynamic counts per card
   const getContentCount = (key: string, content: string) => {
@@ -226,18 +233,7 @@ export default function AboutPageManagement() {
     }
   };
 
-  // Search & Filter sections list
-  const filteredSections = useMemo(() => {
-    return sections.filter((s) => {
-      const matchesSearch = s.title.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus =
-        statusFilter === "all" ||
-        (statusFilter === "published" && s.status === "published") ||
-        (statusFilter === "draft" && s.status === "draft") ||
-        (statusFilter === "archived" && s.status === "archived");
-      return matchesSearch && matchesStatus;
-    });
-  }, [sections, searchQuery, statusFilter]);
+
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return "—";
@@ -255,83 +251,67 @@ export default function AboutPageManagement() {
       eyebrow="Content Command Center"
       seniorFriendlyHeader={true}
     >
-      <section className="admin-shell admin-shell--main">
-      {/* Statistics Summary Row */}
+      <motion.section 
+        className="admin-shell admin-shell--main"
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        {/* Redesigned Summary Cards */}
         <section className="about-stats-row admin-summary-grid">
-          <article className="admin-hero-card admin-hero-card--navy">
-            <div className="admin-hero-card__icon"><LayoutGrid size={24} /></div>
-            <div>
-              <p className="admin-hero-card__title">Total Content</p>
-              <p className="admin-hero-card__value">{stats.total}</p>
+          <motion.article 
+            className="about-summary-card"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.3 }}
+          >
+            <div className="about-summary-card-inner">
+              <div className="about-summary-icon-container">
+                <LayoutGrid size={28} />
+              </div>
+              <div className="about-summary-details">
+                <span className="about-summary-label">Total Content</span>
+                <span className="about-summary-value">{stats.total} <span className="about-summary-unit">Modules</span></span>
+              </div>
             </div>
-            <p className="admin-hero-card__meta">Modules</p>
-          </article>
+            <div className="about-summary-watermark" aria-hidden="true">
+              <LayoutGrid size={120} />
+            </div>
+          </motion.article>
 
-          <article className="admin-hero-card admin-hero-card--green">
-            <div className="admin-hero-card__icon"><Globe size={24} /></div>
-            <div>
-              <p className="admin-hero-card__title">Published</p>
-              <p className="admin-hero-card__value">{stats.published}</p>
+          <motion.article 
+            className="about-summary-card"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.3 }}
+          >
+            <div className="about-summary-card-inner">
+              <div className="about-summary-icon-container">
+                <Clock size={28} />
+              </div>
+              <div className="about-summary-details">
+                <span className="about-summary-label">Recently Updated</span>
+                <span className="about-summary-value-title">{stats.lastUpdatedTitle}</span>
+                <div className="about-summary-time-wrapper">
+                  <span className="about-summary-label-sub">Last Updated</span>
+                  <span className="about-summary-value-time">{formatDateTime(stats.lastUpdatedTime)}</span>
+                </div>
+              </div>
             </div>
-            <p className="admin-hero-card__meta">Live</p>
-          </article>
-
-          <article className="admin-hero-card admin-hero-card--gold">
-            <div className="admin-hero-card__icon"><FilePen size={24} /></div>
-            <div>
-              <p className="admin-hero-card__title">Draft</p>
-              <p className="admin-hero-card__value">{stats.draft}</p>
+            <div className="about-summary-watermark" aria-hidden="true">
+              <Clock size={120} />
             </div>
-            <p className="admin-hero-card__meta">Pending</p>
-          </article>
-
-          <article className="admin-hero-card admin-hero-card--blue">
-            <div className="admin-hero-card__icon"><Clock size={24} /></div>
-            <div>
-              <p className="admin-hero-card__title">Recently Updated</p>
-              <p className="admin-hero-card__value" style={{ fontSize: "clamp(14px, 1.4vw, 18px)", fontWeight: 700, letterSpacing: 0 }}>
-                {stats.lastUpdatedTitle}
-              </p>
-            </div>
-            <p className="admin-hero-card__meta">Last Change</p>
-          </article>
+          </motion.article>
         </section>
 
-        {/* Toolbar: Search and Status Filters */}
-        <section className="about-toolbar">
-          <div className="about-search-wrapper">
-            <Search size={16} className="about-search-icon" />
-            <input
-              type="text"
-              placeholder="Search About PAGE sections..."
-              className="about-search-input"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-
-          <div className="about-filters">
-            {["all", "published", "draft"].map((filter) => (
-              <button
-                key={filter}
-                type="button"
-                className={`about-filter-btn ${statusFilter === filter ? "about-filter-btn--active" : ""}`}
-                onClick={() => setStatusFilter(filter)}
-              >
-                {filter.charAt(0).toUpperCase() + filter.slice(1)}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* 6 Cards Grid */}
+        {/* Redesigned 6 Module Cards Grid */}
         {isLoading ? (
           <div style={{ display: "flex", justifyContent: "center", padding: "80px" }}>
             <Loader2 className="animate-spin" size={36} color="var(--p-blue)" />
           </div>
         ) : (
           <section className="about-cards-grid">
-            {filteredSections.map((section) => {
+            {sections.map((section, idx) => {
               const meta = SECTION_METAS[section.section_key] || {
                 icon: BookOpen,
                 route: "/admin-dashboard/about-page",
@@ -342,65 +322,60 @@ export default function AboutPageManagement() {
               const count = getContentCount(section.section_key, section.content);
 
               return (
-                <article key={section.id} className="about-section-card">
-                  <div>
+                <motion.article 
+                  key={section.id} 
+                  className="about-section-card"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + idx * 0.05, duration: 0.4 }}
+                  whileHover={{ y: -6, boxShadow: "0 12px 30px rgba(30, 83, 142, 0.06)", borderColor: "#1E4F91" }}
+                >
+                  <div className="about-card-top">
                     <div className="about-card-header">
                       <div className="about-card-icon-wrapper">
-                        <IconComponent size={20} />
+                        <IconComponent size={24} />
                       </div>
-                      <span className={`about-status-badge about-status-badge--${section.status}`}>
-                        {section.status === "published" && <CheckCircle2 size={11} />}
-                        {section.status === "draft" && <FilePen size={11} />}
-                        {section.status === "archived" && <Archive size={11} />}
-                        {section.status}
-                      </span>
+                      {section.status !== "published" && (
+                        <span className={`about-status-badge about-status-badge--${section.status}`}>
+                          {section.status === "draft" && <FilePen size={11} />}
+                          {section.status === "archived" && <Archive size={11} />}
+                          {section.status}
+                        </span>
+                      )}
                     </div>
 
                     <h3 className="about-card-title">{section.title}</h3>
+                  </div>
 
-                    <div className="about-card-meta">
-                      <div className="about-meta-row">
-                        <span className="about-meta-label">{meta.contentCountLabel}:</span>
-                        <span className="about-meta-value">{count}</span>
-                      </div>
-                      <div className="about-meta-row">
-                        <span className="about-meta-label" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
-                          <Clock size={12} /> Updated:
-                        </span>
-                        <span className="about-meta-value">{formatDate(section.updated_at)}</span>
-                      </div>
+                  <div className="about-card-middle">
+                    <div className="about-card-stat-block">
+                      <span className="about-card-stat-label">{meta.contentCountLabel}</span>
+                      <span className="about-card-stat-value">{count}</span>
+                    </div>
+                    <div className="about-card-stat-block">
+                      <span className="about-card-stat-label">Updated</span>
+                      <span className="about-card-stat-value">{formatDate(section.updated_at)}</span>
                     </div>
                   </div>
 
-                  <div className="about-card-actions">
+                  <div className="about-card-bottom">
                     <button
                       type="button"
-                      className="about-btn about-btn--secondary"
+                      className="about-btn-full-width"
                       onClick={() => router.push(meta.route)}
                     >
-                      <Edit size={13} /> Edit
+                      <span className="about-btn-text">
+                        ✏ Edit Module
+                      </span>
+                      <ArrowRight size={18} className="about-btn-arrow" />
                     </button>
-                    {section.section_key !== "page_logo" && (
-                      <button
-                        type="button"
-                        className={`about-btn ${section.status === "published" ? "about-btn--danger" : "about-btn--primary"}`}
-                        onClick={() =>
-                          setPublishConfirm({
-                            section,
-                            action: section.status === "published" ? "unpublish" : "publish",
-                          })
-                        }
-                      >
-                        <Globe size={13} /> {section.status === "published" ? "Unpublish" : "Publish"}
-                      </button>
-                    )}
                   </div>
-                </article>
+                </motion.article>
               );
             })}
           </section>
         )}
-      </section>
+      </motion.section>
     </AdminSidebarLayout>
 
       {/* ── CONFIRMATION MODAL: Publish / Unpublish Section ─────────────── */}
