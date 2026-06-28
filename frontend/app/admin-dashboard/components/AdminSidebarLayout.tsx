@@ -23,6 +23,8 @@ type AdminSidebarLayoutProps = {
   eyebrow?: string;
   children: ReactNode;
   seniorFriendlyHeader?: boolean;
+  headerActions?: ReactNode;
+  titleIcon?: ReactNode;
 };
 
 function joinClasses(...parts: Array<string | false | undefined>) {
@@ -37,6 +39,8 @@ export default function AdminSidebarLayout({
   eyebrow = "Admin panel",
   children,
   seniorFriendlyHeader = false,
+  headerActions,
+  titleIcon,
 }: AdminSidebarLayoutProps) {
   const pathname = usePathname();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
@@ -162,6 +166,8 @@ export default function AdminSidebarLayout({
           subtitle={subtitle}
           eyebrow={eyebrow}
           seniorFriendlyHeader={seniorFriendlyHeader}
+          headerActions={headerActions}
+          titleIcon={titleIcon}
         />
 
         {children}

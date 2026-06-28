@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BadgeCheck,
+  Building2,
   ClipboardList,
   LayoutDashboard,
   Menu,
@@ -25,6 +26,7 @@ type AdminNavItem = {
 const adminNavItems: AdminNavItem[] = [
   { href: "/admin-dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/admin-dashboard/membership-applications", label: "Membership Applications", icon: UserCheck },
+  { href: "/admin-dashboard/chapters", label: "Chapters", icon: Building2 },
   { href: "/admin-dashboard/create-new-post", label: "Create New Post", icon: PlusCircle },
   { href: "/admin-dashboard/approve-post", label: "Approve Posts", icon: BadgeCheck },
   { href: "/admin-dashboard/audit-log", label: "Audit Log", icon: ClipboardList },

@@ -13,7 +13,8 @@
 :global(.cnp-page).shellCollapsed,
 :global(.messages-page).shellCollapsed,
 :global(.audit-page).shellCollapsed,
-:global(.approve-page).shellCollapsed {
+:global(.approve-page).shellCollapsed,
+:global(.chapters-management-page).shellCollapsed {
   padding-left: var(--admin-sidebar-collapsed-width);
 }
 
@@ -25,8 +26,10 @@
 
 .content {
   min-height: 100vh;
+  min-width: 0;
   display: flex;
   flex-direction: column;
+  overflow-x: clip;
 }
 
 @media (max-width: 980px) {
@@ -38,7 +41,8 @@
   :global(.cnp-page),
   :global(.messages-page),
   :global(.audit-page),
-  :global(.approve-page) {
+  :global(.approve-page),
+  :global(.chapters-management-page) {
     padding-left: 0;
   }
 
@@ -46,7 +50,8 @@
   :global(.cnp-page).shellCollapsed,
   :global(.messages-page).shellCollapsed,
   :global(.audit-page).shellCollapsed,
-  :global(.approve-page).shellCollapsed {
+  :global(.approve-page).shellCollapsed,
+  :global(.chapters-management-page).shellCollapsed {
     padding-left: 0;
   }
 }

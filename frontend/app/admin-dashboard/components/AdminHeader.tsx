@@ -31,6 +31,8 @@ type AdminHeaderProps = {
   subtitle: string;
   eyebrow?: string;
   seniorFriendlyHeader?: boolean;
+  headerActions?: React.ReactNode;
+  titleIcon?: React.ReactNode;
 };
 
 function joinClasses(...parts: Array<string | false | undefined>) {
@@ -48,6 +50,8 @@ export default function AdminHeader({
   subtitle,
   eyebrow = "Admin panel",
   seniorFriendlyHeader = false,
+  headerActions,
+  titleIcon,
 }: AdminHeaderProps) {
   const pathname = usePathname();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -207,10 +211,24 @@ export default function AdminHeader({
         <div className={styles.introContent}>
           <div className={styles.introLeft}>
             <p className={joinClasses(styles.eyebrow, seniorFriendlyHeader && styles.eyebrowSeniorFriendly)}>{eyebrow}</p>
-            <h1 className={joinClasses(styles.title, seniorFriendlyHeader && styles.titleSeniorFriendly)}>{title}</h1>
+            <h1
+              className={joinClasses(
+                styles.title,
+                seniorFriendlyHeader && styles.titleSeniorFriendly,
+                titleIcon ? styles.titleWithIcon : false,
+              )}
+            >
+              {titleIcon ? <span className={styles.titleIconWrap}>{titleIcon}</span> : null}
+              <span>{title}</span>
+            </h1>
             <p className={joinClasses(styles.subtitle, seniorFriendlyHeader && styles.subtitleSeniorFriendly)}>{subtitle}</p>
           </div>
-          {title === "About Page Management" && (
+          {headerActions && (
+            <div className={joinClasses(styles.introActions, seniorFriendlyHeader && styles.introActionsSeniorFriendly)}>
+              {headerActions}
+            </div>
+          )}
+          {title === "About Page Management" && !headerActions && (
             <div className={styles.introIllustration} aria-hidden="true">
               <svg
                 width="320"
