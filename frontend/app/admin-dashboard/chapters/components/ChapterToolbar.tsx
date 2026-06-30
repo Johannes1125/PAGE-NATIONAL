@@ -1,9 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown, X } from "lucide-react";
 import { useMemo } from "react";
-import ViewToggle from "./ViewToggle";
 
 type ChapterToolbarProps = {
   searchQuery: string;
@@ -16,8 +15,6 @@ type ChapterToolbarProps = {
   setSelectedStatus: (s: string) => void;
   sortBy: string;
   setSortBy: (s: string) => void;
-  viewMode: "card" | "list";
-  setViewMode: (m: "card" | "list") => void;
 };
 
 const REGIONS_MAP: Record<string, string[]> = {
@@ -42,6 +39,7 @@ const REGIONS_MAP: Record<string, string[]> = {
   ],
 };
 
+/** Visible-label filter select — label is promoted above the control */
 function FilterSelect({
   id,
   label,
@@ -56,21 +54,25 @@ function FilterSelect({
   children: React.ReactNode;
 }) {
   return (
-    <div className="chapters-toolbar__filter">
+    <div className="chapters-toolbar__field-group chapters-toolbar__filter">
+      <label htmlFor={id} className="chapters-toolbar__field-label">
+        {label}
+      </label>
       <div className="chapters-toolbar__select-wrap">
-        <label htmlFor={id} className="sr-only">
-          {label}
-        </label>
         <select
           id={id}
           className="chapters-toolbar__control"
           value={value}
           onChange={onChange}
-          aria-label={label}
         >
           {children}
         </select>
-        <ChevronDown size={16} strokeWidth={2.5} className="chapters-toolbar__chevron" aria-hidden="true" />
+        <ChevronDown
+          size={16}
+          strokeWidth={2.5}
+          className="chapters-toolbar__chevron"
+          aria-hidden="true"
+        />
       </div>
     </div>
   );
@@ -87,8 +89,6 @@ export default function ChapterToolbar({
   setSelectedStatus,
   sortBy,
   setSortBy,
-  viewMode,
-  setViewMode,
 }: ChapterToolbarProps) {
   const regions = useMemo(() => {
     if (selectedIslandGroup && selectedIslandGroup !== "All") {
@@ -112,12 +112,14 @@ export default function ChapterToolbar({
     >
       <h2 className="chapters-section__label">Search &amp; Filters</h2>
       <div className="chapters-toolbar-panel">
-        <div className="chapters-toolbar">
-          <div className="chapters-toolbar__search">
+        <div className="chapters-toolbar-layout">
+
+          {/* ── Row 1: Search ──────────────────────────────────── */}
+          <div className="chapters-toolbar__field-group chapters-toolbar__search-group">
+            <label htmlFor="search-chapters" className="chapters-toolbar__field-label">
+              Search Chapters
+            </label>
             <div className="relative w-full min-w-0">
-              <label htmlFor="search-chapters" className="sr-only">
-                Search chapters
-              </label>
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400">
                 <Search size={20} strokeWidth={2.5} aria-hidden="true" />
               </div>
@@ -125,18 +127,33 @@ export default function ChapterToolbar({
                 id="search-chapters"
                 type="text"
                 className="chapters-toolbar__search-input"
-                style={{ paddingLeft: "52px" }}
+                style={{
+                  paddingLeft: "52px",
+                  paddingRight: searchQuery ? "52px" : "16px",
+                }}
                 placeholder="Search by name, region, or officer..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label="Search chapters by name, region, or officer"
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute inset-y-0 right-3 flex items-center px-1 text-slate-400 hover:text-slate-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded"
+                  aria-label="Clear search"
+                >
+                  <X size={18} strokeWidth={2.5} />
+                </button>
+              )}
             </div>
           </div>
 
-          <div className="chapters-toolbar__filters">
+          {/* ── Row 2: Filter selects ──────────────────────────── */}
+          <div className="chapters-toolbar__filter-row">
             <FilterSelect
               id="filter-island-group"
-              label="Filter by Island Group"
+              label="Island Group"
               value={selectedIslandGroup}
               onChange={handleIslandGroupChange}
             >
@@ -148,7 +165,7 @@ export default function ChapterToolbar({
 
             <FilterSelect
               id="filter-region"
-              label="Filter by Region"
+              label="Region"
               value={selectedRegion}
               onChange={(e) => setSelectedRegion(e.target.value)}
             >
@@ -162,7 +179,7 @@ export default function ChapterToolbar({
 
             <FilterSelect
               id="filter-status"
-              label="Filter by Publication Status"
+              label="Publication Status"
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
             >
@@ -174,20 +191,25 @@ export default function ChapterToolbar({
 
             <FilterSelect
               id="filter-sort"
-              label="Sort chapters list"
+              label="Sort By"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
               <option value="updated-desc">Recently Updated</option>
-              <option value="name-asc">Alphabetical (A-Z)</option>
-              <option value="name-desc">Alphabetical (Z-A)</option>
-              <option value="officers-desc">Officer Count</option>
+              <option value="updated-asc">Oldest Updated</option>
+              <option value="name-asc">Alphabetical (A–Z)</option>
+              <option value="name-desc">Alphabetical (Z–A)</option>
+              <option value="island-asc">Island Group (A–Z)</option>
+              <option value="island-desc">Island Group (Z–A)</option>
+              <option value="region-asc">Region (A–Z)</option>
+              <option value="region-desc">Region (Z–A)</option>
+              <option value="officers-desc">Officer Count (High–Low)</option>
+              <option value="officers-asc">Officer Count (Low–High)</option>
+              <option value="status-asc">Status (A–Z)</option>
+              <option value="status-desc">Status (Z–A)</option>
             </FilterSelect>
           </div>
 
-          <div className="chapters-toolbar__view">
-            <ViewToggle viewMode={viewMode} onChange={setViewMode} />
-          </div>
         </div>
       </div>
     </motion.section>

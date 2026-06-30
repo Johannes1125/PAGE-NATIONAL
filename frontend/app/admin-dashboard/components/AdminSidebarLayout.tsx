@@ -25,6 +25,7 @@ type AdminSidebarLayoutProps = {
   seniorFriendlyHeader?: boolean;
   headerActions?: ReactNode;
   titleIcon?: ReactNode;
+  premiumHeader?: boolean;
 };
 
 function joinClasses(...parts: Array<string | false | undefined>) {
@@ -41,6 +42,7 @@ export default function AdminSidebarLayout({
   seniorFriendlyHeader = false,
   headerActions,
   titleIcon,
+  premiumHeader = false,
 }: AdminSidebarLayoutProps) {
   const pathname = usePathname();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
@@ -168,6 +170,7 @@ export default function AdminSidebarLayout({
           seniorFriendlyHeader={seniorFriendlyHeader}
           headerActions={headerActions}
           titleIcon={titleIcon}
+          premiumHeader={premiumHeader}
         />
 
         {children}

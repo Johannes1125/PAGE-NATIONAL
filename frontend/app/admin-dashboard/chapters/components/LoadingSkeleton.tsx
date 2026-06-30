@@ -12,7 +12,7 @@ export default function LoadingSkeleton({ type }: LoadingSkeletonProps) {
       <div className={`${shimmer} h-6 w-32 mb-4`} />
       <div className="chapters-stats-grid">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="chapters-stat-card min-h-[196px]">
+          <div key={i} className="chapters-stat-card min-h-[120px]">
             <div className="chapters-stat-card__head">
               <div className={`${shimmer} w-16 h-16 rounded-2xl shrink-0`} />
               <div className="flex-1 space-y-3 min-w-0">
@@ -20,7 +20,6 @@ export default function LoadingSkeleton({ type }: LoadingSkeletonProps) {
                 <div className={`${shimmer} h-10 w-20`} />
               </div>
             </div>
-            <div className={`${shimmer} h-5 w-full chapters-stat-card__footer`} />
           </div>
         ))}
       </div>

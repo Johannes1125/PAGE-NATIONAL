@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { Plus, Download, Building2 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { gooeyToast } from "goey-toast";
 import "goey-toast/styles.css";
 
@@ -11,7 +11,7 @@ import ChapterStats from "./components/ChapterStats";
 import ChapterToolbar from "./components/ChapterToolbar";
 import ChapterCard from "./components/ChapterCard";
 import ChapterTable from "./components/ChapterTable";
-import BulkActionBar from "./components/BulkActionBar";
+import ViewToggle from "./components/ViewToggle";
 import EmptyState from "./components/EmptyState";
 import LoadingSkeleton from "./components/LoadingSkeleton";
 import ChapterPagination from "./components/ChapterPagination";
@@ -247,10 +247,10 @@ export default function ChaptersPage() {
   const [selectedRegion, setSelectedRegion] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [sortBy, setSortBy] = useState("updated-desc");
-  const [viewMode, setViewMode] = useState<"card" | "list">("card");
+  const [viewMode, setViewMode] = useState<"card" | "list">("list"); // Default: List View at desktop — scales better with 18px+ text
+  // Note: cross-session persistence via localStorage is a planned follow-up
   
   // Selection and Paginations
-  const [selectedChapters, setSelectedChapters] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   
@@ -259,19 +259,15 @@ export default function ChaptersPage() {
 
   // Simulate premium skeleton loading on mount
   useEffect(() => {
-    simulateLoad();
-  }, []);
-
-  const simulateLoad = () => {
-    setIsLoading(true);
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1200);
     return () => clearTimeout(timer);
-  };
+  }, []);
 
   // Reset pagination when search query or filter changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPage(1);
   }, [searchQuery, selectedIslandGroup, selectedRegion, selectedStatus, sortBy]);
 
@@ -321,8 +317,32 @@ export default function ChaptersPage() {
         if (sortBy === "updated-desc") {
           return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
         }
+        if (sortBy === "updated-asc") {
+          return new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
+        }
         if (sortBy === "officers-desc") {
           return b.officers.length - a.officers.length;
+        }
+        if (sortBy === "officers-asc") {
+          return a.officers.length - b.officers.length;
+        }
+        if (sortBy === "island-asc") {
+          return a.islandGroup.localeCompare(b.islandGroup);
+        }
+        if (sortBy === "island-desc") {
+          return b.islandGroup.localeCompare(a.islandGroup);
+        }
+        if (sortBy === "region-asc") {
+          return a.region.localeCompare(b.region);
+        }
+        if (sortBy === "region-desc") {
+          return b.region.localeCompare(a.region);
+        }
+        if (sortBy === "status-asc") {
+          return a.status.localeCompare(b.status);
+        }
+        if (sortBy === "status-desc") {
+          return b.status.localeCompare(a.status);
         }
         return 0;
       });
@@ -348,23 +368,7 @@ export default function ChaptersPage() {
     gooeyToast.info(`Editing ${chapter.name} properties.`);
   };
 
-  // Duplicate Action actually updates local state in real-time to wow the user
-  const handleDuplicate = (chapter: Chapter) => {
-    const duplicated: Chapter = {
-      ...chapter,
-      id: `ch-dup-${Date.now()}`,
-      name: `${chapter.name} (Copy)`,
-      status: "draft", // Copies start as drafts
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      officers: chapter.officers.map((o) => ({
-        ...o,
-        id: `o-dup-${Math.random().toString(36).substr(2, 9)}`,
-      })),
-    };
-    setChapters((prev) => [duplicated, ...prev]);
-    gooeyToast.success(`${chapter.name} duplicated successfully.`);
-  };
+
 
   // Toggle Publication status in real-time
   const handleTogglePublish = (chapter: Chapter) => {
@@ -381,7 +385,6 @@ export default function ChaptersPage() {
   const handleDelete = (chapter: Chapter) => {
     if (confirm(`Are you sure you want to delete the ${chapter.name}?`)) {
       setChapters((prev) => prev.filter((c) => c.id !== chapter.id));
-      setSelectedChapters((prev) => prev.filter((id) => id !== chapter.id));
       gooeyToast.success(`${chapter.name} deleted successfully.`);
     }
   };
@@ -389,65 +392,6 @@ export default function ChaptersPage() {
   // View all officers preview modal simulation
   const handleViewAllOfficers = (chapter: Chapter) => {
     gooeyToast.info(`Displaying full officer registry for ${chapter.name} (${chapter.officers.length} members).`);
-  };
-
-  // ── Checkbox Selection State Helpers ──────────────────────────────────────
-
-  const handleSelectChapter = (id: string, selected: boolean) => {
-    if (selected) {
-      setSelectedChapters((prev) => [...prev, id]);
-    } else {
-      setSelectedChapters((prev) => prev.filter((item) => item !== id));
-    }
-  };
-
-  const handleSelectAllChapters = (selected: boolean) => {
-    if (selected) {
-      // Select all chapters currently visible on the page
-      const visibleIds = paginatedChapters.map((c) => c.id);
-      setSelectedChapters((prev) => {
-        const otherSelected = prev.filter((id) => !visibleIds.includes(id));
-        return [...otherSelected, ...visibleIds];
-      });
-    } else {
-      // Unselect all chapters currently visible on the page
-      const visibleIds = paginatedChapters.map((c) => c.id);
-      setSelectedChapters((prev) => prev.filter((id) => !visibleIds.includes(id)));
-    }
-  };
-
-  // ── Bulk Actions Implementations ──────────────────────────────────────────
-
-  const handleBulkPublish = () => {
-    setChapters((prev) =>
-      prev.map((c) =>
-        selectedChapters.includes(c.id) ? { ...c, status: "published", updatedAt: new Date().toISOString() } : c
-      )
-    );
-    gooeyToast.success(`Successfully published ${selectedChapters.length} chapters.`);
-    setSelectedChapters([]);
-  };
-
-  const handleBulkUnpublish = () => {
-    setChapters((prev) =>
-      prev.map((c) =>
-        selectedChapters.includes(c.id) ? { ...c, status: "draft", updatedAt: new Date().toISOString() } : c
-      )
-    );
-    gooeyToast.success(`Moved ${selectedChapters.length} chapters to Draft status.`);
-    setSelectedChapters([]);
-  };
-
-  const handleBulkDelete = () => {
-    if (confirm(`Are you sure you want to delete the ${selectedChapters.length} selected chapters?`)) {
-      setChapters((prev) => prev.filter((c) => !selectedChapters.includes(c.id)));
-      gooeyToast.success(`Deleted ${selectedChapters.length} chapters.`);
-      setSelectedChapters([]);
-    }
-  };
-
-  const handleBulkExport = () => {
-    gooeyToast.success(`Generating CSV file export for ${selectedChapters.length} chapters.`);
   };
 
   // Clear filters function when search yields empty results
@@ -487,6 +431,7 @@ export default function ChaptersPage() {
   );
 
   return (
+    <>
     <AdminSidebarLayout
       pageClassName="chapters-management-page"
       mainClassName="admin-main-content"
@@ -496,6 +441,7 @@ export default function ChaptersPage() {
       seniorFriendlyHeader={true}
       headerActions={headerActionsBlock}
       titleIcon={<Building2 size={28} strokeWidth={2.2} aria-hidden="true" />}
+      premiumHeader={true}
     >
       <motion.div
         className="chapters-container pb-12"
@@ -523,8 +469,6 @@ export default function ChaptersPage() {
             setSelectedStatus={setSelectedStatus}
             sortBy={sortBy}
             setSortBy={setSortBy}
-            viewMode={viewMode}
-            setViewMode={setViewMode}
           />
         )}
 
@@ -541,32 +485,51 @@ export default function ChaptersPage() {
             }
             onClearFilters={handleClearFilters}
           />
-        ) : viewMode === "card" ? (
-          <section className="chapters-section" aria-label="Chapter cards">
-            <h2 className="chapters-section__label">Chapters</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 min-w-0">
-              {paginatedChapters.map((chapter) => (
-                <ChapterCard
-                  key={chapter.id}
-                  chapter={chapter}
-                  onEdit={handleEdit}
-                  onViewAllOfficers={handleViewAllOfficers}
-                  onMoreActions={handleDelete}
-                />
-              ))}
-            </div>
-          </section>
         ) : (
-          <ChapterTable
-            chapters={paginatedChapters}
-            selectedChapters={selectedChapters}
-            onSelectChapter={handleSelectChapter}
-            onSelectAllChapters={handleSelectAllChapters}
-            onEdit={handleEdit}
-            onDuplicate={handleDuplicate}
-            onTogglePublish={handleTogglePublish}
-            onDelete={handleDelete}
-          />
+          <section className="chapters-section" aria-label="Chapters list">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="chapters-section__label">All Chapters</h2>
+              <ViewToggle viewMode={viewMode} onChange={setViewMode} />
+            </div>
+            <AnimatePresence mode="wait">
+              {viewMode === "card" ? (
+                <motion.div
+                  key="card-view"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.18, ease: "easeOut" }}
+                  className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 min-w-0"
+                >
+                  {paginatedChapters.map((chapter) => (
+                    <ChapterCard
+                      key={chapter.id}
+                      chapter={chapter}
+                      onEdit={handleEdit}
+                      onTogglePublish={handleTogglePublish}
+                      onViewAllOfficers={handleViewAllOfficers}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="list-view"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.18, ease: "easeOut" }}
+                >
+                  <ChapterTable
+                    chapters={paginatedChapters}
+                    onEdit={handleEdit}
+                    onTogglePublish={handleTogglePublish}
+                    onDelete={handleDelete}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </section>
         )}
 
         {!isLoading && filteredChapters.length > 0 && (
@@ -584,16 +547,8 @@ export default function ChaptersPage() {
           </div>
         )}
 
-        <BulkActionBar
-          selectedCount={selectedChapters.length}
-          onPublish={handleBulkPublish}
-          onUnpublish={handleBulkUnpublish}
-          onDelete={handleBulkDelete}
-          onExport={handleBulkExport}
-          onCancel={() => setSelectedChapters([])}
-        />
-
       </motion.div>
     </AdminSidebarLayout>
+    </>
   );
 }

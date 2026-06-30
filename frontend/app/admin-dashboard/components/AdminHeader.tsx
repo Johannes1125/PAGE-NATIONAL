@@ -33,6 +33,7 @@ type AdminHeaderProps = {
   seniorFriendlyHeader?: boolean;
   headerActions?: React.ReactNode;
   titleIcon?: React.ReactNode;
+  premiumHeader?: boolean;
 };
 
 function joinClasses(...parts: Array<string | false | undefined>) {
@@ -52,6 +53,7 @@ export default function AdminHeader({
   seniorFriendlyHeader = false,
   headerActions,
   titleIcon,
+  premiumHeader = false,
 }: AdminHeaderProps) {
   const pathname = usePathname();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -205,7 +207,7 @@ export default function AdminHeader({
         className={joinClasses(
           styles.intro,
           seniorFriendlyHeader && styles.introSeniorFriendly,
-          title === "About Page Management" && styles.introPremium
+          (premiumHeader || title === "About Page Management") && styles.introPremium
         )}
       >
         <div className={styles.introContent}>
@@ -222,115 +224,180 @@ export default function AdminHeader({
               <span>{title}</span>
             </h1>
             <p className={joinClasses(styles.subtitle, seniorFriendlyHeader && styles.subtitleSeniorFriendly)}>{subtitle}</p>
+            {headerActions && premiumHeader && (
+              <div className={styles.introActionsSeniorFriendly} style={{ marginTop: "24px" }}>
+                {headerActions}
+              </div>
+            )}
           </div>
-          {headerActions && (
+          {headerActions && !premiumHeader && (
             <div className={joinClasses(styles.introActions, seniorFriendlyHeader && styles.introActionsSeniorFriendly)}>
               {headerActions}
             </div>
           )}
-          {title === "About Page Management" && !headerActions && (
+          {(premiumHeader || title === "About Page Management") && (
             <div className={styles.introIllustration} aria-hidden="true">
-              <svg
-                width="320"
-                height="220"
-                viewBox="0 0 320 220"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className={styles.heroSvg}
-              >
-                <circle cx="160" cy="110" r="90" fill="url(#hero-glow)" opacity="0.45" />
-                <circle cx="70" cy="130" r="50" fill="url(#hero-glow-blue)" opacity="0.35" />
-
-                <ellipse cx="160" cy="180" rx="105" ry="9" fill="#D3E2F4" opacity="0.8" />
-
-                <path
-                  d="M55 170h210l14 11H41l14-11z"
-                  fill="#E2EBF6"
-                  stroke="#B8CDE5"
-                  strokeWidth="1.5"
-                  strokeLinejoin="round"
-                />
-                <path d="M140 170h40v3.5h-40v-3.5z" fill="#B8CDE5" />
-
-                <rect
-                  x="70"
-                  y="60"
-                  width="180"
-                  height="114"
-                  rx="7"
-                  fill="#FFFFFF"
-                  stroke="#1E4F91"
-                  strokeWidth="2.5"
-                />
-                <rect x="75" y="65" width="170" height="98" rx="4" fill="#F4F8FD" />
-
-                <rect x="87" y="77" width="55" height="7" rx="2.5" fill="#E6EEF8" />
-                <rect x="87" y="91" width="85" height="4.5" rx="2" fill="#E6EEF8" />
-                <rect x="87" y="100" width="105" height="4.5" rx="2" fill="#E6EEF8" />
-                <rect x="87" y="109" width="70" height="4.5" rx="2" fill="#E6EEF8" />
-                <circle cx="205" cy="88" r="11" fill="#E6EEF8" />
-
-                <g filter="url(#drop-shadow-doc)">
-                  <rect x="180" y="48" width="60" height="50" rx="6" fill="#FFFFFF" stroke="#E6EEF8" strokeWidth="1" />
-                  <line x1="190" y1="62" x2="220" y2="62" stroke="#5BA3E8" strokeWidth="3" strokeLinecap="round" />
-                  <line x1="190" y1="71" x2="230" y2="71" stroke="#B8CDE5" strokeWidth="2.5" strokeLinecap="round" />
-                  <line x1="190" y1="80" x2="212" y2="80" stroke="#B8CDE5" strokeWidth="2.5" strokeLinecap="round" />
-                </g>
-
-                <rect x="262" y="142" width="18" height="28" rx="2" fill="#B8CDE5" />
-                <ellipse cx="271" cy="142" rx="10" ry="3.5" fill="#A5BCD8" />
-                <path d="M271 138c-3-9-1-16-1-16s6 4 4 12c-1 3-3 4-3 4z" fill="#4299E1" opacity="0.85" />
-                <path d="M269 139c-8-6-11-11-11-11s7 1 10 8c1 2 1 3 1 3z" fill="#4299E1" opacity="0.65" />
-                <path d="M273 139c8-6 11-11 11-11s-7 1-10 8c-1 2-1 3-1 3z" fill="#4299E1" opacity="0.95" />
-
-                <g filter="url(#drop-shadow-shield)">
-                  <circle cx="50" cy="110" r="25" fill="#FFFFFF" />
-                  <path
-                    d="M50 92c-8 0-11 5.5-11 5.5S38 114 50 124c12-10 11-26.5 11-26.5S58 92 50 92z"
-                    fill="url(#shield-grad)"
+              {title === "All Chapters" ? (
+                <svg
+                  width="320"
+                  height="220"
+                  viewBox="0 0 320 220"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={styles.heroSvg}
+                >
+                  <circle cx="160" cy="110" r="90" fill="url(#hero-glow-chapters)" opacity="0.45" />
+                  <circle cx="250" cy="100" r="50" fill="url(#hero-glow-blue-chapters)" opacity="0.35" />
+                  <ellipse cx="160" cy="180" rx="105" ry="9" fill="#D3E2F4" opacity="0.8" />
+                  
+                  <rect
+                    x="70"
+                    y="60"
+                    width="180"
+                    height="114"
+                    rx="14"
+                    fill="#FFFFFF"
+                    stroke="#1E538E"
+                    strokeWidth="2.5"
                   />
+                  <rect x="75" y="65" width="170" height="98" rx="10" fill="#F4F8FD" />
+                  
+                  <path d="M75 100h170M75 130h170M120 65v98M180 65v98" stroke="#E6EEF8" strokeWidth="1.5" />
+                  
+                  <g transform="translate(100, 80)">
+                    <circle cx="12" cy="12" r="10" fill="#eff6ff" stroke="#2563eb" strokeWidth="1.5" />
+                    <circle cx="12" cy="12" r="4" fill="#2563eb" />
+                    <line x1="12" y1="22" x2="12" y2="28" stroke="#2563eb" strokeWidth="1.5" />
+                  </g>
+                  
+                  <g transform="translate(150, 110)">
+                    <circle cx="12" cy="12" r="10" fill="#fffbeb" stroke="#d97706" strokeWidth="1.5" />
+                    <circle cx="12" cy="12" r="4" fill="#d97706" />
+                    <line x1="12" y1="22" x2="12" y2="28" stroke="#d97706" strokeWidth="1.5" />
+                  </g>
+                  
+                  <g transform="translate(200, 90)">
+                    <circle cx="12" cy="12" r="10" fill="#fff1f2" stroke="#e11d48" strokeWidth="1.5" />
+                    <circle cx="12" cy="12" r="4" fill="#e11d48" />
+                    <line x1="12" y1="22" x2="12" y2="28" stroke="#e11d48" strokeWidth="1.5" />
+                  </g>
+
+                  <path d="M120 95c20 0 20 20 40 20s20-20 40-20" stroke="#1E538E" strokeWidth="2.5" strokeDasharray="4 4" opacity="0.6" />
+                  
+                  <defs>
+                    <radialGradient id="hero-glow-chapters" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stopColor="#5BA3E8" stopOpacity="0.35" />
+                      <stop offset="100%" stopColor="#5BA3E8" stopOpacity="0" />
+                    </radialGradient>
+                    <radialGradient id="hero-glow-blue-chapters" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stopColor="#1E538E" stopOpacity="0.25" />
+                      <stop offset="100%" stopColor="#1E538E" stopOpacity="0" />
+                    </radialGradient>
+                  </defs>
+                </svg>
+              ) : (
+                <svg
+                  width="320"
+                  height="220"
+                  viewBox="0 0 320 220"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={styles.heroSvg}
+                >
+                  <circle cx="160" cy="110" r="90" fill="url(#hero-glow)" opacity="0.45" />
+                  <circle cx="70" cy="130" r="50" fill="url(#hero-glow-blue)" opacity="0.35" />
+
+                  <ellipse cx="160" cy="180" rx="105" ry="9" fill="#D3E2F4" opacity="0.8" />
+
                   <path
-                    d="M45.5 108.5l3.5 3.5 6-6"
-                    stroke="#FFFFFF"
-                    strokeWidth="2.8"
-                    strokeLinecap="round"
+                    d="M55 170h210l14 11H41l14-11z"
+                    fill="#E2EBF6"
+                    stroke="#B8CDE5"
+                    strokeWidth="1.5"
                     strokeLinejoin="round"
                   />
-                </g>
+                  <path d="M140 170h40v3.5h-40v-3.5z" fill="#B8CDE5" />
 
-                <g transform="rotate(-30 210 120)">
-                  <rect x="200" y="85" width="9" height="50" rx="2" fill="url(#pencil-grad)" />
-                  <path d="M200 135l4.5 9 4.5-9h-9z" fill="#FFC085" />
-                  <path d="M202.5 139.5l2 4.5 2-4.5h-4z" fill="#1E4F91" />
-                  <rect x="200" y="83" width="9" height="4.5" fill="#E2EBF6" />
-                  <rect x="200" y="80" width="9" height="3" fill="#F56565" />
-                </g>
+                  <rect
+                    x="70"
+                    y="60"
+                    width="180"
+                    height="114"
+                    rx="7"
+                    fill="#FFFFFF"
+                    stroke="#1E4F91"
+                    strokeWidth="2.5"
+                  />
+                  <rect x="75" y="65" width="170" height="98" rx="4" fill="#F4F8FD" />
 
-                <defs>
-                  <radialGradient id="hero-glow" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="#5BA3E8" stopOpacity="0.35" />
-                    <stop offset="100%" stopColor="#5BA3E8" stopOpacity="0" />
-                  </radialGradient>
-                  <radialGradient id="hero-glow-blue" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="#1E4F91" stopOpacity="0.25" />
-                    <stop offset="100%" stopColor="#1E4F91" stopOpacity="0" />
-                  </radialGradient>
-                  <linearGradient id="shield-grad" x1="50" y1="92" x2="50" y2="124" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#5BA3E8" />
-                    <stop offset="100%" stopColor="#1E4F91" />
-                  </linearGradient>
-                  <linearGradient id="pencil-grad" x1="200" y1="85" x2="209" y2="85" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#5BA3E8" />
-                    <stop offset="100%" stopColor="#1E4F91" />
-                  </linearGradient>
-                  <filter id="drop-shadow-doc" x="168" y="40" width="84" height="74" filterUnits="userSpaceOnUse">
-                    <feDropShadow dx="2" dy="5" stdDeviation="3.5" floodColor="#143152" floodOpacity="0.09" />
-                  </filter>
-                  <filter id="drop-shadow-shield" x="20" y="80" width="60" height="60" filterUnits="userSpaceOnUse">
-                    <feDropShadow dx="0" dy="4" stdDeviation="4.5" floodColor="#1E4F91" floodOpacity="0.18" />
-                  </filter>
-                </defs>
-              </svg>
+                  <rect x="87" y="77" width="55" height="7" rx="2.5" fill="#E6EEF8" />
+                  <rect x="87" y="91" width="85" height="4.5" rx="2" fill="#E6EEF8" />
+                  <rect x="87" y="100" width="105" height="4.5" rx="2" fill="#E6EEF8" />
+                  <rect x="87" y="109" width="70" height="4.5" rx="2" fill="#E6EEF8" />
+                  <circle cx="205" cy="88" r="11" fill="#E6EEF8" />
+
+                  <g filter="url(#drop-shadow-doc)">
+                    <rect x="180" y="48" width="60" height="50" rx="6" fill="#FFFFFF" stroke="#E6EEF8" strokeWidth="1" />
+                    <line x1="190" y1="62" x2="220" y2="62" stroke="#5BA3E8" strokeWidth="3" strokeLinecap="round" />
+                    <line x1="190" y1="71" x2="230" y2="71" stroke="#B8CDE5" strokeWidth="2.5" strokeLinecap="round" />
+                    <line x1="190" y1="80" x2="212" y2="80" stroke="#B8CDE5" strokeWidth="2.5" strokeLinecap="round" />
+                  </g>
+
+                  <rect x="262" y="142" width="18" height="28" rx="2" fill="#B8CDE5" />
+                  <ellipse cx="271" cy="142" rx="10" ry="3.5" fill="#A5BCD8" />
+                  <path d="M271 138c-3-9-1-16-1-16s6 4 4 12c-1 3-3 4-3 4z" fill="#4299E1" opacity="0.85" />
+                  <path d="M269 139c-8-6-11-11-11-11s7 1 10 8c1 2 1 3 1 3z" fill="#4299E1" opacity="0.65" />
+                  <path d="M273 139c8-6 11-11 11-11s-7 1-10 8c-1 2-1 3-1 3z" fill="#4299E1" opacity="0.95" />
+
+                  <g filter="url(#drop-shadow-shield)">
+                    <circle cx="50" cy="110" r="25" fill="#FFFFFF" />
+                    <path
+                      d="M50 92c-8 0-11 5.5-11 5.5S38 114 50 124c12-10 11-26.5 11-26.5S58 92 50 92z"
+                      fill="url(#shield-grad)"
+                    />
+                    <path
+                      d="M45.5 108.5l3.5 3.5 6-6"
+                      stroke="#FFFFFF"
+                      strokeWidth="2.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </g>
+
+                  <g transform="rotate(-30 210 120)">
+                    <rect x="200" y="85" width="9" height="50" rx="2" fill="url(#pencil-grad)" />
+                    <path d="M200 135l4.5 9 4.5-9h-9z" fill="#FFC085" />
+                    <path d="M202.5 139.5l2 4.5 2-4.5h-4z" fill="#1E4F91" />
+                    <rect x="200" y="83" width="9" height="4.5" fill="#E2EBF6" />
+                    <rect x="200" y="80" width="9" height="3" fill="#F56565" />
+                  </g>
+
+                  <defs>
+                    <radialGradient id="hero-glow" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stopColor="#5BA3E8" stopOpacity="0.35" />
+                      <stop offset="100%" stopColor="#5BA3E8" stopOpacity="0" />
+                    </radialGradient>
+                    <radialGradient id="hero-glow-blue" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stopColor="#1E4F91" stopOpacity="0.25" />
+                      <stop offset="100%" stopColor="#1E4F91" stopOpacity="0" />
+                    </radialGradient>
+                    <linearGradient id="shield-grad" x1="50" y1="92" x2="50" y2="124" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stopColor="#5BA3E8" />
+                      <stop offset="100%" stopColor="#1E4F91" />
+                    </linearGradient>
+                    <linearGradient id="pencil-grad" x1="200" y1="85" x2="209" y2="85" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stopColor="#5BA3E8" />
+                      <stop offset="100%" stopColor="#1E4F91" />
+                    </linearGradient>
+                    <filter id="drop-shadow-doc" x="168" y="40" width="84" height="74" filterUnits="userSpaceOnUse">
+                      <feDropShadow dx="2" dy="5" stdDeviation="3.5" floodColor="#143152" floodOpacity="0.09" />
+                    </filter>
+                    <filter id="drop-shadow-shield" x="20" y="80" width="60" height="60" filterUnits="userSpaceOnUse">
+                      <feDropShadow dx="0" dy="4" stdDeviation="4.5" floodColor="#1E4F91" floodOpacity="0.18" />
+                    </filter>
+                  </defs>
+                </svg>
+              )}
             </div>
           )}
         </div>

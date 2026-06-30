@@ -3,7 +3,7 @@
   top: 0;
   left: var(--admin-sidebar-width);
   right: 0;
-  z-index: 150;
+  z-index: 220;
   height: var(--admin-header-height);
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(12px);

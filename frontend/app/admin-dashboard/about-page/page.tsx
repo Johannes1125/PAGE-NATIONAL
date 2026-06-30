@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import AdminSidebarLayout from "../components/AdminSidebarLayout";
+import StatCard from "../components/StatCard";
 import { api } from "../../lib/api-client";
 import { gooeyToast } from "goey-toast";
 import "goey-toast/styles.css";
@@ -259,49 +260,24 @@ export default function AboutPageManagement() {
       >
         {/* Redesigned Summary Cards */}
         <section className="about-stats-row admin-summary-grid">
-          <motion.article 
-            className="about-summary-card"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.3 }}
-          >
-            <div className="about-summary-card-inner">
-              <div className="about-summary-icon-container">
-                <LayoutGrid size={28} />
-              </div>
-              <div className="about-summary-details">
-                <span className="about-summary-label">Total Content</span>
-                <span className="about-summary-value">{stats.total} <span className="about-summary-unit">Modules</span></span>
-              </div>
-            </div>
-            <div className="about-summary-watermark" aria-hidden="true">
-              <LayoutGrid size={120} />
-            </div>
-          </motion.article>
+          <StatCard
+            label="Total Content"
+            value={stats.total}
+            valueUnit="Modules"
+            icon={LayoutGrid}
+            accent="blue"
+            delay={0.1}
+          />
 
-          <motion.article 
-            className="about-summary-card"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.3 }}
-          >
-            <div className="about-summary-card-inner">
-              <div className="about-summary-icon-container">
-                <Clock size={28} />
-              </div>
-              <div className="about-summary-details">
-                <span className="about-summary-label">Recently Updated</span>
-                <span className="about-summary-value-title">{stats.lastUpdatedTitle}</span>
-                <div className="about-summary-time-wrapper">
-                  <span className="about-summary-label-sub">Last Updated</span>
-                  <span className="about-summary-value-time">{formatDateTime(stats.lastUpdatedTime)}</span>
-                </div>
-              </div>
-            </div>
-            <div className="about-summary-watermark" aria-hidden="true">
-              <Clock size={120} />
-            </div>
-          </motion.article>
+          <StatCard
+            label="Recently Updated"
+            valueTitle={stats.lastUpdatedTitle}
+            subTimeLabel="Last Updated"
+            subTimeValue={formatDateTime(stats.lastUpdatedTime)}
+            icon={Clock}
+            accent="rose"
+            delay={0.15}
+          />
         </section>
 
         {/* Redesigned 6 Module Cards Grid */}

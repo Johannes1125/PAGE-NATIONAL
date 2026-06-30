@@ -17,7 +17,7 @@ export default function ViewToggle({ viewMode, onChange }: ViewToggleProps) {
         onClick={() => onChange("card")}
         className={`chapters-view-toggle__btn ${viewMode === "card" ? "chapters-view-toggle__btn--active" : ""}`}
       >
-        <LayoutGrid size={18} aria-hidden="true" />
+        <LayoutGrid size={20} aria-hidden="true" />
         <span>Card View</span>
       </button>
       <button
@@ -27,7 +27,7 @@ export default function ViewToggle({ viewMode, onChange }: ViewToggleProps) {
         onClick={() => onChange("list")}
         className={`chapters-view-toggle__btn ${viewMode === "list" ? "chapters-view-toggle__btn--active" : ""}`}
       >
-        <List size={18} aria-hidden="true" />
+        <List size={20} aria-hidden="true" />
         <span>List View</span>
       </button>
     </div>

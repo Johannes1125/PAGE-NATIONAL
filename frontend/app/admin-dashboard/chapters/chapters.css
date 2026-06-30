@@ -52,9 +52,9 @@
 }
 
 .chapters-section__label {
-  font-size: var(--chapters-font-title);
-  font-weight: 600;
-  color: var(--r-text-mid, #334e6e);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--p-navy);
   letter-spacing: 0.02em;
 }
 
@@ -83,10 +83,10 @@
   min-height: var(--chapters-control-height);
   padding: 0 24px;
   font-size: var(--chapters-font-body);
-  font-weight: 700;
+  font-weight: 600;
   border-radius: var(--chapters-radius-sm);
   cursor: pointer;
-  transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.15s ease;
+  transition: all 0.2s ease-in-out;
 }
 
 .chapters-btn:focus-visible {
@@ -105,19 +105,23 @@
 }
 
 .chapters-btn--secondary:hover {
-  background: var(--r-surface-2, #f8fafc);
-  color: var(--r-text, #0e2340);
+  background: rgba(20, 49, 82, 0.05);
+  color: var(--p-navy);
+  border-color: var(--r-border-mid);
 }
 
 .chapters-btn--primary {
   background: var(--p-blue, #1e538e);
   color: #ffffff;
-  border: 1.5px solid #174a7a;
-  box-shadow: 0 2px 8px rgba(30, 83, 142, 0.2);
+  border: 1.5px solid var(--p-blue);
+  box-shadow: 0 4px 10px rgba(30, 83, 142, 0.1);
 }
 
 .chapters-btn--primary:hover {
-  background: #174a7a;
+  background: var(--p-navy);
+  border-color: var(--p-navy);
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(20, 49, 82, 0.2);
 }
 
 .chapters-icon-btn {
@@ -151,7 +155,7 @@
   justify-content: center;
   padding: 6px 14px;
   border-radius: 999px;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   white-space: nowrap;
   border: 1px solid transparent;
@@ -159,25 +163,25 @@
 
 .chapters-badge--sm {
   padding: 4px 12px;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .chapters-badge--published {
-  background: #22c55e;
-  color: #ffffff;
-  border-color: #16a34a;
+  background: #dcfce7;
+  color: #15803d;
+  border-color: #bbf7d0;
 }
 
 .chapters-badge--draft {
-  background: #f59e0b;
-  color: #ffffff;
-  border-color: #d97706;
+  background: #fef3c7;
+  color: #b45309;
+  border-color: #fde68a;
 }
 
 .chapters-badge--archived {
-  background: #64748b;
-  color: #ffffff;
-  border-color: #475569;
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #e2e8f0;
 }
 
 /* Region chips */
@@ -186,7 +190,7 @@
   align-items: center;
   padding: 6px 14px;
   border-radius: 999px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   background: var(--r-surface-2, #f1f5f9);
   color: var(--r-text-mid, #334e6e);
@@ -297,7 +301,7 @@
   margin-top: 24px;
   padding-top: 4px;
   min-width: 0;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .chapters-stat-card__sparkline {
@@ -344,7 +348,7 @@
   align-items: center;
   gap: 6px;
   font-weight: 700;
-  color: #e11d48;
+  color: var(--r-text-mid, #334e6e);
 }
 
 .chapters-stat-card__health-dot {
@@ -405,10 +409,10 @@
   padding: 0 16px;
   font-size: var(--chapters-font-body);
   font-weight: 600;
-  color: var(--r-text-mid, #334e6e);
+  color: var(--r-text, #0e2340);
   background: var(--r-surface-2, #f8fafc);
   border: 1.5px solid var(--r-border-mid, #cbd5e1);
-  border-radius: var(--chapters-radius-sm);
+  border-radius: 8px;
   appearance: none;
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
@@ -422,7 +426,7 @@
 .chapters-toolbar__control:focus {
   outline: none;
   border-color: var(--p-blue, #1e538e);
-  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.12);
+  box-shadow: 0 0 0 2px rgba(30, 83, 142, 0.1);
   background: #ffffff;
 }
 
@@ -435,7 +439,7 @@
   color: var(--r-text, #0e2340);
   background: var(--r-surface-2, #f8fafc);
   border: 1.5px solid var(--r-border-mid, #cbd5e1);
-  border-radius: var(--chapters-radius-sm);
+  border-radius: 8px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
@@ -451,7 +455,7 @@
 .chapters-toolbar__search-input:focus {
   outline: none;
   border-color: var(--p-blue, #1e538e);
-  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.12);
+  box-shadow: 0 0 0 2px rgba(30, 83, 142, 0.1);
   background: #ffffff;
 }
 
@@ -482,7 +486,7 @@
   height: var(--chapters-control-height);
   background: var(--r-surface-2, #f1f5f9);
   border: 1.5px solid var(--r-border-mid, #cbd5e1);
-  border-radius: var(--chapters-radius-sm);
+  border-radius: 999px;
 }
 
 .chapters-view-toggle__btn {
@@ -491,19 +495,20 @@
   justify-content: center;
   gap: 8px;
   min-height: 44px;
-  padding: 0 18px;
+  padding: 0 20px;
   border: none;
-  border-radius: 9px;
-  font-size: 16px;
-  font-weight: 700;
+  border-radius: 999px;
+  font-size: 18px;
+  font-weight: 600;
   color: var(--r-text-muted, #6b87a4);
   background: transparent;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  transition: all 0.2s ease-in-out;
 }
 
 .chapters-view-toggle__btn:hover {
-  color: var(--r-text-mid, #334e6e);
+  color: var(--p-navy);
+  background: rgba(20, 49, 82, 0.05);
 }
 
 .chapters-view-toggle__btn:focus-visible {
@@ -512,9 +517,14 @@
 }
 
 .chapters-view-toggle__btn--active {
-  background: #ffffff;
-  color: var(--p-blue, #1e538e);
-  box-shadow: 0 1px 4px rgba(20, 49, 82, 0.08);
+  background: var(--p-blue, #1e538e);
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(30, 83, 142, 0.15);
+}
+
+.chapters-view-toggle__btn--active:hover {
+  background: var(--p-navy);
+  color: #ffffff;
 }
 
 /* ─── Chapter cards grid ─── */
@@ -535,14 +545,14 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 320px;
+  min-height: 280px;
   min-width: 0;
   padding: 0;
   background: var(--r-surface, #ffffff);
   border: 1.5px solid var(--r-border-mid, #cbd5e1);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  cursor: pointer;
+  cursor: default;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
@@ -611,7 +621,7 @@
 }
 
 .chapters-card__officers-label {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -625,8 +635,8 @@
 }
 
 .chapters-card__avatar {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   border: 2px solid #ffffff;
   object-fit: cover;
@@ -641,8 +651,8 @@
 }
 
 .chapters-card__avatar-more {
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 2px solid #ffffff;
   background: #eff6ff;
@@ -650,9 +660,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 800;
   margin-left: -8px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+.chapters-card__avatar-more:hover {
+  background: #dbeafe;
+  transform: translateY(-2px);
+}
+
+.chapters-card__avatar-more:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.25);
 }
 
 .chapters-card__footer {
@@ -667,7 +690,7 @@
 }
 
 .chapters-card__footer-action-row {
-  padding: 12px 16px;
+  padding: 14px 16px;
   border-top: 1px solid var(--r-border-mid, #cbd5e1);
   display: flex;
   align-items: center;
@@ -696,13 +719,13 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 16px;
+  font-size: 18px;
   color: var(--r-text-muted, #6b87a4);
   font-weight: 600;
 }
 
 .chapters-card__meta-value {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--r-text, #0e2340);
   padding-left: 22px;
@@ -711,7 +734,7 @@
 .chapters-card__actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
   flex-shrink: 0;
 }
 
@@ -759,7 +782,7 @@
 .chapters-table thead th {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 50;
   padding: 18px 20px;
   font-size: 18px;
   font-weight: 600;
@@ -775,16 +798,12 @@
   transition: background 0.15s ease;
 }
 
-.chapters-table tbody tr:nth-child(odd) {
+.chapters-table tbody tr {
   background: #ffffff;
 }
 
-.chapters-table tbody tr:nth-child(even) {
-  background: #f9fafb;
-}
-
 .chapters-table tbody tr:hover {
-  background: #f0f4ff;
+  background: #f8fafc;
 }
 
 .chapters-table tbody tr.chapters-table__row--selected {
@@ -820,20 +839,55 @@
 }
 
 .chapters-table__chapter-desc {
-  font-size: 16px;
+  font-size: 18px;
   color: var(--r-text-muted, #6b87a4);
   margin-top: 4px;
-  max-width: 280px;
+  max-width: 320px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.chapters-table__icon-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid transparent;
+  flex-shrink: 0;
+}
+
+.chapters-table__icon-badge--blue {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #dbeafe;
+}
+
+.chapters-table__icon-badge--green {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+.chapters-table__icon-badge--orange {
+  background: #fffbeb;
+  color: #d97706;
+  border-color: #fde68a;
+}
+
+.chapters-table__icon-badge--red {
+  background: #fff1f2;
+  color: #e11d48;
+  border-color: #fecdd3;
 }
 
 .chapters-table__actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 4px;
+  gap: 8px;
 }
 
 /* ─── Pagination ─── */
@@ -864,7 +918,7 @@
 
 .chapters-pagination__page-of {
   margin-top: 4px;
-  font-size: 16px;
+  font-size: 18px;
   color: var(--r-text-muted, #6b87a4);
 }
 
@@ -887,7 +941,7 @@
 .chapters-pagination__per-page select {
   height: var(--chapters-control-height);
   padding: 0 40px 0 16px;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--r-text-mid, #334e6e);
   background: var(--r-surface, #ffffff);
@@ -1109,4 +1163,368 @@
   .chapters-pagination__per-page {
     justify-self: center;
   }
+}
+
+/* ─── Toolbar two-row layout with visible labels ─── */
+.chapters-toolbar-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+}
+
+.chapters-toolbar__field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.chapters-toolbar__field-label {
+  font-size: var(--chapters-font-label);
+  font-weight: 600;
+  color: var(--r-text-mid, #334e6e);
+  line-height: 1.3;
+  user-select: none;
+}
+
+.chapters-toolbar__search-group {
+  width: 100%;
+}
+
+.chapters-toolbar__filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+}
+
+.chapters-toolbar__filter-row .chapters-toolbar__field-group {
+  flex: 1 1 180px;
+  min-width: 150px;
+  max-width: 280px;
+}
+
+/* ─── Card secondary info strip ─── */
+.chapters-card__secondary-strip {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  padding: 0 var(--chapters-card-padding) 14px var(--chapters-card-padding);
+  font-size: 16px;
+  color: var(--r-text-muted, #6b87a4);
+  font-weight: 500;
+}
+
+.chapters-card__secondary-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.chapters-card__secondary-sep {
+  color: var(--r-text-muted, #6b87a4);
+  opacity: 0.4;
+}
+
+/* ─── Card labeled primary Manage button ─── */
+.chapters-card__manage-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 20px;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 700;
+  background: var(--p-blue, #1e538e);
+  color: #ffffff;
+  border: 1.5px solid #174a7a;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+  white-space: nowrap;
+}
+
+.chapters-card__manage-btn:hover {
+  background: #174a7a;
+}
+
+.chapters-card__manage-btn:active {
+  transform: scale(0.98);
+}
+
+.chapters-card__manage-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.3);
+}
+
+/* ─── Card secondary Actions overflow button ─── */
+.chapters-card__actions-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 48px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  background: var(--r-surface, #ffffff);
+  color: var(--r-text-mid, #334e6e);
+  border: 1.5px solid var(--r-border-mid, #cbd5e1);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.chapters-card__actions-btn:hover {
+  background: var(--r-surface-2, #f8fafc);
+  border-color: #94a3b8;
+}
+
+.chapters-card__actions-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.25);
+}
+
+/* ─── Shared dropdown menu (card & table) ─── */
+.chapters-card__dropdown {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  min-width: 200px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.13);
+  padding: 6px;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chapters-card__dropdown--down {
+  bottom: auto;
+  top: calc(100% + 8px);
+}
+
+.chapters-card__dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--r-text-mid, #334e6e);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.chapters-card__dropdown-item:hover {
+  background: #f8fafc;
+  color: var(--r-text, #0e2340);
+}
+
+.chapters-card__dropdown-item:focus-visible {
+  outline: none;
+  background: #eff6ff;
+}
+
+.chapters-card__dropdown-item--danger {
+  color: #dc2626;
+  border-top: 1px solid #f1f5f9;
+  margin-top: 4px;
+  padding-top: 13px;
+}
+
+.chapters-card__dropdown-item--danger:hover {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+/* ─── Table labeled Manage + Actions buttons ─── */
+.chapters-table__manage-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  background: var(--p-blue, #1e538e);
+  color: #ffffff;
+  border: 1.5px solid var(--p-blue);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+}
+
+.chapters-table__manage-btn:hover {
+  background: var(--p-navy);
+  border-color: var(--p-navy);
+}
+
+.chapters-table__manage-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.3);
+}
+
+.chapters-table__actions-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  background: transparent;
+  color: var(--r-text-mid, #334e6e);
+  border: 1.5px solid var(--r-border-mid, #cbd5e1);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+}
+
+.chapters-table__actions-btn:hover {
+  background: rgba(20, 49, 82, 0.05);
+  color: var(--p-navy);
+  border-color: var(--p-navy);
+}
+
+.chapters-table__actions-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.25);
+}
+
+/* ─── Responsive overrides for new layouts ─── */
+@media (max-width: 1023px) {
+  .chapters-toolbar__filter-row .chapters-toolbar__field-group {
+    flex: 1 1 200px;
+    max-width: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .chapters-toolbar__filter-row .chapters-toolbar__field-group {
+    flex: 1 1 100%;
+    max-width: none;
+  }
+
+  .chapters-card__manage-btn,
+  .chapters-card__actions-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .chapters-card__footer-action-row {
+    justify-content: stretch;
+  }
+}
+
+/* ─── About PAGE module card patterns replicated for chapters ─── */
+.about-card-top {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.about-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.about-card-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: var(--p-blue-pale);
+  color: var(--p-blue);
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(30, 83, 142, 0.05);
+}
+
+.about-card-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--p-navy);
+  line-height: 1.25;
+}
+
+.about-card-middle {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid #e6eef8;
+  border-bottom: 1px solid #e6eef8;
+  margin-bottom: 24px;
+}
+
+.about-card-stat-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.about-card-stat-label {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--r-text-muted);
+  letter-spacing: 0.5px;
+}
+
+.about-card-stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--p-navy);
+}
+
+.about-btn-full-width {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 52px;
+  padding: 0 24px;
+  background: var(--p-blue);
+  border: 1.5px solid var(--p-blue);
+  border-radius: 12px;
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 10px rgba(30, 83, 142, 0.1);
+}
+
+.about-btn-full-width:hover {
+  background: var(--p-navy);
+  border-color: var(--p-navy);
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(20, 49, 82, 0.2);
+}
+
+.about-btn-full-width:hover .about-btn-arrow {
+  transform: translateX(4px);
+}
+
+.about-btn-arrow {
+  transition: transform 0.2s ease-in-out;
 }

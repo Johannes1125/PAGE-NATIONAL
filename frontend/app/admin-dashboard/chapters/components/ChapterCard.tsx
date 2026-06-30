@@ -1,27 +1,28 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Calendar, Clock, Edit2, Eye, MoreVertical, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Globe, MoreVertical, Trash2, Building2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Chapter } from "../types";
 import StatusBadge from "./StatusBadge";
 import { getOfficerAvatar } from "./OfficerPreview";
-import { formatDateShort, formatRelativeTime } from "../utils/formatters";
+import { formatDateShort } from "../utils/formatters";
+import PillButton from "../../components/PillButton";
 
 type ChapterCardProps = {
   chapter: Chapter;
   onEdit?: (chapter: Chapter) => void;
-  onDuplicate?: (chapter: Chapter) => void;
   onTogglePublish?: (chapter: Chapter) => void;
-  onMoreActions?: (chapter: Chapter) => void;
   onViewAllOfficers?: (chapter: Chapter) => void;
+  onDelete?: (chapter: Chapter) => void;
 };
 
 export default function ChapterCard({
   chapter,
   onEdit,
+  onTogglePublish,
   onViewAllOfficers,
-  onMoreActions,
+  onDelete,
 }: ChapterCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -32,11 +33,16 @@ export default function ChapterCard({
         setMenuOpen(false);
       }
     }
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setMenuOpen(false);
+    }
     if (menuOpen) {
       document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleEscape);
     }
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
     };
   }, [menuOpen]);
 
@@ -62,27 +68,33 @@ export default function ChapterCard({
       variants={cardVariants}
       className="chapters-card group"
     >
+      {/* ── Card body ──────────────────────────────────── */}
       <div className="chapters-card__body">
-        <header className="chapters-card__header">
-          <h3 className="chapters-card__title" title={chapter.name}>
+        <div className="about-card-top">
+          <div className="about-card-header">
+            <div className="about-card-icon-wrapper">
+              <Building2 size={24} />
+            </div>
+            <div className="chapters-card__badge-wrap">
+              <StatusBadge status={chapter.status} />
+            </div>
+          </div>
+          <h3 className="about-card-title" title={chapter.name}>
             {chapter.name}
           </h3>
-          <div className="chapters-card__badge-wrap">
-            <StatusBadge status={chapter.status} />
-          </div>
-        </header>
+        </div>
 
-        <div className="chapters-card__chips">
+        <div className="chapters-card__chips" style={{ marginTop: "12px", marginBottom: "8px" }}>
           <span className="chapters-chip">{chapter.islandGroup}</span>
           <span className="chapters-chip chapters-chip--region">{chapter.region}</span>
         </div>
 
-        <div className="chapters-card__description-wrap">
-          <p className="chapters-card__description select-text">{chapter.description}</p>
+        <div className="chapters-card__description-wrap" style={{ marginTop: "8px", marginBottom: "16px", minHeight: "auto" }}>
+          <p className="chapters-card__description select-text" style={{ fontSize: "16px", lineHeight: "1.5" }}>{chapter.description}</p>
         </div>
 
-        <div className="chapters-card__officers">
-          <h4 className="chapters-card__officers-label">Officers ({chapter.officers.length})</h4>
+        {/* Officers list avatars */}
+        <div className="chapters-card__officers" style={{ marginTop: "0", marginBottom: "20px" }}>
           <div className="chapters-card__avatars">
             {displayedOfficers.map((officer, idx) => (
               <img
@@ -95,102 +107,140 @@ export default function ChapterCard({
               />
             ))}
             {remainingCount > 0 && (
-              <div
+              <button
+                type="button"
                 className="chapters-card__avatar-more"
+                style={{ marginLeft: -10 }}
                 title={`${remainingCount} more officer${remainingCount > 1 ? "s" : ""}`}
+                aria-label={`View ${remainingCount} more officers for ${chapter.name}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onViewAllOfficers?.(chapter);
+                }}
               >
                 +{remainingCount}
-              </div>
+              </button>
             )}
             {chapter.officers.length === 0 && (
               <span className="text-[16px] text-slate-400 italic">No officers assigned</span>
             )}
           </div>
         </div>
-      </div>
 
-      <footer className="chapters-card__footer">
-        <div className="chapters-card__footer-meta-row">
-          <div className="chapters-card__meta">
-            <div className="chapters-card__meta-block">
-              <div className="chapters-card__meta-heading">
-                <Clock size={16} aria-hidden="true" />
-                Updated
-              </div>
-              <span className="chapters-card__meta-value">{formatRelativeTime(chapter.updatedAt)}</span>
-            </div>
-            <div className="chapters-card__meta-block">
-              <div className="chapters-card__meta-heading">
-                <Calendar size={16} aria-hidden="true" />
-                Created
-              </div>
-              <span className="chapters-card__meta-value">{formatDateShort(chapter.createdAt)}</span>
-            </div>
+        {/* About PAGE module-style stat row */}
+        <div className="about-card-middle" style={{ marginTop: "auto", marginBottom: "0" }}>
+          <div className="about-card-stat-block">
+            <span className="about-card-stat-label">Officers</span>
+            <span className="about-card-stat-value">{chapter.officers.length}</span>
+          </div>
+          <div className="about-card-stat-block">
+            <span className="about-card-stat-label">Updated</span>
+            <span className="about-card-stat-value">{formatDateShort(chapter.updatedAt)}</span>
           </div>
         </div>
+      </div>
 
-        <div className="chapters-card__footer-action-row">
-          <div className="chapters-card__actions">
-            {onEdit && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit(chapter);
-                }}
-                className="chapters-icon-btn"
-                title="Edit chapter"
-                aria-label={`Edit ${chapter.name}`}
+      {/* ── Footer ──────────────────────────────────────── */}
+      <footer className="chapters-card__footer" style={{ marginTop: "20px" }}>
+        {/* Action row — Manage (primary) + Actions dropdown (secondary) */}
+        <div className="chapters-card__footer-action-row" style={{ display: "flex", gap: "12px", width: "100%", padding: "14px 16px" }}>
+          {/* Primary: Manage (Edit Module style) */}
+          <PillButton
+            variant="primary"
+            size="lg"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit?.(chapter);
+            }}
+            style={{ flex: 1 }}
+            aria-label={`Manage ${chapter.name}`}
+          >
+            ✏ Manage
+          </PillButton>
+
+          {/* Secondary: Actions overflow dropdown */}
+          <div className="relative" ref={menuRef} style={{ flexShrink: 0 }}>
+            <PillButton
+              variant="outline"
+              size="lg"
+              onClick={(e) => {
+                e.stopPropagation();
+                setMenuOpen((open) => !open);
+              }}
+              icon={<MoreVertical size={18} strokeWidth={2.2} aria-hidden="true" />}
+              aria-label={`More actions for ${chapter.name}`}
+              aria-expanded={menuOpen}
+              aria-haspopup="true"
+            >
+              Actions
+            </PillButton>
+
+            {menuOpen && (
+              <div
+                className="chapters-card__dropdown"
+                role="menu"
+                aria-label={`Actions for ${chapter.name}`}
+                style={{ bottom: "calc(100% + 8px)", right: 0 }}
               >
-                <Edit2 size={20} strokeWidth={2.2} />
-              </button>
-            )}
-            {onViewAllOfficers && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onViewAllOfficers(chapter);
-                }}
-                className="chapters-icon-btn"
-                title="View officers"
-                aria-label={`View officers for ${chapter.name}`}
-              >
-                <Eye size={20} strokeWidth={2.2} />
-              </button>
-            )}
-            {onMoreActions && (
-              <div className="relative" ref={menuRef}>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setMenuOpen((open) => !open);
-                  }}
-                  className="chapters-icon-btn"
-                  title="More actions"
-                  aria-label={`More actions for ${chapter.name}`}
-                  aria-expanded={menuOpen}
-                  aria-haspopup="true"
-                >
-                  <MoreVertical size={20} strokeWidth={2.2} />
-                </button>
-                {menuOpen && (
-                  <div className="absolute right-0 bottom-[calc(100%+8px)] min-w-[180px] bg-white border border-slate-200 rounded-[10px] shadow-[0_4px_16px_rgba(0,0,0,0.12)] py-1.5 z-40 flex flex-col">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onMoreActions(chapter);
-                        setMenuOpen(false);
-                      }}
-                      className="w-full px-5 py-3.5 text-[18px] font-semibold text-[#dc2626] hover:bg-[#f3f4f6] text-left flex items-center gap-2"
-                      aria-label={`Delete ${chapter.name}`}
-                    >
-                      <Trash2 size={18} />
-                      Delete
-                    </button>
-                  </div>
+                {onViewAllOfficers && (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onViewAllOfficers(chapter);
+                      setMenuOpen(false);
+                    }}
+                    className="chapters-card__dropdown-item"
+                  >
+                    <Eye size={16} aria-hidden="true" />
+                    View Officers
+                  </button>
+                )}
+                {onTogglePublish && (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onTogglePublish(chapter);
+                      setMenuOpen(false);
+                    }}
+                    className="chapters-card__dropdown-item"
+                    aria-label={
+                      chapter.status === "published"
+                        ? `Unpublish ${chapter.name}`
+                        : `Publish ${chapter.name}`
+                    }
+                  >
+                    {chapter.status === "published" ? (
+                      <>
+                        <EyeOff size={16} aria-hidden="true" />
+                        Unpublish
+                      </>
+                    ) : (
+                      <>
+                        <Globe size={16} aria-hidden="true" />
+                        Publish
+                      </>
+                    )}
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(chapter);
+                      setMenuOpen(false);
+                    }}
+                    className="chapters-card__dropdown-item chapters-card__dropdown-item--danger"
+                    aria-label={`Delete ${chapter.name}`}
+                  >
+                    <Trash2 size={16} aria-hidden="true" />
+                    Delete
+                  </button>
                 )}
               </div>
             )}
