@@ -25,7 +25,6 @@ const cardVariants = {
   hover: {
     y: -2,
     boxShadow: "0 8px 24px rgba(30, 83, 142, 0.07)",
-    borderColor: "rgba(30, 83, 142, 0.15)",
     transition: { duration: 0.2, ease: "easeOut" as const },
   },
 };
