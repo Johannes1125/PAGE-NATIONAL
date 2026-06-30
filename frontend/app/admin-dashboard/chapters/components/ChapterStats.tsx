@@ -1,38 +1,20 @@
 "use client";
 
 import { Building2, MapPin, Map, Shield } from "lucide-react";
-import { Chapter } from "../types";
+import { Chapter, ChapterStatsData } from "../types";
 import StatCard from "../../components/StatCard";
 
 type ChapterStatsProps = {
-  chapters: Chapter[];
+  chapters?: Chapter[];      // legacy: used for fallback computation
+  stats?: ChapterStatsData;  // preferred: API-returned totals
 };
 
-export default function ChapterStats({ chapters }: ChapterStatsProps) {
-  const total = chapters.length;
-  const luzon = chapters.filter((c) => c.islandGroup === "Luzon").length;
-  const visayas = chapters.filter((c) => c.islandGroup === "Visayas").length;
-  const mindanao = chapters.filter((c) => c.islandGroup === "Mindanao").length;
-
-  const visayasPublished = chapters.filter(
-    (c) => c.islandGroup === "Visayas" && c.status === "published"
-  ).length;
-  const visayasDraft = chapters.filter(
-    (c) => c.islandGroup === "Visayas" && c.status === "draft"
-  ).length;
-  const visayasTotal = visayasPublished + visayasDraft || 1;
-
-  const luzonShare = total > 0 ? Math.round((luzon / total) * 100) : 0;
-
-  const mindanaoChapters = chapters.filter((c) => c.islandGroup === "Mindanao");
-  const latestMindanao = mindanaoChapters.reduce<string | null>((latest, ch) => {
-    if (!latest) return ch.updatedAt;
-    return new Date(ch.updatedAt) > new Date(latest) ? ch.updatedAt : latest;
-  }, null);
-
-  const latestLabel = latestMindanao
-    ? new Date(latestMindanao).toLocaleDateString("en-US", { month: "short", day: "numeric" })
-    : "No updates";
+export default function ChapterStats({ chapters = [], stats }: ChapterStatsProps) {
+  // Prefer API stats; fall back to computing from local chapter list
+  const total    = stats?.total    ?? chapters.length;
+  const luzon    = stats?.luzon    ?? chapters.filter((c) => c.islandGroup === "Luzon").length;
+  const visayas  = stats?.visayas  ?? chapters.filter((c) => c.islandGroup === "Visayas").length;
+  const mindanao = stats?.mindanao ?? chapters.filter((c) => c.islandGroup === "Mindanao").length;
 
   return (
     <section className="chapters-section" aria-label="Chapter analytics overview">

@@ -373,3 +373,65 @@ export const api = {
     return handleResponse(response);
   },
 };
+
+// ─── Chapters API ─────────────────────────────────────────────────────────────
+
+export interface ChapterListParams {
+  search?: string;
+  island_group?: string;
+  region?: string;
+  status?: string;
+  sort?: string;
+  page?: number;
+  limit?: number;
+}
+
+export const chaptersApi = {
+  /** GET /chapters — list with filters/sort/pagination */
+  list: (params?: ChapterListParams) => {
+    const qs = new URLSearchParams();
+    if (params?.search)        qs.set('search', params.search);
+    if (params?.island_group && params.island_group !== 'All') qs.set('island_group', params.island_group);
+    if (params?.region && params.region !== 'All')             qs.set('region', params.region);
+    if (params?.status && params.status !== 'All')             qs.set('status', params.status);
+    if (params?.sort)          qs.set('sort', params.sort);
+    if (params?.page)          qs.set('page', String(params.page));
+    if (params?.limit)         qs.set('limit', String(params.limit));
+    const query = qs.toString();
+    return api.get(`/chapters${query ? `?${query}` : ''}`);
+  },
+
+  /** GET /chapters/stats — total/luzon/visayas/mindanao counts */
+  stats: () => api.get('/chapters/stats'),
+
+  /** GET /chapters/:id — full chapter with all relations */
+  get: (id: string) => api.get(`/chapters/${id}`),
+
+  /** POST /chapters — create chapter */
+  create: (dto: Record<string, unknown>) => api.post('/chapters', dto),
+
+  /** PATCH /chapters/:id — update chapter data */
+  update: (id: string, dto: Record<string, unknown>) => api.patch(`/chapters/${id}`, dto),
+
+  /** PATCH /chapters/:id/status — update chapter status */
+  updateStatus: (id: string, status: 'draft' | 'published' | 'archived') =>
+    api.patch(`/chapters/${id}/status`, { status }),
+
+  /** DELETE /chapters/:id */
+  delete: (id: string) => api.delete(`/chapters/${id}`),
+
+  /** POST /chapters/upload/image — upload single image, returns { url, fileName } */
+  uploadImage: (file: File) => {
+    const fd = new FormData();
+    fd.append('image', file);
+    return api.postMultipart('/chapters/upload/image', fd);
+  },
+
+  /** POST /chapters/upload/document — upload single document, returns { url, fileName } */
+  uploadDocument: (file: File) => {
+    const fd = new FormData();
+    fd.append('document', file);
+    return api.postMultipart('/chapters/upload/document', fd);
+  },
+};
+

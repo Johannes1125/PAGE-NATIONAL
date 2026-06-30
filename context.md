@@ -32,6 +32,7 @@ PAGE-NATIONAL/
 │   │   ├── about-page/       # Serves about page sections, documents, and board of officers
 │   │   ├── articles/         # Article/journal submission services & controllers
 │   │   ├── auth/             # JWT/Token authentication, guards, roles decorator
+│   │   ├── bir-certifications/ # BIR tax exemption certification records management endpoints
 │   │   ├── cloudinary/       # File upload service logic using Cloudinary
 │   │   ├── common/           # Shared classes, interceptors, and utility functions
 │   │   ├── dashboard/        # Dashboard stats and administration data handlers
@@ -86,6 +87,7 @@ PAGE-NATIONAL/
     │   │   │   └── sec-registrations/
     │   │   ├── approve-post/ # View to moderate draft posts
     │   │   ├── audit-log/    # Log page to monitor actions
+    │   │   ├── chapters/     # Regional chapters roster and management interface
     │   │   ├── components/   # Dashboard navigation and structure components
     │   │   ├── create-new-post/ # Post writing / publishing interface
     │   │   ├── lib/          # Helper modules
@@ -127,6 +129,7 @@ The database uses PostgreSQL via Prisma ORM. Key tables include:
 - **`page_logos`**: Timestamps and asset paths for brand/logo iterations.
 - **`NationalOfficer`**: Model for storing and managing board officers.
 - **`SecRegistration`**: Model storing official SEC registration items and files.
+- **`BirCertification`**: Model storing official BIR tax exemption certification records and files.
 - **`user_activities`**: Action audit logs for administrators.
 - Other system metadata tables: `cache`, `cache_locks`, `failed_jobs`, `job_batches`, `jobs`, `sessions`, `migrations`, `password_reset_tokens`.
 

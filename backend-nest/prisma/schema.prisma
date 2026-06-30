@@ -307,5 +307,108 @@ model BirCertification {
   @@map("bir_certifications")
 }
 
+// ─── Chapter Management ───────────────────────────────────────────────────────
 
+model Chapter {
+  id                String                @id @default(cuid())
+  title             String                @db.VarChar(255)
+  slug              String                @unique @db.VarChar(255)
+  short_description String                @db.Text
+  island_group      String                @db.VarChar(50)  // Luzon | Visayas | Mindanao
+  region            String                @db.VarChar(100)
+  overview          String                @db.Text
+  mission           String?               @db.Text
+  vision            String?               @db.Text
+  status            String                @default("draft") @db.VarChar(20) // draft | published | archived
+  created_by        BigInt?
+  updated_by        BigInt?
+  created_at        DateTime              @default(now()) @db.Timestamp(0)
+  updated_at        DateTime              @default(now()) @updatedAt @db.Timestamp(0)
+  published_at      DateTime?             @db.Timestamp(0)
 
+  images            ChapterImage[]
+  documents         ChapterDocument[]
+  officers          ChapterOfficer[]
+  activities        ChapterActivity[]
+  announcements     ChapterAnnouncement[]
+
+  @@index([status])
+  @@index([island_group])
+  @@index([slug])
+  @@map("chapters")
+}
+
+model ChapterImage {
+  id         String   @id @default(cuid())
+  chapter_id String
+  file_url   String   @db.VarChar(500)
+  file_name  String   @db.VarChar(255)
+  sort_order Int      @default(0)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+
+  chapter    Chapter  @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+  @@index([chapter_id])
+  @@map("chapter_images")
+}
+
+model ChapterDocument {
+  id         String   @id @default(cuid())
+  chapter_id String
+  file_url   String   @db.VarChar(500)
+  file_name  String   @db.VarChar(255)
+  file_type  String   @db.VarChar(100)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+
+  chapter    Chapter  @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+  @@index([chapter_id])
+  @@map("chapter_documents")
+}
+
+model ChapterOfficer {
+  id            String   @id @default(cuid())
+  chapter_id    String
+  name          String   @db.VarChar(255)
+  category_type String   @db.VarChar(100)
+  year_joined   Int
+  sort_order    Int      @default(0)
+  created_at    DateTime @default(now()) @db.Timestamp(0)
+  updated_at    DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  chapter       Chapter  @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+  @@index([chapter_id])
+  @@map("chapter_officers")
+}
+
+model ChapterActivity {
+  id          String   @id @default(cuid())
+  chapter_id  String
+  title       String   @db.VarChar(255)
+  description String   @db.Text
+  date        DateTime @db.Date
+  image_url   String?  @db.VarChar(500)
+  created_at  DateTime @default(now()) @db.Timestamp(0)
+  updated_at  DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  chapter     Chapter  @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+  @@index([chapter_id])
+  @@map("chapter_activities")
+}
+
+model ChapterAnnouncement {
+  id         String   @id @default(cuid())
+  chapter_id String
+  title      String   @db.VarChar(255)
+  content    String   @db.Text
+  date       DateTime @db.Date
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  chapter    Chapter  @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+  @@index([chapter_id])
+  @@map("chapter_announcements")
+}
