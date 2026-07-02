@@ -2,7 +2,7 @@
 // BACKEND TODO: Validate these interfaces match the Laravel API response shapes
 // once ActivityController is implemented.
 
-export type ActivityType = 'conference' | 'seminar' | 'workshop' | 'other';
+export type ActivityType = 'conference' | 'seminar' | 'workshop' | 'meeting' | 'other';
 export type ActivityStatus = 'draft' | 'published';
 
 export interface ActivityMaterial {
@@ -43,5 +43,6 @@ export const ACTIVITY_TYPE_LABELS: Record<ActivityType | 'all', string> = {
   conference: 'Conferences',
   seminar:    'Seminars',
   workshop:   'Workshops',
+  meeting:    'Meetings',
   other:      'Other Events',
 };

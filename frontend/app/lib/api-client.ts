@@ -168,6 +168,55 @@ const MOCK_ACTIVITIES = [
     gallery: [MOCK_GALLERY_BASE[4], MOCK_GALLERY_BASE[5]],
     materials: [],
   },
+  {
+    id: 12,
+    title: 'PAGE Strategic Planning Meeting for the 57th International Convention & General Assembly 2026',
+    slug: 'page-strategic-planning-meeting-2026',
+    description:
+      'The Philippine Association for Graduate Education (PAGE), Inc. convened its Strategic Planning Meeting in preparation for the 57th International Convention and General Assembly 2026. The meeting brought together national officers, board members, and committee chairs to coordinate organizational initiatives, finalize convention preparations, assign committee responsibilities, establish implementation timelines, and reinforce PAGE’s commitment to excellence in graduate education and professional development.',
+    venue: 'Lyceum of the Philippines University – Cavite',
+    date: '2026-06-11',
+    type: 'meeting' as const,
+    status: 'published' as const,
+    gallery: [
+    '/57th-Images/57th-International-Convention-Image-1.jpg',
+    '/57th-Images/57th-International-Convention-Image-2.jpg',
+    '/57th-Images/57th-International-Convention-Image-3.jpg',
+    '/57th-Images/57th-International-Convention-Image-4.jpg',
+    '/57th-Images/57th-International-Convention-Image-5.jpg',
+    '/57th-Images/57th-International-Convention-Image-6.jpg',
+    '/57th-Images/57th-International-Convention-Image-7.jpg',
+    '/57th-Images/57th-International-Convention-Image-8.jpg',
+    '/57th-Images/57th-International-Convention-Image-9.jpg',
+    '/57th-Images/57th-International-Convention-Image-10.jpg',
+    '/57th-Images/57th-International-Convention-Image-11.jpg',
+    '/57th-Images/57th-International-Convention-Image-12.jpg',
+    '/57th-Images/57th-International-Convention-Image-13.jpg',
+    '/57th-Images/57th-International-Convention-Image-14.jpg',
+    ],
+    materials: [],
+  },
+  {
+    id: 13,
+    title: 'PAGE Region II Oath-Taking Ceremony of Officers and Board Members',
+    slug: 'page-region-ii-oath-taking-2026',
+    description:
+      'The Philippine Association for Graduate Education (PAGE) Region II conducted its Oath-Taking Ceremony of Officers and Board Members on June 22, 2026, at Isabela State University, Cauayan, Isabela. The ceremony formally inducted the newly elected regional officers and board members into their respective positions, signifying their commitment to advancing the association’s mission and strengthening graduate education in the region. The event also fostered leadership, collaboration, and organizational unity among PAGE Region II members as they embarked on a new term of service.',
+    venue: 'Isabela State University, Cauayan, Isabela',
+    date: '2026-06-22',
+    type: 'meeting' as const,
+    status: 'published' as const,
+    gallery: [
+    '/Region-II/Region-II-Image1.jpg',
+    '/Region-II/Region-II-Image2.jpg',
+    '/Region-II/Region-II-Image3.jpg',
+    '/Region-II/Region-II-Image4.jpg',
+    '/Region-II/Region-II-Image5.jpg',
+    '/Region-II/Region-II-Image6.jpg',
+    '/Region-II/Region-II-Image7.jpg',
+    ],
+    materials: [],
+  },
 ];
 
 const MOCK_YEARS = [2027, 2026, 2025, 2024];
@@ -179,6 +228,8 @@ function mockActivitiesIndex(search: string): PaginatedActivitiesResponse {
   const yearFilter = params.get('year') ? parseInt(params.get('year')!) : null;
   const page = params.get('page') ? parseInt(params.get('page')!) : 1;
   const timeframe = params.get('timeframe'); // 'latest' (past) or 'future' (upcoming)
+  const latestCutoff = new Date();
+  latestCutoff.setHours(0, 0, 0, 0);
 
   let filtered = MOCK_ACTIVITIES.filter(a => {
     const matchType = typeFilter === 'all' || a.type === typeFilter;
@@ -186,9 +237,9 @@ function mockActivitiesIndex(search: string): PaginatedActivitiesResponse {
     
     let matchTimeframe = true;
     if (timeframe === 'latest') {
-      matchTimeframe = new Date(a.date) < new Date('2026-06-09');
+      matchTimeframe = new Date(a.date) < latestCutoff;
     } else if (timeframe === 'future') {
-      matchTimeframe = new Date(a.date) >= new Date('2026-06-09');
+      matchTimeframe = new Date(a.date) >= latestCutoff;
     }
     return matchType && matchYear && matchTimeframe;
   });

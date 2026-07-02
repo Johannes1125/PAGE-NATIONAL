@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BadgeCheck,
   Building2,
+  ChevronDown,
   ClipboardList,
   LayoutDashboard,
   Menu,
@@ -23,16 +25,45 @@ type AdminNavItem = {
   icon: LucideIcon;
 };
 
-const adminNavItems: AdminNavItem[] = [
-  { href: "/admin-dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/admin-dashboard/membership-applications", label: "Membership Applications", icon: UserCheck },
-  { href: "/admin-dashboard/chapters", label: "Chapters", icon: Building2 },
-  { href: "/admin-dashboard/create-new-post", label: "Create New Post", icon: PlusCircle },
-  { href: "/admin-dashboard/approve-post", label: "Approve Posts", icon: BadgeCheck },
-  { href: "/admin-dashboard/audit-log", label: "Audit Log", icon: ClipboardList },
-  { href: "/admin-dashboard/manage-users", label: "Manage Users", icon: Users },
-  { href: "/admin-dashboard/view-messages", label: "Messages", icon: MessageSquareText },
-  { href: "/admin-dashboard/about-page", label: "About PAGE", icon: BookOpen },
+type AdminSidebarItem = AdminNavItem & {
+  isIndented?: boolean;
+};
+
+type AdminSidebarSection = {
+  title: string;
+  items: AdminSidebarItem[];
+};
+
+const adminSections: AdminSidebarSection[] = [
+  {
+    title: "Dashboard",
+    items: [{ href: "/admin-dashboard", label: "Overview", icon: LayoutDashboard }],
+  },
+  {
+    title: "Content",
+    items: [
+      { href: "#create-posts", label: "Create Posts", icon: PlusCircle },
+      { href: "/admin-dashboard/create-new-post", label: "Create News", icon: PlusCircle, isIndented: true },
+      { href: "/admin-dashboard/about-page", label: "About PAGE", icon: BookOpen, isIndented: true },
+      { href: "/admin-dashboard/chapters", label: "Chapters", icon: Building2, isIndented: true },
+      { href: "/admin-dashboard/approve-post", label: "Approve Posts", icon: BadgeCheck },
+    ],
+  },
+  {
+    title: "Membership",
+    items: [
+      { href: "/admin-dashboard/membership-applications", label: "Membership Applications", icon: UserCheck },
+      { href: "/admin-dashboard/manage-users", label: "Manage Users", icon: Users },
+    ],
+  },
+  {
+    title: "Communication",
+    items: [{ href: "/admin-dashboard/view-messages", label: "Messages", icon: MessageSquareText }],
+  },
+  {
+    title: "System",
+    items: [{ href: "/admin-dashboard/audit-log", label: "Audit Log", icon: ClipboardList }],
+  },
 ];
 
 type AdminSidebarProps = {
@@ -53,6 +84,21 @@ export default function AdminSidebar({
   onCloseMobileNav,
 }: AdminSidebarProps) {
   const pathname = usePathname();
+  const [isContentExpanded, setIsContentExpanded] = useState(false);
+
+  const isCreatePostsRoute =
+    pathname.startsWith("/admin-dashboard/create-new-post") ||
+    pathname.startsWith("/admin-dashboard/about-page") ||
+    pathname.startsWith("/admin-dashboard/chapters");
+  const isCreatePostsActive = isCreatePostsRoute;
+
+  useEffect(() => {
+    if (isCreatePostsRoute) {
+      setIsContentExpanded(true);
+    }
+  }, [isCreatePostsRoute]);
+
+  const shouldShowDetails = !isCollapsed || isMobileViewport;
 
   return (
     <>
@@ -101,25 +147,101 @@ export default function AdminSidebar({
             </button>
           </div>
 
-          <nav className={styles.nav} id="admin-navigation">
-            {adminNavItems.map((item) => {
-              const isActive = item.href === "/admin-dashboard"
-                ? pathname === "/admin-dashboard"
-                : pathname.startsWith(item.href);
+          <nav className={styles.nav} id="admin-navigation" aria-label="Admin navigation">
+            {adminSections.map((section) => {
+              const isContentSection = section.title === "Content";
+              const isExpanded = !isContentSection || isContentExpanded;
 
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={joinClasses(styles.navLink, isActive && styles.navLinkActive)}
-                  aria-current={isActive ? "page" : undefined}
-                  onClick={onCloseMobileNav}
-                >
-                  <span className={styles.navIcon} aria-hidden="true">
-                    <item.icon size={16} strokeWidth={1.9} />
-                  </span>
-                  <span className={styles.navLabel}>{item.label}</span>
-                </Link>
+                <section key={section.title} className={styles.section}>
+                  <div className={styles.sectionLabel}>{section.title}</div>
+
+                  <div className={styles.sectionItems}>
+                    {section.items.map((item) => {
+                      const isActive = item.href === "/admin-dashboard"
+                        ? pathname === "/admin-dashboard"
+                        : item.href !== "#create-posts" && pathname.startsWith(item.href);
+
+                      if (item.href === "#create-posts") {
+                        return (
+                          <div
+                            key={item.label}
+                            className={joinClasses(styles.groupRow, isExpanded && styles.groupRowExpanded)}
+                          >
+                            <button
+                              type="button"
+                              className={joinClasses(
+                                styles.navLink,
+                                styles.groupTrigger,
+                                isCreatePostsActive && styles.navLinkActive,
+                              )}
+                              onClick={() => setIsContentExpanded((current) => !current)}
+                              aria-expanded={isExpanded}
+                              aria-controls="content-subitems"
+                              aria-current={isCreatePostsActive ? "page" : undefined}
+                            >
+                              <span className={styles.navIcon} aria-hidden="true">
+                                <item.icon size={16} strokeWidth={1.9} />
+                              </span>
+                              <span className={styles.navLabel}>{item.label}</span>
+                              {shouldShowDetails ? (
+                                <span className={styles.groupChevron} aria-hidden="true">
+                                  <ChevronDown size={16} strokeWidth={2} />
+                                </span>
+                              ) : null}
+                            </button>
+
+                            {isExpanded ? (
+                              <div id="content-subitems" className={styles.subItems}>
+                                {section.items
+                                  .filter((subItem) => subItem.isIndented)
+                                  .map((subItem) => {
+                                    const subIsActive = pathname.startsWith(subItem.href);
+
+                                    return (
+                                      <Link
+                                        key={subItem.href}
+                                        href={subItem.href}
+                                        className={joinClasses(
+                                          styles.navLink,
+                                          styles.subItemLink,
+                                          subItem.isIndented && styles.subItemIndented,
+                                          subIsActive && styles.navLinkActive,
+                                        )}
+                                        aria-current={subIsActive ? "page" : undefined}
+                                      >
+                                        <span className={styles.subItemBullet} aria-hidden="true" />
+                                        <span className={styles.navLabel}>{subItem.label}</span>
+                                      </Link>
+                                    );
+                                  })}
+                              </div>
+                            ) : null}
+                          </div>
+                        );
+                      }
+
+                      if (item.isIndented) {
+                        return null;
+                      }
+
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className={joinClasses(styles.navLink, isActive && styles.navLinkActive)}
+                          aria-current={isActive ? "page" : undefined}
+                          onClick={onCloseMobileNav}
+                        >
+                          <span className={styles.navIcon} aria-hidden="true">
+                            <item.icon size={16} strokeWidth={1.9} />
+                          </span>
+                          <span className={styles.navLabel}>{item.label}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </section>
               );
             })}
           </nav>
