@@ -412,3 +412,22 @@ model ChapterAnnouncement {
   @@index([chapter_id])
   @@map("chapter_announcements")
 }
+
+model Convention {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  convention_number String    @db.VarChar(255)
+  title             String    @db.VarChar(255)
+  location          String    @db.VarChar(255)
+  convention_date   DateTime  @db.Date
+  status            String    @default("draft") @db.VarChar(50)
+  banner_url        String?   @db.Text
+  description       String?   @db.Text
+  created_by        BigInt?
+  updated_by        BigInt?
+  created_at        DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+  published_at      DateTime? @db.Timestamptz(6)
+
+  @@map("conventions")
+}
+

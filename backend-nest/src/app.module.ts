@@ -17,6 +17,7 @@ import { NationalOfficersModule } from './national-officers/national-officers.mo
 import { SecRegistrationsModule } from './sec-registrations/sec-registrations.module';
 import { BirCertificationsModule } from './bir-certifications/bir-certifications.module';
 import { ChaptersModule } from './chapters/chapters.module';
+import { ConventionsModule } from './conventions/conventions.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { ChaptersModule } from './chapters/chapters.module';
     SecRegistrationsModule,
     BirCertificationsModule,
     ChaptersModule,
+    ConventionsModule,
   ],
 })
 export class AppModule {}

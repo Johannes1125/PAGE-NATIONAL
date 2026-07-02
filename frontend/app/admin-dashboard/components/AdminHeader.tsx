@@ -295,6 +295,97 @@ export default function AdminHeader({
                     </radialGradient>
                   </defs>
                 </svg>
+              ) : title === "All Conventions" ? (
+                <svg
+                  width="320"
+                  height="220"
+                  viewBox="0 0 320 220"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={styles.heroSvg}
+                >
+                  <circle cx="160" cy="110" r="90" fill="url(#hero-glow-conventions)" opacity="0.45" />
+                  <circle cx="70" cy="130" r="50" fill="url(#hero-glow-blue-conventions)" opacity="0.35" />
+
+                  <ellipse cx="160" cy="180" rx="105" ry="9" fill="#D3E2F4" opacity="0.8" />
+
+                  {/* Lanyard Strap */}
+                  <path
+                    d="M160 48 C 160 22, 100 12, 100 -5 M 160 48 C 160 22, 220 12, 220 -5"
+                    stroke="#5BA3E8"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    fill="none"
+                    opacity="0.4"
+                  />
+
+                  {/* Convention Pass Card */}
+                  <rect
+                    x="90"
+                    y="48"
+                    width="140"
+                    height="110"
+                    rx="12"
+                    fill="#FFFFFF"
+                    stroke="#1E538E"
+                    strokeWidth="2.5"
+                  />
+                  <rect x="95" y="53" width="130" height="100" rx="8" fill="#F4F8FD" />
+
+                  {/* Lanyard Slot */}
+                  <rect x="150" y="56" width="20" height="5" rx="2.5" fill="#D3E2F4" />
+
+                  {/* Header/Ribbon on Pass */}
+                  <rect x="95" y="70" width="130" height="22" fill="#1E538E" />
+                  <rect x="110" y="79" width="100" height="4" rx="2" fill="#5BA3E8" />
+
+                  {/* Pass Details */}
+                  <circle cx="124" cy="118" r="14" fill="#E6EEF8" stroke="#1E538E" strokeWidth="1.5" />
+                  {/* Person Silhouette inside avatar */}
+                  <path d="M124 112c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zm-6 11c0-2 2-3.5 6-3.5s6 1.5 6 3.5v1.5h-12v-1.5z" fill="#1E538E" />
+
+                  <rect x="146" y="112" width="65" height="5" rx="2.5" fill="#B8CDE5" />
+                  <rect x="146" y="122" width="45" height="4" rx="2" fill="#E6EEF8" />
+                  <rect x="146" y="130" width="55" height="4" rx="2" fill="#E6EEF8" />
+
+                  {/* Floating Calendar on Left */}
+                  <g filter="url(#drop-shadow-calendar)">
+                    <rect x="36" y="90" width="48" height="48" rx="8" fill="#FFFFFF" stroke="#cbd5e1" strokeWidth="1" />
+                    <path d="M36 90h48v14H36z" fill="#e11d48" />
+                    {/* Calendar rings */}
+                    <rect x="44" y="86" width="4" height="8" rx="2" fill="#475569" />
+                    <rect x="68" y="86" width="4" height="8" rx="2" fill="#475569" />
+                    <text x="60" y="128" fill="#1E538E" fontSize="18" fontWeight="800" textAnchor="middle">20</text>
+                  </g>
+
+                  {/* Microphone on Right */}
+                  <g filter="url(#drop-shadow-mic)">
+                    <line x1="262" y1="170" x2="262" y2="105" stroke="#475569" strokeWidth="3" strokeLinecap="round" />
+                    <path d="M250 170h24v4h-24z" fill="#475569" />
+                    {/* Microphone head & joint */}
+                    <path d="M262 105l-10-15" stroke="#475569" strokeWidth="2.5" strokeLinecap="round" />
+                    <rect x="244" y="78" width="10" height="15" rx="5" fill="#5BA3E8" stroke="#1E538E" strokeWidth="1.5" transform="rotate(-30 249 85)" />
+                    {/* Sound Waves */}
+                    <path d="M232 75c-3 3-3 8 0 11M226 70c-5 5-5 13 0 18" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.6" />
+                  </g>
+
+                  <defs>
+                    <radialGradient id="hero-glow-conventions" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stopColor="#5BA3E8" stopOpacity="0.35" />
+                      <stop offset="100%" stopColor="#5BA3E8" stopOpacity="0" />
+                    </radialGradient>
+                    <radialGradient id="hero-glow-blue-conventions" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stopColor="#1E538E" stopOpacity="0.25" />
+                      <stop offset="100%" stopColor="#1E538E" stopOpacity="0" />
+                    </radialGradient>
+                    <filter id="drop-shadow-calendar" x="24" y="80" width="72" height="72" filterUnits="userSpaceOnUse">
+                      <feDropShadow dx="2" dy="5" stdDeviation="4.5" floodColor="#143152" floodOpacity="0.09" />
+                    </filter>
+                    <filter id="drop-shadow-mic" x="220" y="65" width="70" height="120" filterUnits="userSpaceOnUse">
+                      <feDropShadow dx="2" dy="4" stdDeviation="3.5" floodColor="#143152" floodOpacity="0.08" />
+                    </filter>
+                  </defs>
+                </svg>
               ) : (
                 <svg
                   width="320"

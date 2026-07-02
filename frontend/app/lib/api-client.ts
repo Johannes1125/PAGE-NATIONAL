@@ -486,3 +486,33 @@ export const chaptersApi = {
   },
 };
 
+// ─── Conventions API ──────────────────────────────────────────────────────────
+
+export const conventionsApi = {
+  /** GET /conventions — list all, optionally filtered by status */
+  list: (status?: string) =>
+    api.get(`/conventions${status ? `?status=${status}` : ''}`),
+
+  /** GET /conventions/:id — single convention */
+  get: (id: string) => api.get(`/conventions/${id}`),
+
+  /** POST /conventions — create (multipart: banner in 'image' field) */
+  create: (formData: FormData) =>
+    api.postMultipart('/conventions', formData),
+
+  /** PATCH /conventions/:id — update (multipart: banner in 'image' field) */
+  update: (id: string, formData: FormData) =>
+    api.patchMultipart(`/conventions/${id}`, formData),
+
+  /** PATCH /conventions/:id/publish */
+  publish: (id: string) =>
+    api.patch(`/conventions/${id}/publish`, {}),
+
+  /** PATCH /conventions/:id/unpublish */
+  unpublish: (id: string) =>
+    api.patch(`/conventions/${id}/unpublish`, {}),
+
+  /** DELETE /conventions/:id */
+  delete: (id: string) => api.delete(`/conventions/${id}`),
+};
+

@@ -8,6 +8,7 @@ import {
   Building2,
   ChevronDown,
   ClipboardList,
+  Landmark,
   LayoutDashboard,
   Menu,
   MessageSquareText,
@@ -46,6 +47,7 @@ const adminSections: AdminSidebarSection[] = [
       { href: "/admin-dashboard/create-new-post", label: "Create News", icon: PlusCircle, isIndented: true },
       { href: "/admin-dashboard/about-page", label: "About PAGE", icon: BookOpen, isIndented: true },
       { href: "/admin-dashboard/chapters", label: "Chapters", icon: Building2, isIndented: true },
+      { href: "/admin-dashboard/conventions", label: "Conventions", icon: Landmark, isIndented: true },
       { href: "/admin-dashboard/approve-post", label: "Approve Posts", icon: BadgeCheck },
     ],
   },
@@ -89,7 +91,8 @@ export default function AdminSidebar({
   const isCreatePostsRoute =
     pathname.startsWith("/admin-dashboard/create-new-post") ||
     pathname.startsWith("/admin-dashboard/about-page") ||
-    pathname.startsWith("/admin-dashboard/chapters");
+    pathname.startsWith("/admin-dashboard/chapters") ||
+    pathname.startsWith("/admin-dashboard/conventions");
   const isCreatePostsActive = isCreatePostsRoute;
 
   useEffect(() => {
