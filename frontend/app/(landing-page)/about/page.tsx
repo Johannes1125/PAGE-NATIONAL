@@ -237,6 +237,49 @@ const dropdownVariants: Variants = {
   exit:    { opacity: 0, y: -6, scale: 0.97, transition: { duration: 0.13 } },
 };
 
+const normalizeLogoDescription = (content: unknown): string => {
+  if (typeof content === "string") {
+    const trimmed = content.trim();
+
+    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+      try {
+        const parsed = JSON.parse(trimmed) as { description?: string } | { content?: string };
+        if (parsed && typeof parsed === "object") {
+          if (typeof (parsed as { description?: string }).description === "string") {
+            return (parsed as { description?: string }).description as string;
+          }
+
+          if (typeof (parsed as { content?: string }).content === "string") {
+            return (parsed as { content?: string }).content as string;
+          }
+        }
+      } catch {
+        return content;
+      }
+    }
+
+    return content;
+  }
+
+  if (content && typeof content === "object") {
+    const record = content as { description?: unknown; content?: unknown; text?: unknown };
+
+    if (typeof record.description === "string") {
+      return record.description;
+    }
+
+    if (typeof record.content === "string") {
+      return record.content;
+    }
+
+    if (typeof record.text === "string") {
+      return record.text;
+    }
+  }
+
+  return "";
+};
+
 // ── Navbar ─────────────────────────────────────────────────────────────────
 
 
@@ -640,7 +683,7 @@ export default function AboutPage() {
         // Fetch logo & description section
         const descRes = await api.get("/public/about-page/sections/logo_description");
         if (descRes.success && descRes.data) {
-          setLogoDescription(descRes.data.content);
+          setLogoDescription(normalizeLogoDescription(descRes.data.content));
         }
 
         // Fetch logo document

@@ -244,12 +244,43 @@
 .nav {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 10px;
   width: 100%;
 }
 
 .navbarCollapsed .nav {
   align-items: center;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sectionLabel {
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.sectionItems {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.groupRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.groupRowExpanded {
+  gap: 6px;
 }
 
 .navLink {
@@ -259,10 +290,14 @@
   min-height: 48px;
   padding: 10px 14px;
   border-radius: 12px;
+  border: 0;
+  background: transparent;
   color: rgba(255, 255, 255, 0.65);
   font-size: 13.5px;
   font-weight: 500;
   text-decoration: none;
+  text-align: left;
+  width: 100%;
   transition: all 0.2s ease-in-out;
   position: relative;
 }
@@ -273,8 +308,9 @@
 }
 
 .navLinkActive {
-  background: rgba(255, 255, 255, 0.08);
+  background: linear-gradient(135deg, rgba(82, 125, 189, 0.34), rgba(31, 70, 120, 0.62));
   color: #ffffff;
+  box-shadow: 0 12px 28px rgba(12, 28, 54, 0.24);
 }
 
 .navLinkActive::before {
@@ -289,6 +325,77 @@
   box-shadow: 0 0 8px rgba(91, 163, 232, 0.6);
 }
 
+.groupTrigger {
+  cursor: pointer;
+}
+
+.groupTrigger:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.groupChevron {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.52);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.groupRowExpanded .groupChevron {
+  transform: rotate(180deg);
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.subItems {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-left: 18px;
+  padding-left: 14px;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.subItemLink {
+  min-height: 38px;
+  padding: 8px 12px 8px 10px;
+  border-radius: 11px;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.58);
+  background: transparent;
+}
+
+.subItemLink:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.subItemLink.navLinkActive {
+  background: linear-gradient(135deg, rgba(91, 163, 232, 0.22), rgba(40, 92, 156, 0.34));
+  color: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(123, 184, 255, 0.18), 0 10px 22px rgba(8, 22, 44, 0.18);
+}
+
+.subItemLink.navLinkActive::before {
+  display: none;
+}
+
+.subItemIndented {
+  padding-left: 10px;
+}
+
+.subItemBullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.32);
+  flex-shrink: 0;
+}
+
+.subItemLink.navLinkActive .subItemBullet {
+  background: #5ba3e8;
+  box-shadow: 0 0 0 4px rgba(91, 163, 232, 0.14);
+}
+
 .navbarCollapsed .navLink {
   width: 48px;
   min-width: 48px;
@@ -300,6 +407,22 @@
 
 .navbarCollapsed .navLinkActive::before {
   display: none;
+}
+
+.navbarCollapsed .sectionLabel,
+.navbarCollapsed .subItems,
+.navbarCollapsed .groupChevron {
+  display: none;
+}
+
+.navbarCollapsed .section {
+  width: 100%;
+}
+
+.navbarCollapsed .groupTrigger {
+  width: 48px;
+  min-width: 48px;
+  margin-inline: auto;
 }
 
 .navIcon {
@@ -327,4 +450,12 @@
 
 .navbarMobile .navLabel {
   display: block;
+}
+
+.navbarMobile .sectionLabel {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.navbarMobile .subItems {
+  margin-left: 16px;
 }
