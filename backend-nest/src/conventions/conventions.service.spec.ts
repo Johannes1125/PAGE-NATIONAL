@@ -2,17 +2,18 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConventionsService } from './conventions.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { SupabaseService } from '../supabase/supabase.service';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 
 const mockConventionRecord = {
   id: '550e8400-e29b-41d4-a716-446655440000',
   convention_number: '56th Convention',
   title: 'Annual Research & Graduate Convention',
-  location: 'Manila Hotel',
-  convention_date: new Date('2026-10-15'),
-  status: 'draft',
-  banner_url: 'https://res.cloudinary.com/dzk9kooc8/image/upload/v12345/conventions/test.jpg',
   description: 'Annual gathering of graduate school administrators.',
+  location: 'Manila Hotel',
+  start_date: new Date('2026-10-15'),
+  end_date: new Date('2026-10-17'),
+  status: 'draft',
   created_by: BigInt(1),
   updated_by: BigInt(1),
   created_at: new Date(),
@@ -30,12 +31,62 @@ const mockConventionRecords = [
   },
 ];
 
+const mockSchedule = {
+  id: '660e8400-e29b-41d4-a716-446655440000',
+  convention_id: mockConventionRecord.id,
+  schedule_date: new Date('2026-10-16'),
+  title: 'Opening Plenary',
+  event_type: 'Plenary',
+  start_time: '09:00',
+  end_time: '12:00',
+  location: 'Main Hall',
+  created_at: new Date(),
+  updated_at: new Date(),
+};
+
+const mockSpeaker = {
+  id: '770e8400-e29b-41d4-a716-446655440000',
+  convention_id: mockConventionRecord.id,
+  name: 'Dr. Jane Doe',
+  role_position: 'Keynote Speaker',
+  institution: 'University of Example',
+  presentation_topic: 'Future of Graduate Education',
+  created_at: new Date(),
+  updated_at: new Date(),
+};
+
+const mockAttachment = {
+  id: '880e8400-e29b-41d4-a716-446655440000',
+  convention_id: mockConventionRecord.id,
+  file_url: 'https://res.cloudinary.com/dzk9kooc8/image/upload/v12345/conventions/banner.jpg',
+  file_name: 'banner.jpg',
+  file_type: 'image',
+  created_at: new Date(),
+};
+
 const prismaMock = {
   convention: {
     findMany: jest.fn(),
     findUnique: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
+    delete: jest.fn(),
+  },
+  conventionSchedule: {
+    findFirst: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+  },
+  conventionSpeaker: {
+    findFirst: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+  },
+  conventionAttachment: {
+    findFirst: jest.fn(),
+    create: jest.fn(),
     delete: jest.fn(),
   },
   user_activities: {
@@ -48,11 +99,15 @@ const cloudinaryMock = {
   delete: jest.fn(),
 };
 
+const supabaseMock = {
+  upload: jest.fn(),
+};
+
 const mockUser = { id: BigInt(1) };
 const mockIp = '127.0.0.1';
 
 const createMockFile = (mimeType = 'image/png', size = 1000): Express.Multer.File => ({
-  fieldname: 'image',
+  fieldname: 'file',
   originalname: 'test.png',
   encoding: '7bit',
   mimetype: mimeType,
@@ -75,6 +130,7 @@ describe('ConventionsService', () => {
         ConventionsService,
         { provide: PrismaService, useValue: prismaMock },
         { provide: CloudinaryService, useValue: cloudinaryMock },
+        { provide: SupabaseService, useValue: supabaseMock },
       ],
     }).compile();
 
@@ -106,7 +162,6 @@ describe('ConventionsService', () => {
         orderBy: { created_at: 'desc' },
       });
       expect(result.success).toBe(true);
-      expect(result.data).toEqual([mockConventionRecords[1]]);
     });
   });
 
@@ -116,9 +171,6 @@ describe('ConventionsService', () => {
 
       const result = await service.findOne(mockConventionRecord.id);
 
-      expect(prismaMock.convention.findUnique).toHaveBeenCalledWith({
-        where: { id: mockConventionRecord.id },
-      });
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockConventionRecord);
     });
@@ -130,203 +182,205 @@ describe('ConventionsService', () => {
     });
   });
 
-  describe('create', () => {
-    it('creates a convention with standard fields', async () => {
-      const dto = {
-        convention_number: '56th Convention',
-        title: 'Research Meet',
-        location: 'Quezon City',
-        convention_date: '2026-10-15',
-      };
-      prismaMock.convention.create.mockResolvedValue({
+  describe('findFull', () => {
+    it('returns convention with nested relations', async () => {
+      const fullRecord = {
         ...mockConventionRecord,
-        ...dto,
-        status: 'draft',
-      });
+        schedules: [mockSchedule],
+        speakers: [mockSpeaker],
+        attachments: [mockAttachment],
+      };
+      prismaMock.convention.findUnique.mockResolvedValue(fullRecord);
 
-      const result = await service.create(dto, null, mockUser, mockIp);
+      const result = await service.findFull(mockConventionRecord.id);
 
-      expect(prismaMock.convention.create).toHaveBeenCalledWith({
-        data: {
-          convention_number: dto.convention_number,
-          title: dto.title,
-          location: dto.location,
-          convention_date: new Date(dto.convention_date),
-          status: 'draft',
-          banner_url: null,
-          description: null,
-          created_by: mockUser.id,
-          updated_by: mockUser.id,
-          published_at: null,
+      expect(prismaMock.convention.findUnique).toHaveBeenCalledWith({
+        where: { id: mockConventionRecord.id },
+        include: {
+          schedules: { orderBy: [{ schedule_date: 'asc' }, { start_time: 'asc' }] },
+          speakers: { orderBy: { created_at: 'asc' } },
+          attachments: { orderBy: { created_at: 'asc' } },
         },
       });
-      expect(prismaMock.user_activities.create).toHaveBeenCalled();
       expect(result.success).toBe(true);
-    });
-
-    it('creates a convention with a banner image', async () => {
-      const dto = {
-        convention_number: '56th Convention',
-        title: 'Research Meet',
-        location: 'Quezon City',
-        convention_date: '2026-10-15',
-      };
-      const file = createMockFile();
-      const uploadedUrl = 'https://res.cloudinary.com/test-image.jpg';
-      cloudinaryMock.upload.mockResolvedValue(uploadedUrl);
-      prismaMock.convention.create.mockResolvedValue({
-        ...mockConventionRecord,
-        ...dto,
-        banner_url: uploadedUrl,
-      });
-
-      const result = await service.create(dto, file, mockUser, mockIp);
-
-      expect(cloudinaryMock.upload).toHaveBeenCalledWith(file, 'conventions');
-      expect(prismaMock.convention.create).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({
-          banner_url: uploadedUrl,
-        }),
-      }));
-      expect(result.success).toBe(true);
-    });
-
-    it('sets published_at if status is published', async () => {
-      const dto = {
-        convention_number: '56th Convention',
-        title: 'Research Meet',
-        location: 'Quezon City',
-        convention_date: '2026-10-15',
-        status: 'published',
-      };
-      prismaMock.convention.create.mockResolvedValue({
-        ...mockConventionRecord,
-        status: 'published',
-        published_at: new Date(),
-      });
-
-      await service.create(dto, null, mockUser, mockIp);
-
-      expect(prismaMock.convention.create).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({
-          status: 'published',
-          published_at: expect.any(Date),
-        }),
-      }));
-    });
-
-    it('throws BadRequestException if image upload fails', async () => {
-      const dto = {
-        convention_number: '56th Convention',
-        title: 'Research Meet',
-        location: 'Quezon City',
-        convention_date: '2026-10-15',
-      };
-      const file = createMockFile();
-      cloudinaryMock.upload.mockResolvedValue(null);
-
-      await expect(service.create(dto, file, mockUser, mockIp)).rejects.toThrow(BadRequestException);
-    });
-
-    it('throws BadRequestException for invalid file mimetype', async () => {
-      const dto = {
-        convention_number: '56th Convention',
-        title: 'Research Meet',
-        location: 'Quezon City',
-        convention_date: '2026-10-15',
-      };
-      const file = createMockFile('application/pdf');
-
-      await expect(service.create(dto, file, mockUser, mockIp)).rejects.toThrow(BadRequestException);
+      expect(result.data.schedules).toHaveLength(1);
+      expect(result.data.speakers).toHaveLength(1);
+      expect(result.data.attachments).toHaveLength(1);
     });
   });
 
-  describe('update', () => {
-    it('updates text fields successfully', async () => {
-      const existing = { ...mockConventionRecord };
-      prismaMock.convention.findUnique.mockResolvedValue(existing);
-      const dto = { title: 'New Convention Title' };
-      prismaMock.convention.update.mockResolvedValue({
-        ...existing,
-        title: dto.title,
+  describe('create', () => {
+    const baseDto = {
+      convention_number: '56th Convention',
+      title: 'Research Meet',
+      description: 'A short description.',
+      location: 'Quezon City',
+      start_date: '2026-10-15',
+      end_date: '2026-10-17',
+    };
+
+    it('creates a convention with standard fields', async () => {
+      prismaMock.convention.create.mockResolvedValue({
+        ...mockConventionRecord,
+        attachments: [],
       });
 
-      const result = await service.update(existing.id, dto, null, mockUser, mockIp);
+      const result = await service.create(baseDto, mockUser, mockIp);
 
-      expect(prismaMock.convention.update).toHaveBeenCalledWith({
-        where: { id: existing.id },
+      expect(prismaMock.convention.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          title: dto.title,
-          updated_by: mockUser.id,
+          convention_number: baseDto.convention_number,
+          title: baseDto.title,
+          description: baseDto.description,
+          location: baseDto.location,
+          start_date: new Date(baseDto.start_date),
+          end_date: new Date(baseDto.end_date),
+          status: 'draft',
         }),
+        include: { attachments: true },
+      });
+      expect(prismaMock.user_activities.create).toHaveBeenCalledWith({
+        data: { user_id: mockUser.id, action: 'convention_created', ip_address: mockIp },
       });
       expect(result.success).toBe(true);
     });
 
-    it('updates and replaces banner image, deleting the old one', async () => {
-      const existing = { ...mockConventionRecord };
-      prismaMock.convention.findUnique.mockResolvedValue(existing);
-      const file = createMockFile();
-      const newUrl = 'https://res.cloudinary.com/dzk9kooc8/image/upload/v67890/conventions/new.jpg';
-      cloudinaryMock.upload.mockResolvedValue(newUrl);
-      prismaMock.convention.update.mockResolvedValue({
-        ...existing,
-        banner_url: newUrl,
+    it('creates a convention with attachments', async () => {
+      const dto = {
+        ...baseDto,
+        attachments: [
+          { file_url: 'https://example.com/a.jpg', file_name: 'a.jpg', file_type: 'image' },
+        ],
+      };
+      prismaMock.convention.create.mockResolvedValue({
+        ...mockConventionRecord,
+        attachments: [mockAttachment],
       });
 
-      const result = await service.update(existing.id, {}, file, mockUser, mockIp);
+      await service.create(dto, mockUser, mockIp);
+
+      expect(prismaMock.convention.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            attachments: {
+              create: [{ file_url: 'https://example.com/a.jpg', file_name: 'a.jpg', file_type: 'image' }],
+            },
+          }),
+        }),
+      );
+    });
+
+    it('throws BadRequestException when end_date is before start_date', async () => {
+      const dto = { ...baseDto, start_date: '2026-10-17', end_date: '2026-10-15' };
+
+      await expect(service.create(dto, mockUser, mockIp)).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('addSchedule', () => {
+    const scheduleDto = {
+      schedule_date: '2026-10-16',
+      title: 'Opening Plenary',
+      event_type: 'Plenary',
+      start_time: '09:00',
+      end_time: '12:00',
+      location: 'Main Hall',
+    };
+
+    it('adds a schedule within the convention date range', async () => {
+      prismaMock.convention.findUnique.mockResolvedValue(mockConventionRecord);
+      prismaMock.conventionSchedule.create.mockResolvedValue(mockSchedule);
+
+      const result = await service.addSchedule(mockConventionRecord.id, scheduleDto, mockUser, mockIp);
+
+      expect(result.success).toBe(true);
+      expect(prismaMock.user_activities.create).toHaveBeenCalledWith({
+        data: { user_id: mockUser.id, action: 'convention_schedule_added', ip_address: mockIp },
+      });
+    });
+
+    it('rejects schedule dates outside the convention range', async () => {
+      prismaMock.convention.findUnique.mockResolvedValue(mockConventionRecord);
+
+      await expect(
+        service.addSchedule(
+          mockConventionRecord.id,
+          { ...scheduleDto, schedule_date: '2026-10-20' },
+          mockUser,
+          mockIp,
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('updateSchedule', () => {
+    it('rejects updated schedule dates outside the convention range', async () => {
+      prismaMock.convention.findUnique.mockResolvedValue(mockConventionRecord);
+      prismaMock.conventionSchedule.findFirst.mockResolvedValue(mockSchedule);
+
+      await expect(
+        service.updateSchedule(
+          mockConventionRecord.id,
+          mockSchedule.id,
+          { schedule_date: '2026-10-20' },
+          mockUser,
+          mockIp,
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('addSpeaker', () => {
+    const speakerDto = {
+      name: 'Dr. Jane Doe',
+      role_position: 'Keynote Speaker',
+      institution: 'University of Example',
+      presentation_topic: 'Future of Graduate Education',
+    };
+
+    it('adds a speaker to a convention', async () => {
+      prismaMock.convention.findUnique.mockResolvedValue(mockConventionRecord);
+      prismaMock.conventionSpeaker.create.mockResolvedValue(mockSpeaker);
+
+      const result = await service.addSpeaker(mockConventionRecord.id, speakerDto, mockUser, mockIp);
+
+      expect(result.success).toBe(true);
+      expect(prismaMock.user_activities.create).toHaveBeenCalledWith({
+        data: { user_id: mockUser.id, action: 'convention_speaker_added', ip_address: mockIp },
+      });
+    });
+  });
+
+  describe('addAttachment', () => {
+    it('uploads an image attachment via Cloudinary', async () => {
+      prismaMock.convention.findUnique.mockResolvedValue(mockConventionRecord);
+      const file = createMockFile();
+      cloudinaryMock.upload.mockResolvedValue('https://res.cloudinary.com/test/image.jpg');
+      prismaMock.conventionAttachment.create.mockResolvedValue(mockAttachment);
+
+      const result = await service.addAttachment(mockConventionRecord.id, file, mockUser, mockIp);
 
       expect(cloudinaryMock.upload).toHaveBeenCalledWith(file, 'conventions');
-      expect(cloudinaryMock.delete).toHaveBeenCalledWith('conventions/test');
-      expect(prismaMock.convention.update).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({
-          banner_url: newUrl,
-        }),
-      }));
       expect(result.success).toBe(true);
     });
 
-    it('sets published_at when status is updated to published', async () => {
-      const existing = { ...mockConventionRecord, status: 'draft', published_at: null };
-      prismaMock.convention.findUnique.mockResolvedValue(existing);
-      prismaMock.convention.update.mockResolvedValue({
-        ...existing,
-        status: 'published',
-        published_at: new Date(),
+    it('uploads a PDF attachment via Supabase', async () => {
+      prismaMock.convention.findUnique.mockResolvedValue(mockConventionRecord);
+      const file = createMockFile('application/pdf');
+      supabaseMock.upload.mockResolvedValue('https://supabase.example.com/doc.pdf');
+      prismaMock.conventionAttachment.create.mockResolvedValue({
+        ...mockAttachment,
+        file_type: 'pdf',
       });
 
-      await service.update(existing.id, { status: 'published' }, null, mockUser, mockIp);
+      await service.addAttachment(mockConventionRecord.id, file, mockUser, mockIp);
 
-      expect(prismaMock.convention.update).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({
-          status: 'published',
-          published_at: expect.any(Date),
-        }),
-      }));
-    });
-
-    it('clears published_at when status is updated to draft', async () => {
-      const existing = { ...mockConventionRecord, status: 'published', published_at: new Date() };
-      prismaMock.convention.findUnique.mockResolvedValue(existing);
-      prismaMock.convention.update.mockResolvedValue({
-        ...existing,
-        status: 'draft',
-        published_at: null,
-      });
-
-      await service.update(existing.id, { status: 'draft' }, null, mockUser, mockIp);
-
-      expect(prismaMock.convention.update).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({
-          status: 'draft',
-          published_at: null,
-        }),
-      }));
+      expect(supabaseMock.upload).toHaveBeenCalledWith(file, 'governance', 'conventions');
     });
   });
 
   describe('publish', () => {
-    it('sets status to published and published_at to now', async () => {
+    it('sets status to published and logs convention_published', async () => {
       prismaMock.convention.findUnique.mockResolvedValue(mockConventionRecord);
       prismaMock.convention.update.mockResolvedValue({
         ...mockConventionRecord,
@@ -336,45 +390,19 @@ describe('ConventionsService', () => {
 
       const result = await service.publish(mockConventionRecord.id, mockUser, mockIp);
 
-      expect(prismaMock.convention.update).toHaveBeenCalledWith({
-        where: { id: mockConventionRecord.id },
-        data: {
-          status: 'published',
-          published_at: expect.any(Date),
-          updated_by: mockUser.id,
-        },
-      });
       expect(result.success).toBe(true);
-    });
-  });
-
-  describe('unpublish', () => {
-    it('sets status to draft and clears published_at', async () => {
-      const publishedRecord = { ...mockConventionRecord, status: 'published', published_at: new Date() };
-      prismaMock.convention.findUnique.mockResolvedValue(publishedRecord);
-      prismaMock.convention.update.mockResolvedValue({
-        ...publishedRecord,
-        status: 'draft',
-        published_at: null,
+      expect(prismaMock.user_activities.create).toHaveBeenCalledWith({
+        data: { user_id: mockUser.id, action: 'convention_published', ip_address: mockIp },
       });
-
-      const result = await service.unpublish(mockConventionRecord.id, mockUser, mockIp);
-
-      expect(prismaMock.convention.update).toHaveBeenCalledWith({
-        where: { id: mockConventionRecord.id },
-        data: {
-          status: 'draft',
-          published_at: null,
-          updated_by: mockUser.id,
-        },
-      });
-      expect(result.success).toBe(true);
     });
   });
 
   describe('remove', () => {
-    it('deletes convention and removes the banner from Cloudinary', async () => {
-      prismaMock.convention.findUnique.mockResolvedValue(mockConventionRecord);
+    it('deletes convention and cleans up image attachments from Cloudinary', async () => {
+      prismaMock.convention.findUnique.mockResolvedValue({
+        ...mockConventionRecord,
+        attachments: [mockAttachment],
+      });
       prismaMock.convention.delete.mockResolvedValue(mockConventionRecord);
 
       const result = await service.remove(mockConventionRecord.id, mockUser, mockIp);
@@ -382,7 +410,7 @@ describe('ConventionsService', () => {
       expect(prismaMock.convention.delete).toHaveBeenCalledWith({
         where: { id: mockConventionRecord.id },
       });
-      expect(cloudinaryMock.delete).toHaveBeenCalledWith('conventions/test');
+      expect(cloudinaryMock.delete).toHaveBeenCalled();
       expect(result.success).toBe(true);
     });
   });

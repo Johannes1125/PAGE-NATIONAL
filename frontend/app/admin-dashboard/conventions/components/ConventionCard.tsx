@@ -20,6 +20,12 @@ function formatDate(dateStr: string): string {
   });
 }
 
+function formatDateRange(startStr: string, endStr: string): string {
+  const start = formatDate(startStr);
+  const end = formatDate(endStr);
+  return start === end ? start : `${start} – ${end}`;
+}
+
 export default function ConventionCard({
   convention,
   onEdit,
@@ -80,7 +86,7 @@ export default function ConventionCard({
           </div>
           <div className="conv-card__meta-item">
             <Calendar size={16} strokeWidth={2} />
-            <span>{formatDate(convention.convention_date)}</span>
+            <span>{formatDateRange(convention.start_date, convention.end_date)}</span>
           </div>
         </div>
 

@@ -11,6 +11,18 @@ type ConventionTableProps = {
   onTogglePublish: (convention: Convention) => void;
 };
 
+function formatDateRange(startStr: string, endStr: string): string {
+  const fmt = (dateStr: string) =>
+    new Date(dateStr).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  const start = fmt(startStr);
+  const end = fmt(endStr);
+  return start === end ? start : `${start} – ${end}`;
+}
+
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("en-US", {
     month: "short",
@@ -34,7 +46,7 @@ export default function ConventionTable({
               <th scope="col">Convention #</th>
               <th scope="col">Title</th>
               <th scope="col">Location</th>
-              <th scope="col">Date</th>
+              <th scope="col">Dates</th>
               <th scope="col">Status</th>
               <th scope="col">Last Updated</th>
               <th scope="col" style={{ textAlign: "right", whiteSpace: "nowrap" }}>
@@ -67,7 +79,7 @@ export default function ConventionTable({
 
                 {/* Convention Date */}
                 <td style={{ whiteSpace: "nowrap" }}>
-                  {formatDate(convention.convention_date)}
+                  {formatDateRange(convention.start_date, convention.end_date)}
                 </td>
 
                 {/* Status */}

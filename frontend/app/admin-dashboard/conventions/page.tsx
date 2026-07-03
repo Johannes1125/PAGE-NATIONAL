@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, Landmark } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { gooeyToast } from "goey-toast";
@@ -9,33 +10,24 @@ import "goey-toast/styles.css";
 import AdminSidebarLayout from "../components/AdminSidebarLayout";
 import ConventionCard from "./components/ConventionCard";
 import ConventionTable from "./components/ConventionTable";
-import ConventionFormModal from "./components/ConventionFormModal";
 import ViewToggle from "./components/ViewToggle";
 import EmptyState from "./components/EmptyState";
 import LoadingSkeleton from "./components/LoadingSkeleton";
 import ConfirmDialog from "./components/ConfirmDialog";
-import type { Convention, ConventionFormData } from "./types";
+import type { Convention } from "./types";
 import { conventionsApi } from "../../lib/api-client";
 import "../admin-dashboard.css";
 import "./conventions.css";
 
 export default function ConventionsPage() {
-  // ── Data state ──────────────────────────────────────────────────────────────
+  const router = useRouter();
+
   const [conventions, setConventions] = useState<Convention[]>([]);
   const [viewMode, setViewMode] = useState<"card" | "list">("card");
-
-  // ── Loading / error states ──────────────────────────────────────────────────
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // ── Form modal state ────────────────────────────────────────────────────────
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingConvention, setEditingConvention] = useState<Convention | null>(null);
-
-  // ── Delete confirmation state ───────────────────────────────────────────────
   const [deleteTarget, setDeleteTarget] = useState<Convention | null>(null);
 
-  // ── Fetch all conventions ───────────────────────────────────────────────────
   const fetchConventions = useCallback(async (showSkeleton = false) => {
     if (showSkeleton) setIsLoading(true);
     setError(null);
@@ -45,7 +37,6 @@ export default function ConventionsPage() {
       if (res?.success && Array.isArray(res.data)) {
         setConventions(res.data);
       } else if (res?.success && res.data) {
-        // single record wrapped
         setConventions(Array.isArray(res.data) ? res.data : [res.data]);
       }
     } catch (err: unknown) {
@@ -57,64 +48,16 @@ export default function ConventionsPage() {
     }
   }, []);
 
-  // Initial load
   useEffect(() => {
     fetchConventions(true);
   }, [fetchConventions]);
 
-  // ── Handlers ────────────────────────────────────────────────────────────────
-
   const handleOpenCreate = () => {
-    setEditingConvention(null);
-    setIsFormOpen(true);
+    router.push("/admin-dashboard/conventions/create");
   };
 
   const handleOpenEdit = (convention: Convention) => {
-    setEditingConvention(convention);
-    setIsFormOpen(true);
-  };
-
-  const handleCloseForm = () => {
-    setIsFormOpen(false);
-    setEditingConvention(null);
-  };
-
-  const handleFormSubmit = async (data: ConventionFormData) => {
-    const formData = new FormData();
-    formData.append("convention_number", data.convention_number.trim());
-    formData.append("title", data.title.trim());
-    formData.append("location", data.location.trim());
-    formData.append("convention_date", data.convention_date);
-    if (data.description.trim()) {
-      formData.append("description", data.description.trim());
-    }
-    if (data.banner) {
-      formData.append("image", data.banner);
-    }
-
-    try {
-      if (editingConvention) {
-        const res = await conventionsApi.update(editingConvention.id, formData);
-        if (res?.success && res.data) {
-          // Update in-place
-          setConventions((prev) =>
-            prev.map((c) => (c.id === editingConvention.id ? res.data : c)),
-          );
-          gooeyToast.success(`"${res.data.title}" updated successfully.`);
-        }
-      } else {
-        const res = await conventionsApi.create(formData);
-        if (res?.success && res.data) {
-          setConventions((prev) => [res.data, ...prev]);
-          gooeyToast.success(`"${res.data.title}" created successfully.`);
-        }
-      }
-      handleCloseForm();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to save convention.";
-      gooeyToast.error(msg);
-      throw err; // re-throw so modal keeps open
-    }
+    router.push(`/admin-dashboard/conventions/${convention.id}/edit`);
   };
 
   const handleTogglePublish = async (convention: Convention) => {
@@ -125,7 +68,6 @@ export default function ConventionsPage() {
         : await conventionsApi.publish(convention.id);
 
       if (res?.success && res.data) {
-        // Update in-place — no full reload
         setConventions((prev) =>
           prev.map((c) => (c.id === convention.id ? res.data : c)),
         );
@@ -164,7 +106,6 @@ export default function ConventionsPage() {
     setDeleteTarget(null);
   };
 
-  // ── Header actions ────────────────────────────────────────────────────────
   const headerActionsBlock = (
     <div className="flex items-center gap-3 flex-wrap">
       <button
@@ -272,15 +213,6 @@ export default function ConventionsPage() {
         </motion.div>
       </AdminSidebarLayout>
 
-      {/* Create / Edit modal */}
-      <ConventionFormModal
-        open={isFormOpen}
-        convention={editingConvention}
-        onClose={handleCloseForm}
-        onSubmit={handleFormSubmit}
-      />
-
-      {/* Delete confirmation */}
       <ConfirmDialog
         open={deleteTarget !== null}
         title="Delete Convention?"

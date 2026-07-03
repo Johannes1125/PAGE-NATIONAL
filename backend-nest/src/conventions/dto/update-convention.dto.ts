@@ -12,25 +12,27 @@ export class UpdateConventionDto {
   title?: string;
 
   @IsString()
+  @IsNotEmpty({ message: 'Description must not be empty.' })
+  @IsOptional()
+  description?: string;
+
+  @IsString()
   @IsNotEmpty({ message: 'Location must not be empty.' })
   @IsOptional()
   location?: string;
 
-  @IsDateString({}, { message: 'Convention date must be a valid ISO date string.' })
-  @IsNotEmpty({ message: 'Convention date must not be empty.' })
+  @IsDateString({}, { message: 'Start date must be a valid ISO date string.' })
+  @IsNotEmpty({ message: 'Start date must not be empty.' })
   @IsOptional()
-  convention_date?: string;
+  start_date?: string;
+
+  @IsDateString({}, { message: 'End date must be a valid ISO date string.' })
+  @IsNotEmpty({ message: 'End date must not be empty.' })
+  @IsOptional()
+  end_date?: string;
 
   @IsString()
   @IsOptional()
   @IsIn(['draft', 'published'], { message: 'Status must be either draft or published.' })
   status?: string;
-
-  @IsString()
-  @IsOptional()
-  banner_url?: string;
-
-  @IsString()
-  @IsOptional()
-  description?: string;
 }

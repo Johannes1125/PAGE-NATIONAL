@@ -1,0 +1,245 @@
+/* Convention Wizard — extends shared wizard styles from chapters */
+@import "../../chapters/components/ChapterWizard.css";
+
+.conv-wizard {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px;
+  box-sizing: border-box;
+}
+
+.conv-wizard .wizard-stepper__label {
+  font-size: 15px;
+  max-width: 88px;
+}
+
+.conv-entry-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 24px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.conv-entry-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.conv-entry-card__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e3a5f;
+  margin: 0;
+}
+
+.conv-entry-card__meta {
+  font-size: 16px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.conv-entry-card__actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.conv-schedule-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.conv-schedule-group__date {
+  font-size: 20px;
+  font-weight: 700;
+  color: #334155;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.conv-upload-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.conv-upload-thumb {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+}
+
+.conv-upload-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.conv-upload-thumb__remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(220, 38, 38, 0.9);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.conv-pdf-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.conv-pdf-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 18px;
+  color: #334155;
+}
+
+.conv-review-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.conv-review-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.conv-review-section__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e3a5f;
+  margin: 0;
+}
+
+.conv-review-edit-link {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2563eb;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  min-height: 48px;
+  padding: 0 8px;
+}
+
+.conv-review-edit-link:hover {
+  color: #1d4ed8;
+}
+
+.conv-review-row {
+  font-size: 18px;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.conv-review-row strong {
+  color: #1e3a5f;
+}
+
+.conv-stepper-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 100%;
+}
+
+.conv-stepper-btn:disabled {
+  cursor: default;
+}
+
+.conv-stepper-btn:focus-visible .wizard-stepper__circle {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.wizard-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #fef2f2;
+  border: 1.5px solid #fecaca;
+  border-radius: 10px;
+  font-size: 18px;
+  color: #b91c1c;
+}
+
+.wizard-spin-icon {
+  animation: wizard-spin 0.7s linear infinite;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 768px) {
+  .conv-wizard {
+    padding: 20px 16px;
+  }
+
+  .conv-entry-card__header {
+    flex-direction: column;
+  }
+
+  .conv-entry-card__actions {
+    width: 100%;
+  }
+
+  .conv-entry-card__actions button {
+    flex: 1;
+  }
+
+  .conv-upload-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

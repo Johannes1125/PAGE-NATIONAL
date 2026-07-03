@@ -6,6 +6,20 @@ import type {
   PaginatedActivitiesResponse,
   ActivityDetailResponse,
 } from '../(landing-page)/activities/types';
+import type {
+  Convention,
+  ConventionFull,
+  ConventionSchedule,
+  ConventionSpeaker,
+  ConventionAttachment,
+  ConventionApiResponse,
+  CreateConventionPayload,
+  UpdateConventionPayload,
+  CreateSchedulePayload,
+  UpdateSchedulePayload,
+  CreateSpeakerPayload,
+  UpdateSpeakerPayload,
+} from '../admin-dashboard/conventions/types';
 
 const MOCK_GALLERY_BASE = [
   'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80',
@@ -491,28 +505,83 @@ export const chaptersApi = {
 export const conventionsApi = {
   /** GET /conventions — list all, optionally filtered by status */
   list: (status?: string) =>
-    api.get(`/conventions${status ? `?status=${status}` : ''}`),
+    api.get<ConventionApiResponse<Convention[]>>(`/conventions${status ? `?status=${status}` : ''}`),
 
   /** GET /conventions/:id — single convention */
-  get: (id: string) => api.get(`/conventions/${id}`),
+  get: (id: string) =>
+    api.get<ConventionApiResponse<Convention>>(`/conventions/${id}`),
 
-  /** POST /conventions — create (multipart: banner in 'image' field) */
-  create: (formData: FormData) =>
-    api.postMultipart('/conventions', formData),
+  /** GET /conventions/:id/full — convention with schedules, speakers, attachments */
+  getFull: (id: string) =>
+    api.get<ConventionApiResponse<ConventionFull>>(`/conventions/${id}/full`),
 
-  /** PATCH /conventions/:id — update (multipart: banner in 'image' field) */
-  update: (id: string, formData: FormData) =>
-    api.patchMultipart(`/conventions/${id}`, formData),
+  /** POST /conventions — create base record (Step 1) */
+  create: (payload: CreateConventionPayload) =>
+    api.post<ConventionApiResponse<Convention>>('/conventions', payload),
+
+  /** PATCH /conventions/:id — update Step 1 fields */
+  update: (id: string, payload: UpdateConventionPayload) =>
+    api.patch<ConventionApiResponse<Convention>>(`/conventions/${id}`, payload),
+
+  /** POST /conventions/:id/schedules */
+  addSchedule: (conventionId: string, payload: CreateSchedulePayload) =>
+    api.post<ConventionApiResponse<ConventionSchedule>>(`/conventions/${conventionId}/schedules`, payload),
+
+  /** PATCH /conventions/:id/schedules/:scheduleId */
+  updateSchedule: (conventionId: string, scheduleId: string, payload: UpdateSchedulePayload) =>
+    api.patch<ConventionApiResponse<ConventionSchedule>>(
+      `/conventions/${conventionId}/schedules/${scheduleId}`,
+      payload,
+    ),
+
+  /** DELETE /conventions/:id/schedules/:scheduleId */
+  removeSchedule: (conventionId: string, scheduleId: string) =>
+    api.delete<ConventionApiResponse<ConventionSchedule>>(
+      `/conventions/${conventionId}/schedules/${scheduleId}`,
+    ),
+
+  /** POST /conventions/:id/speakers */
+  addSpeaker: (conventionId: string, payload: CreateSpeakerPayload) =>
+    api.post<ConventionApiResponse<ConventionSpeaker>>(`/conventions/${conventionId}/speakers`, payload),
+
+  /** PATCH /conventions/:id/speakers/:speakerId */
+  updateSpeaker: (conventionId: string, speakerId: string, payload: UpdateSpeakerPayload) =>
+    api.patch<ConventionApiResponse<ConventionSpeaker>>(
+      `/conventions/${conventionId}/speakers/${speakerId}`,
+      payload,
+    ),
+
+  /** DELETE /conventions/:id/speakers/:speakerId */
+  removeSpeaker: (conventionId: string, speakerId: string) =>
+    api.delete<ConventionApiResponse<ConventionSpeaker>>(
+      `/conventions/${conventionId}/speakers/${speakerId}`,
+    ),
+
+  /** POST /conventions/:id/attachments — multipart file upload */
+  addAttachment: (conventionId: string, file: File) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    return api.postMultipart<ConventionApiResponse<ConventionAttachment>>(
+      `/conventions/${conventionId}/attachments`,
+      fd,
+    );
+  },
+
+  /** DELETE /conventions/:id/attachments/:attachmentId */
+  removeAttachment: (conventionId: string, attachmentId: string) =>
+    api.delete<ConventionApiResponse<ConventionAttachment>>(
+      `/conventions/${conventionId}/attachments/${attachmentId}`,
+    ),
 
   /** PATCH /conventions/:id/publish */
   publish: (id: string) =>
-    api.patch(`/conventions/${id}/publish`, {}),
+    api.patch<ConventionApiResponse<Convention>>(`/conventions/${id}/publish`, {}),
 
   /** PATCH /conventions/:id/unpublish */
   unpublish: (id: string) =>
-    api.patch(`/conventions/${id}/unpublish`, {}),
+    api.patch<ConventionApiResponse<Convention>>(`/conventions/${id}/unpublish`, {}),
 
   /** DELETE /conventions/:id */
-  delete: (id: string) => api.delete(`/conventions/${id}`),
+  delete: (id: string) => api.delete<ConventionApiResponse<Convention>>(`/conventions/${id}`),
 };
 

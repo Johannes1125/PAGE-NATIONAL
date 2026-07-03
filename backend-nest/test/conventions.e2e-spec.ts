@@ -7,7 +7,6 @@ import { PrismaService } from './../src/prisma/prisma.service';
 import { HttpExceptionFilter } from './../src/common/http-exception.filter';
 import * as crypto from 'crypto';
 
-// Global serialization patching for Prisma BigInt IDs in E2E tests
 if (!(BigInt.prototype as any).toJSON) {
   (BigInt.prototype as any).toJSON = function () {
     return Number(this);
@@ -24,13 +23,40 @@ describe('Conventions (e2e)', () => {
   let memberUser: any;
 
   let createdConventionId: string;
+  let createdScheduleId: string;
+  let createdSpeakerId: string;
+  let createdAttachmentId: string;
 
   const validPayload = {
     convention_number: '56th Convention',
     title: 'E2E Annual Convention',
-    location: 'Cebu Convention Center',
-    convention_date: '2026-11-20T00:00:00.000Z',
     description: 'A test convention for integration testing.',
+    location: 'Cebu Convention Center',
+    start_date: '2026-11-18T00:00:00.000Z',
+    end_date: '2026-11-20T00:00:00.000Z',
+    attachments: [
+      {
+        file_url: 'https://res.cloudinary.com/example/image/upload/v1/conventions/test.jpg',
+        file_name: 'test.jpg',
+        file_type: 'image',
+      },
+    ],
+  };
+
+  const validSchedulePayload = {
+    schedule_date: '2026-11-19T00:00:00.000Z',
+    title: 'Opening Plenary',
+    event_type: 'Plenary',
+    start_time: '09:00',
+    end_time: '12:00',
+    location: 'Main Hall',
+  };
+
+  const validSpeakerPayload = {
+    name: 'Dr. Jane Doe',
+    role_position: 'Keynote Speaker',
+    institution: 'University of Example',
+    presentation_topic: 'Future of Graduate Education',
   };
 
   beforeAll(async () => {
@@ -40,7 +66,6 @@ describe('Conventions (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
 
-    // Enable same global validation pipe and filters as main.ts
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
@@ -52,7 +77,6 @@ describe('Conventions (e2e)', () => {
     await app.init();
     prisma = moduleFixture.get<PrismaService>(PrismaService);
 
-    // Setup temporary test users
     const rand = Date.now();
     adminToken = `test-admin-token-${rand}`;
     memberToken = `test-member-token-${rand}`;
@@ -84,14 +108,12 @@ describe('Conventions (e2e)', () => {
   });
 
   afterAll(async () => {
-    // Clean up created conventions
     if (createdConventionId) {
       try {
         await prisma.convention.delete({ where: { id: createdConventionId } });
       } catch {}
     }
 
-    // Clean up temporary test users
     if (adminUser) {
       await prisma.users.delete({ where: { id: adminUser.id } }).catch(() => {});
     }
@@ -99,7 +121,6 @@ describe('Conventions (e2e)', () => {
       await prisma.users.delete({ where: { id: memberUser.id } }).catch(() => {});
     }
 
-    // Clean up user activities logged by our test users
     await prisma.user_activities.deleteMany({
       where: {
         user_id: {
@@ -110,8 +131,6 @@ describe('Conventions (e2e)', () => {
 
     await app.close();
   });
-
-  // ── AUTH CHECK ────────────────────────────────────────────────────────────
 
   describe('Authentication and Authorization', () => {
     it('should return 401 when no token is provided', async () => {
@@ -130,8 +149,6 @@ describe('Conventions (e2e)', () => {
     });
   });
 
-  // ── CRUD CHECKS ───────────────────────────────────────────────────────────
-
   describe('POST /conventions', () => {
     it('should return 422 if required payload fields are missing', async () => {
       const invalidPayload = { title: 'Test Title' };
@@ -145,24 +162,24 @@ describe('Conventions (e2e)', () => {
       expect(res.body.message).toBeDefined();
     });
 
-    it('should create a convention with default status = draft', async () => {
+    it('should create a convention with default status = draft and attachments', async () => {
       const res = await request(app.getHttpServer())
         .post('/conventions')
         .set('Authorization', `Bearer ${adminToken}`)
         .send(validPayload);
 
-      expect(res.status).toBe(201); // HttpStatus.CREATED is 201
+      expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
       expect(res.body.data).toHaveProperty('id');
       expect(res.body.data.title).toBe(validPayload.title);
       expect(res.body.data.status).toBe('draft');
       expect(res.body.data.published_at).toBeNull();
+      expect(res.body.data.attachments).toHaveLength(1);
 
       createdConventionId = res.body.data.id;
 
-      // Verify that activity log is created
       const logs = await prisma.user_activities.findFirst({
-        where: { user_id: adminUser.id, action: `Created Convention: ${validPayload.title}` },
+        where: { user_id: adminUser.id, action: 'convention_created' },
       });
       expect(logs).toBeTruthy();
     });
@@ -214,6 +231,21 @@ describe('Conventions (e2e)', () => {
     });
   });
 
+  describe('GET /conventions/:id/full', () => {
+    it('should return convention with nested schedules, speakers, and attachments', async () => {
+      const res = await request(app.getHttpServer())
+        .get(`/conventions/${createdConventionId}/full`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.id).toBe(createdConventionId);
+      expect(Array.isArray(res.body.data.schedules)).toBe(true);
+      expect(Array.isArray(res.body.data.speakers)).toBe(true);
+      expect(Array.isArray(res.body.data.attachments)).toBe(true);
+    });
+  });
+
   describe('PATCH /conventions/:id', () => {
     it('should update partial fields of a convention', async () => {
       const updatePayload = { title: 'Updated E2E Convention Title' };
@@ -226,11 +258,100 @@ describe('Conventions (e2e)', () => {
       expect(res.body.success).toBe(true);
       expect(res.body.data.title).toBe(updatePayload.title);
 
-      // Verify that activity log is created
       const logs = await prisma.user_activities.findFirst({
-        where: { user_id: adminUser.id, action: `Updated Convention: ${updatePayload.title}` },
+        where: { user_id: adminUser.id, action: 'convention_updated' },
       });
       expect(logs).toBeTruthy();
+    });
+  });
+
+  describe('POST /conventions/:id/schedules', () => {
+    it('should add a schedule within the convention date range', async () => {
+      const res = await request(app.getHttpServer())
+        .post(`/conventions/${createdConventionId}/schedules`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(validSchedulePayload);
+
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.title).toBe(validSchedulePayload.title);
+
+      createdScheduleId = res.body.data.id;
+
+      const logs = await prisma.user_activities.findFirst({
+        where: { user_id: adminUser.id, action: 'convention_schedule_added' },
+      });
+      expect(logs).toBeTruthy();
+    });
+
+    it('should return 400 when schedule date is outside convention range', async () => {
+      const res = await request(app.getHttpServer())
+        .post(`/conventions/${createdConventionId}/schedules`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          ...validSchedulePayload,
+          schedule_date: '2026-12-01T00:00:00.000Z',
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toContain('Schedule date must fall within');
+    });
+  });
+
+  describe('PATCH /conventions/:id/schedules/:scheduleId', () => {
+    it('should update a schedule', async () => {
+      const res = await request(app.getHttpServer())
+        .patch(`/conventions/${createdConventionId}/schedules/${createdScheduleId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ title: 'Updated Plenary Session' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.title).toBe('Updated Plenary Session');
+    });
+  });
+
+  describe('POST /conventions/:id/speakers', () => {
+    it('should add a speaker', async () => {
+      const res = await request(app.getHttpServer())
+        .post(`/conventions/${createdConventionId}/speakers`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(validSpeakerPayload);
+
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.name).toBe(validSpeakerPayload.name);
+
+      createdSpeakerId = res.body.data.id;
+
+      const logs = await prisma.user_activities.findFirst({
+        where: { user_id: adminUser.id, action: 'convention_speaker_added' },
+      });
+      expect(logs).toBeTruthy();
+    });
+  });
+
+  describe('PATCH /conventions/:id/speakers/:speakerId', () => {
+    it('should update a speaker', async () => {
+      const res = await request(app.getHttpServer())
+        .patch(`/conventions/${createdConventionId}/speakers/${createdSpeakerId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ name: 'Dr. John Smith' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.name).toBe('Dr. John Smith');
+    });
+  });
+
+  describe('POST /conventions/:id/attachments', () => {
+    it('should return 400 when no file is provided', async () => {
+      const res = await request(app.getHttpServer())
+        .post(`/conventions/${createdConventionId}/attachments`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(400);
     });
   });
 
@@ -245,9 +366,8 @@ describe('Conventions (e2e)', () => {
       expect(res.body.data.status).toBe('published');
       expect(res.body.data.published_at).not.toBeNull();
 
-      // Verify that activity log is created
       const logs = await prisma.user_activities.findFirst({
-        where: { user_id: adminUser.id, action: `Published Convention: ${res.body.data.title}` },
+        where: { user_id: adminUser.id, action: 'convention_published' },
       });
       expect(logs).toBeTruthy();
     });
@@ -264,16 +384,37 @@ describe('Conventions (e2e)', () => {
       expect(res.body.data.status).toBe('draft');
       expect(res.body.data.published_at).toBeNull();
 
-      // Verify that activity log is created
       const logs = await prisma.user_activities.findFirst({
-        where: { user_id: adminUser.id, action: `Unpublished Convention: ${res.body.data.title}` },
+        where: { user_id: adminUser.id, action: 'convention_unpublished' },
       });
       expect(logs).toBeTruthy();
     });
   });
 
+  describe('DELETE /conventions/:id/speakers/:speakerId', () => {
+    it('should remove a speaker', async () => {
+      const res = await request(app.getHttpServer())
+        .delete(`/conventions/${createdConventionId}/speakers/${createdSpeakerId}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+  });
+
+  describe('DELETE /conventions/:id/schedules/:scheduleId', () => {
+    it('should remove a schedule', async () => {
+      const res = await request(app.getHttpServer())
+        .delete(`/conventions/${createdConventionId}/schedules/${createdScheduleId}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+  });
+
   describe('DELETE /conventions/:id', () => {
-    it('should remove the convention record and return 200', async () => {
+    it('should remove the convention record and cascade-delete children', async () => {
       const res = await request(app.getHttpServer())
         .delete(`/conventions/${createdConventionId}`)
         .set('Authorization', `Bearer ${adminToken}`);
@@ -281,19 +422,22 @@ describe('Conventions (e2e)', () => {
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
 
-      // Verify it is removed
-      const checkRes = await prisma.convention.findUnique({
+      const checkConvention = await prisma.convention.findUnique({
         where: { id: createdConventionId },
       });
-      expect(checkRes).toBeNull();
+      expect(checkConvention).toBeNull();
 
-      // Verify that activity log is created
+      const checkAttachments = await prisma.conventionAttachment.findMany({
+        where: { convention_id: createdConventionId },
+      });
+      expect(checkAttachments).toHaveLength(0);
+
       const logs = await prisma.user_activities.findFirst({
-        where: { user_id: adminUser.id, action: `Deleted Convention: ${res.body.data.title}` },
+        where: { user_id: adminUser.id, action: 'convention_deleted' },
       });
       expect(logs).toBeTruthy();
 
-      createdConventionId = null; // Clear so afterAll doesn't try to delete it
+      createdConventionId = null;
     });
   });
 });
