@@ -9,6 +9,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import AdminSidebarLayout from "./components/AdminSidebarLayout";
+import AdminTypewriterLoader from "../lib/admin-loader/AdminTypewriterLoader";
 import ChartCard from "./components/ChartCard";
 import "./admin-dashboard.css";
 import { api } from "../lib/api-client";
@@ -228,12 +229,7 @@ export default function AdminDashboardPage() {
         title="Dashboard Overview"
         subtitle="View platform metrics, monitor activity, and track approval workflow status in one place."
       >
-        <section className="admin-shell admin-shell--main" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-          <div style={{ color: '#1e538e', textAlign: 'center' }}>
-            <p style={{ fontSize: '1.25rem', fontWeight: 600 }}>Loading Dashboard Overview...</p>
-            <p style={{ fontSize: '0.875rem', opacity: 0.7, marginTop: '0.25rem' }}>Fetching stats from backend</p>
-          </div>
-        </section>
+        <AdminTypewriterLoader label="Loading Dashboard Overview..." />
       </AdminSidebarLayout>
     );
   }
