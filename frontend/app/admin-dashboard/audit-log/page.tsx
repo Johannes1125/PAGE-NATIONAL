@@ -28,6 +28,7 @@ import {
   FileText
 } from "lucide-react";
 import AdminSidebarLayout from "../components/AdminSidebarLayout";
+import AdminTypewriterLoader from "../../lib/admin-loader/AdminTypewriterLoader";
 import { gooeyToast } from "goey-toast"; 
 import "goey-toast/styles.css";
 import "./audit-log.css";
@@ -448,6 +449,20 @@ export default function AuditLogPage() {
     const parts = isoStr.split("T");
     return { date: parts[0], time: parts[1] ? ` @ ${parts[1]}` : "" };
   };
+
+  if (isLoading) {
+    return (
+      <AdminSidebarLayout
+        pageClassName="audit-page"
+        mainClassName="audit-main"
+        title="National Post Directory"
+        subtitle="Manage, audit, and modify published records across the research portal."
+        eyebrow="Database Management"
+      >
+        <AdminTypewriterLoader label="Loading national post directory..." />
+      </AdminSidebarLayout>
+    );
+  }
 
   return (
     <>

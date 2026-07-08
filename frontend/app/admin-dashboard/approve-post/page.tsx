@@ -11,6 +11,7 @@ import {
   Check
 } from "lucide-react";
 import AdminSidebarLayout from "../components/AdminSidebarLayout";
+import AdminTypewriterLoader from "../../lib/admin-loader/AdminTypewriterLoader";
 import { gooeyToast } from "goey-toast"; 
 import "goey-toast/styles.css";
 import "./approve-post.css";
@@ -225,12 +226,7 @@ export default function ApprovePostPage() {
         subtitle="Review and approve posts submitted by the Post Reviewer (Organization Panel)."
         eyebrow="Admin Panel"
       >
-        <section className="approve-content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-          <div style={{ color: '#1e538e', textAlign: 'center' }}>
-            <p style={{ fontSize: '1.25rem', fontWeight: 600 }}>Processing Submissions...</p>
-            <p style={{ fontSize: '0.875rem', opacity: 0.7, marginTop: '0.25rem' }}>Syncing with Supabase DB</p>
-          </div>
-        </section>
+        <AdminTypewriterLoader label="Processing Submissions..." />
       </AdminSidebarLayout>
     );
   }
