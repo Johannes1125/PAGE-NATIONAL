@@ -1,3 +1,4 @@
+import LandingAccessGate from "./components/LandingAccessGate"
 import { Playfair_Display, Poppins } from 'next/font/google'
 
 const playfair = Playfair_Display({
@@ -21,7 +22,7 @@ export default function LandingLayout({
 }) {
   return (
     <div className={`landing-zone ${playfair.variable} ${poppins.variable}`}>
-      {children}
+      <LandingAccessGate>{children}</LandingAccessGate>
     </div>
   )
 }

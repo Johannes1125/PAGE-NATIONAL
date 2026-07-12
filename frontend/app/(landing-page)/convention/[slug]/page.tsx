@@ -7,15 +7,14 @@
 
 "use client";
 import Navbar from "../../components/Navbar";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback, use, type PointerEvent as ReactPointerEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { CONVENTIONS_DATA } from "../mock-data";
 import { Convention } from "../types";
-import Lightbox from "../../components/Lightbox";
-import { Calendar, MapPin, ChevronDown, Download, AlertCircle, ArrowLeft, BookOpen, Mic, Activity, Layers, Image as ImageIcon } from "lucide-react";
+import { Calendar, MapPin, ChevronDown, Download, AlertCircle, ArrowLeft, BookOpen, Mic, Activity, Layers, Image as ImageIcon, Search, SlidersHorizontal, ChevronLeft, ChevronRight, X, Maximize2, Minimize2 } from "lucide-react";
 import "./convention-detail.css";
 
 // ── Icon Components ────────────────────────────────────────────────────────
@@ -90,6 +89,248 @@ const sectionVariants: Variants = {
     transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] },
   },
 };
+
+const galleryContainerVariants: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.04,
+      delayChildren: 0.03,
+    },
+  },
+};
+
+const galleryCardVariants: Variants = {
+  hidden: { opacity: 0, y: 18, scale: 0.985 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.24, ease: [0.16, 1, 0.3, 1] },
+  },
+};
+
+type GallerySort = "newest" | "oldest";
+
+type GalleryItem = {
+  image_url: string;
+  caption: string;
+  sourceIndex: number;
+};
+
+function GalleryPhotoCard({
+  item,
+  index,
+  onOpen,
+}: {
+  item: GalleryItem;
+  index: number;
+  onOpen: (index: number) => void;
+}) {
+  const [loaded, setLoaded] = useState(false);
+  const [broken, setBroken] = useState(false);
+
+  return (
+    <motion.button
+      type="button"
+      className="gallery-card"
+      variants={galleryCardVariants}
+      whileHover={{ scale: 1.03 }}
+      whileTap={{ scale: 0.985 }}
+      onClick={() => onOpen(index)}
+      aria-label={`Open gallery photo ${index + 1}: ${item.caption}`}
+    >
+      <div className="gallery-card__media">
+        {!loaded && !broken && <span className="gallery-card__skeleton animate-pulse" aria-hidden="true" />}
+
+        {broken ? (
+          <div className="gallery-card__broken" role="img" aria-label="Image unavailable">
+            <ImageIcon className="gallery-card__broken-icon" />
+            <span>Image unavailable</span>
+          </div>
+        ) : (
+          <Image
+            src={item.image_url}
+            alt={item.caption}
+            fill
+            sizes="(max-width: 540px) 50vw, (max-width: 1024px) 33vw, (max-width: 1440px) 20vw, 16vw"
+            className={`gallery-card__img${loaded ? " gallery-card__img--loaded" : ""}`}
+            onLoad={() => setLoaded(true)}
+            onError={() => setBroken(true)}
+          />
+        )}
+
+        <div className="gallery-card__overlay">
+          <div className="gallery-card__copy">
+            <span className="gallery-card__eyebrow">Convention Photo</span>
+            <h4 className="gallery-card__title">{item.caption}</h4>
+          </div>
+        </div>
+      </div>
+    </motion.button>
+  );
+}
+
+function GalleryViewer({
+  items,
+  startIndex,
+  onClose,
+}: {
+  items: GalleryItem[];
+  startIndex: number;
+  onClose: () => void;
+}) {
+  const [current, setCurrent] = useState(startIndex);
+  const [zoomed, setZoomed] = useState(false);
+  const viewerRef = useRef<HTMLDivElement | null>(null);
+  const pointerStartRef = useRef<number | null>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+
+  const goPrev = useCallback(() => setCurrent((value) => (value - 1 + items.length) % items.length), [items.length]);
+  const goNext = useCallback(() => setCurrent((value) => (value + 1) % items.length), [items.length]);
+
+  useEffect(() => {
+    previousFocusRef.current = document.activeElement as HTMLElement | null;
+    const focusTimer = window.setTimeout(() => {
+      const focusTarget = viewerRef.current?.querySelector<HTMLButtonElement>("button[data-focus-initial='true']");
+      focusTarget?.focus();
+    }, 0);
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+      if (event.key === "ArrowLeft") {
+        goPrev();
+      }
+      if (event.key === "ArrowRight") {
+        goNext();
+      }
+      if (event.key === "+" || event.key === "=") {
+        setZoomed(true);
+      }
+      if (event.key === "-") {
+        setZoomed(false);
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      clearTimeout(focusTimer);
+      document.removeEventListener("keydown", onKeyDown);
+      previousFocusRef.current?.focus?.();
+    };
+  }, [goNext, goPrev, onClose]);
+
+  const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    pointerStartRef.current = event.clientX;
+  };
+
+  const handlePointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (pointerStartRef.current === null) return;
+    const delta = event.clientX - pointerStartRef.current;
+    if (Math.abs(delta) > 48) {
+      if (delta < 0) goNext();
+      else goPrev();
+    }
+    pointerStartRef.current = null;
+  };
+
+  const currentItem = items[current];
+
+  return (
+    <motion.div
+      className="gallery-viewer-backdrop"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.22 }}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+      aria-modal="true"
+      role="dialog"
+      aria-label="Convention photo viewer"
+    >
+      <motion.div
+        ref={viewerRef}
+        className="gallery-viewer"
+        initial={{ scale: 0.96, opacity: 0, y: 18 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.96, opacity: 0, y: 10 }}
+        transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <button
+          type="button"
+          className="gallery-viewer__close"
+          onClick={onClose}
+          aria-label="Close viewer"
+          data-focus-initial="true"
+        >
+          <X size={18} />
+        </button>
+
+        <button
+          type="button"
+          className="gallery-viewer__nav gallery-viewer__nav--prev"
+          onClick={goPrev}
+          aria-label="Previous image"
+        >
+          <ChevronLeft size={18} />
+        </button>
+
+        <button
+          type="button"
+          className="gallery-viewer__nav gallery-viewer__nav--next"
+          onClick={goNext}
+          aria-label="Next image"
+        >
+          <ChevronRight size={18} />
+        </button>
+
+        <div className={`gallery-viewer__frame${zoomed ? " gallery-viewer__frame--zoomed" : ""}`}>
+          <motion.div
+            key={currentItem.sourceIndex}
+            className="gallery-viewer__media"
+            onPointerDown={handlePointerDown}
+            onPointerUp={handlePointerUp}
+            initial={{ opacity: 0, scale: 0.985 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+            onClick={() => setZoomed((value) => !value)}
+          >
+            <Image
+              src={currentItem.image_url}
+              alt={currentItem.caption}
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 90vw"
+              className="gallery-viewer__img"
+            />
+          </motion.div>
+        </div>
+
+        <div className="gallery-viewer__meta">
+          <div className="gallery-viewer__counter">{current + 1} / {items.length}</div>
+          <button
+            type="button"
+            className="gallery-viewer__zoom"
+            onClick={() => setZoomed((value) => !value)}
+            aria-label={zoomed ? "Exit zoom" : "Zoom image"}
+          >
+            {zoomed ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+            <span>{zoomed ? "Fit" : "Zoom"}</span>
+          </button>
+        </div>
+
+        <div className="gallery-viewer__caption">
+          <h4>{currentItem.caption}</h4>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
 
 // ── Skeleton Loader Component ────────────────────────────────────────────────
 function DetailSkeleton() {
@@ -207,15 +448,89 @@ export default function ConventionDetailPage({
   const [expandedActivity, setExpandedActivity] = useState<string | null>(null);
   const [expandedJournal, setExpandedJournal] = useState<string | null>(null);
 
-  // Lightbox state
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxStart, setLightboxStart] = useState(0);
+  // Gallery state
+  const [galleryModalOpen, setGalleryModalOpen] = useState(false);
+  const [galleryViewerOpen, setGalleryViewerOpen] = useState(false);
+  const [galleryViewerStart, setGalleryViewerStart] = useState(0);
+  const [gallerySort, setGallerySort] = useState<GallerySort>("newest");
+  const galleryModalRef = useRef<HTMLDivElement | null>(null);
+  const galleryCloseButtonRef = useRef<HTMLButtonElement | null>(null);
+  const galleryModalFocusRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!galleryModalOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    galleryModalFocusRef.current = document.activeElement as HTMLElement | null;
+
+    const focusTimer = window.setTimeout(() => {
+      galleryCloseButtonRef.current?.focus();
+    }, 0);
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !galleryViewerOpen) {
+        setGalleryModalOpen(false);
+        return;
+      }
+
+      if (event.key === "Tab" && galleryModalRef.current && !galleryViewerOpen) {
+        const focusableElements = galleryModalRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], select, [tabindex]:not([tabindex="-1"])',
+        );
+        const focusable = Array.from(focusableElements).filter((element) => !element.hasAttribute("disabled"));
+
+        if (focusable.length === 0) {
+          event.preventDefault();
+          return;
+        }
+
+        const firstFocusable = focusable[0];
+        const lastFocusable = focusable[focusable.length - 1];
+
+        if (event.shiftKey && document.activeElement === firstFocusable) {
+          event.preventDefault();
+          lastFocusable.focus();
+        } else if (!event.shiftKey && document.activeElement === lastFocusable) {
+          event.preventDefault();
+          firstFocusable.focus();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      window.clearTimeout(focusTimer);
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+      galleryModalFocusRef.current?.focus?.();
+    };
+  }, [galleryModalOpen, galleryViewerOpen]);
+
+  const galleryItems = useMemo<GalleryItem[]>(() => {
+    if (!convention) return [];
+    const items = convention.gallery.map((item, sourceIndex) => ({ ...item, sourceIndex }));
+    return gallerySort === "newest" ? [...items].reverse() : items;
+  }, [convention, gallerySort]);
+
+  const galleryPreview = useMemo(() => galleryItems.slice(0, 6), [galleryItems]);
+  const galleryViewerItems = useMemo(
+    () => galleryItems.map((item) => ({ ...item })),
+    [galleryItems],
+  );
+
+  const handleOpenGalleryViewer = (index: number) => {
+    setGalleryViewerStart(index);
+    setGalleryViewerOpen(true);
+  };
 
   // Fetch / find convention mock data
   useEffect(() => {
@@ -255,11 +570,6 @@ export default function ConventionDetailPage({
       </>
     );
   }
-
-  const handleOpenLightbox = (index: number) => {
-    setLightboxStart(index);
-    setLightboxOpen(true);
-  };
 
   const activityLabels: Record<string, string> = {
     workshop: "Workshop",
@@ -582,45 +892,138 @@ export default function ConventionDetailPage({
 
                 {/* ── SECTION 6: Photo Gallery ── */}
                 <motion.section className="conv-sidebar-section card-container" variants={sectionVariants}>
-                  <div className="conv-section__title-group" style={{ marginBottom: "20px" }}>
+                  <div className="conv-section__title-group conv-section__title-group--gallery" style={{ marginBottom: "20px" }}>
                     <ImageIcon className="sidebar-section-icon" />
-                    <h3 className="conv-sidebar-section__title">Photo Gallery</h3>
+                    <div>
+                      <h3 className="conv-sidebar-section__title">Photo Gallery</h3>
+                      <p className="conv-sidebar-section__subtitle">Selected moments from the convention archive.</p>
+                    </div>
                   </div>
 
-                  <div className="gallery-grid">
-                    {convention.gallery.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="gallery-item"
-                        onClick={() => handleOpenLightbox(idx)}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            handleOpenLightbox(idx);
-                          }
-                        }}
-                        aria-label={`Open gallery image ${idx + 1}`}
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={item.image_url} alt={item.caption} className="gallery-img" />
-                        <div className="gallery-overlay">
-                          <span className="gallery-caption">{item.caption}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  {galleryPreview.length > 0 ? (
+                    <>
+                      <motion.div className="gallery-preview-grid" variants={galleryContainerVariants} initial="hidden" animate="visible">
+                        {galleryPreview.map((item, idx) => (
+                          <GalleryPhotoCard
+                            key={`${item.image_url}-${item.sourceIndex}`}
+                            item={item}
+                            index={idx}
+                            onOpen={handleOpenGalleryViewer}
+                          />
+                        ))}
+                      </motion.div>
+
+                      {galleryItems.length > galleryPreview.length && (
+                        <button
+                          type="button"
+                          className="btn-gallery-more"
+                          onClick={() => setGalleryModalOpen(true)}
+                        >
+                          See More Photos
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <div className="gallery-empty-inline">
+                      <ImageIcon className="gallery-empty-inline__icon" />
+                      <p>No photos available</p>
+                    </div>
+                  )}
                 </motion.section>
               </div>
             </div>
 
-            {/* Shared Lightbox Overlay */}
+            {/* Gallery Modal */}
             <AnimatePresence>
-              {lightboxOpen && (
-                <Lightbox
-                  images={convention.gallery.map(g => g.image_url)}
-                  startIndex={lightboxStart}
-                  onClose={() => setLightboxOpen(false)}
+              {galleryModalOpen && (
+                <motion.div
+                  className="gallery-modal-backdrop"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={(e) => {
+                    if (e.target === e.currentTarget) {
+                      setGalleryModalOpen(false);
+                    }
+                  }}
+                >
+                  <motion.div
+                    ref={galleryModalRef}
+                    className="gallery-modal"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="gallery-modal-title"
+                    initial={{ opacity: 0, y: 18, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 12, scale: 0.96 }}
+                    transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <motion.header className="gallery-modal__header" variants={sectionVariants} initial="hidden" animate="visible">
+                      <div className="gallery-modal__heading">
+                        <p className="gallery-modal__eyebrow">Convention Gallery</p>
+                        <h3 id="gallery-modal-title" className="gallery-modal__title">All Photos</h3>
+                        <p className="gallery-modal__subtitle">Browse memories captured throughout the convention.</p>
+                      </div>
+
+                      <div className="gallery-modal__actions">
+                        <div className="gallery-modal__count">
+                          <Search size={14} />
+                          <span>{galleryItems.length} photos</span>
+                        </div>
+
+                        <label className="gallery-modal__sort" aria-label="Sort photos">
+                          <SlidersHorizontal size={14} />
+                          <select value={gallerySort} onChange={(e) => setGallerySort(e.target.value as GallerySort)}>
+                            <option value="newest">Newest</option>
+                            <option value="oldest">Oldest</option>
+                          </select>
+                        </label>
+
+                        <button
+                          type="button"
+                          className="gallery-modal__close"
+                          onClick={() => setGalleryModalOpen(false)}
+                          aria-label="Close gallery modal"
+                          ref={galleryCloseButtonRef}
+                        >
+                          <X size={18} />
+                        </button>
+                      </div>
+                    </motion.header>
+
+                    <div className="gallery-modal__body">
+                      {galleryItems.length === 0 ? (
+                        <div className="gallery-empty-state">
+                          <ImageIcon className="gallery-empty-state__icon" />
+                          <h4>No photos available</h4>
+                          <p>The gallery is empty for this convention right now.</p>
+                        </div>
+                      ) : (
+                        <motion.div className="gallery-modal__grid" variants={galleryContainerVariants} initial="hidden" animate="visible">
+                          {galleryItems.map((item, idx) => (
+                            <GalleryPhotoCard
+                              key={`${item.image_url}-${item.sourceIndex}`}
+                              item={item}
+                              index={idx}
+                              onOpen={handleOpenGalleryViewer}
+                            />
+                          ))}
+                        </motion.div>
+                      )}
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Fullscreen Viewer */}
+            <AnimatePresence>
+              {galleryViewerOpen && galleryViewerItems.length > 0 && (
+                <GalleryViewer
+                  key={`${galleryViewerStart}-${gallerySort}`}
+                  items={galleryViewerItems}
+                  startIndex={galleryViewerStart}
+                  onClose={() => setGalleryViewerOpen(false)}
                 />
               )}
             </AnimatePresence>

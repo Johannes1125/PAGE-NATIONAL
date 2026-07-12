@@ -652,7 +652,6 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
 
         {user ? (
           <div className="navbar__user-menu">
-            <span className="navbar__user-name">Hello, {user.name.split(' ')[0]}</span>
             {user.role === 'admin' && (
               <Link href="/admin-dashboard" className="navbar__dashboard-btn">Dashboard</Link>
             )}

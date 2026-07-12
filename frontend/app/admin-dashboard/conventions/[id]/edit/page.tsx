@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Landmark } from "lucide-react";
+import { ArrowLeft, Landmark } from "lucide-react";
 import { gooeyToast } from "goey-toast";
 import { toast } from "react-toastify";
 import "goey-toast/styles.css";
@@ -55,6 +55,18 @@ export default function EditConventionPage() {
 
   useAdminAuth(router);
 
+  const headerActionsBlock = (
+    <button
+      type="button"
+      className="conv-btn conv-btn--secondary"
+      onClick={() => router.push("/admin-dashboard/conventions")}
+      style={{ minHeight: "52px", fontSize: "18px", fontWeight: 600, padding: "0 24px" }}
+    >
+      <ArrowLeft size={20} strokeWidth={2.5} aria-hidden="true" />
+      <span>Back to Dashboard</span>
+    </button>
+  );
+
   useEffect(() => {
     if (!id) return;
 
@@ -94,6 +106,7 @@ export default function EditConventionPage() {
       }
       subtitle="Update convention information, program schedule, speakers, and attachments using the wizard."
       seniorFriendlyHeader={true}
+      headerActions={headerActionsBlock}
       titleIcon={<Landmark size={28} strokeWidth={2.2} aria-hidden="true" />}
       premiumHeader={true}
     >
