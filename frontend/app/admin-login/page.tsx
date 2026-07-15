@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import './admin-login.css';
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -19,6 +19,11 @@ export default function OrgLogin() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    localStorage.removeItem("page_user_token");
+    localStorage.removeItem("page_user_payload");
+  }, []);
 
   const handleSignIn = async () => {
     if (!email || !password) {
