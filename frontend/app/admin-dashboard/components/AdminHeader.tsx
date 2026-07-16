@@ -17,7 +17,7 @@ const profileMenuItems: ProfileMenuItem[] = [
   { label: "Edit Profile", href: "/admin-dashboard/manage-users", icon: UserRound },
   { label: "Terms of Use", href: "/about", icon: FileText },
   { label: "Privacy Policy", href: "/about", icon: ShieldCheck },
-  { label: "Log Out", href: "/admin-login", icon: LogOut },
+  { label: "Log Out", href: "/", icon: LogOut },
 ];
 
 type AdminHeaderProps = {
@@ -56,6 +56,12 @@ export default function AdminHeader({
   premiumHeader = false,
 }: AdminHeaderProps) {
   const pathname = usePathname();
+
+  const handleSignOut = () => {
+    localStorage.removeItem("page_user_token");
+    localStorage.removeItem("page_user_payload");
+    window.location.href = "/";
+  };
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [closeNotificationsSignal, setCloseNotificationsSignal] = useState(0);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
@@ -189,7 +195,13 @@ export default function AdminHeader({
                       item.label === "Log Out" && styles.profileMenuItemDanger,
                     )}
                     role="menuitem"
-                    onClick={() => setIsProfileMenuOpen(false)}
+                    onClick={(e) => {
+                      setIsProfileMenuOpen(false);
+                      if (item.label === "Log Out") {
+                        e.preventDefault();
+                        handleSignOut();
+                      }
+                    }}
                   >
                     <span className={styles.profileMenuIcon} aria-hidden="true">
                       <item.icon size={14} strokeWidth={2} />

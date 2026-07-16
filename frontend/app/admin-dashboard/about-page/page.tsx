@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import AdminSidebarLayout from "../components/AdminSidebarLayout";
+import AdminTypewriterLoader from "../../lib/admin-loader/AdminTypewriterLoader";
 import StatCard from "../components/StatCard";
 import { api } from "../../lib/api-client";
 import { gooeyToast } from "goey-toast";
@@ -282,9 +283,7 @@ export default function AboutPageManagement() {
 
         {/* Redesigned 6 Module Cards Grid */}
         {isLoading ? (
-          <div style={{ display: "flex", justifyContent: "center", padding: "80px" }}>
-            <Loader2 className="animate-spin" size={36} color="var(--p-blue)" />
-          </div>
+          <AdminTypewriterLoader label="Loading about page modules..." />
         ) : (
           <section className="about-cards-grid">
             {sections.map((section, idx) => {
