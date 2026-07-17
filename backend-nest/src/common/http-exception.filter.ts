@@ -34,7 +34,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
           });
         } else if (resContent.errors) {
           // If the exception already has an errors object (manually thrown validation error)
-          status = HttpStatus.UNPROCESSABLE_ENTITY;
+          status = exception.getStatus();
           message = resContent.message || 'Validation error';
           errors = resContent.errors;
         } else {

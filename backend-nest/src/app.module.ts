@@ -18,6 +18,7 @@ import { SecRegistrationsModule } from './sec-registrations/sec-registrations.mo
 import { BirCertificationsModule } from './bir-certifications/bir-certifications.module';
 import { ChaptersModule } from './chapters/chapters.module';
 import { ConventionsModule } from './conventions/conventions.module';
+import { MembershipApplicationsModule } from './membership-applications/membership-applications.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { ConventionsModule } from './conventions/conventions.module';
     BirCertificationsModule,
     ChaptersModule,
     ConventionsModule,
+    MembershipApplicationsModule,
   ],
 })
 export class AppModule {}

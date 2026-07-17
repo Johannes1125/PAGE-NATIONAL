@@ -1,16 +1,39 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v2 as cloudinary } from 'cloudinary';
+import * as dotenv from 'dotenv';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class CloudinaryService {
   private readonly logger = new Logger(CloudinaryService.name);
 
   constructor(private configService: ConfigService) {
+    let cloudName = this.configService.get<string>('CLOUDINARY_CLOUD_NAME')?.trim();
+    let apiKey = this.configService.get<string>('CLOUDINARY_API_KEY')?.trim();
+    let apiSecret = this.configService.get<string>('CLOUDINARY_API_SECRET')?.trim();
+
+    try {
+      const envFilePath = path.join(process.cwd(), '.env');
+      if (fs.existsSync(envFilePath)) {
+        const envConfig = dotenv.parse(fs.readFileSync(envFilePath));
+        if (envConfig.CLOUDINARY_CLOUD_NAME) cloudName = envConfig.CLOUDINARY_CLOUD_NAME.trim();
+        if (envConfig.CLOUDINARY_API_KEY) apiKey = envConfig.CLOUDINARY_API_KEY.trim();
+        if (envConfig.CLOUDINARY_API_SECRET) apiSecret = envConfig.CLOUDINARY_API_SECRET.trim();
+      }
+    } catch (err) {
+      this.logger.warn('Failed to parse local .env file directly: ' + err.message);
+    }
+
+    if (process.env.CLOUDINARY_URL) {
+      delete process.env.CLOUDINARY_URL;
+    }
+
     cloudinary.config({
-      cloud_name: this.configService.get<string>('CLOUDINARY_CLOUD_NAME'),
-      api_key: this.configService.get<string>('CLOUDINARY_API_KEY'),
-      api_secret: this.configService.get<string>('CLOUDINARY_API_SECRET'),
+      cloud_name: cloudName,
+      api_key: apiKey,
+      api_secret: apiSecret,
     });
   }
 

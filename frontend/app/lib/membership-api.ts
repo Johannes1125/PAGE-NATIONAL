@@ -1,31 +1,115 @@
-import { ApplicationFormState } from './membership-types';
+import { api } from './api-client';
+import { ApplicationFormState, MembershipApplication } from './membership-types';
+
+export interface MembershipApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  errors?: Record<string, string>;
+}
 
 /**
- * Submits the membership application form data.
- * Currently returns a mock application ID, simulating network latency.
- * When integrating with the backend, this can be swapped with:
- *   const formData = new FormData();
- *   // append fields & files...
- *   return api.postMultipart('/membership/apply', formData);
+ * Creates an initial membership application draft in the database.
  */
-export async function submitMembershipApplication(data: ApplicationFormState): Promise<{ id: string }> {
-  // Simulate network latency
-  await new Promise((resolve) => setTimeout(resolve, 800));
-
-  // Log data for debugging/mock verification purposes
-  console.log('Submitting membership application with data:', {
-    fullName: data.fullName,
-    email: data.email,
-    phone: data.phone,
-    institution: data.institution,
-    address: data.address,
-    membershipType: data.membershipType,
-    documentNames: Object.keys(data.documents).map((key) => {
-      const file = data.documents[key];
-      return `${key}: ${file ? `${file.name} (${file.size} bytes)` : 'null'}`;
-    }),
+export async function createMembershipDraft(membershipType: string): Promise<MembershipApplication> {
+  const res = await api.post<MembershipApiResponse<MembershipApplication>>('/membership-applications', {
+    membershipType: membershipType.toUpperCase(),
   });
+  if (!res.success || !res.data) {
+    throw new Error(res.message || 'Failed to create application draft');
+  }
+  return res.data;
+}
 
-  // Returns standard mock application tracking ID
-  return { id: 'MOCK-2025-0042' };
+/**
+ * Saves step data to the backend draft database record.
+ */
+export async function saveMembershipStep(
+  id: string,
+  stepName: string,
+  data: Record<string, any>,
+  currentStep?: number
+): Promise<MembershipApplication> {
+  const res = await api.patch<MembershipApiResponse<MembershipApplication>>(
+    `/membership-applications/${id}/step/${stepName}`,
+    { data, currentStep }
+  );
+  if (!res.success || !res.data) {
+    throw new Error(res.message || `Failed to save ${stepName} step data`);
+  }
+  return res.data;
+}
+
+/**
+ * Uploads a document file to the backend, associated with a specific slot type.
+ */
+export async function uploadMembershipDocument(
+  id: string,
+  file: File,
+  documentType: string
+): Promise<any> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('documentType', documentType);
+
+  const res = await api.postMultipart<MembershipApiResponse>(
+    `/membership-applications/${id}/documents`,
+    formData
+  );
+  if (!res.success || !res.data) {
+    throw new Error(res.message || 'Failed to upload document');
+  }
+  return res.data;
+}
+
+/**
+ * Submits the completed application for admin review, executing type-aware validation.
+ */
+export async function submitMembershipApplication(
+  id: string
+): Promise<MembershipApiResponse<MembershipApplication>> {
+  return api.post<MembershipApiResponse<MembershipApplication>>(
+    `/membership-applications/${id}/submit`,
+    {}
+  );
+}
+
+/**
+ * Retrieves a single application by ID to track or resume.
+ */
+export async function getMembershipApplication(id: string): Promise<MembershipApplication> {
+  const res = await api.get<MembershipApiResponse<MembershipApplication>>(`/membership-applications/${id}`);
+  if (!res.success || !res.data) {
+    throw new Error(res.message || 'Failed to retrieve application');
+  }
+  return res.data;
+}
+
+/**
+ * Retrieves all membership applications (admin panel).
+ */
+export async function listMembershipApplications(): Promise<MembershipApplication[]> {
+  const res = await api.get<MembershipApiResponse<MembershipApplication[]>>('/membership-applications');
+  if (!res.success || !res.data) {
+    throw new Error(res.message || 'Failed to retrieve applications');
+  }
+  return res.data;
+}
+
+/**
+ * Updates application status (approve/reject) (admin panel).
+ */
+export async function updateMembershipApplicationStatus(
+  id: string,
+  status: 'approved' | 'rejected' | 'under_review',
+  rejectionReason?: string
+): Promise<MembershipApplication> {
+  const res = await api.patch<MembershipApiResponse<MembershipApplication>>(
+    `/membership-applications/${id}/status`,
+    { status, rejectionReason }
+  );
+  if (!res.success || !res.data) {
+    throw new Error(res.message || 'Failed to update application status');
+  }
+  return res.data;
 }

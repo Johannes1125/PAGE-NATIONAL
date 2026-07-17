@@ -33,8 +33,10 @@ PAGE-NATIONAL/
 │   │   ├── articles/         # Article/journal submission services & controllers
 │   │   ├── auth/             # JWT/Token authentication, guards, roles decorator
 │   │   ├── bir-certifications/ # BIR tax exemption certification records management endpoints
+│   │   ├── chapters/         # Chapter profiles, activities, announcements, documents, and officers endpoints
 │   │   ├── cloudinary/       # File upload service logic using Cloudinary
 │   │   ├── common/           # Shared classes, interceptors, and utility functions
+│   │   ├── conventions/      # Conventions, schedules, speakers, and attachments management endpoints
 │   │   ├── dashboard/        # Dashboard stats and administration data handlers
 │   │   ├── historical-records/ # Historical milestones and timeline records management
 │   │   ├── messages/         # Real-time messaging service between users and administrators
@@ -89,6 +91,7 @@ PAGE-NATIONAL/
     │   │   ├── audit-log/    # Log page to monitor actions
     │   │   ├── chapters/     # Regional chapters roster and management interface
     │   │   ├── components/   # Dashboard navigation and structure components
+    │   │   ├── conventions/  # Conventions, schedules, speakers, and attachments management interface
     │   │   ├── create-new-post/ # Post writing / publishing interface
     │   │   ├── lib/          # Helper modules
     │   │   ├── manage-users/ # Admin view to manage users and roles
@@ -130,6 +133,8 @@ The database uses PostgreSQL via Prisma ORM. Key tables include:
 - **`NationalOfficer`**: Model for storing and managing board officers.
 - **`SecRegistration`**: Model storing official SEC registration items and files.
 - **`BirCertification`**: Model storing official BIR tax exemption certification records and files.
+- **`Chapter` & related models** (`ChapterImage`, `ChapterDocument`, `ChapterOfficer`, `ChapterActivity`, `ChapterAnnouncement`): Models for storing regional chapter details, documents, active officers, events/activities, announcements, and image galleries.
+- **`Convention` & related models** (`ConventionAttachment`, `ConventionSchedule`, `ConventionSpeaker`): Models for scheduling, materials, announcements, and speaker profiles for PAGE national conventions.
 - **`user_activities`**: Action audit logs for administrators.
 - Other system metadata tables: `cache`, `cache_locks`, `failed_jobs`, `job_batches`, `jobs`, `sessions`, `migrations`, `password_reset_tokens`.
 

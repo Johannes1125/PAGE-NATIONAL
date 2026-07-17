@@ -6,6 +6,40 @@ export interface MembershipCategory {
   requirements: string[];
 }
 
+export interface CommonProfileData {
+  fullName: string;
+  email: string;
+  phone: string;
+  region: string;
+  homeAddress: string;
+}
+
+export interface InstitutionalProfileData extends CommonProfileData {
+  enrolleeCount: number;
+}
+
+export interface CommonEducationJobData {
+  institution: string;
+  address: string;
+  presentPosition: string;
+}
+
+export interface AcademicEducationJobData extends CommonEducationJobData {
+  degreeObtained: string;
+  specialization: string;
+  degreeInstitution: string;
+  yearObtained: string;
+}
+
+export interface AssociateEducationJobData extends CommonEducationJobData {
+  currentEnrollmentStatus: string;
+  expectedGraduationYear: string;
+}
+
+export interface InstitutionalEducationJobData extends CommonEducationJobData {
+  accreditationDetails: string;
+}
+
 export interface ApplicationFormState {
   fullName: string;
   email: string;
@@ -13,19 +47,40 @@ export interface ApplicationFormState {
   institution: string;
   address: string;
   membershipType: 'life' | 'institutional' | 'associate' | 'regular' | null;
-  documents: Record<string, File | null>;
+  documents: Record<string, { name: string; size?: number; url?: string } | File | null>;
   
-  // Additional fields for print form alignment
   region?: string;
   homeAddress?: string;
   whereEmployed?: string;
   businessAddress?: string;
   presentPosition?: string;
+  
+  // Institutional
+  enrolleeCount?: string;
+  accreditationDetails?: string;
+
+  // Regular/Life
   degreeObtained?: string;
   specialization?: string;
   degreeInstitution?: string;
   yearObtained?: string;
   
+  // Associate
+  currentEnrollmentStatus?: string;
+  expectedGraduationYear?: string;
+  
+  // Life
+  yearsActiveInPAGE?: string;
+  teachingExperience?: { institution: string; fromYear: string; toYear: string }[];
+  administrativeExperience?: { institution: string; fromYear: string; toYear: string }[];
+  recentPublications?: string[];
+  professionalMemberships?: string[];
+  characterReferences?: { name: string; position: string; address: string }[];
+  regionalChapterBoardReference?: { name: string; address: string };
+  name?: string;
+  telMobileNo?: string;
+  emailAddress?: string;
+
   teachingExp?: string;
   teachingInst?: string;
   teachingFrom?: string;
@@ -66,21 +121,30 @@ export interface ApplicationStatus {
   }[];
 }
 
+export interface MembershipApplicationDocument {
+  id: string;
+  applicationId: string;
+  documentType: string;
+  fileUrl: string;
+  fileName: string;
+  uploadedAt: string;
+}
+
 export interface MembershipApplication {
   id: string;
-  applicantName: string;
-  email: string;
   membershipType: 'life' | 'institutional' | 'associate' | 'regular';
-  submittedAt: string;
-  status: 'pending' | 'under_review' | 'approved' | 'rejected';
-  formData: {
-    fullName: string;
-    email: string;
-    phone: string;
-    institution: string;
-    address: string;
-    membershipType: 'life' | 'institutional' | 'associate' | 'regular';
-    documents: Record<string, { name: string; size: number } | null>;
-  };
-  rejectionReason?: string;
+  status: 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected';
+  currentStep: number;
+  profileData: Record<string, any> | null;
+  educationJobData: Record<string, any> | null;
+  experienceData: Record<string, any> | null;
+  referencesData: Record<string, any> | null;
+  feeAmount: number | string;
+  applicantId?: number | null;
+  createdAt: string;
+  updatedAt: string;
+  submittedAt?: string | null;
+  rejectionReason?: string | null;
+  documents: MembershipApplicationDocument[];
 }
+

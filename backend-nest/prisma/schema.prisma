@@ -186,6 +186,7 @@ model users {
   messages_messages_sender_idTousers                         messages[]            @relation("messages_sender_idTousers")
   posts                                                      posts[]
   user_activities                                            user_activities[]
+  membership_applications                                    MembershipApplication[]
 
   @@index([api_token_hashed], map: "users_api_token_hashed_index")
 }
@@ -481,5 +482,66 @@ model ConventionSpeaker {
 
   @@index([convention_id])
   @@map("convention_speakers")
+}
+
+enum MembershipType {
+  LIFE
+  REGULAR
+  ASSOCIATE
+  INSTITUTIONAL
+}
+
+enum MembershipApplicationStatus {
+  draft
+  submitted
+  under_review
+  approved
+  rejected
+}
+
+enum MembershipDocumentType {
+  registrar_certification
+  id_card_photo
+  proof_of_payment
+  transcript
+  active_member_id
+  degree_proof
+  current_enrollment_proof
+  photo_1x1
+  other
+}
+
+model MembershipApplication {
+  id                String                      @id @default(uuid()) @db.Uuid
+  membershipType    MembershipType
+  status            MembershipApplicationStatus @default(draft)
+  currentStep       Int                         @default(1)
+  profileData       Json?
+  educationJobData  Json?
+  experienceData    Json?
+  referencesData    Json?
+  feeAmount         Decimal                     @db.Decimal(10, 2)
+  applicantId       BigInt?
+  applicant         users?                      @relation(fields: [applicantId], references: [id], onDelete: SetNull)
+  documents         MembershipApplicationDocument[]
+  createdAt         DateTime                    @default(now()) @db.Timestamp(0)
+  updatedAt         DateTime                    @default(now()) @updatedAt @db.Timestamp(0)
+  submittedAt       DateTime?                   @db.Timestamp(0)
+  rejectionReason   String?                     @db.Text
+
+  @@map("membership_applications")
+}
+
+model MembershipApplicationDocument {
+  id              String                 @id @default(uuid()) @db.Uuid
+  applicationId   String                 @db.Uuid
+  documentType    MembershipDocumentType
+  fileUrl         String                 @db.VarChar(500)
+  fileName        String                 @db.VarChar(255)
+  filePublicId    String?                @db.VarChar(255)
+  uploadedAt      DateTime               @default(now()) @db.Timestamp(0)
+  application     MembershipApplication  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@map("membership_application_documents")
 }
 
