@@ -33,16 +33,16 @@ export default function OrgLogin() {
     setIsLoading(true);
     try {
       const data = await api.post('/login', { email, password });
-      
+
       if (data.user.role !== 'admin') {
         toast.error("Access Denied: Not an administrator account.");
         setIsLoading(false);
         return;
       }
-      
+
       localStorage.setItem('page_user_token', data.token);
       localStorage.setItem('page_user_payload', JSON.stringify(data.user));
-      
+
       toast.success("Login successful!");
       router.push('/admin-dashboard');
     } catch (err: any) {
@@ -55,26 +55,61 @@ export default function OrgLogin() {
   return (
     <div className="login-container">
       <ToastContainer position="top-right" autoClose={3000} />
+
+      {/* Compact header shown only on small screens, replaces the left panel */}
+      <div className="mobile-masthead">
+        <div className="icon-bg">
+          <FontAwesomeIcon icon={faGraduationCap} />
+        </div>
+        <div className="mobile-masthead-text">
+          <h1 className="login-title">PAGE</h1>
+          <p className="login-tagline">Philippine Association for Graduate Education</p>
+        </div>
+      </div>
+
       <div className="login-separation">
 
         {/* LEFT SIDE */}
         <div className="login-left-side">
+          <FontAwesomeIcon icon={faGraduationCap} className="watermark-icon" />
           <div className="overlay">
             <div className="login-alignment">
 
-              {/* ICON + TITLE */}
-              <div className="icon-title">
-                <div className="icon-bg">
-                  <FontAwesomeIcon icon={faGraduationCap} className="graduation-icon" />
+              <div className="top-content">
+                <div className="brand-block">
+                  {/* ICON + TITLE */}
+                  <div className="icon-title">
+                    <div className="icon-bg">
+                      <FontAwesomeIcon icon={faGraduationCap} className="graduation-icon" />
+                    </div>
+                    <h1 className="login-title">PAGE</h1>
+                  </div>
+                  <p className="login-tagline">Philippine Association for Graduate Education</p>
                 </div>
-                <h1 className="login-title">PAGE</h1>
-              </div>
-              <p className="login-tagline">Philippine Association for Graduate Education</p>
 
-              {/* TEXT */}
-              <div className="title-page">
-                <div className="admin-portal">ADMIN PORTAL</div>
-                <h1 className="title">System Administration Panel</h1>
+                {/* TEXT */}
+                <div className="title-page">
+                  <div className="admin-portal">ADMIN PORTAL</div>
+                  <h1 className="title">System Administration Panel</h1>
+                </div>
+
+                {/* STATS — fills the gap between headline and checklist */}
+                <div className="stats-row">
+                  <div className="stat-item">
+                    <h4>120+</h4>
+                    <p>Member Institutions</p>
+                  </div>
+                  <div className="stat-divider" />
+                  <div className="stat-item">
+                    <h4>3.2k</h4>
+                    <p>Published Works</p>
+                  </div>
+                  <div className="stat-divider" />
+                  <div className="stat-item">
+                    <h4>24/7</h4>
+                    <p>System Uptime</p>
+                  </div>
+                </div>
               </div>
 
               {/* CHECKLIST */}
@@ -164,17 +199,6 @@ export default function OrgLogin() {
             {/* DIVIDER */}
             <div className="divider">
               <hr />
-            </div>
-
-            <div className="arrow-return">
-              <FontAwesomeIcon icon={faArrowLeft} className="arrow-icon" />
-              <p 
-                className="return-page"
-                onClick={() => router.push('/member-login')}
-                style={{ cursor: 'pointer' }}
-              >
-                Return to General Login
-              </p>  
             </div>
           </div>
         </div>

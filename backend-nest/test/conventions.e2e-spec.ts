@@ -22,7 +22,7 @@ describe('Conventions (e2e)', () => {
   let memberToken: string;
   let memberUser: any;
 
-  let createdConventionId: string;
+  let createdConventionId: string | undefined;
   let createdScheduleId: string;
   let createdSpeakerId: string;
   let createdAttachmentId: string;
@@ -423,12 +423,12 @@ describe('Conventions (e2e)', () => {
       expect(res.body.success).toBe(true);
 
       const checkConvention = await prisma.convention.findUnique({
-        where: { id: createdConventionId },
+        where: { id: createdConventionId! },
       });
       expect(checkConvention).toBeNull();
 
       const checkAttachments = await prisma.conventionAttachment.findMany({
-        where: { convention_id: createdConventionId },
+        where: { convention_id: createdConventionId! },
       });
       expect(checkAttachments).toHaveLength(0);
 
@@ -437,7 +437,7 @@ describe('Conventions (e2e)', () => {
       });
       expect(logs).toBeTruthy();
 
-      createdConventionId = null;
+      createdConventionId = undefined;
     });
   });
 });

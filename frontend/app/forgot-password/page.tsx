@@ -3,7 +3,16 @@
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGraduationCap } from "../lib/fontawesome-icons";
-import { faCheckCircle, faEye, faEyeSlash, faEnvelopeCircleCheck } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCheckCircle,
+  faEye,
+  faEyeSlash,
+  faEnvelopeCircleCheck,
+  faArrowLeft,
+  faEnvelope,
+  faLock,
+  faSpinner,
+} from "@fortawesome/free-solid-svg-icons";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
@@ -79,143 +88,163 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="login-container">
+    <div className="ml-container">
       <ToastContainer position="top-right" autoClose={3000} />
-      
-      <div className="login-separation">
 
-        {/* LEFT SIDE */}
-        <div className="login-left-side">
-          <div className="overlay">
-            <div className="login-alignment">
-              
-              <div className="icon-title">
-                <div className="icon-bg">
-                  <FontAwesomeIcon icon={faGraduationCap} className="graduation-icon" />
-                </div>
-                <h1 className="login-title">PAGE</h1>
+      <div className="ml-split">
+
+        {/* LEFT PANEL */}
+        <div className="ml-left">
+          <div className="ml-left-overlay" />
+          <div className="ml-left-content">
+
+            <button type="button" className="ml-back-home" onClick={() => router.push('/')}>
+              <FontAwesomeIcon icon={faArrowLeft} />
+              Back to Home
+            </button>
+
+            <div className="ml-logo-badge">
+              <div className="ml-logo-icon-wrap">
+                <FontAwesomeIcon icon={faGraduationCap} className="ml-grad-icon" />
               </div>
-
-              <div className="title-page">
-                <h1 className="title">Secure Account Recovery</h1>
-                <p className="subtext">
-                  Reset your password securely. PAGE uses secure cryptographic hashing to ensure your institutional credential records remain private and shielded.
-                </p>
-              </div>
-
-              <div className="login-checklist">
-                {[
-                  "Secure Multi-Factor Validation",
-                  "Encrypted Password Updates",
-                  "Immediate Account Reactivation"
-                ].map((item, index) => (
-                  <div className="login-check" key={index}>
-                    <FontAwesomeIcon icon={faCheckCircle} className="check-icon" />
-                    <p>{item}</p>
-                  </div>
-                ))}
-              </div>
-
+              <span className="ml-logo-wordmark">PAGE</span>
             </div>
+
+            <div className="ml-headline-wrap">
+              <span className="ml-headline-line">Secure Account</span>
+              <span className="ml-headline-line">Recovery</span>
+            </div>
+
+            <p className="ml-descriptor">
+              Reset your password securely. PAGE uses secure cryptographic hashing to ensure
+              your institutional credential records remain private and shielded.
+            </p>
+
+            <div className="ml-checklist">
+              {[
+                "Secure Multi-Factor Validation",
+                "Encrypted Password Updates",
+                "Immediate Account Reactivation",
+              ].map((item, index) => (
+                <div className="ml-check-item" key={index}>
+                  <FontAwesomeIcon icon={faCheckCircle} className="ml-check-icon" />
+                  <p>{item}</p>
+                </div>
+              ))}
+            </div>
+
+            <p className="ml-tagline-bottom">Philippine Association for Graduate Education</p>
           </div>
         </div>
 
-        {/* RIGHT SIDE */}
-        <div className="login-right-side">
-          <div className="login-right-container">
+        {/* RIGHT PANEL */}
+        <div className="ml-right">
+          <div className="ml-form-card">
 
             {!isTokenDispatched ? (
               <>
-                <h2>Recover Password</h2>
-                <p className="subtitle">Enter your email address to receive a simulated reset link</p>
+                <div className="ml-form-header">
+                  <h1 className="ml-welcome">Recover Password</h1>
+                  <p className="ml-subtitle">Enter your email address to receive a simulated reset link</p>
+                </div>
 
-                <div className='login-form-container' style={{ gap: '20px', paddingBottom: '20px' }}>
-                  {/* EMAIL */}
-                  <div className="login-form">
-                    <label htmlFor="email">INSTITUTIONAL EMAIL</label>
-                    <div className="input-wrapper">
-                      <input
-                        type="email"
-                        id="email"
-                        placeholder="name@university.edu"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                      />
-                    </div>
+                {/* EMAIL */}
+                <div className="ml-field-group">
+                  <label className="ml-label" htmlFor="email">Institutional Email</label>
+                  <div className="ml-input-wrap">
+                    <FontAwesomeIcon icon={faEnvelope} className="ml-input-icon-left" />
+                    <input
+                      type="email"
+                      id="email"
+                      className="ml-input"
+                      placeholder="name@university.edu"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
                   </div>
                 </div>
 
                 {/* BUTTON */}
-                <button className="login-btn" onClick={handleRequestLink} disabled={isLoading}>
+                <button className="ml-signin-btn" onClick={handleRequestLink} disabled={isLoading}>
+                  {isLoading && <FontAwesomeIcon icon={faSpinner} className="ml-spinner" />}
                   {isLoading ? "Validating Account..." : "Send Reset Link"}
                 </button>
               </>
             ) : (
               <>
-                <div style={{ textAlign: 'center', marginBottom: '25px', padding: '15px', backgroundColor: '#eef6ff', borderRadius: '8px', border: '1px solid #cce3ff' }}>
-                  <FontAwesomeIcon icon={faEnvelopeCircleCheck} style={{ fontSize: '32px', color: '#1e538e', marginBottom: '10px' }} />
-                  <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#143152' }}>Reset Link Dispatched</h3>
-                  <p style={{ fontSize: '12px', color: '#555', marginTop: '4px' }}>
-                    A secure password reset authorization for <strong>{email}</strong> has been simulated. Enter your new password below to finalize.
+                <div className="ml-reset-success">
+                  <FontAwesomeIcon icon={faEnvelopeCircleCheck} className="ml-reset-success-icon" />
+                  <h3 className="ml-reset-success-title">Reset Link Dispatched</h3>
+                  <p className="ml-reset-success-text">
+                    A secure password reset authorization for <strong>{email}</strong> has been
+                    simulated. Enter your new password below to finalize.
                   </p>
                 </div>
 
-                <h2>Set New Password</h2>
-                <p className="subtitle">Enter a new secure password for your profile</p>
+                <div className="ml-form-header">
+                  <h1 className="ml-welcome">Set New Password</h1>
+                  <p className="ml-subtitle">Enter a new secure password for your profile</p>
+                </div>
 
-                <div className='login-form-container' style={{ gap: '20px', paddingBottom: '20px' }}>
-                  {/* PASSWORD */}
-                  <div className="login-form">
-                    <label htmlFor="newPassword">NEW PASSWORD</label>
-                    <div className="input-wrapper">
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        id="newPassword"
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                      />
-                      <FontAwesomeIcon
-                        icon={showPassword ? faEyeSlash : faEye}
-                        className="eye-icon"
-                        onClick={() => setShowPassword(prev => !prev)}
-                      />
-                    </div>
+                {/* NEW PASSWORD */}
+                <div className="ml-field-group">
+                  <label className="ml-label" htmlFor="newPassword">New Password</label>
+                  <div className="ml-input-wrap">
+                    <FontAwesomeIcon icon={faLock} className="ml-input-icon-left" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      id="newPassword"
+                      className="ml-input ml-input-has-right"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="ml-eye-btn"
+                      onClick={() => setShowPassword(prev => !prev)}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                    </button>
                   </div>
+                </div>
 
-                  {/* CONFIRM PASSWORD */}
-                  <div className="login-form">
-                    <label htmlFor="confirmPassword">CONFIRM PASSWORD</label>
-                    <div className="input-wrapper">
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        id="confirmPassword"
-                        placeholder="••••••••"
-                        value={passwordConfirmation}
-                        onChange={(e) => setPasswordConfirmation(e.target.value)}
-                        required
-                      />
-                    </div>
+                {/* CONFIRM PASSWORD */}
+                <div className="ml-field-group">
+                  <label className="ml-label" htmlFor="confirmPassword">Confirm Password</label>
+                  <div className="ml-input-wrap">
+                    <FontAwesomeIcon icon={faLock} className="ml-input-icon-left" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      id="confirmPassword"
+                      className="ml-input"
+                      placeholder="••••••••"
+                      value={passwordConfirmation}
+                      onChange={(e) => setPasswordConfirmation(e.target.value)}
+                      required
+                    />
                   </div>
                 </div>
 
                 {/* BUTTON */}
-                <button className="login-btn" onClick={handleResetPassword} disabled={isLoading}>
+                <button className="ml-signin-btn" onClick={handleResetPassword} disabled={isLoading}>
+                  {isLoading && <FontAwesomeIcon icon={faSpinner} className="ml-spinner" />}
                   {isLoading ? "Updating Password..." : "Reset Password"}
                 </button>
               </>
             )}
 
             {/* DIVIDER */}
-            <div className="divider">
-              <hr />
+            <div className="ml-divider">
+              <hr className="ml-divider-line" />
             </div>
 
             {/* SIGN IN LINK */}
-            <p className="sign-up">
-              Remember your password? <Link href="/member-login">Sign In</Link>
+            <p className="ml-create-account">
+              Remember your password? <Link href="/member-login" className="ml-create-link">Sign In</Link>
             </p>
 
           </div>
