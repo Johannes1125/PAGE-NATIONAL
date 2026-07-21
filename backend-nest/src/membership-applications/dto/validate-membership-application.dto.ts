@@ -44,62 +44,117 @@ export class BoardReferenceDto {
 const isLifeOrRegular = (o: any) =>
   o.membershipType === MembershipType.LIFE || o.membershipType === MembershipType.REGULAR;
 
-const isNotLifeOrRegular = (o: any) =>
-  o.membershipType !== MembershipType.LIFE && o.membershipType !== MembershipType.REGULAR;
+const isAssociate = (o: any) =>
+  o.membershipType === MembershipType.ASSOCIATE;
+
+const isLifeRegularOrAssociate = (o: any) =>
+  o.membershipType === MembershipType.LIFE ||
+  o.membershipType === MembershipType.REGULAR ||
+  o.membershipType === MembershipType.ASSOCIATE;
+
+const isLifeRegularAssociateOrInstitutional = (o: any) =>
+  o.membershipType === MembershipType.LIFE ||
+  o.membershipType === MembershipType.REGULAR ||
+  o.membershipType === MembershipType.ASSOCIATE ||
+  o.membershipType === MembershipType.INSTITUTIONAL;
 
 export class ValidateMembershipApplicationDto {
   @IsNotEmpty()
   @IsEnum(MembershipType)
   membershipType: MembershipType;
 
-  // --- Non-LIFE and Non-REGULAR fields ---
-  @ValidateIf(isNotLifeOrRegular)
+  // --- Non-LIFE, Non-REGULAR, Non-INSTITUTIONAL fields ---
+  @ValidateIf(isAssociate)
   @IsNotEmpty({ message: VALIDATION_MESSAGES.FULL_NAME_REQUIRED })
   @IsString()
   fullName?: string;
 
-  @ValidateIf(isNotLifeOrRegular)
+  @ValidateIf(isAssociate)
   @IsNotEmpty({ message: VALIDATION_MESSAGES.EMAIL_REQUIRED })
   @IsEmail({}, { message: VALIDATION_MESSAGES.EMAIL_INVALID })
   email?: string;
 
-  @ValidateIf(isNotLifeOrRegular)
+  @ValidateIf(isAssociate)
   @IsNotEmpty({ message: VALIDATION_MESSAGES.PHONE_REQUIRED })
   @IsString()
   phone?: string;
 
-  @ValidateIf(isNotLifeOrRegular)
+  @ValidateIf(isAssociate)
   @IsNotEmpty({ message: VALIDATION_MESSAGES.REGION_REQUIRED })
   @IsString()
   region?: string;
 
-  @ValidateIf(isNotLifeOrRegular)
+  @ValidateIf(isAssociate)
   @IsNotEmpty({ message: VALIDATION_MESSAGES.HOME_ADDRESS_REQUIRED })
   @IsString()
   homeAddress?: string;
 
+  @ValidateIf(o => o.membershipType !== MembershipType.INSTITUTIONAL)
   @IsNotEmpty({ message: VALIDATION_MESSAGES.INSTITUTION_REQUIRED })
   @IsString()
-  institution: string;
+  institution?: string;
 
-  @ValidateIf(isNotLifeOrRegular)
-  @IsNotEmpty({ message: VALIDATION_MESSAGES.ADDRESS_REQUIRED })
+  @ValidateIf(isLifeOrRegular)
+  @IsNotEmpty({ message: VALIDATION_MESSAGES.PRESENT_POSITION_REQUIRED })
+  @IsString()
+  presentPosition?: string;
+
+  @IsOptional()
   @IsString()
   address?: string;
 
-  @IsNotEmpty({ message: VALIDATION_MESSAGES.PRESENT_POSITION_REQUIRED })
+  @IsOptional()
+  enrolleeCount?: string | number;
+
+  @IsOptional()
   @IsString()
-  presentPosition: string;
+  accreditationDetails?: string;
 
   // --- Institutional fields ---
   @ValidateIf(o => o.membershipType === MembershipType.INSTITUTIONAL)
-  @IsNotEmpty({ message: VALIDATION_MESSAGES.ENROLLEE_COUNT_REQUIRED })
-  enrolleeCount?: string | number;
+  @IsNotEmpty({ message: 'College/University Name is required.' })
+  @IsString()
+  collegeUniversityName?: string;
 
   @ValidateIf(o => o.membershipType === MembershipType.INSTITUTIONAL)
-  @IsNotEmpty({ message: VALIDATION_MESSAGES.ACCREDITATION_DETAILS_REQUIRED })
+  @IsNotEmpty({ message: 'Institution Address is required.' })
   @IsString()
-  accreditationDetails?: string;
+  institutionAddress?: string;
+
+  @ValidateIf(o => o.membershipType === MembershipType.INSTITUTIONAL)
+  @IsNotEmpty({ message: 'President of College/University is required.' })
+  @IsString()
+  presidentName?: string;
+
+  @ValidateIf(o => o.membershipType === MembershipType.INSTITUTIONAL)
+  @IsNotEmpty({ message: 'Dean/Head of Graduate School is required.' })
+  @IsString()
+  deanHeadGraduateSchool?: string;
+
+  @ValidateIf(o => o.membershipType === MembershipType.INSTITUTIONAL)
+  @IsNotEmpty({ message: 'Education courses offered is required.' })
+  educationCoursesOffered?: string | string[];
+
+  @ValidateIf(o => o.membershipType === MembershipType.INSTITUTIONAL)
+  @IsNotEmpty({ message: 'Graduate courses offered is required.' })
+  graduateCoursesOffered?: string | string[];
+
+  @ValidateIf(o => o.membershipType === MembershipType.INSTITUTIONAL)
+  @IsNotEmpty({ message: 'Total Graduate Faculty is required.' })
+  totalGraduateFaculty?: number;
+
+  @ValidateIf(o => o.membershipType === MembershipType.INSTITUTIONAL)
+  @IsNotEmpty({ message: 'Current Enrollment Count is required.' })
+  currentEnrollmentCount?: number;
+
+  @ValidateIf(o => o.membershipType === MembershipType.INSTITUTIONAL)
+  @IsNotEmpty({ message: 'Enrollment Year Range is required.' })
+  @IsString()
+  enrollmentYearRange?: string;
+
+  @ValidateIf(o => o.membershipType === MembershipType.INSTITUTIONAL)
+  @IsOptional()
+  professionalAffiliations?: string | string[];
 
   // --- Life & Regular fields ---
   @ValidateIf(isLifeOrRegular)
@@ -119,9 +174,24 @@ export class ValidateMembershipApplicationDto {
 
   // --- Associate fields ---
   @ValidateIf(o => o.membershipType === MembershipType.ASSOCIATE)
-  @IsNotEmpty({ message: VALIDATION_MESSAGES.CURRENT_ENROLLMENT_REQUIRED })
+  @IsNotEmpty({ message: 'Current Graduate School is required.' })
   @IsString()
-  currentEnrollmentStatus?: string;
+  currentGraduateSchool?: string;
+
+  @ValidateIf(o => o.membershipType === MembershipType.ASSOCIATE)
+  @IsNotEmpty({ message: 'Degree Program is required.' })
+  @IsString()
+  degreeProgram?: string;
+
+  @ValidateIf(o => o.membershipType === MembershipType.ASSOCIATE)
+  @IsNotEmpty({ message: 'Current Academic Status is required.' })
+  @IsString()
+  currentAcademicStatus?: string;
+
+  @ValidateIf(o => o.membershipType === MembershipType.ASSOCIATE)
+  @IsOptional()
+  @IsString()
+  researchInterests?: string;
 
   @ValidateIf(o => o.membershipType === MembershipType.ASSOCIATE)
   @IsNotEmpty({ message: VALIDATION_MESSAGES.EXPECTED_GRADUATION_REQUIRED })
@@ -139,14 +209,38 @@ export class ValidateMembershipApplicationDto {
   @IsString()
   name?: string;
 
-  @ValidateIf(isLifeOrRegular)
-  @IsNotEmpty({ message: VALIDATION_MESSAGES.LIFE_TEL_MOBILE_REQUIRED })
+  @ValidateIf(o => o.membershipType === MembershipType.LIFE || o.membershipType === MembershipType.REGULAR || o.membershipType === MembershipType.INSTITUTIONAL)
+  @IsNotEmpty({
+    message: (args) => {
+      const obj = args.object as any;
+      if (obj.membershipType === MembershipType.INSTITUTIONAL) {
+        return 'Telephone/Mobile Number is required.';
+      }
+      return VALIDATION_MESSAGES.LIFE_TEL_MOBILE_REQUIRED;
+    }
+  })
   @IsString()
   telMobileNo?: string;
 
-  @ValidateIf(isLifeOrRegular)
-  @IsNotEmpty({ message: VALIDATION_MESSAGES.LIFE_EMAIL_REQUIRED })
-  @IsEmail({}, { message: VALIDATION_MESSAGES.LIFE_EMAIL_INVALID })
+  @ValidateIf(o => o.membershipType === MembershipType.LIFE || o.membershipType === MembershipType.REGULAR || o.membershipType === MembershipType.INSTITUTIONAL)
+  @IsNotEmpty({
+    message: (args) => {
+      const obj = args.object as any;
+      if (obj.membershipType === MembershipType.INSTITUTIONAL) {
+        return 'Email Address is required.';
+      }
+      return VALIDATION_MESSAGES.LIFE_EMAIL_REQUIRED;
+    }
+  })
+  @IsEmail({}, {
+    message: (args) => {
+      const obj = args.object as any;
+      if (obj.membershipType === MembershipType.INSTITUTIONAL) {
+        return 'Please enter a valid email address.';
+      }
+      return VALIDATION_MESSAGES.LIFE_EMAIL_INVALID;
+    }
+  })
   emailAddress?: string;
 
   @ValidateIf(isLifeOrRegular)
@@ -196,8 +290,8 @@ export class ValidateMembershipApplicationDto {
   @IsString({ each: true })
   professionalMemberships?: string[];
 
-  // --- LIFE & REGULAR References and Consent ---
-  @ValidateIf(isLifeOrRegular)
+  // --- LIFE, REGULAR, ASSOCIATE & INSTITUTIONAL References and Consent ---
+  @ValidateIf(isLifeRegularOrAssociate)
   @IsArray()
   @ArrayMinSize(2, { message: VALIDATION_MESSAGES.LIFE_CHARACTER_REFERENCES_LIMIT })
   @ArrayMaxSize(2, { message: VALIDATION_MESSAGES.LIFE_CHARACTER_REFERENCES_LIMIT })
@@ -205,13 +299,13 @@ export class ValidateMembershipApplicationDto {
   @Type(() => CharacterReferenceDto)
   characterReferences?: CharacterReferenceDto[];
 
-  @ValidateIf(isLifeOrRegular)
+  @ValidateIf(isLifeRegularOrAssociate)
   @IsNotEmpty({ message: VALIDATION_MESSAGES.LIFE_BOARD_REFERENCE_REQUIRED })
   @ValidateNested()
   @Type(() => BoardReferenceDto)
   regionalChapterBoardReference?: BoardReferenceDto;
 
-  @ValidateIf(isLifeOrRegular)
+  @ValidateIf(isLifeRegularAssociateOrInstitutional)
   @Equals(true, { message: VALIDATION_MESSAGES.LIFE_PRIVACY_CONSENT_REQUIRED })
   privacyPolicyConsent?: boolean;
 }

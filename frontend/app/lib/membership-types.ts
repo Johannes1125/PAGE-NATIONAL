@@ -58,6 +58,16 @@ export interface ApplicationFormState {
   // Institutional
   enrolleeCount?: string;
   accreditationDetails?: string;
+  collegeUniversityName?: string;
+  institutionAddress?: string;
+  presidentName?: string;
+  deanHeadGraduateSchool?: string;
+  educationCoursesOffered?: string[];
+  graduateCoursesOffered?: string[];
+  totalGraduateFaculty?: string;
+  currentEnrollmentCount?: string;
+  enrollmentYearRange?: string;
+  professionalAffiliations?: string[];
 
   // Regular/Life
   degreeObtained?: string;
@@ -68,6 +78,10 @@ export interface ApplicationFormState {
   // Associate
   currentEnrollmentStatus?: string;
   expectedGraduationYear?: string;
+  currentGraduateSchool?: string;
+  degreeProgram?: string;
+  currentAcademicStatus?: string;
+  researchInterests?: string;
   
   // Life
   yearsActiveInPAGE?: string;

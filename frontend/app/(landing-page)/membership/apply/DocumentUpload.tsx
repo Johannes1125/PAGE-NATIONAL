@@ -156,6 +156,7 @@ export function DocumentUpload({
             <FileCheck size={16} style={{ color: "#27ae60" }} />
             <span
               className="af-upload__file-name"
+              title={file.name}
               style={{
                 fontSize: "14px",
                 fontWeight: 600,
@@ -164,6 +165,7 @@ export function DocumentUpload({
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
+                cursor: "default",
               }}
             >
               {file.name}

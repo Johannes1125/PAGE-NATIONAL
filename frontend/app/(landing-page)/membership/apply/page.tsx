@@ -121,6 +121,18 @@ const initialFormState: ApplicationFormState = {
     { name: "", position: "", address: "" },
   ],
   regionalChapterBoardReference: { name: "", address: "" },
+  
+  // Institutional Specific
+  collegeUniversityName: "",
+  institutionAddress: "",
+  presidentName: "",
+  deanHeadGraduateSchool: "",
+  educationCoursesOffered: [""],
+  graduateCoursesOffered: [""],
+  totalGraduateFaculty: "",
+  currentEnrollmentCount: "",
+  enrollmentYearRange: "",
+  professionalAffiliations: [""],
 };
 
 type Action =
@@ -141,7 +153,16 @@ type Action =
   | { type: "REMOVE_MEMBERSHIP"; index: number }
   | { type: "UPDATE_MEMBERSHIP"; index: number; value: string }
   | { type: "UPDATE_CHARACTER_REF"; index: number; field: "name" | "position" | "address"; value: string }
-  | { type: "UPDATE_BOARD_REF"; field: "name" | "address"; value: string };
+  | { type: "UPDATE_BOARD_REF"; field: "name" | "address"; value: string }
+  | { type: "ADD_EDUCATION_COURSE" }
+  | { type: "REMOVE_EDUCATION_COURSE"; index: number }
+  | { type: "UPDATE_EDUCATION_COURSE"; index: number; value: string }
+  | { type: "ADD_GRADUATE_COURSE" }
+  | { type: "REMOVE_GRADUATE_COURSE"; index: number }
+  | { type: "UPDATE_GRADUATE_COURSE"; index: number; value: string }
+  | { type: "ADD_AFFILIATION" }
+  | { type: "REMOVE_AFFILIATION"; index: number }
+  | { type: "UPDATE_AFFILIATION"; index: number; value: string };
 
 function formReducer(state: ApplicationFormState, action: Action): ApplicationFormState {
   switch (action.type) {
@@ -203,6 +224,51 @@ function formReducer(state: ApplicationFormState, action: Action): ApplicationFo
       const arr = [...(state.recentPublications || [])];
       arr[action.index] = action.value;
       return { ...state, recentPublications: arr };
+    }
+    case "ADD_EDUCATION_COURSE":
+      return {
+        ...state,
+        educationCoursesOffered: [...(state.educationCoursesOffered || []), ""],
+      };
+    case "REMOVE_EDUCATION_COURSE":
+      return {
+        ...state,
+        educationCoursesOffered: (state.educationCoursesOffered || []).filter((_, i) => i !== action.index),
+      };
+    case "UPDATE_EDUCATION_COURSE": {
+      const arr = [...(state.educationCoursesOffered || [])];
+      arr[action.index] = action.value;
+      return { ...state, educationCoursesOffered: arr };
+    }
+    case "ADD_GRADUATE_COURSE":
+      return {
+        ...state,
+        graduateCoursesOffered: [...(state.graduateCoursesOffered || []), ""],
+      };
+    case "REMOVE_GRADUATE_COURSE":
+      return {
+        ...state,
+        graduateCoursesOffered: (state.graduateCoursesOffered || []).filter((_, i) => i !== action.index),
+      };
+    case "UPDATE_GRADUATE_COURSE": {
+      const arr = [...(state.graduateCoursesOffered || [])];
+      arr[action.index] = action.value;
+      return { ...state, graduateCoursesOffered: arr };
+    }
+    case "ADD_AFFILIATION":
+      return {
+        ...state,
+        professionalAffiliations: [...(state.professionalAffiliations || []), ""],
+      };
+    case "REMOVE_AFFILIATION":
+      return {
+        ...state,
+        professionalAffiliations: (state.professionalAffiliations || []).filter((_, i) => i !== action.index),
+      };
+    case "UPDATE_AFFILIATION": {
+      const arr = [...(state.professionalAffiliations || [])];
+      arr[action.index] = action.value;
+      return { ...state, professionalAffiliations: arr };
     }
     case "ADD_MEMBERSHIP":
       return {
@@ -300,6 +366,18 @@ function formReducer(state: ApplicationFormState, action: Action): ApplicationFo
         ref2Position: refs.ref2Position || "",
         ref2Address: refs.ref2Address || "",
         
+        // Institutional fields load
+        collegeUniversityName: profile.collegeUniversityName || "",
+        institutionAddress: profile.institutionAddress || "",
+        presidentName: profile.presidentName || "",
+        deanHeadGraduateSchool: profile.deanHeadGraduateSchool || "",
+        educationCoursesOffered: Array.isArray(eduJob.educationCoursesOffered) ? eduJob.educationCoursesOffered : [""],
+        graduateCoursesOffered: Array.isArray(eduJob.graduateCoursesOffered) ? eduJob.graduateCoursesOffered : [""],
+        totalGraduateFaculty: eduJob.totalGraduateFaculty !== undefined ? String(eduJob.totalGraduateFaculty) : "",
+        currentEnrollmentCount: eduJob.currentEnrollmentCount !== undefined ? String(eduJob.currentEnrollmentCount) : "",
+        enrollmentYearRange: eduJob.enrollmentYearRange || "",
+        professionalAffiliations: Array.isArray(exp.professionalAffiliations) ? exp.professionalAffiliations : [""],
+        
         documents: docs as any,
       };
     }
@@ -312,13 +390,30 @@ function formReducer(state: ApplicationFormState, action: Action): ApplicationFo
 
 /* ── Constants ─────────────────────────────────────────────────────────────── */
 
-const STEPS = [
-  { number: 1, label: "Profile", icon: User },
-  { number: 2, label: "Education & Job", icon: GraduationCap },
-  { number: 3, label: "Experience", icon: Briefcase },
-  { number: 4, label: "References", icon: ShieldCheck },
-  { number: 5, label: "Review", icon: FileText },
-];
+const STEPS = {
+  associate: [
+    { id: "profile", number: 1, label: "Profile", icon: User },
+    { id: "education-job", number: 2, label: "Graduate Program Info", icon: GraduationCap },
+    { id: "academic-info", number: 3, label: "Academic Information", icon: BookOpen },
+    { id: "experience", number: 4, label: "Experience", icon: Briefcase },
+    { id: "references", number: 5, label: "References", icon: ShieldCheck },
+    { id: "review", number: 6, label: "Review", icon: FileText },
+  ],
+  institutional: [
+    { id: "profile", number: 1, label: "Institution Profile", icon: User },
+    { id: "education-job", number: 2, label: "Academic Information", icon: GraduationCap },
+    { id: "experience", number: 3, label: "Professional Affiliations", icon: Briefcase },
+    { id: "references", number: 4, label: "References", icon: ShieldCheck },
+    { id: "review", number: 5, label: "Review", icon: FileText },
+  ],
+  default: [
+    { id: "profile", number: 1, label: "Profile", icon: User },
+    { id: "education-job", number: 2, label: "Education & Job", icon: GraduationCap },
+    { id: "experience", number: 3, label: "Experience", icon: Briefcase },
+    { id: "references", number: 4, label: "References", icon: ShieldCheck },
+    { id: "review", number: 5, label: "Review", icon: FileText },
+  ]
+};
 
 const CATEGORIES = [
   {
@@ -400,6 +495,7 @@ function ApplyContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState<Record<string, boolean>>({});
   const [consentChecked, setConsentChecked] = useState(false);
+  const [showChangeTypeConfirm, setShowChangeTypeConfirm] = useState(false);
 
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [fileErrors, setFileErrors] = useState<Record<string, string | null>>({});
@@ -447,10 +543,10 @@ function ApplyContent() {
     if (state.membershipType === "regular") return "₱2,000.00 (annual)";
     if (state.membershipType === "associate") return "₱500 / year";
     if (state.membershipType === "institutional") {
-      const count = Number(state.enrolleeCount) || 0;
-      if (count < 500) return "₱1,200 / year (Tier 1: < 500 enrollees)";
-      if (count < 1000) return "₱2,000 / year (Tier 2: 500-999 enrollees)";
-      return "₱3,000 / year (Tier 3: >= 1000 enrollees)";
+      const count = Number(state.currentEnrollmentCount) || 0;
+      if (count <= 100) return "₱1,200.00 / year (Tier 1: <= 100 enrollees)";
+      if (count <= 200) return "₱2,000.00 / year (Tier 2: 101-200 enrollees)";
+      return "₱3,000.00 / year (Tier 3: 201+ enrollees)";
     }
     return "₱0";
   };
@@ -461,7 +557,11 @@ function ApplyContent() {
     const stepErrors: Record<string, string | null> = {};
     let isValid = true;
 
-    if (stepNum === 1) {
+    const stepsList = (STEPS as any)[state.membershipType || "default"] || STEPS.default;
+    const currentStepConfig = stepsList[stepNum - 1];
+    const stepId = currentStepConfig?.id;
+
+    if (stepId === "profile") {
       if (!state.membershipType) { stepErrors.membershipType = "Please select a membership type."; isValid = false; }
       
       if (state.membershipType === "life" || state.membershipType === "regular") {
@@ -473,28 +573,31 @@ function ApplyContent() {
         if (!state.emailAddress?.trim()) { stepErrors.emailAddress = "Email Address is required."; isValid = false; }
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.emailAddress)) { stepErrors.emailAddress = "Invalid email format."; isValid = false; }
         if (!state.documents["photo_1x1"]) { stepErrors.photo_1x1 = "1x1 Photo is required."; isValid = false; }
+      } else if (state.membershipType === "institutional") {
+        if (!state.collegeUniversityName?.trim()) { stepErrors.collegeUniversityName = "College/University Name is required."; isValid = false; }
+        if (!state.institutionAddress?.trim()) { stepErrors.institutionAddress = "Institution Complete Address is required."; isValid = false; }
+        if (!state.telMobileNo?.trim()) { stepErrors.telMobileNo = "Telephone/Mobile Number is required."; isValid = false; }
+        else if (!/^\d{7,15}$/.test(state.telMobileNo.trim())) { stepErrors.telMobileNo = "Must be 7–15 digits (numbers only)."; isValid = false; }
+        if (!state.emailAddress?.trim()) { stepErrors.emailAddress = "Email Address is required."; isValid = false; }
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.emailAddress)) { stepErrors.emailAddress = "Invalid email format."; isValid = false; }
+        if (!state.presidentName?.trim()) { stepErrors.presidentName = "President of College/University is required."; isValid = false; }
+        if (!state.deanHeadGraduateSchool?.trim()) { stepErrors.deanHeadGraduateSchool = "Dean/Head of Graduate School is required."; isValid = false; }
       } else {
-        if (!state.fullName.trim()) { stepErrors.fullName = "Full Name is required."; isValid = false; }
+        if (!state.fullName?.trim()) { stepErrors.fullName = "Full Name is required."; isValid = false; }
         if (!state.region?.trim()) { stepErrors.region = "Region is required."; isValid = false; }
         if (!state.homeAddress?.trim()) { stepErrors.homeAddress = "Home Address is required."; isValid = false; }
-        if (!state.phone.trim()) { stepErrors.phone = "Phone number is required."; isValid = false; }
+        if (!state.phone?.trim()) { stepErrors.phone = "Phone number is required."; isValid = false; }
         else if (!/^\d{7,15}$/.test(state.phone.trim())) { stepErrors.phone = "Must be 7–15 digits (numbers only)."; isValid = false; }
-        if (!state.email.trim()) { stepErrors.email = "Email is required."; isValid = false; }
+        if (!state.email?.trim()) { stepErrors.email = "Email is required."; isValid = false; }
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email)) { stepErrors.email = "Invalid email format."; isValid = false; }
         
-        if (state.membershipType === "institutional") {
-          if (!state.enrolleeCount?.trim()) {
-            stepErrors.enrolleeCount = "Institution enrollee count is required.";
-            isValid = false;
-          } else if (Number(state.enrolleeCount) <= 0) {
-            stepErrors.enrolleeCount = "Must be a valid positive number.";
-            isValid = false;
-          }
+        if (state.membershipType === "associate") {
+          if (!state.documents["photo_1x1"]) { stepErrors.photo_1x1 = "1x1 Photo is required."; isValid = false; }
         }
       }
     }
 
-    if (stepNum === 2) {
+    if (stepId === "education-job") {
       if (state.membershipType === "life" || state.membershipType === "regular") {
         if (!state.whereEmployed?.trim()) { stepErrors.whereEmployed = "Where Employed is required."; isValid = false; }
         if (!state.businessAddress?.trim()) { stepErrors.businessAddress = "Business Address is required."; isValid = false; }
@@ -504,9 +607,21 @@ function ApplyContent() {
         if (!state.institution?.trim()) { stepErrors.institution = "Degree school/institution is required."; isValid = false; }
         if (!state.yearObtained?.trim()) { stepErrors.yearObtained = "Year obtained is required."; isValid = false; }
         else if (!/^\d{4}$/.test(state.yearObtained?.trim() || "")) { stepErrors.yearObtained = "Must be a 4-digit year."; isValid = false; }
+      } else if (state.membershipType === "institutional") {
+        if (!state.totalGraduateFaculty?.trim()) { stepErrors.totalGraduateFaculty = "Total Graduate School Faculty is required."; isValid = false; }
+        if (!state.currentEnrollmentCount?.trim()) { stepErrors.currentEnrollmentCount = "Current Enrollment Count is required."; isValid = false; }
+        if (!state.enrollmentYearRange?.trim()) { stepErrors.enrollmentYearRange = "Enrollment Year Range is required."; isValid = false; }
+        if (!state.educationCoursesOffered || state.educationCoursesOffered.filter((c: string) => c.trim() !== "").length === 0) {
+          stepErrors.educationCoursesOffered = "Please add at least one undergraduate course/degree offered.";
+          isValid = false;
+        }
+        if (!state.graduateCoursesOffered || state.graduateCoursesOffered.filter((c: string) => c.trim() !== "").length === 0) {
+          stepErrors.graduateCoursesOffered = "Please add at least one graduate course offered.";
+          isValid = false;
+        }
       } else {
-        if (!state.institution.trim()) { stepErrors.institution = "Employer / School Institution name is required."; isValid = false; }
-        if (!state.address.trim()) { stepErrors.address = "Office / Business Address is required."; isValid = false; }
+        if (!state.institution?.trim()) { stepErrors.institution = "Employer / School Institution name is required."; isValid = false; }
+        if (!state.address?.trim()) { stepErrors.address = "Office / Business Address is required."; isValid = false; }
         if (!state.presentPosition?.trim()) { stepErrors.presentPosition = "Present Position is required."; isValid = false; }
 
         if (state.membershipType === "associate") {
@@ -514,14 +629,16 @@ function ApplyContent() {
           if (!state.expectedGraduationYear?.trim()) { stepErrors.expectedGraduationYear = "Expected graduation year is required."; isValid = false; }
           else if (!/^\d{4}$/.test(state.expectedGraduationYear?.trim() || "")) { stepErrors.expectedGraduationYear = "Must be a 4-digit year."; isValid = false; }
         }
-
-        if (state.membershipType === "institutional") {
-          if (!state.accreditationDetails?.trim()) { stepErrors.accreditationDetails = "Accreditation details are required."; isValid = false; }
-        }
       }
     }
 
-    if (stepNum === 3) {
+    if (stepId === "academic-info") {
+      if (state.membershipType === "associate") {
+        if (!state.currentAcademicStatus?.trim()) { stepErrors.currentAcademicStatus = "Current Academic Status is required."; isValid = false; }
+      }
+    }
+
+    if (stepId === "experience") {
       if (state.membershipType === "life" || state.membershipType === "regular") {
         if (state.membershipType === "life") {
           if (!state.yearsActiveInPAGE?.trim()) {
@@ -534,7 +651,7 @@ function ApplyContent() {
         }
 
         if (state.teachingExperience) {
-          state.teachingExperience.forEach((t, i) => {
+          state.teachingExperience.forEach((t: any, i: number) => {
             if (t.fromYear?.trim() && !/^\d{4}$/.test(t.fromYear.trim())) {
               stepErrors[`teaching_from_${i}`] = "Must be a 4-digit year.";
               isValid = false;
@@ -546,7 +663,7 @@ function ApplyContent() {
           });
         }
         if (state.administrativeExperience) {
-          state.administrativeExperience.forEach((a, i) => {
+          state.administrativeExperience.forEach((a: any, i: number) => {
             if (a.fromYear?.trim() && !/^\d{4}$/.test(a.fromYear.trim())) {
               stepErrors[`admin_from_${i}`] = "Must be a 4-digit year.";
               isValid = false;
@@ -557,7 +674,7 @@ function ApplyContent() {
             }
           });
         }
-      } else {
+      } else if (state.membershipType !== "institutional") {
         if (state.teachingFrom?.trim() && !/^\d{4}$/.test(state.teachingFrom?.trim() || "")) { stepErrors.teachingFrom = "Must be a 4-digit year."; isValid = false; }
         if (state.teachingTo?.trim() && !/^\d{4}$/.test(state.teachingTo?.trim() || "")) { stepErrors.teachingTo = "Must be a 4-digit year."; isValid = false; }
         if (state.adminFrom?.trim() && !/^\d{4}$/.test(state.adminFrom?.trim() || "")) { stepErrors.adminFrom = "Must be a 4-digit year."; isValid = false; }
@@ -569,13 +686,13 @@ function ApplyContent() {
       }
     }
 
-    if (stepNum === 4) {
-      if (state.membershipType === "life" || state.membershipType === "regular") {
+    if (stepId === "references") {
+      if (state.membershipType === "life" || state.membershipType === "regular" || state.membershipType === "associate") {
         if (!state.characterReferences || state.characterReferences.length !== 2) {
           stepErrors.characterReferences = "Exactly two character references are required.";
           isValid = false;
         } else {
-          state.characterReferences.forEach((r, idx) => {
+          state.characterReferences.forEach((r: any, idx: number) => {
             if (!r.name?.trim()) { stepErrors[`ref_${idx}_name`] = "Name is required."; isValid = false; }
             if (!r.position?.trim()) { stepErrors[`ref_${idx}_position`] = "Position is required."; isValid = false; }
             if (!r.address?.trim()) { stepErrors[`ref_${idx}_address`] = "Address is required."; isValid = false; }
@@ -585,8 +702,6 @@ function ApplyContent() {
         const boardRef = state.regionalChapterBoardReference;
         if (!boardRef?.name?.trim()) { stepErrors.boardRefName = "Name is required."; isValid = false; }
         if (!boardRef?.address?.trim()) { stepErrors.boardRefAddress = "Address is required."; isValid = false; }
-      } else {
-        // Non-life, non-regular references validation if any
       }
 
       if (selectedCategory) {
@@ -599,7 +714,7 @@ function ApplyContent() {
       }
     }
 
-    if (stepNum === 5) {
+    if (stepId === "review") {
       if (!consentChecked) {
         stepErrors.consent = "You must agree to the Data Privacy Agreement.";
         isValid = false;
@@ -627,21 +742,21 @@ function ApplyContent() {
   };
 
   const handleChangeMembershipType = () => {
-    const confirm = window.confirm(
-      "Are you sure you want to change your membership type? This will discard your current application draft and reset all fields."
-    );
-    if (confirm) {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("page_membership_draft_id");
-      }
-      setDraftId(null);
-      dispatch({ type: "RESET_FORM" });
-      setConsentChecked(false);
-      setErrors({});
-      setFileErrors({});
-      setCurrentStep(1);
-      gooeyToast.success("Application reset. Please select a membership type.");
+    setShowChangeTypeConfirm(true);
+  };
+
+  const confirmChangeMembershipType = () => {
+    setShowChangeTypeConfirm(false);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("page_membership_draft_id");
     }
+    setDraftId(null);
+    dispatch({ type: "RESET_FORM" });
+    setConsentChecked(false);
+    setErrors({});
+    setFileErrors({});
+    setCurrentStep(1);
+    gooeyToast.success("Application reset. Please select a membership type.");
   };
 
   /* ── Navigation & Persistence ────────────────────────────────────────────── */
@@ -649,11 +764,16 @@ function ApplyContent() {
   const persistStep = async (stepNumber: number): Promise<boolean> => {
     if (!draftId) return false;
 
-    let stepName = "";
+    const stepsList = (STEPS as any)[state.membershipType || "default"] || STEPS.default;
+    const currentStepConfig = stepsList[stepNumber - 1];
+    const stepId = currentStepConfig?.id;
+
+    if (!stepId) return false;
+
+    let stepName = stepId;
     let stepData: Record<string, any> = {};
 
-    if (stepNumber === 1) {
-      stepName = "profile";
+    if (stepId === "profile") {
       if (state.membershipType === "life" || state.membershipType === "regular") {
         stepData = {
           name: state.name,
@@ -672,8 +792,7 @@ function ApplyContent() {
           enrolleeCount: state.membershipType === "institutional" ? Number(state.enrolleeCount) : undefined,
         };
       }
-    } else if (stepNumber === 2) {
-      stepName = "education-job";
+    } else if (stepId === "education-job") {
       if (state.membershipType === "life" || state.membershipType === "regular") {
         stepData = {
           whereEmployed: state.whereEmployed,
@@ -694,8 +813,12 @@ function ApplyContent() {
           expectedGraduationYear: state.membershipType === "associate" ? state.expectedGraduationYear : undefined,
         };
       }
-    } else if (stepNumber === 3) {
-      stepName = "experience";
+    } else if (stepId === "academic-info") {
+      stepData = {
+        currentAcademicStatus: state.currentAcademicStatus,
+        researchInterests: state.researchInterests,
+      };
+    } else if (stepId === "experience") {
       if (state.membershipType === "life" || state.membershipType === "regular") {
         stepData = {
           yearsActiveInPAGE: state.membershipType === "life" ? Number(state.yearsActiveInPAGE) : undefined,
@@ -723,9 +846,8 @@ function ApplyContent() {
           assoc3: state.assoc3,
         };
       }
-    } else if (stepNumber === 4) {
-      stepName = "references";
-      if (state.membershipType === "life" || state.membershipType === "regular") {
+    } else if (stepId === "references") {
+      if (state.membershipType === "life" || state.membershipType === "regular" || state.membershipType === "associate" || state.membershipType === "institutional") {
         stepData = {
           characterReferences: state.characterReferences || [],
           regionalChapterBoardReference: state.regionalChapterBoardReference,
@@ -855,7 +977,8 @@ function ApplyContent() {
     e.preventDefault();
     if (isSubmitting || !draftId) return;
 
-    if (!validateStep(4)) {
+    const lastValidationStep = state.membershipType === "associate" ? 5 : 4;
+    if (!validateStep(lastValidationStep)) {
       gooeyToast.error("Please complete references and verify document uploads before submission.");
       return;
     }
@@ -897,7 +1020,8 @@ function ApplyContent() {
     if (errors[field]) setErrors((p) => ({ ...p, [field]: null }));
   };
 
-  const progress = ((currentStep - 1) / (STEPS.length - 1)) * 100;
+  const stepsList = (STEPS as any)[state.membershipType || "default"] || STEPS.default;
+  const progress = ((currentStep - 1) / (stepsList.length - 1)) * 100;
 
   /* ── Input Render Helper ─────────────────────────────────────────────────── */
 
@@ -1134,7 +1258,7 @@ function ApplyContent() {
             />
           </div>
           <nav className="af-stepper" aria-label="Registration steps">
-            {STEPS.map((step) => {
+            {stepsList.map((step: any) => {
               const isActive = step.number === currentStep;
               const isCompleted = step.number < currentStep;
               const StepIcon = step.icon;
@@ -1154,6 +1278,12 @@ function ApplyContent() {
               );
             })}
           </nav>
+
+          {/* Mobile condensed step indicator — shown only on narrow screens */}
+          <div className="af-step-condensed" aria-hidden="true">
+            Step {currentStep} of {stepsList.length}:&nbsp;
+            <strong>{stepsList[currentStep - 1]?.label}</strong>
+          </div>
         </div>
 
         {/* ── Form Card ────────────────────────────────────────────── */}
@@ -1174,12 +1304,33 @@ function ApplyContent() {
                     <div className="af-section-header" style={{ marginBottom: "32px" }}>
                       <div className="af-section-icon"><User size={20} /></div>
                       <div>
-                        <h2 className="af-section-title" style={{ fontSize: "22px", fontWeight: 800 }}>Profile Information</h2>
-                        <p className="af-section-desc">Provide your contact details, address location, and 1x1 photo.</p>
+                        <h2 className="af-section-title" style={{ fontSize: "22px", fontWeight: 800 }}>
+                          {state.membershipType === "institutional" ? "Institution Profile" : "Profile Information"}
+                        </h2>
+                        <p className="af-section-desc">
+                          {state.membershipType === "institutional"
+                            ? "Provide contact details and officers of the college or university."
+                            : "Provide your contact details, address location, and 1x1 photo."}
+                        </p>
                       </div>
                     </div>
 
-                    {state.membershipType === "life" || state.membershipType === "regular" ? (
+                    {state.membershipType === "institutional" ? (
+                      <>
+                        {renderInput("collegeUniversityName", "College / University Name", "PAGE National University", state.collegeUniversityName || "", "collegeUniversityName", { required: true })}
+                        {renderInput("institutionAddress", "Institution Complete Address", "123 Taft Avenue, Manila", state.institutionAddress || "", "institutionAddress", { required: true })}
+                        
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                          {renderInput("telMobileNo", "Telephone / Mobile Number", "e.g. 028123456", state.telMobileNo || "", "telMobileNo", { required: true })}
+                          {renderInput("emailAddress", "Email Address", "info@university.edu.ph", state.emailAddress || "", "emailAddress", { required: true })}
+                        </div>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "16px" }}>
+                          {renderInput("presidentName", "President of College / University", "Dr. Juan Dela Cruz", state.presidentName || "", "presidentName", { required: true })}
+                          {renderInput("deanHeadGraduateSchool", "Dean / Head of Graduate School", "Dr. Maria Clara", state.deanHeadGraduateSchool || "", "deanHeadGraduateSchool", { required: true })}
+                        </div>
+                      </>
+                    ) : state.membershipType === "life" || state.membershipType === "regular" ? (
                       <>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                           {renderInput("name", "Full Name", "Dr. Jane Doe", state.name || "", "name", { required: true })}
@@ -1232,17 +1383,18 @@ function ApplyContent() {
                           {renderInput("email", "Email Address", "jane.doe@university.edu.ph", state.email, "email", { type: "email", required: true })}
                         </div>
 
-                        {/* Institutional specific enrollee tier */}
-                        {state.membershipType === "institutional" && (
-                          <div style={{ border: "1px solid var(--af-border)", padding: "20px", borderRadius: "12px", background: "var(--af-cream)", marginTop: "16px" }}>
-                            <h4 style={{ fontSize: "16px", fontWeight: 700, color: "var(--af-navy)", marginBottom: "8px" }}>Institutional Enrollee Tiers</h4>
-                            <p style={{ fontSize: "13px", color: "var(--af-text-muted)", marginBottom: "16px" }}>
-                              Fee is automatically tiered based on the total number of enrollees in the graduate program.
-                            </p>
-                            {renderInput("enrolleeCount", "Total Program Enrollee Count", "e.g. 450", state.enrolleeCount || "", "enrolleeCount", { required: true })}
-                            <p style={{ fontSize: "14px", fontWeight: 700, color: "var(--af-navy)", marginTop: "8px" }}>
-                              Current Computed Fee: <span style={{ color: "var(--af-gold)" }}>{getComputedFeeString()}</span>
-                            </p>
+                        {state.membershipType === "associate" && (
+                          <div style={{ marginTop: "24px" }}>
+                            <DocumentUpload
+                              draftId={draftId!}
+                              slotName="photo_1x1"
+                              label="1x1 Photo"
+                              file={state.documents["photo_1x1"] || null}
+                              error={errors["photo_1x1"] || fileErrors["photo_1x1"]}
+                              isUploading={!!isUploading["photo_1x1"]}
+                              onFileChange={handleFileChange}
+                              required={true}
+                            />
                           </div>
                         )}
                       </>
@@ -1256,12 +1408,143 @@ function ApplyContent() {
                     <div className="af-section-header" style={{ marginBottom: "32px" }}>
                       <div className="af-section-icon"><GraduationCap size={20} /></div>
                       <div>
-                        <h2 className="af-section-title" style={{ fontSize: "22px", fontWeight: 800 }}>Employment & Education</h2>
-                        <p className="af-section-desc">Provide your professional background and academic credentials.</p>
+                        <h2 className="af-section-title" style={{ fontSize: "22px", fontWeight: 800 }}>
+                          {state.membershipType === "institutional" ? "Academic Information" : state.membershipType === "associate" ? "Graduate Program Info" : "Employment & Education"}
+                        </h2>
+                        <p className="af-section-desc">
+                          {state.membershipType === "institutional"
+                            ? "Provide course offerings, faculty details, and enrollment count."
+                            : state.membershipType === "associate"
+                            ? "Provide details about your current graduate program."
+                            : "Provide your professional background and academic credentials."}
+                        </p>
                       </div>
                     </div>
 
-                    {state.membershipType === "life" || state.membershipType === "regular" ? (
+                    {state.membershipType === "institutional" ? (
+                      <>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginBottom: "24px" }}>
+                          {/* Education course(s)/degree(s) offered */}
+                          <div className="af-subsection" style={{ margin: 0 }}>
+                            <div className="af-subsection__header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", borderBottom: "1px solid var(--af-border-light)", paddingBottom: "6px" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                <GraduationCap size={16} style={{ color: "var(--af-navy)" }} />
+                                <span style={{ fontSize: "16px", fontWeight: 700, color: "var(--af-navy)" }}>Education Courses Offered</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => dispatch({ type: "ADD_EDUCATION_COURSE" })}
+                                style={{ padding: "4px 8px", background: "var(--af-navy)", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "12px", fontWeight: 600 }}
+                              >
+                                + Add Course
+                              </button>
+                            </div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                              {(!state.educationCoursesOffered || state.educationCoursesOffered.length === 0) ? (
+                                <p style={{ fontSize: "14px", color: "var(--af-text-muted)", margin: 0 }}>No courses added.</p>
+                              ) : (
+                                state.educationCoursesOffered.map((course, idx) => (
+                                  <div key={idx} style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                                    <input
+                                      type="text"
+                                      placeholder="e.g. BS in Elementary Education"
+                                      value={course}
+                                      onChange={(e) => dispatch({ type: "UPDATE_EDUCATION_COURSE", index: idx, value: e.target.value })}
+                                      className="af-input"
+                                      style={{ flex: 1, minHeight: "40px", fontSize: "14px", padding: "6px 10px" }}
+                                    />
+                                    {state.educationCoursesOffered!.length > 1 && (
+                                      <button
+                                        type="button"
+                                        onClick={() => dispatch({ type: "REMOVE_EDUCATION_COURSE", index: idx })}
+                                        style={{ border: "none", background: "none", color: "var(--af-error)", cursor: "pointer" }}
+                                      >
+                                        <Trash2 size={16} />
+                                      </button>
+                                    )}
+                                  </div>
+                                ))
+                              )}
+                              {errors.educationCoursesOffered && <span style={{ color: "var(--af-error)", fontSize: "12px" }}>{errors.educationCoursesOffered}</span>}
+                            </div>
+                          </div>
+
+                          {/* Graduate courses offered */}
+                          <div className="af-subsection" style={{ margin: 0 }}>
+                            <div className="af-subsection__header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", borderBottom: "1px solid var(--af-border-light)", paddingBottom: "6px" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                <GraduationCap size={16} style={{ color: "var(--af-navy)" }} />
+                                <span style={{ fontSize: "16px", fontWeight: 700, color: "var(--af-navy)" }}>Graduate Courses Offered</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => dispatch({ type: "ADD_GRADUATE_COURSE" })}
+                                style={{ padding: "4px 8px", background: "var(--af-navy)", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "12px", fontWeight: 600 }}
+                              >
+                                + Add Course
+                              </button>
+                            </div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                              {(!state.graduateCoursesOffered || state.graduateCoursesOffered.length === 0) ? (
+                                <p style={{ fontSize: "14px", color: "var(--af-text-muted)", margin: 0 }}>No courses added.</p>
+                              ) : (
+                                state.graduateCoursesOffered.map((course, idx) => (
+                                  <div key={idx} style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                                    <input
+                                      type="text"
+                                      placeholder="e.g. MA in Educational Management"
+                                      value={course}
+                                      onChange={(e) => dispatch({ type: "UPDATE_GRADUATE_COURSE", index: idx, value: e.target.value })}
+                                      className="af-input"
+                                      style={{ flex: 1, minHeight: "40px", fontSize: "14px", padding: "6px 10px" }}
+                                    />
+                                    {state.graduateCoursesOffered!.length > 1 && (
+                                      <button
+                                        type="button"
+                                        onClick={() => dispatch({ type: "REMOVE_GRADUATE_COURSE", index: idx })}
+                                        style={{ border: "none", background: "none", color: "var(--af-error)", cursor: "pointer" }}
+                                      >
+                                        <Trash2 size={16} />
+                                      </button>
+                                    )}
+                                  </div>
+                                ))
+                              )}
+                              {errors.graduateCoursesOffered && <span style={{ color: "var(--af-error)", fontSize: "12px" }}>{errors.graduateCoursesOffered}</span>}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginTop: "16px" }}>
+                          {renderInput("totalGraduateFaculty", "Total Graduate School Faculty", "e.g. 24", state.totalGraduateFaculty || "", "totalGraduateFaculty", { required: true })}
+                          
+                          <div className="af-field" style={{ marginBottom: "16px" }}>
+                            <label htmlFor="currentEnrollmentCount" className="af-label" style={{ fontSize: "18px", fontWeight: 600, marginBottom: "8px", display: "block" }}>
+                              Current Enrollment Count *
+                            </label>
+                            <input
+                              id="currentEnrollmentCount"
+                              type="text"
+                              placeholder="e.g. 150"
+                              value={state.currentEnrollmentCount || ""}
+                              onChange={(e) => setField("currentEnrollmentCount", e.target.value.replace(/\D/g, ""))}
+                              className={`af-input ${errors.currentEnrollmentCount ? "af-input--error" : ""}`}
+                              style={{ minHeight: "48px", fontSize: "16px", padding: "12px 16px", width: "100%", border: "1px solid var(--af-border)", borderRadius: "8px" }}
+                            />
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "6px" }}>
+                              {errors.currentEnrollmentCount ? (
+                                <span style={{ color: "var(--af-error)", fontSize: "14px" }}>{errors.currentEnrollmentCount}</span>
+                              ) : <span />}
+                              <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--af-blue-mid)" }}>
+                                Estimated fee: {getComputedFeeString().split(" (")[0]}
+                              </span>
+                            </div>
+                          </div>
+
+                          {renderInput("enrollmentYearRange", "Enrollment Year Range", "e.g. 2025-2026", state.enrollmentYearRange || "", "enrollmentYearRange", { required: true })}
+                        </div>
+                      </>
+                    ) : state.membershipType === "life" || state.membershipType === "regular" ? (
                       <>
                         {renderInput("whereEmployed", "Employing Institution/School", "State University of Manila", state.whereEmployed || "", "whereEmployed", { required: true })}
                         {renderInput("businessAddress", "Business/Office Address", "456 Campus Ave, Manila", state.businessAddress || "", "businessAddress", { required: true })}
@@ -1293,14 +1576,6 @@ function ApplyContent() {
                             </div>
                           </div>
                         )}
-
-                        {/* Institutional: Accreditation Details */}
-                        {state.membershipType === "institutional" && (
-                          <div style={{ marginTop: "24px", paddingTop: "24px", borderTop: "1px solid var(--af-border-light)" }}>
-                            <h3 style={{ fontSize: "18px", fontWeight: 700, color: "var(--af-navy)", marginBottom: "16px" }}>Accreditation Details</h3>
-                            {renderInput("accreditationDetails", "Government Recognition / Accreditation Status", "CHED Permit No. 1234, PAASCU Level III", state.accreditationDetails || "", "accreditationDetails", { required: true })}
-                          </div>
-                        )}
                       </>
                     )}
                   </div>
@@ -1312,27 +1587,66 @@ function ApplyContent() {
                     <div className="af-section-header" style={{ marginBottom: "32px" }}>
                       <div className="af-section-icon"><Briefcase size={20} /></div>
                       <div>
-                        <h2 className="af-section-title" style={{ fontSize: "22px", fontWeight: 800 }}>Experience & Publications</h2>
-                        <p className="af-section-desc">Record relevant professional and research credentials.</p>
+                        <h2 className="af-section-title" style={{ fontSize: "22px", fontWeight: 800 }}>
+                          {state.membershipType === "institutional" ? "Professional Affiliations" : "Experience & Publications"}
+                        </h2>
+                        <p className="af-section-desc">
+                          {state.membershipType === "institutional"
+                            ? "Record the institution's professional affiliations."
+                            : "Record relevant professional and research credentials."}
+                        </p>
                       </div>
                     </div>
 
-                    {/* Institutional: NOT APPLICABLE */}
                     {state.membershipType === "institutional" ? (
-                      <div style={{ padding: "48px 24px", textAlign: "center", border: "1px dashed var(--af-border)", borderRadius: "12px", background: "var(--af-cream)" }}>
-                        <Briefcase size={36} style={{ color: "var(--af-text-muted)", marginBottom: "16px", margin: "0 auto" }} />
-                        <h4 style={{ fontSize: "18px", fontWeight: 700, color: "var(--af-navy)", marginBottom: "8px" }}>Section Not Applicable</h4>
-                        <p style={{ fontSize: "15px", color: "var(--af-text-muted)", marginBottom: "24px" }}>
-                          Academic or individual experiences are not required for Institutional memberships.
-                        </p>
-                        <button
-                          type="button"
-                          onClick={handleNext}
-                          className="af-btn af-btn--primary"
-                          style={{ margin: "0 auto", minHeight: "48px" }}
-                        >
-                          Skip Step &amp; Continue <ArrowRight size={16} />
-                        </button>
+                      <div>
+                        <div style={{ border: "1px solid var(--af-border-light)", padding: "16px 20px", borderRadius: "12px", background: "var(--af-cream)", marginBottom: "24px" }}>
+                          <p style={{ fontSize: "14px", color: "var(--af-text-muted)", margin: 0, fontWeight: 500 }}>
+                            ℹ️ Individual professional experience is not applicable for Institutional memberships. Please record the institution's professional affiliations below.
+                          </p>
+                        </div>
+
+                        <div className="af-subsection" style={{ marginBottom: "24px" }}>
+                          <div className="af-subsection__header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", borderBottom: "1px solid var(--af-border-light)", paddingBottom: "6px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                              <Users size={16} style={{ color: "var(--af-navy)" }} />
+                              <span style={{ fontSize: "16px", fontWeight: 700, color: "var(--af-navy)" }}>Recognized Associations (Past 5 Years) <span style={{ fontSize: "14px", color: "var(--af-text-muted)", fontWeight: 400 }}>(Optional)</span></span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => dispatch({ type: "ADD_AFFILIATION" })}
+                              style={{ padding: "6px 12px", background: "var(--af-navy)", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontWeight: 600 }}
+                            >
+                              + Add Affiliation
+                            </button>
+                          </div>
+                          
+                          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                            {(!state.professionalAffiliations || state.professionalAffiliations.length === 0) ? (
+                              <p style={{ fontSize: "14px", color: "var(--af-text-muted)", margin: 0 }}>No affiliations added yet.</p>
+                            ) : (
+                              state.professionalAffiliations.map((affiliation, idx) => (
+                                <div key={idx} style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                                  <input
+                                    type="text"
+                                    placeholder="Association Name, Membership Type / Officership details"
+                                    value={affiliation}
+                                    onChange={(e) => dispatch({ type: "UPDATE_AFFILIATION", index: idx, value: e.target.value })}
+                                    className="af-input"
+                                    style={{ flex: 1, minHeight: "40px", fontSize: "15px", padding: "8px 12px" }}
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => dispatch({ type: "REMOVE_AFFILIATION", index: idx })}
+                                    style={{ border: "none", background: "none", color: "var(--af-error)", cursor: "pointer" }}
+                                  >
+                                    <Trash2 size={18} />
+                                  </button>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
                       </div>
                     ) : state.membershipType === "life" || state.membershipType === "regular" ? (
                       <div>
@@ -1773,7 +2087,7 @@ function ApplyContent() {
                 )}
 
                 {/* ═══ STEP 5: Review & Submit ═══════════════════════ */}
-                {currentStep === 5 && (
+                {currentStep === stepsList.length && (
                   <div>
                     <div className="af-section-header screen-only" style={{ marginBottom: "32px" }}>
                       <div className="af-section-icon"><FileText size={20} /></div>
@@ -1789,7 +2103,7 @@ function ApplyContent() {
                           {(() => {
                             const photoDoc = state.documents["photo_1x1"];
                             const photoUrl = (photoDoc && !(photoDoc instanceof File)) ? photoDoc.url : undefined;
-                            if ((state.membershipType === "life" || state.membershipType === "regular") && photoUrl) {
+                            if ((state.membershipType === "life" || state.membershipType === "regular" || state.membershipType === "associate") && photoUrl) {
                               return (
                                 <img
                                   src={photoUrl}
@@ -1812,10 +2126,21 @@ function ApplyContent() {
                       {/* Profile data review */}
                       <div style={{ marginBottom: "24px" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--af-border-light)", paddingBottom: "6px", marginBottom: "12px" }}>
-                          <h4 style={{ fontSize: "16px", fontWeight: 700, color: "var(--af-navy)", margin: 0 }}>1. Profile Details</h4>
-                          <button type="button" onClick={() => handleStepClick(1)} style={{ color: "var(--af-blue-mid)", border: "none", background: "none", cursor: "pointer", fontSize: "14px", fontWeight: 700 }}>Edit</button>
+                          <h4 style={{ fontSize: "16px", fontWeight: 700, color: "var(--af-navy)", margin: 0 }}>
+                            {stepsList.findIndex((s: any) => s.id === "profile") + 1}. {state.membershipType === "institutional" ? "Institution Profile" : "Profile Details"}
+                          </h4>
+                          <button type="button" onClick={() => handleStepClick(stepsList.findIndex((s: any) => s.id === "profile") + 1)} style={{ color: "var(--af-blue-mid)", border: "none", background: "none", cursor: "pointer", fontSize: "14px", fontWeight: 700 }}>Edit</button>
                         </div>
-                        {state.membershipType === "life" || state.membershipType === "regular" ? (
+                        {state.membershipType === "institutional" ? (
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 24px", fontSize: "15px" }}>
+                            <div style={{ gridColumn: "span 2" }}><strong>College / University Name:</strong> {state.collegeUniversityName}</div>
+                            <div style={{ gridColumn: "span 2" }}><strong>Institution Address:</strong> {state.institutionAddress}</div>
+                            <div><strong>Telephone / Mobile:</strong> {state.telMobileNo}</div>
+                            <div><strong>Email Address:</strong> {state.emailAddress}</div>
+                            <div><strong>President of College/University:</strong> {state.presidentName}</div>
+                            <div><strong>Dean / Head of Graduate School:</strong> {state.deanHeadGraduateSchool}</div>
+                          </div>
+                        ) : state.membershipType === "life" || state.membershipType === "regular" ? (
                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 24px", fontSize: "15px" }}>
                             <div><strong>Full Name:</strong> {state.name}</div>
                             <div><strong>Region:</strong> {state.region}</div>
@@ -1830,20 +2155,41 @@ function ApplyContent() {
                             <div style={{ gridColumn: "span 2" }}><strong>Home Address:</strong> {state.homeAddress}</div>
                             <div><strong>Mobile / Tel No:</strong> {state.phone}</div>
                             <div><strong>Email:</strong> {state.email}</div>
-                            {state.membershipType === "institutional" && (
-                              <div><strong>Program Enrollees:</strong> {state.enrolleeCount}</div>
-                            )}
                           </div>
                         )}
                       </div>
 
-                      {/* Education & Job review */}
+                      {/* Education & Job / Academic Information review */}
                       <div style={{ marginBottom: "24px" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--af-border-light)", paddingBottom: "6px", marginBottom: "12px" }}>
-                          <h4 style={{ fontSize: "16px", fontWeight: 700, color: "var(--af-navy)", margin: 0 }}>2. Employment & Education</h4>
-                          <button type="button" onClick={() => handleStepClick(2)} style={{ color: "var(--af-blue-mid)", border: "none", background: "none", cursor: "pointer", fontSize: "14px", fontWeight: 700 }}>Edit</button>
+                          <h4 style={{ fontSize: "16px", fontWeight: 700, color: "var(--af-navy)", margin: 0 }}>
+                            {stepsList.findIndex((s: any) => s.id === "education-job") + 1}. {state.membershipType === "institutional" ? "Academic Information" : "Employment & Education"}
+                          </h4>
+                          <button type="button" onClick={() => handleStepClick(stepsList.findIndex((s: any) => s.id === "education-job") + 1)} style={{ color: "var(--af-blue-mid)", border: "none", background: "none", cursor: "pointer", fontSize: "14px", fontWeight: 700 }}>Edit</button>
                         </div>
-                        {state.membershipType === "life" || state.membershipType === "regular" ? (
+                        {state.membershipType === "institutional" ? (
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 24px", fontSize: "15px" }}>
+                            <div>
+                              <strong>Education Courses Offered:</strong>
+                              <ul style={{ margin: "4px 0 0 20px", padding: 0 }}>
+                                {state.educationCoursesOffered?.filter(c => c.trim() !== "").map((c, idx) => (
+                                  <li key={idx}>{c}</li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div>
+                              <strong>Graduate Courses Offered:</strong>
+                              <ul style={{ margin: "4px 0 0 20px", padding: 0 }}>
+                                {state.graduateCoursesOffered?.filter(c => c.trim() !== "").map((c, idx) => (
+                                  <li key={idx}>{c}</li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div><strong>Total Graduate School Faculty:</strong> {state.totalGraduateFaculty}</div>
+                            <div><strong>Current Enrollment Count:</strong> {state.currentEnrollmentCount}</div>
+                            <div><strong>Enrollment Year Range:</strong> {state.enrollmentYearRange}</div>
+                          </div>
+                        ) : state.membershipType === "life" || state.membershipType === "regular" ? (
                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 24px", fontSize: "15px" }}>
                             <div style={{ gridColumn: "span 2" }}><strong>Institution/Employer:</strong> {state.whereEmployed}</div>
                             <div style={{ gridColumn: "span 2" }}><strong>Office/Business Address:</strong> {state.businessAddress}</div>
@@ -1858,103 +2204,127 @@ function ApplyContent() {
                             <div style={{ gridColumn: "span 2" }}><strong>Institution/Employer:</strong> {state.institution}</div>
                             <div style={{ gridColumn: "span 2" }}><strong>Office/Business Address:</strong> {state.address}</div>
                             <div><strong>Present Position:</strong> {state.presentPosition}</div>
-
-
-
                             {state.membershipType === "associate" && (
                               <>
                                 <div><strong>Enrollment Status:</strong> {state.currentEnrollmentStatus}</div>
                                 <div><strong>Expected Graduation:</strong> {state.expectedGraduationYear}</div>
                               </>
                             )}
+                          </div>
+                        )}
+                      </div>
 
-                            {state.membershipType === "institutional" && (
-                              <div style={{ gridColumn: "span 2" }}><strong>Accreditation / CHED Status:</strong> {state.accreditationDetails}</div>
+                      {/* Academic Info review (Associate only) */}
+                      {state.membershipType === "associate" && stepsList.some((s: any) => s.id === "academic-info") && (
+                        <div style={{ marginBottom: "24px" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--af-border-light)", paddingBottom: "6px", marginBottom: "12px" }}>
+                            <h4 style={{ fontSize: "16px", fontWeight: 700, color: "var(--af-navy)", margin: 0 }}>
+                              {stepsList.findIndex((s: any) => s.id === "academic-info") + 1}. Academic Information
+                            </h4>
+                            <button type="button" onClick={() => handleStepClick(stepsList.findIndex((s: any) => s.id === "academic-info") + 1)} style={{ color: "var(--af-blue-mid)", border: "none", background: "none", cursor: "pointer", fontSize: "14px", fontWeight: 700 }}>Edit</button>
+                          </div>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 24px", fontSize: "15px" }}>
+                            <div><strong>Current Academic Status:</strong> {state.currentAcademicStatus}</div>
+                            <div style={{ gridColumn: "span 2" }}><strong>Research Interests:</strong> {state.researchInterests}</div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Experience & Affiliations review */}
+                      <div style={{ marginBottom: "24px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--af-border-light)", paddingBottom: "6px", marginBottom: "12px" }}>
+                          <h4 style={{ fontSize: "16px", fontWeight: 700, color: "var(--af-navy)", margin: 0 }}>
+                            {stepsList.findIndex((s: any) => s.id === "experience") + 1}. {state.membershipType === "institutional" ? "Professional Affiliations" : "Experience & Publications"}
+                          </h4>
+                          <button type="button" onClick={() => handleStepClick(stepsList.findIndex((s: any) => s.id === "experience") + 1)} style={{ color: "var(--af-blue-mid)", border: "none", background: "none", cursor: "pointer", fontSize: "14px", fontWeight: 700 }}>Edit</button>
+                        </div>
+                        {state.membershipType === "institutional" ? (
+                          <div style={{ fontSize: "15px" }}>
+                            <strong>Professional Affiliations:</strong>
+                            {state.professionalAffiliations && state.professionalAffiliations.filter(a => a.trim() !== "").length > 0 ? (
+                              <ul style={{ margin: "4px 0 0 20px", padding: 0 }}>
+                                {state.professionalAffiliations.filter(a => a.trim() !== "").map((a, idx) => (
+                                  <li key={idx}>{a}</li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <span style={{ color: "var(--af-text-muted)", marginLeft: "8px" }}>None recorded</span>
+                            )}
+                          </div>
+                        ) : state.membershipType === "life" || state.membershipType === "regular" ? (
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "15px" }}>
+                            {state.membershipType === "life" && <div><strong>Years Active in PAGE:</strong> {state.yearsActiveInPAGE}</div>}
+                            
+                            {state.teachingExperience && state.teachingExperience.length > 0 && (
+                              <div>
+                                <strong>Teaching Experience:</strong>
+                                <ul style={{ margin: "4px 0 0 20px", padding: 0 }}>
+                                  {state.teachingExperience.map((t: any, idx: number) => (
+                                    <li key={idx}>{t.institution} ({t.fromYear} - {t.toYear})</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            
+                            {state.administrativeExperience && state.administrativeExperience.length > 0 && (
+                              <div>
+                                <strong>Administrative Experience:</strong>
+                                <ul style={{ margin: "4px 0 0 20px", padding: 0 }}>
+                                  {state.administrativeExperience.map((a: any, idx: number) => (
+                                    <li key={idx}>{a.institution} ({a.fromYear} - {a.toYear})</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+
+                            {state.recentPublications && state.recentPublications.filter(p => p.trim() !== "").length > 0 && (
+                              <div>
+                                <strong>Publications:</strong>
+                                <ul style={{ margin: "4px 0 0 20px", padding: 0 }}>
+                                  {state.recentPublications.filter(p => p.trim() !== "").map((p, idx) => (
+                                    <li key={idx}>{p}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+
+                            {state.professionalMemberships && state.professionalMemberships.filter(m => m.trim() !== "").length > 0 && (
+                              <div>
+                                <strong>Professional Memberships:</strong>
+                                <ul style={{ margin: "4px 0 0 20px", padding: 0 }}>
+                                  {state.professionalMemberships.filter(m => m.trim() !== "").map((m, idx) => (
+                                    <li key={idx}>{m}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 24px", fontSize: "15px" }}>
+                            {state.teachingExp && (
+                              <div style={{ gridColumn: "span 2" }}><strong>Teaching Experience:</strong> {state.teachingExp} at {state.teachingInst} ({state.teachingFrom} - {state.teachingTo})</div>
+                            )}
+                            {state.adminExp && (
+                              <div style={{ gridColumn: "span 2" }}><strong>Admin Experience:</strong> {state.adminExp} at {state.adminInst} ({state.adminFrom} - {state.adminTo})</div>
+                            )}
+                            {state.pub1 && (
+                              <div style={{ gridColumn: "span 2" }}><strong>Research / Publications:</strong> {state.pub1}</div>
                             )}
                           </div>
                         )}
                       </div>
 
-                      {/* Experience review */}
-                      {state.membershipType !== "institutional" && (
-                        <div style={{ marginBottom: "24px" }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--af-border-light)", paddingBottom: "6px", marginBottom: "12px" }}>
-                            <h4 style={{ fontSize: "16px", fontWeight: 700, color: "var(--af-navy)", margin: 0 }}>3. Experience & Publications</h4>
-                            <button type="button" onClick={() => handleStepClick(3)} style={{ color: "var(--af-blue-mid)", border: "none", background: "none", cursor: "pointer", fontSize: "14px", fontWeight: 700 }}>Edit</button>
-                          </div>
-                          {state.membershipType === "life" || state.membershipType === "regular" ? (
-                            <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "15px" }}>
-                              {state.membershipType === "life" && <div><strong>Years Active in PAGE:</strong> {state.yearsActiveInPAGE}</div>}
-                              
-                              {state.teachingExperience && state.teachingExperience.length > 0 && (
-                                <div>
-                                  <strong>Teaching Experience:</strong>
-                                  <ul style={{ margin: "4px 0 0 20px", padding: 0 }}>
-                                    {state.teachingExperience.map((t, idx) => (
-                                      <li key={idx}>{t.institution} ({t.fromYear} - {t.toYear})</li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
-                              
-                              {state.administrativeExperience && state.administrativeExperience.length > 0 && (
-                                <div>
-                                  <strong>Administrative Experience:</strong>
-                                  <ul style={{ margin: "4px 0 0 20px", padding: 0 }}>
-                                    {state.administrativeExperience.map((a, idx) => (
-                                      <li key={idx}>{a.institution} ({a.fromYear} - {a.toYear})</li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
-
-                              {state.recentPublications && state.recentPublications.filter(p => p.trim() !== "").length > 0 && (
-                                <div>
-                                  <strong>Publications:</strong>
-                                  <ul style={{ margin: "4px 0 0 20px", padding: 0 }}>
-                                    {state.recentPublications.filter(p => p.trim() !== "").map((p, idx) => (
-                                      <li key={idx}>{p}</li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
-
-                              {state.professionalMemberships && state.professionalMemberships.filter(m => m.trim() !== "").length > 0 && (
-                                <div>
-                                  <strong>Professional Memberships:</strong>
-                                  <ul style={{ margin: "4px 0 0 20px", padding: 0 }}>
-                                    {state.professionalMemberships.filter(m => m.trim() !== "").map((m, idx) => (
-                                      <li key={idx}>{m}</li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 24px", fontSize: "15px" }}>
-                              {state.teachingExp && (
-                                <div style={{ gridColumn: "span 2" }}><strong>Teaching Experience:</strong> {state.teachingExp} at {state.teachingInst} ({state.teachingFrom} - {state.teachingTo})</div>
-                              )}
-                              {state.adminExp && (
-                                <div style={{ gridColumn: "span 2" }}><strong>Admin Experience:</strong> {state.adminExp} at {state.adminInst} ({state.adminFrom} - {state.adminTo})</div>
-                              )}
-                              {state.pub1 && (
-                                <div style={{ gridColumn: "span 2" }}><strong>Research / Publications:</strong> {state.pub1}</div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      )}
-
                       {/* References & Documents review */}
                       <div style={{ marginBottom: "24px" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--af-border-light)", paddingBottom: "6px", marginBottom: "12px" }}>
-                          <h4 style={{ fontSize: "16px", fontWeight: 700, color: "var(--af-navy)", margin: 0 }}>4. References & Uploads</h4>
-                          <button type="button" onClick={() => handleStepClick(4)} style={{ color: "var(--af-blue-mid)", border: "none", background: "none", cursor: "pointer", fontSize: "14px", fontWeight: 700 }}>Edit</button>
+                          <h4 style={{ fontSize: "16px", fontWeight: 700, color: "var(--af-navy)", margin: 0 }}>
+                            {stepsList.findIndex((s: any) => s.id === "references") + 1}. References &amp; Uploads
+                          </h4>
+                          <button type="button" onClick={() => handleStepClick(stepsList.findIndex((s: any) => s.id === "references") + 1)} style={{ color: "var(--af-blue-mid)", border: "none", background: "none", cursor: "pointer", fontSize: "14px", fontWeight: 700 }}>Edit</button>
                         </div>
-                        {state.membershipType === "life" || state.membershipType === "regular" ? (
+                        {state.membershipType === "life" || state.membershipType === "regular" || state.membershipType === "associate" || state.membershipType === "institutional" ? (
                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 24px", fontSize: "15px", marginBottom: "16px" }}>
-                            {state.characterReferences?.map((r, idx) => (
+                            {state.characterReferences?.map((r: any, idx: number) => (
                               <div key={idx}>
                                 <strong>Character Reference #{idx + 1}:</strong> {r.name} ({r.position})<br />
                                 <span style={{ fontSize: "13px", color: "var(--af-text-muted)" }}>{r.address}</span>
@@ -1966,18 +2336,16 @@ function ApplyContent() {
                             </div>
                           </div>
                         ) : (
-                          state.membershipType !== "institutional" && (
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 24px", fontSize: "15px", marginBottom: "16px" }}>
-                              <div>
-                                <strong>Reference 1:</strong> {state.ref1Name} ({state.ref1Position})<br />
-                                <span style={{ fontSize: "13px", color: "var(--af-text-muted)" }}>{state.ref1Address}</span>
-                              </div>
-                              <div>
-                                <strong>Reference 2:</strong> {state.ref2Name} ({state.ref2Position})<br />
-                                <span style={{ fontSize: "13px", color: "var(--af-text-muted)" }}>{state.ref2Address}</span>
-                              </div>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 24px", fontSize: "15px", marginBottom: "16px" }}>
+                            <div>
+                              <strong>Reference 1:</strong> {state.ref1Name} ({state.ref1Position})<br />
+                              <span style={{ fontSize: "13px", color: "var(--af-text-muted)" }}>{state.ref1Address}</span>
                             </div>
-                          )
+                            <div>
+                              <strong>Reference 2:</strong> {state.ref2Name} ({state.ref2Position})<br />
+                              <span style={{ fontSize: "13px", color: "var(--af-text-muted)" }}>{state.ref2Address}</span>
+                            </div>
+                          </div>
                         )}
 
                         <div style={{ fontSize: "15px" }}>
@@ -2059,7 +2427,7 @@ function ApplyContent() {
                 </motion.button>
               ) : <div />}
 
-              {currentStep < 5 ? (
+              {currentStep < stepsList.length ? (
                 <motion.button
                   type="button"
                   onClick={handleNext}
@@ -2085,6 +2453,117 @@ function ApplyContent() {
             </div>
           </form>
         </div>
+
+        {/* Dynamic Change Type Confirmation Modal */}
+        <AnimatePresence>
+          {showChangeTypeConfirm && (
+            <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", zIndex: 10000, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowChangeTypeConfirm(false)}
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  background: "rgba(15, 23, 42, 0.6)",
+                  backdropFilter: "blur(4px)",
+                }}
+              />
+
+              {/* Modal Card */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                transition={{ type: "spring", duration: 0.3 }}
+                style={{
+                  position: "relative",
+                  width: "90%",
+                  maxWidth: "500px",
+                  background: "#fff",
+                  borderRadius: "16px",
+                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                  padding: "32px",
+                  border: "1px solid rgba(226, 232, 240, 0.8)",
+                  zIndex: 10001,
+                }}
+              >
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+                  {/* Warning Icon */}
+                  <div style={{
+                    width: "56px",
+                    height: "56px",
+                    borderRadius: "28px",
+                    background: "#fef3c7",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginBottom: "20px",
+                  }}>
+                    <AlertTriangle size={28} style={{ color: "#d97706" }} />
+                  </div>
+
+                  <h3 style={{ fontSize: "20px", fontWeight: 800, color: "var(--af-navy, #143152)", marginBottom: "12px" }}>
+                    Discard Application Draft?
+                  </h3>
+                  
+                  <p style={{ fontSize: "15px", lineHeight: 1.6, color: "var(--af-text-muted, #64748b)", marginBottom: "28px" }}>
+                    Are you sure you want to change your membership type? This will discard your current application draft and reset all fields. This action cannot be undone.
+                  </p>
+
+                  {/* Actions */}
+                  <div style={{ display: "flex", gap: "12px", width: "100%" }}>
+                    <button
+                      type="button"
+                      onClick={() => setShowChangeTypeConfirm(false)}
+                      style={{
+                        flex: 1,
+                        minHeight: "44px",
+                        borderRadius: "8px",
+                        border: "1px solid var(--af-border, #cbd5e1)",
+                        background: "#fff",
+                        color: "var(--af-navy, #143152)",
+                        fontSize: "15px",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        transition: "all 0.2s",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "#f8fafc")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "#fff")}
+                    >
+                      Keep Draft
+                    </button>
+                    <button
+                      type="button"
+                      onClick={confirmChangeMembershipType}
+                      style={{
+                        flex: 1,
+                        minHeight: "44px",
+                        borderRadius: "8px",
+                        border: "none",
+                        background: "#d97706",
+                        color: "#fff",
+                        fontSize: "15px",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        transition: "all 0.2s",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "#b45309")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "#d97706")}
+                    >
+                      Yes, Change Type
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   );

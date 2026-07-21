@@ -206,7 +206,36 @@
   color: var(--af-success);
 }
 
-/* ── Form Card ─────────────────────────────────────────── */
+/* ── Mobile Condensed Step Tracker ────────────────────── */
+.af-step-condensed {
+  display: none;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--af-text-muted);
+  text-align: center;
+  padding: 6px 0 0;
+}
+
+@media (max-width: 600px) {
+  .af-stepper {
+    display: none;
+  }
+
+  .af-step-condensed {
+    display: block;
+  }
+
+  .af-actions {
+    flex-direction: column-reverse;
+    gap: 12px;
+  }
+
+  .af-actions .af-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 .af-card {
   background: var(--af-surface);
   border: 1px solid var(--af-border);

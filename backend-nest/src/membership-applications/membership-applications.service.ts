@@ -62,11 +62,18 @@ export class MembershipApplicationsService {
         const enrolleeCount = dto.data?.enrolleeCount !== undefined ? Number(dto.data.enrolleeCount) : 0;
         dataToUpdate.feeAmount = calculateFee('INSTITUTIONAL', enrolleeCount);
       }
-    } else if (stepNameClean === 'education-job') {
+    } else if (stepNameClean === 'education-job' || stepNameClean === 'academic-info' || stepNameClean === 'academic-information') {
       dataToUpdate.educationJobData = {
         ...(existing.educationJobData as any || {}),
         ...dto.data,
       };
+      // Re-evaluate fee for Institutional if currentEnrollmentCount changes
+      if (existing.membershipType === 'INSTITUTIONAL') {
+        const count = dto.data?.currentEnrollmentCount !== undefined ? Number(dto.data.currentEnrollmentCount) : undefined;
+        if (count !== undefined) {
+          dataToUpdate.feeAmount = calculateFee('INSTITUTIONAL', count);
+        }
+      }
     } else if (stepNameClean === 'experience') {
       const expData = {
         ...(existing.experienceData as any || {}),
@@ -203,6 +210,51 @@ export class MembershipApplicationsService {
       validateDto.characterReferences = refs.characterReferences || [];
       validateDto.regionalChapterBoardReference = refs.regionalChapterBoardReference;
       validateDto.privacyPolicyConsent = refs.privacyPolicyConsent || refs.consent;
+    } else if (application.membershipType === 'ASSOCIATE') {
+      // Profile data
+      validateDto.fullName = profile.fullName;
+      validateDto.email = profile.email;
+      validateDto.phone = profile.phone;
+      validateDto.region = profile.region;
+      validateDto.homeAddress = profile.homeAddress;
+
+      // Graduate Program Info data (stored in educationJobData)
+      validateDto.currentGraduateSchool = eduJob.currentGraduateSchool;
+      validateDto.degreeProgram = eduJob.degreeProgram;
+      validateDto.institution = eduJob.institution;
+      validateDto.expectedGraduationYear = eduJob.expectedGraduationYear;
+
+      // Academic Information data (stored in educationJobData)
+      validateDto.currentAcademicStatus = eduJob.currentAcademicStatus;
+      validateDto.researchInterests = eduJob.researchInterests;
+
+      // References & Consent (stored in referencesData)
+      validateDto.characterReferences = refs.characterReferences || [];
+      validateDto.regionalChapterBoardReference = refs.regionalChapterBoardReference;
+      validateDto.privacyPolicyConsent = refs.privacyPolicyConsent || refs.consent;
+    } else if (application.membershipType === 'INSTITUTIONAL') {
+      // Institution Profile
+      validateDto.collegeUniversityName = profile.collegeUniversityName;
+      validateDto.institutionAddress = profile.institutionAddress;
+      validateDto.telMobileNo = profile.telMobileNo;
+      validateDto.emailAddress = profile.emailAddress;
+      validateDto.presidentName = profile.presidentName;
+      validateDto.deanHeadGraduateSchool = profile.deanHeadGraduateSchool;
+
+      // Academic Information
+      validateDto.educationCoursesOffered = eduJob.educationCoursesOffered;
+      validateDto.graduateCoursesOffered = eduJob.graduateCoursesOffered;
+      validateDto.totalGraduateFaculty = eduJob.totalGraduateFaculty !== undefined ? Number(eduJob.totalGraduateFaculty) : undefined;
+      validateDto.currentEnrollmentCount = eduJob.currentEnrollmentCount !== undefined ? Number(eduJob.currentEnrollmentCount) : undefined;
+      validateDto.enrollmentYearRange = eduJob.enrollmentYearRange;
+
+      // Professional Affiliations
+      validateDto.professionalAffiliations = exp.professionalAffiliations;
+
+      // References & Consent
+      validateDto.characterReferences = refs.characterReferences || [];
+      validateDto.regionalChapterBoardReference = refs.regionalChapterBoardReference;
+      validateDto.privacyPolicyConsent = refs.privacyPolicyConsent || refs.consent;
     } else {
       // Profile data
       validateDto.fullName = profile.fullName;
@@ -219,10 +271,6 @@ export class MembershipApplicationsService {
       // Institutional specific
       validateDto.enrolleeCount = profile.enrolleeCount;
       validateDto.accreditationDetails = eduJob.accreditationDetails;
-
-      // Associate specific
-      validateDto.currentEnrollmentStatus = eduJob.currentEnrollmentStatus;
-      validateDto.expectedGraduationYear = eduJob.expectedGraduationYear;
     }
 
     // Run validator after transforming plain objects to DTO instances
@@ -255,15 +303,19 @@ export class MembershipApplicationsService {
 
     // Check required documents depending on type
     const docTypes = application.documents.map(d => d.documentType.toString());
-    if (application.membershipType === 'LIFE' || application.membershipType === 'REGULAR') {
+    if (application.membershipType === 'LIFE' || application.membershipType === 'REGULAR' || application.membershipType === 'ASSOCIATE') {
       if (!docTypes.includes('photo_1x1')) {
-        errorMap['photo_1x1'] = `1x1 Photo is required for ${application.membershipType === 'LIFE' ? 'Life' : 'Regular'} membership.`;
+        errorMap['photo_1x1'] = `1x1 Photo is required.`;
       }
       if (application.membershipType === 'LIFE' && !docTypes.includes('active_member_id')) {
         errorMap['active_member_id'] = 'Active-member ID/certification is required for Life membership.';
       }
-    } else if (application.membershipType === 'ASSOCIATE' && !docTypes.includes('current_enrollment_proof')) {
-      errorMap['current_enrollment_proof'] = 'Current enrollment proof is required for Associate membership.';
+    }
+
+    if (application.membershipType === 'ASSOCIATE') {
+      if (!docTypes.includes('current_enrollment_proof')) {
+        errorMap['current_enrollment_proof'] = 'Current enrollment proof is required for Associate membership.';
+      }
     } else if (application.membershipType === 'INSTITUTIONAL' && !docTypes.includes('registrar_certification')) {
       errorMap['registrar_certification'] = 'Registrar certification of enrolment is required for Institutional membership.';
     }

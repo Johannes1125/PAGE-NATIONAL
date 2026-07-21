@@ -52,6 +52,7 @@ const DOCUMENT_LABELS: Record<string, string> = {
   active_member_id: "Active-member ID or Certification",
   degree_proof: "Proof of Graduate Degree (Diploma/Transcript)",
   current_enrollment_proof: "Proof of Graduate Enrollment",
+  photo_1x1: "1x1 Photo",
 };
 
 // ── Drawer Animation Configuration ──────────────────────────────────────────
@@ -379,20 +380,26 @@ export default function MembershipApplicationsPage() {
 
                 {/* 2. Employment & Education details (Type Aware) */}
                 <section className="detail-section">
-                  <div className="detail-section__title">Employment &amp; Education Details</div>
+                  <div className="detail-section__title">
+                    {selectedApp.membershipType.toLowerCase() === "associate" ? "Graduate Program & Academic Details" : "Employment & Education Details"}
+                  </div>
                   <div className="detail-grid">
-                    <div className="detail-block" style={{ gridColumn: "span 2" }}>
-                      <div className="detail-block__label">Employing Institution / School</div>
-                      <div className="detail-block__value">{selectedApp.educationJobData?.institution || "-"}</div>
-                    </div>
-                    <div className="detail-block" style={{ gridColumn: "span 2" }}>
-                      <div className="detail-block__label">Business / Office Address</div>
-                      <div className="detail-block__value">{selectedApp.educationJobData?.address || "-"}</div>
-                    </div>
-                    <div className="detail-block">
-                      <div className="detail-block__label">Present Position / Title</div>
-                      <div className="detail-block__value">{selectedApp.educationJobData?.presentPosition || "-"}</div>
-                    </div>
+                    {selectedApp.membershipType.toLowerCase() !== "associate" && (
+                      <>
+                        <div className="detail-block" style={{ gridColumn: "span 2" }}>
+                          <div className="detail-block__label">Employing Institution / School</div>
+                          <div className="detail-block__value">{selectedApp.educationJobData?.institution || "-"}</div>
+                        </div>
+                        <div className="detail-block" style={{ gridColumn: "span 2" }}>
+                          <div className="detail-block__label">Business / Office Address</div>
+                          <div className="detail-block__value">{selectedApp.educationJobData?.address || "-"}</div>
+                        </div>
+                        <div className="detail-block">
+                          <div className="detail-block__label">Present Position / Title</div>
+                          <div className="detail-block__value">{selectedApp.educationJobData?.presentPosition || "-"}</div>
+                        </div>
+                      </>
+                    )}
 
                     {/* Life / Regular fields */}
                     {(selectedApp.membershipType.toLowerCase() === "life" || selectedApp.membershipType.toLowerCase() === "regular") && (
@@ -419,13 +426,31 @@ export default function MembershipApplicationsPage() {
                     {/* Associate fields */}
                     {selectedApp.membershipType.toLowerCase() === "associate" && (
                       <>
+                        <div className="detail-block" style={{ gridColumn: "span 2" }}>
+                          <div className="detail-block__label">Current Graduate School</div>
+                          <div className="detail-block__value">{selectedApp.educationJobData?.currentGraduateSchool || "-"}</div>
+                        </div>
+                        <div className="detail-block" style={{ gridColumn: "span 2" }}>
+                          <div className="detail-block__label">Degree Program</div>
+                          <div className="detail-block__value">{selectedApp.educationJobData?.degreeProgram || "-"}</div>
+                        </div>
                         <div className="detail-block">
-                          <div className="detail-block__label">Current Enrollment Status</div>
-                          <div className="detail-block__value">{selectedApp.educationJobData?.currentEnrollmentStatus || "-"}</div>
+                          <div className="detail-block__label">Undergraduate Institution</div>
+                          <div className="detail-block__value">{selectedApp.educationJobData?.institution || "-"}</div>
                         </div>
                         <div className="detail-block">
                           <div className="detail-block__label">Expected Graduation Year</div>
                           <div className="detail-block__value">{selectedApp.educationJobData?.expectedGraduationYear || "-"}</div>
+                        </div>
+                        <div className="detail-block">
+                          <div className="detail-block__label">Current Academic Status</div>
+                          <div className="detail-block__value" style={{ textTransform: "capitalize" }}>
+                            {selectedApp.educationJobData?.currentAcademicStatus === "enrolled" ? "Currently Enrolled" : selectedApp.educationJobData?.currentAcademicStatus === "on_leave" ? "On Leave / LOA" : selectedApp.educationJobData?.currentAcademicStatus === "thesis_writing" ? "Thesis/Dissertation Writing" : selectedApp.educationJobData?.currentAcademicStatus || "-"}
+                          </div>
+                        </div>
+                        <div className="detail-block" style={{ gridColumn: "span 2" }}>
+                          <div className="detail-block__label">Research Interests</div>
+                          <div className="detail-block__value" style={{ whiteSpace: "pre-wrap" }}>{selectedApp.educationJobData?.researchInterests || "-"}</div>
                         </div>
                       </>
                     )}
@@ -443,7 +468,7 @@ export default function MembershipApplicationsPage() {
                 {/* 3. Experience Details (Type Aware) */}
                 {selectedApp.membershipType.toLowerCase() !== "institutional" && (
                   <section className="detail-section">
-                    <div className="detail-section__title">Experience &amp; Milestones</div>
+                    <div className="detail-section__title">Experience &amp; Activities</div>
                     <div className="detail-grid">
                       {selectedApp.membershipType.toLowerCase() === "life" && (
                         <div className="detail-block" style={{ gridColumn: "span 2", background: "#fdf6e2", padding: "8px 12px", borderRadius: "6px", border: "1px solid #f5e0a3" }}>
@@ -454,58 +479,95 @@ export default function MembershipApplicationsPage() {
                         </div>
                       )}
                       
-                      {selectedApp.experienceData?.teachingExp && (
+                      {selectedApp.membershipType.toLowerCase() === "associate" && selectedApp.experienceData?.relevantActivities && (
                         <div className="detail-block" style={{ gridColumn: "span 2" }}>
-                          <div className="detail-block__label">Teaching History</div>
-                          <div className="detail-block__value">
-                            {selectedApp.experienceData.teachingExp} at {selectedApp.experienceData.teachingInst} ({selectedApp.experienceData.teachingFrom} - {selectedApp.experienceData.teachingTo})
+                          <div className="detail-block__label">Relevant Academic/Extracurricular Activities</div>
+                          <div className="detail-block__value" style={{ fontStyle: "italic", whiteSpace: "pre-wrap" }}>
+                            {selectedApp.experienceData.relevantActivities}
                           </div>
                         </div>
                       )}
 
-                      {selectedApp.experienceData?.adminExp && (
-                        <div className="detail-block" style={{ gridColumn: "span 2" }}>
-                          <div className="detail-block__label">Administrative Experience</div>
-                          <div className="detail-block__value">
-                            {selectedApp.experienceData.adminExp} at {selectedApp.experienceData.adminInst} ({selectedApp.experienceData.adminFrom} - {selectedApp.experienceData.adminTo})
-                          </div>
-                        </div>
-                      )}
+                      {(selectedApp.membershipType.toLowerCase() === "life" || selectedApp.membershipType.toLowerCase() === "regular") && (
+                        <>
+                          {selectedApp.experienceData?.teachingExp && (
+                            <div className="detail-block" style={{ gridColumn: "span 2" }}>
+                              <div className="detail-block__label">Teaching History</div>
+                              <div className="detail-block__value">
+                                {selectedApp.experienceData.teachingExp} at {selectedApp.experienceData.teachingInst} ({selectedApp.experienceData.teachingFrom} - {selectedApp.experienceData.teachingTo})
+                              </div>
+                            </div>
+                          )}
 
-                      {selectedApp.experienceData?.pub1 && (
-                        <div className="detail-block" style={{ gridColumn: "span 2" }}>
-                          <div className="detail-block__label">Research &amp; Publications</div>
-                          <div className="detail-block__value" style={{ fontStyle: "italic" }}>
-                            1. {selectedApp.experienceData.pub1}<br />
-                            {selectedApp.experienceData.pub2 && <>2. {selectedApp.experienceData.pub2}</>}
-                          </div>
-                        </div>
+                          {selectedApp.experienceData?.adminExp && (
+                            <div className="detail-block" style={{ gridColumn: "span 2" }}>
+                              <div className="detail-block__label">Administrative Experience</div>
+                              <div className="detail-block__value">
+                                {selectedApp.experienceData.adminExp} at {selectedApp.experienceData.adminInst} ({selectedApp.experienceData.adminFrom} - {selectedApp.experienceData.adminTo})
+                              </div>
+                            </div>
+                          )}
+
+                          {selectedApp.experienceData?.pub1 && (
+                            <div className="detail-block" style={{ gridColumn: "span 2" }}>
+                              <div className="detail-block__label">Research &amp; Publications</div>
+                              <div className="detail-block__value" style={{ fontStyle: "italic" }}>
+                                1. {selectedApp.experienceData.pub1}<br />
+                                {selectedApp.experienceData.pub2 && <>2. {selectedApp.experienceData.pub2}</>}
+                              </div>
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
                   </section>
                 )}
 
                 {/* 4. Endorsement References */}
-                {selectedApp.membershipType.toLowerCase() !== "institutional" && (selectedApp.referencesData?.ref1Name || selectedApp.referencesData?.ref2Name) && (
-                  <section className="detail-section">
-                    <div className="detail-section__title">Endorsement References</div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                      {selectedApp.referencesData?.ref1Name && (
+                {(selectedApp.membershipType.toLowerCase() === "life" || selectedApp.membershipType.toLowerCase() === "regular" || selectedApp.membershipType.toLowerCase() === "associate") ? (
+                  (selectedApp.referencesData?.characterReferences || selectedApp.referencesData?.regionalChapterBoardReference) && (
+                    <section className="detail-section">
+                      <div className="detail-section__title">Endorsement References</div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "16px" }}>
+                        {selectedApp.referencesData?.characterReferences?.map((r: any, idx: number) => (
+                          <div key={idx} style={{ padding: "12px", background: "var(--af-cream)", borderRadius: "8px" }}>
+                            <div style={{ fontWeight: "bold", fontSize: "14px" }}>Character Reference #{idx + 1}: {r.name}</div>
+                            <div style={{ fontSize: "12px", color: "var(--admin-muted)" }}>Position: {r.position}</div>
+                            <div style={{ fontSize: "12px", color: "var(--admin-muted)", marginTop: "4px" }}>Address: {r.address}</div>
+                          </div>
+                        ))}
+                      </div>
+                      {selectedApp.referencesData?.regionalChapterBoardReference && (
                         <div style={{ padding: "12px", background: "var(--af-cream)", borderRadius: "8px" }}>
-                          <div style={{ fontWeight: "bold", fontSize: "14px" }}>{selectedApp.referencesData.ref1Name}</div>
-                          <div style={{ fontSize: "12px", color: "var(--admin-muted)" }}>{selectedApp.referencesData.ref1Position}</div>
-                          <div style={{ fontSize: "12px", color: "var(--admin-muted)", marginTop: "4px" }}>{selectedApp.referencesData.ref1Address}</div>
+                          <div style={{ fontWeight: "bold", fontSize: "14px" }}>Regional Chapter Board Endorsement</div>
+                          <div style={{ fontSize: "12px", color: "var(--admin-muted)" }}>Name: {selectedApp.referencesData.regionalChapterBoardReference.name}</div>
+                          <div style={{ fontSize: "12px", color: "var(--admin-muted)", marginTop: "4px" }}>Address: {selectedApp.referencesData.regionalChapterBoardReference.address}</div>
                         </div>
                       )}
-                      {selectedApp.referencesData?.ref2Name && (
-                        <div style={{ padding: "12px", background: "var(--af-cream)", borderRadius: "8px" }}>
-                          <div style={{ fontWeight: "bold", fontSize: "14px" }}>{selectedApp.referencesData.ref2Name}</div>
-                          <div style={{ fontSize: "12px", color: "var(--admin-muted)" }}>{selectedApp.referencesData.ref2Position}</div>
-                          <div style={{ fontSize: "12px", color: "var(--admin-muted)", marginTop: "4px" }}>{selectedApp.referencesData.ref2Address}</div>
-                        </div>
-                      )}
-                    </div>
-                  </section>
+                    </section>
+                  )
+                ) : (
+                  selectedApp.membershipType.toLowerCase() !== "institutional" && (selectedApp.referencesData?.ref1Name || selectedApp.referencesData?.ref2Name) && (
+                    <section className="detail-section">
+                      <div className="detail-section__title">Endorsement References</div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                        {selectedApp.referencesData?.ref1Name && (
+                          <div style={{ padding: "12px", background: "var(--af-cream)", borderRadius: "8px" }}>
+                            <div style={{ fontWeight: "bold", fontSize: "14px" }}>{selectedApp.referencesData.ref1Name}</div>
+                            <div style={{ fontSize: "12px", color: "var(--admin-muted)" }}>{selectedApp.referencesData.ref1Position}</div>
+                            <div style={{ fontSize: "12px", color: "var(--admin-muted)", marginTop: "4px" }}>{selectedApp.referencesData.ref1Address}</div>
+                          </div>
+                        )}
+                        {selectedApp.referencesData?.ref2Name && (
+                          <div style={{ padding: "12px", background: "var(--af-cream)", borderRadius: "8px" }}>
+                            <div style={{ fontWeight: "bold", fontSize: "14px" }}>{selectedApp.referencesData.ref2Name}</div>
+                            <div style={{ fontSize: "12px", color: "var(--admin-muted)" }}>{selectedApp.referencesData.ref2Position}</div>
+                            <div style={{ fontSize: "12px", color: "var(--admin-muted)", marginTop: "4px" }}>{selectedApp.referencesData.ref2Address}</div>
+                          </div>
+                        )}
+                      </div>
+                    </section>
+                  )
                 )}
 
                 {/* 5. Classification Details */}
