@@ -349,23 +349,23 @@ export default function ViewMessagesPage() {
                     (message) => message.role === "other" && message.status === "unread",
                   ).length;
                   return (
-                  <button
-                    key={conversation.id}
-                    type="button"
-                    className={`messages-conversation${activeConversation?.id === conversation.id ? " messages-conversation--active" : ""}${unreadCount > 0 ? " messages-conversation--unread" : ""}`}
-                    onClick={() => handleSelectConversation(conversation.id)}
-                  >
-                    <div className="messages-conversation__avatar">{conversation.avatarText}</div>
-                    <div className="messages-conversation__meta">
-                      <div className="messages-conversation__top">
-                        <p>{conversation.name}</p>
-                        <span>{latestMessage?.dateLabel ?? ""}</span>
+                    <button
+                      key={conversation.id}
+                      type="button"
+                      className={`messages-conversation${activeConversation?.id === conversation.id ? " messages-conversation--active" : ""}${unreadCount > 0 ? " messages-conversation--unread" : ""}`}
+                      onClick={() => handleSelectConversation(conversation.id)}
+                    >
+                      <div className="messages-conversation__avatar">{conversation.avatarText}</div>
+                      <div className="messages-conversation__meta">
+                        <div className="messages-conversation__top">
+                          <p title={conversation.name}>{conversation.name}</p>
+                          <span>{latestMessage?.dateLabel ?? ""}</span>
+                        </div>
+                        <p className="messages-conversation__subject" title={latestMessage?.subject ?? ""}>{latestMessage?.subject ?? ""}</p>
+                        <p className="messages-conversation__preview" title={latestMessage?.text ?? ""}>{latestMessage?.text ?? ""}</p>
                       </div>
-                      <p className="messages-conversation__subject">{latestMessage?.subject ?? ""}</p>
-                      <p className="messages-conversation__preview">{latestMessage?.text ?? ""}</p>
-                    </div>
-                    {unreadCount > 0 && <span className="messages-conversation__unread">{unreadCount}</span>}
-                  </button>
+                      {unreadCount > 0 && <span className="messages-conversation__unread">{unreadCount}</span>}
+                    </button>
                   );
                 })}
 
