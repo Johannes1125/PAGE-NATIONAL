@@ -50,13 +50,46 @@ export class BirCertificationsService {
     };
   }
 
-  async findAll() {
+  async findAll(pageStr?: string, limitStr?: string) {
+    if (pageStr || limitStr) {
+      const page = parseInt(pageStr || '1', 10);
+      const limit = parseInt(limitStr || '10', 10);
+      const skip = (page - 1) * limit;
+
+      const [records, totalItems] = await Promise.all([
+        this.prisma.birCertification.findMany({
+          orderBy: { dateOfIssuance: 'desc' },
+          skip,
+          take: limit,
+        }),
+        this.prisma.birCertification.count(),
+      ]);
+
+      return {
+        success: true,
+        data: records,
+        meta: {
+          page,
+          limit,
+          totalPages: Math.ceil(totalItems / limit) || 1,
+          totalItems,
+        },
+        message: 'BIR certifications retrieved successfully',
+      };
+    }
+
     const records = await this.prisma.birCertification.findMany({
       orderBy: { dateOfIssuance: 'desc' },
     });
     return {
       success: true,
       data: records,
+      meta: {
+        page: 1,
+        limit: records.length || 10,
+        totalPages: 1,
+        totalItems: records.length,
+      },
       message: 'BIR certifications retrieved successfully',
     };
   }

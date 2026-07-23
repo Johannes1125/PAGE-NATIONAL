@@ -115,13 +115,51 @@ export class AboutPageService {
   }
 
   // Officer Methods
-  async getOfficers(activeOnly: boolean = false) {
+  async getOfficers(activeOnly: boolean = false, pageStr?: string, limitStr?: string) {
     const where = activeOnly ? { status: 'active' } : {};
+    if (pageStr || limitStr) {
+      const page = parseInt(pageStr || '1', 10);
+      const limit = parseInt(limitStr || '10', 10);
+      const skip = (page - 1) * limit;
+
+      const [officers, totalItems] = await Promise.all([
+        this.prisma.about_page_officers.findMany({
+          where,
+          orderBy: { sort_order: 'asc' },
+          skip,
+          take: limit,
+        }),
+        this.prisma.about_page_officers.count({ where }),
+      ]);
+
+      return {
+        success: true,
+        data: officers,
+        meta: {
+          page,
+          limit,
+          totalPages: Math.ceil(totalItems / limit) || 1,
+          totalItems,
+        },
+        message: 'Officers retrieved successfully.',
+      };
+    }
+
     const officers = await this.prisma.about_page_officers.findMany({
       where,
       orderBy: { sort_order: 'asc' },
     });
-    return { success: true, data: officers, message: 'Officers retrieved successfully.' };
+    return {
+      success: true,
+      data: officers,
+      meta: {
+        page: 1,
+        limit: officers.length || 10,
+        totalPages: 1,
+        totalItems: officers.length,
+      },
+      message: 'Officers retrieved successfully.',
+    };
   }
 
   async createOfficer(dto: CreateOfficerDto, user: any, ipAddress: string) {
@@ -212,9 +250,48 @@ export class AboutPageService {
   }
 
   // Document / Upload Methods
-  async getDocuments(section_key: string) {
-    const docs = await this.prisma.about_page_documents.findMany({ where: { section_key } });
-    return { success: true, data: docs, message: 'Documents retrieved successfully.' };
+  async getDocuments(section_key: string, pageStr?: string, limitStr?: string) {
+    const where = { section_key };
+    if (pageStr || limitStr) {
+      const page = parseInt(pageStr || '1', 10);
+      const limit = parseInt(limitStr || '10', 10);
+      const skip = (page - 1) * limit;
+
+      const [docs, totalItems] = await Promise.all([
+        this.prisma.about_page_documents.findMany({
+          where,
+          orderBy: { created_at: 'desc' },
+          skip,
+          take: limit,
+        }),
+        this.prisma.about_page_documents.count({ where }),
+      ]);
+
+      return {
+        success: true,
+        data: docs,
+        meta: {
+          page,
+          limit,
+          totalPages: Math.ceil(totalItems / limit) || 1,
+          totalItems,
+        },
+        message: 'Documents retrieved successfully.',
+      };
+    }
+
+    const docs = await this.prisma.about_page_documents.findMany({ where, orderBy: { created_at: 'desc' } });
+    return {
+      success: true,
+      data: docs,
+      meta: {
+        page: 1,
+        limit: docs.length || 10,
+        totalPages: 1,
+        totalItems: docs.length,
+      },
+      message: 'Documents retrieved successfully.',
+    };
   }
 
   async uploadDocument(section_key: string, file: Express.Multer.File, user: any, ipAddress: string) {

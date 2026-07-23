@@ -15,7 +15,8 @@ import {
   XCircle,
 } from "lucide-react";
 import AdminSidebarLayout from "../../components/AdminSidebarLayout";
-import { api } from "../../../lib/api-client";
+import { api, PaginatedResponse, PaginationMeta } from "../../../lib/api-client";
+import Pagination from "../components/Pagination";
 import { gooeyToast } from "goey-toast";
 import "goey-toast/styles.css";
 import "../about-page.css";
@@ -40,6 +41,11 @@ export default function NationalOfficersManagement() {
   const [isSaving, setIsSaving] = useState(false);
   const [isPhotoUploading, setIsPhotoUploading] = useState(false);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [meta, setMeta] = useState<PaginationMeta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
+
   // Form states (Add / Edit)
   const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState("");
@@ -51,15 +57,16 @@ export default function NationalOfficersManagement() {
   const [status, setStatus] = useState<"active" | "inactive">("active");
 
   useEffect(() => {
-    fetchOfficers();
+    fetchOfficers(currentPage, itemsPerPage);
   }, []);
 
-  const fetchOfficers = async () => {
+  const fetchOfficers = async (page = currentPage, limit = itemsPerPage) => {
     try {
       setIsLoading(true);
-      const res = await api.get("/about-page/officers");
+      const res = await api.get<PaginatedResponse<Officer>>(`/about-page/officers?page=${page}&limit=${limit}`);
       if (res.success) {
         setOfficers(res.data);
+        if (res.meta) setMeta(res.meta);
       }
     } catch (err) {
       console.error(err);
@@ -67,6 +74,17 @@ export default function NationalOfficersManagement() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    fetchOfficers(newPage, itemsPerPage);
+  };
+
+  const handleLimitChange = (newLimit: number) => {
+    setItemsPerPage(newLimit);
+    setCurrentPage(1);
+    fetchOfficers(1, newLimit);
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -351,6 +369,16 @@ export default function NationalOfficersManagement() {
                 )}
               </tbody>
             </table>
+
+            <Pagination
+              currentPage={currentPage}
+              totalPages={meta.totalPages}
+              totalItems={meta.totalItems}
+              itemsPerPage={itemsPerPage}
+              onPageChange={handlePageChange}
+              onItemsPerPageChange={handleLimitChange}
+              isLoading={isLoading}
+            />
           </div>
 
           {/* Add / Edit Form */}

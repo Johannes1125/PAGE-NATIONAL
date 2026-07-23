@@ -30,7 +30,8 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import AdminSidebarLayout from "../../components/AdminSidebarLayout";
-import { api } from "../../../lib/api-client";
+import { api, PaginatedResponse, PaginationMeta } from "../../../lib/api-client";
+import Pagination from "../components/Pagination";
 import { gooeyToast } from "goey-toast";
 import "goey-toast/styles.css";
 import "../about-page.css";
@@ -276,6 +277,9 @@ export default function CblInformationManagement() {
   const [section, setSection] = useState<Section | null>(null);
   const [governanceDoc, setGovernanceDoc] = useState<GovernanceDoc | null>(null);
   const [articles, setArticles] = useState<CBLArticle[]>([]);
+  const [articlePage, setArticlePage] = useState(1);
+  const [articleLimit, setArticleLimit] = useState(10);
+  const [articleMeta, setArticleMeta] = useState<PaginationMeta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
 
   const [title, setTitle] = useState("");
   const [generalDescription, setGeneralDescription] = useState("");
@@ -308,13 +312,13 @@ export default function CblInformationManagement() {
 
   // ── DATA LOADING ─────────────────────────────────────────────────────────
 
-  const fetchAllData = async () => {
+  const fetchAllData = async (page = articlePage, limit = articleLimit) => {
     try {
       setIsLoading(true);
       const [secRes, govRes, artRes] = await Promise.all([
         api.get("/about-page/sections/cbl_information"),
         api.get("/about-page/cbl/governance"),
-        api.get("/about-page/cbl/articles"),
+        api.get<PaginatedResponse<CBLArticle>>(`/about-page/cbl/articles?page=${page}&limit=${limit}`),
       ]);
       if (secRes.success && secRes.data) setSection(secRes.data as Section);
       if (govRes.success && govRes.data) {
@@ -323,7 +327,10 @@ export default function CblInformationManagement() {
         setTitle(doc.title);
         setGeneralDescription(doc.general_description);
       }
-      if (artRes.success && artRes.data) setArticles(artRes.data as CBLArticle[]);
+      if (artRes.success && artRes.data) {
+        setArticles(artRes.data as CBLArticle[]);
+        if (artRes.meta) setArticleMeta(artRes.meta);
+      }
     } catch (err) {
       console.error("Failed to load CBL data:", err);
       gooeyToast.error("Failed to load Constitution and By-Laws data.");
@@ -332,7 +339,18 @@ export default function CblInformationManagement() {
     }
   };
 
-  useEffect(() => { fetchAllData(); }, []);
+  const handleArticlePageChange = (newPage: number) => {
+    setArticlePage(newPage);
+    fetchAllData(newPage, articleLimit);
+  };
+
+  const handleArticleLimitChange = (newLimit: number) => {
+    setArticleLimit(newLimit);
+    setArticlePage(1);
+    fetchAllData(1, newLimit);
+  };
+
+  useEffect(() => { fetchAllData(articlePage, articleLimit); }, []);
 
   const isOverlayOpen =
     isDrawerOpen ||
@@ -1042,21 +1060,15 @@ export default function CblInformationManagement() {
                 </table>
               </div>
 
-              {/* Footer count */}
-              {filteredArticles.length > 0 && (
-                <div
-                  style={{
-                    padding: "16px 24px",
-                    borderTop: "1px solid #e2e8f0",
-                    fontSize: "16px",
-                    color: "var(--r-text-muted)",
-                    background: "var(--r-surface-2)",
-                    fontWeight: 500,
-                  }}
-                >
-                  Showing {filteredArticles.length} of {articles.length} article{articles.length !== 1 ? "s" : ""}
-                </div>
-              )}
+              <Pagination
+                currentPage={articlePage}
+                totalPages={articleMeta.totalPages}
+                totalItems={articleMeta.totalItems}
+                itemsPerPage={articleLimit}
+                onPageChange={handleArticlePageChange}
+                onItemsPerPageChange={handleArticleLimitChange}
+                isLoading={isLoading}
+              />
             </div>
           </motion.div>
         )}

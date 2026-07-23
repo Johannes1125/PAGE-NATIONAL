@@ -43,13 +43,20 @@ export class AboutPageController {
   }
 
   @Get('public/about-page/officers')
-  getPublicOfficers() {
-    return this.aboutPageService.getOfficers(true);
+  getPublicOfficers(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.aboutPageService.getOfficers(true, page, limit);
   }
 
   @Get('public/about-page/documents/:key')
-  getPublicDocuments(@Param('key') key: string) {
-    return this.aboutPageService.getDocuments(key);
+  getPublicDocuments(
+    @Param('key') key: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.aboutPageService.getDocuments(key, page, limit);
   }
 
   // ── SECURE ADMIN-ONLY ENDPOINTS ───────────────────────────────────────────
@@ -105,8 +112,11 @@ export class AboutPageController {
   @UseGuards(TokenAuthGuard, RolesGuard)
   @Roles('admin')
   @Get('about-page/officers')
-  getOfficers() {
-    return this.aboutPageService.getOfficers(false);
+  getOfficers(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.aboutPageService.getOfficers(false, page, limit);
   }
 
   @UseGuards(TokenAuthGuard, RolesGuard)
@@ -157,8 +167,12 @@ export class AboutPageController {
   @UseGuards(TokenAuthGuard, RolesGuard)
   @Roles('admin')
   @Get('about-page/documents/:key')
-  getDocuments(@Param('key') key: string) {
-    return this.aboutPageService.getDocuments(key);
+  getDocuments(
+    @Param('key') key: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.aboutPageService.getDocuments(key, page, limit);
   }
 
   @UseGuards(TokenAuthGuard, RolesGuard)

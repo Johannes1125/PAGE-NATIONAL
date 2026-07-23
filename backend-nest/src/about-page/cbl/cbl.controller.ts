@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   Req,
   UseGuards,
   UseInterceptors,
@@ -32,8 +33,11 @@ export class CblController {
   // ── ARTICLES ENDPOINTS ───────────────────────────────────────────────────
 
   @Get('articles')
-  getArticles() {
-    return this.cblService.getArticles();
+  getArticles(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.cblService.getArticles(page, limit);
   }
 
   @Get('articles/:id')

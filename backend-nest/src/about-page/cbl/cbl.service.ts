@@ -15,11 +15,48 @@ export class CblService {
 
   // ── ARTICLES METHODS ──────────────────────────────────────────────────────
 
-  async getArticles() {
+  async getArticles(pageStr?: string, limitStr?: string) {
+    if (pageStr || limitStr) {
+      const page = parseInt(pageStr || '1', 10);
+      const limit = parseInt(limitStr || '10', 10);
+      const skip = (page - 1) * limit;
+
+      const [articles, totalItems] = await Promise.all([
+        this.prisma.cbl_articles.findMany({
+          orderBy: { sort_order: 'asc' },
+          skip,
+          take: limit,
+        }),
+        this.prisma.cbl_articles.count(),
+      ]);
+
+      return {
+        success: true,
+        data: articles,
+        meta: {
+          page,
+          limit,
+          totalPages: Math.ceil(totalItems / limit) || 1,
+          totalItems,
+        },
+        message: 'Articles retrieved successfully.',
+      };
+    }
+
     const articles = await this.prisma.cbl_articles.findMany({
       orderBy: { sort_order: 'asc' },
     });
-    return { success: true, data: articles, message: 'Articles retrieved successfully.' };
+    return {
+      success: true,
+      data: articles,
+      meta: {
+        page: 1,
+        limit: articles.length || 10,
+        totalPages: 1,
+        totalItems: articles.length,
+      },
+      message: 'Articles retrieved successfully.',
+    };
   }
 
   async getArticleById(id: string) {

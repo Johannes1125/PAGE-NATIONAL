@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   Req,
   UseGuards,
   HttpCode,
@@ -33,8 +34,11 @@ export class HistoricalRecordsController {
    * Records returned sorted ascending by yearStart.
    */
   @Get('public/historical-records')
-  getPublic() {
-    return this.service.findAll();
+  getPublic(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.service.findAll(page, limit);
   }
 
   // ── ADMIN ENDPOINTS ───────────────────────────────────────────────────────
@@ -42,8 +46,11 @@ export class HistoricalRecordsController {
   @UseGuards(TokenAuthGuard, RolesGuard)
   @Roles('admin')
   @Get('historical-records')
-  findAll() {
-    return this.service.findAll();
+  findAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.service.findAll(page, limit);
   }
 
   @UseGuards(TokenAuthGuard, RolesGuard)

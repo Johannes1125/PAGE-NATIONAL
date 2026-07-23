@@ -9,7 +9,37 @@ export class HistoricalRecordsService {
 
   // ── PUBLIC ────────────────────────────────────────────────────────────────
 
-  async findAll() {
+  async findAll(pageStr?: string, limitStr?: string) {
+    if (pageStr || limitStr) {
+      const page = parseInt(pageStr || '1', 10);
+      const limit = parseInt(limitStr || '10', 10);
+      const skip = (page - 1) * limit;
+
+      const [records, totalItems] = await Promise.all([
+        this.prisma.historical_records.findMany({
+          orderBy: [
+            { yearStart: 'asc' },
+            { sortOrder: 'asc' },
+          ],
+          skip,
+          take: limit,
+        }),
+        this.prisma.historical_records.count(),
+      ]);
+
+      return {
+        success: true,
+        data: records,
+        meta: {
+          page,
+          limit,
+          totalPages: Math.ceil(totalItems / limit) || 1,
+          totalItems,
+        },
+        message: 'Historical records retrieved successfully.',
+      };
+    }
+
     const records = await this.prisma.historical_records.findMany({
       orderBy: [
         { yearStart: 'asc' },
@@ -19,6 +49,12 @@ export class HistoricalRecordsService {
     return {
       success: true,
       data: records,
+      meta: {
+        page: 1,
+        limit: records.length || 10,
+        totalPages: 1,
+        totalItems: records.length,
+      },
       message: 'Historical records retrieved successfully.',
     };
   }
