@@ -200,7 +200,7 @@ body {
   border-radius: 8px;
   background: #f7f9fc;
   color: #7c8fa4;
-  padding: 8px 10px;
+  padding: 0.625rem 0.875rem;
 }
 
 .messages-search input {
@@ -208,7 +208,7 @@ body {
   border: none;
   outline: none;
   background: transparent;
-  font-size: 13px;
+  font-size: 0.875rem;
   color: var(--messages-text);
 }
 
@@ -488,9 +488,9 @@ body {
 
 .messages-composer input {
   border: 1px solid #d8e4f0;
-  border-radius: 6px;
-  padding: 8px 10px;
-  font-size: 12px;
+  border-radius: 8px;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
   outline: none;
 }
 
@@ -500,10 +500,10 @@ body {
 }
 
 .messages-send-btn {
-  width: 36px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   background: #153f6b;
   color: #ffffff;
   display: grid;

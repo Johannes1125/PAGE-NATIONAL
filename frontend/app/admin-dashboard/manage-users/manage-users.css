@@ -72,7 +72,7 @@
   background: #ffffff;
   border: 1px solid #d7e1eb;
   border-radius: 8px;
-  padding: 9px 12px;
+  padding: 0.625rem 0.875rem;
   color: #4d6681;
 }
 
@@ -80,7 +80,7 @@
   width: 100%;
   border: none;
   outline: none;
-  font-size: 12px;
+  font-size: 0.875rem;
   color: var(--manage-text);
   background: transparent;
 }
@@ -90,9 +90,9 @@
   border-radius: 8px;
   background: #15365b;
   color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 9px 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.625rem 0.875rem;
   cursor: pointer;
   outline: none;
 }
@@ -216,8 +216,8 @@
 }
 
 .manage-icon-btn {
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
   display: grid;
   place-items: center;
   border-radius: 6px;
@@ -474,8 +474,8 @@
 .manage-field select {
   border: 1px solid #d5e0eb;
   border-radius: 6px;
-  padding: 8px 10px;
-  font-size: 12px;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
   color: var(--manage-navy);
   background: #fff;
   outline: none;
@@ -488,10 +488,14 @@
 .manage-btn {
   border: none;
   border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 12px;
-  font-weight: 700;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: background 0.2s;
 }
 

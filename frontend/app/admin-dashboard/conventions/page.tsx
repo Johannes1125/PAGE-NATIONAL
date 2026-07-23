@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Landmark } from "lucide-react";
+import { Plus, Landmark, EyeOff, Globe } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { gooeyToast } from "goey-toast";
 import "goey-toast/styles.css";
@@ -27,6 +27,7 @@ export default function ConventionsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Convention | null>(null);
+  const [publishTarget, setPublishTarget] = useState<Convention | null>(null);
 
   const fetchConventions = useCallback(async (showSkeleton = false) => {
     if (showSkeleton) setIsLoading(true);
@@ -60,26 +61,33 @@ export default function ConventionsPage() {
     router.push(`/admin-dashboard/conventions/${convention.id}/edit`);
   };
 
-  const handleTogglePublish = async (convention: Convention) => {
-    const isPublished = convention.status === "published";
+  const handleTogglePublishRequest = (convention: Convention) => {
+    setPublishTarget(convention);
+  };
+
+  const handlePublishConfirm = async () => {
+    if (!publishTarget) return;
+    const isPublished = publishTarget.status === "published";
     try {
       const res = isPublished
-        ? await conventionsApi.unpublish(convention.id)
-        : await conventionsApi.publish(convention.id);
+        ? await conventionsApi.unpublish(publishTarget.id)
+        : await conventionsApi.publish(publishTarget.id);
 
       if (res?.success && res.data) {
         setConventions((prev) =>
-          prev.map((c) => (c.id === convention.id ? res.data : c)),
+          prev.map((c) => (c.id === publishTarget.id ? res.data : c)),
         );
         gooeyToast.success(
           isPublished
-            ? `"${convention.title}" set to Draft.`
-            : `"${convention.title}" Published ✓`,
+            ? `"${publishTarget.title}" set to Draft.`
+            : `"${publishTarget.title}" Published ✓`,
         );
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to update status.";
       gooeyToast.error(msg);
+    } finally {
+      setPublishTarget(null);
     }
   };
 
@@ -187,7 +195,7 @@ export default function ConventionsPage() {
                         convention={convention}
                         onEdit={handleOpenEdit}
                         onDelete={handleDeleteRequest}
-                        onTogglePublish={handleTogglePublish}
+                        onTogglePublish={handleTogglePublishRequest}
                       />
                     ))}
                   </motion.div>
@@ -203,7 +211,7 @@ export default function ConventionsPage() {
                       conventions={conventions}
                       onEdit={handleOpenEdit}
                       onDelete={handleDeleteRequest}
-                      onTogglePublish={handleTogglePublish}
+                      onTogglePublish={handleTogglePublishRequest}
                     />
                   </motion.div>
                 )}
@@ -223,8 +231,26 @@ export default function ConventionsPage() {
         }
         confirmLabel="Delete"
         cancelLabel="Cancel"
+        variant="danger"
         onConfirm={handleDeleteConfirm}
         onCancel={handleDeleteCancel}
+      />
+
+      <ConfirmDialog
+        open={publishTarget !== null}
+        title={publishTarget?.status === "published" ? "Unpublish Convention?" : "Publish Convention?"}
+        message={
+          publishTarget
+            ? publishTarget.status === "published"
+              ? `Are you sure you want to unpublish "${publishTarget.title}"? It will be set to Draft.`
+              : `Are you sure you want to publish "${publishTarget.title}"? It will become visible on the public website.`
+            : ""
+        }
+        confirmLabel={publishTarget?.status === "published" ? "Unpublish" : "Publish"}
+        variant="primary"
+        icon={publishTarget?.status === "published" ? <EyeOff size={28} /> : <Globe size={28} />}
+        onConfirm={handlePublishConfirm}
+        onCancel={() => setPublishTarget(null)}
       />
     </>
   );

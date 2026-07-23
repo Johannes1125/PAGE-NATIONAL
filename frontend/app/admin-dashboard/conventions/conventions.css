@@ -11,11 +11,11 @@
   --conv-radius-sm: 12px;
   --conv-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   --conv-shadow-hover: 0 12px 28px -8px rgba(20, 49, 82, 0.12);
-  --conv-control-height: 52px;
-  --conv-font-body: 18px;
-  --conv-font-label: 18px;
-  --conv-font-title: 24px;
-  --conv-font-page-title: 32px;
+  --conv-control-height: 40px;
+  --conv-font-body: 0.8125rem;
+  --conv-font-label: 13px;
+  --conv-font-title: 20px;
+  --conv-font-page-title: 26px;
 }
 
 /* Global focus-visible for accessibility */
@@ -26,7 +26,7 @@
 
 /* Page header title override */
 .conv-management-page h1 {
-  font-size: max(32px, var(--conv-font-page-title, 32px)) !important;
+  font-size: max(26px, var(--conv-font-page-title, 26px)) !important;
   font-weight: 700 !important;
 }
 
@@ -51,7 +51,7 @@
 }
 
 .conv-section__label {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--p-navy);
   letter-spacing: 0.02em;
@@ -143,7 +143,7 @@
   gap: 6px;
   padding: 6px 14px;
   border-radius: 999px;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
   white-space: nowrap;
   border: 1px solid transparent;
@@ -151,7 +151,7 @@
 
 .conv-badge--sm {
   padding: 4px 12px;
-  font-size: 15px;
+  font-size: 13px;
 }
 
 .conv-badge--published {
@@ -202,7 +202,7 @@
   padding: 0 20px;
   border: none;
   border-radius: 999px;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--r-text-muted, #6b87a4);
   background: transparent;
@@ -284,7 +284,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -296,7 +296,7 @@
 }
 
 .conv-card__title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--r-text, #0e2340);
   line-height: 1.35;
@@ -319,7 +319,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--r-text-muted, #6b87a4);
 }
@@ -330,7 +330,7 @@
 }
 
 .conv-card__description {
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.6;
   color: var(--r-text-mid, #334e6e);
   overflow: hidden;
@@ -353,7 +353,7 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--r-text-muted, #6b87a4);
   font-weight: 500;
 }
@@ -396,7 +396,7 @@
   top: 0;
   z-index: 50;
   padding: 18px 20px;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--r-text-muted, #6b87a4);
   background: #f8fafc;
@@ -417,14 +417,14 @@
 
 .conv-table tbody td {
   padding: 16px 20px;
-  font-size: 18px;
+  font-size: 15px;
   color: var(--r-text-mid, #334e6e);
   border-bottom: 1px solid var(--r-border, rgba(20, 49, 82, 0.09));
   vertical-align: middle;
 }
 
 .conv-table__title-cell {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--r-text, #0e2340);
   line-height: 1.35;
@@ -470,7 +470,7 @@
 }
 
 .conv-modal__title {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 800;
   color: var(--r-text, #0e2340);
 }
@@ -506,7 +506,7 @@
 }
 
 .conv-form__label {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--r-text, #0e2340);
 }
@@ -522,7 +522,7 @@
   width: 100%;
   min-height: 48px;
   padding: 12px 16px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--r-text, #0e2340);
   background: var(--r-surface-2, #f8fafc);
@@ -560,7 +560,7 @@
 }
 
 .conv-form__error {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: #e11d48;
   margin-top: 2px;
@@ -603,7 +603,7 @@
 }
 
 .conv-form__banner-text {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--r-text-muted, #6b87a4);
   text-align: center;
 }
@@ -629,14 +629,14 @@
 }
 
 .conv-confirm__title {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 800;
   color: var(--r-text, #0e2340);
   margin-bottom: 8px;
 }
 
 .conv-confirm__message {
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.6;
   color: var(--r-text-muted, #6b87a4);
   margin-bottom: 24px;
@@ -701,7 +701,7 @@
 }
 
 .conv-empty__title {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 800;
   color: var(--r-text, #0e2340);
   line-height: 1.25;
@@ -812,7 +812,7 @@
 }
 
 .conv-card .about-card-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--r-text, #0e2340);
   line-height: 1.35;
@@ -840,7 +840,7 @@
 }
 
 .conv-card .about-card-stat-label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--r-text-muted, #6b87a4);
   text-transform: uppercase;
@@ -848,7 +848,7 @@
 }
 
 .conv-card .about-card-stat-value {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--r-text, #0e2340);
 }
@@ -880,26 +880,47 @@
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 10px 14px;
-  border: none;
+  padding: 11px 14px;
   border-radius: 8px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #1e538e;
   background: transparent;
-  color: var(--r-text-mid, #334e6e);
-  font-size: 16px;
-  font-weight: 500;
+  border: none;
   cursor: pointer;
-  transition: background 0.12s ease;
   text-align: left;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .conv-card__dropdown-item:hover {
-  background: #f8fafc;
+  background: #edf5ff;
+  color: #143152;
+  transform: translateX(2px);
+}
+
+.conv-card__dropdown-item:active {
+  background: #dbeafe;
+}
+
+.conv-card__dropdown-item:focus-visible {
+  outline: 2px solid #1e538e;
+  outline-offset: -2px;
+  background: #edf5ff;
 }
 
 .conv-card__dropdown-item--danger {
   color: #e11d48;
+  border-top: 1px solid #f1f5f9;
+  margin-top: 4px;
+  padding-top: 11px;
 }
 
 .conv-card__dropdown-item--danger:hover {
-  background: #fff1f2;
+  background: #ffe4e9;
+  color: #be123c;
+  transform: translateX(2px);
+}
+
+.conv-card__dropdown-item--danger:active {
+  background: #fecdd3;
 }

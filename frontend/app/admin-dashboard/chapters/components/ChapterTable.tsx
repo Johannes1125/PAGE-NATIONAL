@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   Edit2,
   MoreVertical,
@@ -26,26 +27,88 @@ export default function ChapterTable({
   onDelete,
 }: ChapterTableProps) {
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
+  const [mounted, setMounted] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const computeMenuPos = (el: HTMLDivElement) => {
+    const rect = el.getBoundingClientRect();
+    const dropdownHeight = 110;
+    const spaceBelow = window.innerHeight - rect.bottom;
+
+    if (spaceBelow < dropdownHeight && rect.top > dropdownHeight) {
+      return {
+        top: Math.max(10, rect.top - dropdownHeight - 6),
+        right: Math.max(10, window.innerWidth - rect.right),
+      };
+    }
+    return {
+      top: rect.bottom + 6,
+      right: Math.max(10, window.innerWidth - rect.right),
+    };
+  };
+
+  const handleToggleMenu = (chapterId: string) => {
+    if (activeMenuId === chapterId) {
+      setActiveMenuId(null);
+      setMenuPos(null);
+    } else {
+      const el = buttonRefs.current[chapterId];
+      if (el) {
+        setMenuPos(computeMenuPos(el));
+        setActiveMenuId(chapterId);
+      }
+    }
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        activeMenuId &&
+        buttonRefs.current[activeMenuId] &&
+        !buttonRefs.current[activeMenuId]?.contains(event.target as Node)
+      ) {
         setActiveMenuId(null);
+        setMenuPos(null);
       }
     }
+
     function handleEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") setActiveMenuId(null);
+      if (event.key === "Escape") {
+        setActiveMenuId(null);
+        setMenuPos(null);
+      }
     }
+
+    function handleScrollOrResize() {
+      if (activeMenuId && buttonRefs.current[activeMenuId]) {
+        setMenuPos(computeMenuPos(buttonRefs.current[activeMenuId]!));
+      }
+    }
+
     if (activeMenuId !== null) {
       document.addEventListener("mousedown", handleClickOutside);
       document.addEventListener("keydown", handleEscape);
+      window.addEventListener("scroll", handleScrollOrResize, true);
+      window.addEventListener("resize", handleScrollOrResize);
     }
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
+      window.removeEventListener("scroll", handleScrollOrResize, true);
+      window.removeEventListener("resize", handleScrollOrResize);
     };
   }, [activeMenuId]);
+
+  const activeChapter = chapters.find((c) => c.id === activeMenuId);
 
   return (
     <div className="chapters-table-wrap">
@@ -65,11 +128,13 @@ export default function ChapterTable({
             {chapters.map((chapter) => {
               return (
                 <tr key={chapter.id}>
-
                   {/* ── Chapter name ── */}
                   <td>
                     <div className="min-w-[220px]">
                       <div className="chapters-table__chapter-name">{chapter.name}</div>
+                      {chapter.description && (
+                        <div className="chapters-table__chapter-desc">{chapter.description}</div>
+                      )}
                     </div>
                   </td>
 
@@ -89,7 +154,7 @@ export default function ChapterTable({
                   </td>
 
                   {/* ── Last Updated ── */}
-                  <td className="text-[18px] font-semibold text-slate-500 whitespace-nowrap">
+                  <td className="text-[15px] font-semibold text-slate-500 whitespace-nowrap">
                     {new Date(chapter.updatedAt).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
@@ -116,75 +181,23 @@ export default function ChapterTable({
                       )}
 
                       <div
-                        className="relative"
-                        ref={activeMenuId === chapter.id ? menuRef : null}
+                        className="inline-block relative"
+                        ref={(el) => {
+                          buttonRefs.current[chapter.id] = el;
+                        }}
                       >
                         <PillButton
                           variant="outline"
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setActiveMenuId(activeMenuId === chapter.id ? null : chapter.id);
+                            handleToggleMenu(chapter.id);
                           }}
                           icon={<MoreVertical size={16} strokeWidth={2.2} aria-hidden="true" />}
                           aria-label={`Actions for ${chapter.name}`}
                           aria-expanded={activeMenuId === chapter.id}
                           aria-haspopup="true"
                         />
-
-                        {activeMenuId === chapter.id && (
-                          <div
-                            className="chapters-card__dropdown chapters-card__dropdown--down"
-                            role="menu"
-                            aria-label={`Actions for ${chapter.name}`}
-                          >
-                            {onTogglePublish && (
-                              <button
-                                type="button"
-                                role="menuitem"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  onTogglePublish(chapter);
-                                  setActiveMenuId(null);
-                                }}
-                                className="chapters-card__dropdown-item"
-                                aria-label={
-                                  chapter.status === "published"
-                                    ? `Unpublish ${chapter.name}`
-                                    : `Publish ${chapter.name}`
-                                }
-                              >
-                                {chapter.status === "published" ? (
-                                  <>
-                                    <EyeOff size={16} aria-hidden="true" />
-                                    Unpublish
-                                  </>
-                                ) : (
-                                  <>
-                                    <Globe size={16} aria-hidden="true" />
-                                    Publish
-                                  </>
-                                )}
-                              </button>
-                            )}
-                            {onDelete && (
-                              <button
-                                type="button"
-                                role="menuitem"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  onDelete(chapter);
-                                  setActiveMenuId(null);
-                                }}
-                                className="chapters-card__dropdown-item chapters-card__dropdown-item--danger"
-                                aria-label={`Delete ${chapter.name}`}
-                              >
-                                <Trash2 size={16} aria-hidden="true" />
-                                Delete
-                              </button>
-                            )}
-                          </div>
-                        )}
                       </div>
                     </div>
                   </td>
@@ -194,6 +207,76 @@ export default function ChapterTable({
           </tbody>
         </table>
       </div>
+
+      {/* ── Fixed Portal Dropdown Menu (Overlaps table container without clipping) ── */}
+      {mounted && activeMenuId && menuPos && activeChapter && typeof window !== "undefined" && createPortal(
+        <div
+          ref={menuRef}
+          className="chapters-card__dropdown"
+          style={{
+            position: "fixed",
+            top: `${menuPos.top}px`,
+            right: `${menuPos.right}px`,
+            bottom: "auto",
+            left: "auto",
+            background: "#ffffff",
+            zIndex: 99999,
+            minWidth: "180px",
+            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.18)",
+          }}
+          role="menu"
+          aria-label={`Actions for ${activeChapter.name}`}
+        >
+          {onTogglePublish && (
+            <button
+              type="button"
+              role="menuitem"
+              onClick={(e) => {
+                e.stopPropagation();
+                onTogglePublish(activeChapter);
+                setActiveMenuId(null);
+                setMenuPos(null);
+              }}
+              className="chapters-card__dropdown-item"
+              aria-label={
+                activeChapter.status === "published"
+                  ? `Unpublish ${activeChapter.name}`
+                  : `Publish ${activeChapter.name}`
+              }
+            >
+              {activeChapter.status === "published" ? (
+                <>
+                  <EyeOff size={16} aria-hidden="true" />
+                  Unpublish
+                </>
+              ) : (
+                <>
+                  <Globe size={16} aria-hidden="true" />
+                  Publish
+                </>
+              )}
+            </button>
+          )}
+          {onDelete && (
+            <button
+              type="button"
+              role="menuitem"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(activeChapter);
+                setActiveMenuId(null);
+                setMenuPos(null);
+              }}
+              className="chapters-card__dropdown-item chapters-card__dropdown-item--danger"
+              aria-label={`Delete ${activeChapter.name}`}
+            >
+              <Trash2 size={16} aria-hidden="true" />
+              Delete
+            </button>
+          )}
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

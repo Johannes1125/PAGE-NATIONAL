@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Building2 } from "lucide-react";
+import { ArrowLeft, Building2 } from "lucide-react";
 import AdminSidebarLayout from "../../../components/AdminSidebarLayout";
 import ChapterWizard from "../../components/ChapterWizard";
 import { ChapterFull } from "../../types";
@@ -69,6 +69,18 @@ export default function EditChapterPage() {
     fetchChapter();
   }, [id]);
 
+  const backButton = (
+    <button
+      type="button"
+      className="chapters-btn chapters-btn--secondary"
+      onClick={() => router.push("/admin-dashboard/chapters")}
+      style={{ minHeight: "44px", fontSize: "15px", fontWeight: 600, padding: "0 20px" }}
+    >
+      <ArrowLeft size={18} strokeWidth={2.2} aria-hidden="true" />
+      <span>Back to Chapters</span>
+    </button>
+  );
+
   return (
     <AdminSidebarLayout
       pageClassName="chapters-management-page"
@@ -79,6 +91,7 @@ export default function EditChapterPage() {
       seniorFriendlyHeader={true}
       titleIcon={<Building2 size={28} strokeWidth={2.2} aria-hidden="true" />}
       premiumHeader={true}
+      headerActions={backButton}
     >
       {isLoading ? (
         <div className="wizard-auth-gate">

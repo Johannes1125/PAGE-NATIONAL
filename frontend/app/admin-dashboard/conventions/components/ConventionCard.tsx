@@ -1,9 +1,11 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Calendar, Pencil, Send, SendHorizonal, Landmark } from "lucide-react";
+import { MapPin, Calendar, Pencil, MoreVertical, EyeOff, Globe, Trash2, Landmark } from "lucide-react";
 import type { Convention } from "../types";
 import StatusBadge from "./StatusBadge";
+import PillButton from "../../components/PillButton";
 
 type ConventionCardProps = {
   convention: Convention;
@@ -32,6 +34,30 @@ export default function ConventionCard({
   onDelete,
   onTogglePublish,
 }: ConventionCardProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
+    }
+    if (menuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleEscape);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [menuOpen]);
+
   const cardVariants = {
     hidden: { opacity: 0, y: 12 },
     visible: {
@@ -113,42 +139,88 @@ export default function ConventionCard({
       </div>
 
       {/* ── Footer actions ──────────────────────────── */}
-      <footer className="conv-card__footer-actions">
-        <button
-          type="button"
-          className="conv-btn conv-btn--primary"
+      <footer className="conv-card__footer-actions" style={{ display: "flex", gap: "10px", padding: "14px 16px" }}>
+        <PillButton
+          variant="primary"
+          size="sm"
           onClick={() => onEdit(convention)}
           style={{ flex: 1 }}
+          icon={<Pencil size={15} strokeWidth={2.2} aria-hidden="true" />}
           aria-label={`Edit ${convention.title}`}
         >
-          <Pencil size={16} strokeWidth={2.5} aria-hidden="true" />
           Edit
-        </button>
+        </PillButton>
 
-        <button
-          type="button"
-          className={`conv-btn ${convention.status === "published" ? "conv-btn--secondary" : "conv-btn--primary"}`}
-          onClick={() => onTogglePublish(convention)}
-          aria-label={
-            convention.status === "published"
-              ? `Unpublish ${convention.title}`
-              : `Publish ${convention.title}`
-          }
-        >
-          <SendHorizonal size={16} strokeWidth={2.5} aria-hidden="true" />
-          {convention.status === "published" ? "Unpublish" : "Publish"}
-        </button>
+        <div className="relative" ref={menuRef} style={{ flexShrink: 0 }}>
+          <PillButton
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              setMenuOpen((open) => !open);
+            }}
+            icon={<MoreVertical size={16} strokeWidth={2.2} aria-hidden="true" />}
+            aria-label={`Actions for ${convention.title}`}
+            aria-expanded={menuOpen}
+            aria-haspopup="true"
+          />
 
-        <button
-          type="button"
-          className="conv-btn conv-btn--danger"
-          onClick={() => onDelete(convention)}
-          aria-label={`Delete ${convention.title}`}
-        >
-          Delete
-        </button>
+          {menuOpen && (
+            <div
+              className="conv-card__dropdown conv-card__dropdown--up"
+              role="menu"
+              aria-label={`Actions for ${convention.title}`}
+              style={{ bottom: "calc(100% + 8px)", right: 0 }}
+            >
+              {onTogglePublish && (
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onTogglePublish(convention);
+                    setMenuOpen(false);
+                  }}
+                  className="conv-card__dropdown-item"
+                  aria-label={
+                    convention.status === "published"
+                      ? `Unpublish ${convention.title}`
+                      : `Publish ${convention.title}`
+                  }
+                >
+                  {convention.status === "published" ? (
+                    <>
+                      <EyeOff size={16} aria-hidden="true" />
+                      Unpublish
+                    </>
+                  ) : (
+                    <>
+                      <Globe size={16} aria-hidden="true" />
+                      Publish
+                    </>
+                  )}
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(convention);
+                    setMenuOpen(false);
+                  }}
+                  className="conv-card__dropdown-item conv-card__dropdown-item--danger"
+                  aria-label={`Delete ${convention.title}`}
+                >
+                  <Trash2 size={16} aria-hidden="true" />
+                  Delete
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </footer>
     </motion.article>
   );
 }
-

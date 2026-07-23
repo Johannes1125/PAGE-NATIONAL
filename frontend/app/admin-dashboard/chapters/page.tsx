@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Download, Building2 } from "lucide-react";
+import { Plus, Download, Building2, EyeOff, Globe, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { gooeyToast } from "goey-toast";
 import "goey-toast/styles.css";
@@ -16,9 +16,11 @@ import ViewToggle from "./components/ViewToggle";
 import EmptyState from "./components/EmptyState";
 import LoadingSkeleton from "./components/LoadingSkeleton";
 import ChapterPagination from "./components/ChapterPagination";
+import ConfirmDialog from "../conventions/components/ConfirmDialog";
 import { Chapter, ChapterStatsData, mapApiChapterToChapter } from "./types";
 import { chaptersApi } from "../../lib/api-client";
 import "../admin-dashboard.css";
+import "../conventions/conventions.css";
 import "./chapters.css";
 
 const ITEMS_PER_PAGE = 10;
@@ -30,6 +32,8 @@ export default function ChaptersPage() {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [stats, setStats] = useState<ChapterStatsData | undefined>();
   const [totalItems, setTotalItems] = useState(0);
+  const [deleteTarget, setDeleteTarget] = useState<Chapter | null>(null);
+  const [publishTarget, setPublishTarget] = useState<Chapter | null>(null);
 
   // ── Filter / sort state (mirrors toolbar props) ─────────────────────────────
   const [searchQuery, setSearchQuery] = useState("");
@@ -118,37 +122,49 @@ export default function ChaptersPage() {
     router.push(`/admin-dashboard/chapters/${chapter.id}/edit`);
   };
 
-  const handleTogglePublish = async (chapter: Chapter) => {
-    const nextStatus = chapter.status === "published" ? "draft" : "published";
+  const handleTogglePublishRequest = (chapter: Chapter) => {
+    setPublishTarget(chapter);
+  };
+
+  const handlePublishConfirm = async () => {
+    if (!publishTarget) return;
+    const nextStatus = publishTarget.status === "published" ? "draft" : "published";
     try {
-      await chaptersApi.updateStatus(chapter.id, nextStatus);
+      await chaptersApi.updateStatus(publishTarget.id, nextStatus);
       gooeyToast.success(
-        `"${chapter.name}" is now ${nextStatus === "published" ? "Published ✓" : "set to Draft"}.`
+        `"${publishTarget.name}" is now ${nextStatus === "published" ? "Published ✓" : "set to Draft"}.`
       );
-      // Optimistic UI update
       setChapters((prev) =>
         prev.map((c) =>
-          c.id === chapter.id ? { ...c, status: nextStatus, updatedAt: new Date().toISOString() } : c
+          c.id === publishTarget.id ? { ...c, status: nextStatus, updatedAt: new Date().toISOString() } : c
         )
       );
       fetchStats();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to update status.";
       gooeyToast.error(msg);
+    } finally {
+      setPublishTarget(null);
     }
   };
 
-  const handleDelete = async (chapter: Chapter) => {
-    if (!confirm(`Are you sure you want to delete "${chapter.name}"? This action cannot be undone.`)) return;
+  const handleDeleteRequest = (chapter: Chapter) => {
+    setDeleteTarget(chapter);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
     try {
-      await chaptersApi.delete(chapter.id);
-      gooeyToast.success(`"${chapter.name}" deleted successfully.`);
-      setChapters((prev) => prev.filter((c) => c.id !== chapter.id));
+      await chaptersApi.delete(deleteTarget.id);
+      gooeyToast.success(`"${deleteTarget.name}" deleted successfully.`);
+      setChapters((prev) => prev.filter((c) => c.id !== deleteTarget.id));
       setTotalItems((t) => Math.max(0, t - 1));
       fetchStats();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to delete chapter.";
       gooeyToast.error(msg);
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -182,8 +198,8 @@ export default function ChaptersPage() {
         type="button"
         onClick={handleCreateChapter}
         className="chapters-btn chapters-btn--primary"
-        style={{ minHeight: "52px", fontSize: "18px", fontWeight: 600, padding: "0 28px", borderRadius: "8px" }}
-        aria-label="Create new chapter entry"
+        style={{ minHeight: "52px", fontSize: "18px", padding: "0 28px" }}
+        aria-label="Create new regional chapter"
       >
         <Plus size={24} strokeWidth={3} aria-hidden="true" />
         <span>Create Chapter</span>
@@ -193,112 +209,119 @@ export default function ChaptersPage() {
 
   return (
     <>
-    <AdminSidebarLayout
-      pageClassName="chapters-management-page"
-      mainClassName="admin-main-content"
-      eyebrow="CHAPTER MANAGEMENT"
-      title="All Chapters"
-      subtitle="Manage all PAGE regional chapters, officers, publication status, and organizational information from one centralized dashboard."
-      seniorFriendlyHeader={true}
-      headerActions={headerActionsBlock}
-      titleIcon={<Building2 size={28} strokeWidth={2.2} aria-hidden="true" />}
-      premiumHeader={true}
-    >
-      <motion.div
-        className="chapters-container pb-12"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.25, ease: "easeOut" }}
+      <AdminSidebarLayout
+        pageClassName="chapters-management-page"
+        mainClassName="admin-main-content"
+        eyebrow="CHAPTER MANAGEMENT"
+        title="All Chapters"
+        subtitle="Manage all PAGE regional chapters — review profiles, update officer rosters, toggle publication status, and create new chapters."
+        seniorFriendlyHeader={true}
+        headerActions={headerActionsBlock}
+        titleIcon={<Building2 size={28} strokeWidth={2.2} aria-hidden="true" />}
+        premiumHeader={true}
       >
-        {isLoading ? (
-          <LoadingSkeleton type="stats" />
-        ) : (
-          <ChapterStats chapters={chapters} stats={stats} />
-        )}
-
-        {isLoading ? (
-          <LoadingSkeleton type="toolbar" />
-        ) : (
-          <ChapterToolbar
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            selectedIslandGroup={selectedIslandGroup}
-            setSelectedIslandGroup={setSelectedIslandGroup}
-            selectedRegion={selectedRegion}
-            setSelectedRegion={setSelectedRegion}
-            selectedStatus={selectedStatus}
-            setSelectedStatus={setSelectedStatus}
-            sortBy={sortBy}
-            setSortBy={setSortBy}
-          />
-        )}
-
-        {isLoading ? (
-          <LoadingSkeleton type={viewMode === "card" ? "cards" : "table"} />
-        ) : chapters.length === 0 ? (
-          <EmptyState
-            onCreateChapter={handleCreateChapter}
-            isSearchActive={
-              searchQuery !== "" ||
-              selectedIslandGroup !== "All" ||
-              selectedRegion !== "All" ||
-              selectedStatus !== "All"
-            }
-            onClearFilters={handleClearFilters}
-          />
-        ) : (
-          <section className="chapters-section" aria-label="Chapters list">
-            <div className="flex items-center justify-between gap-4">
-              <h2 className="chapters-section__label">
-                All Chapters
-                {isRefreshing && (
-                  <span className="ml-3 text-slate-400 text-[16px] font-normal animate-pulse">
-                    Refreshing…
-                  </span>
-                )}
-              </h2>
-              <ViewToggle viewMode={viewMode} onChange={setViewMode} />
-            </div>
-            <AnimatePresence mode="wait">
-              {viewMode === "card" ? (
-                <motion.div
-                  key="card-view"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.18, ease: "easeOut" }}
-                  className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 min-w-0"
-                >
-                  {chapters.map((chapter) => (
-                    <ChapterCard
-                      key={chapter.id}
-                      chapter={chapter}
-                      onEdit={handleEdit}
-                      onTogglePublish={handleTogglePublish}
-                      onViewAllOfficers={handleViewAllOfficers}
-                      onDelete={handleDelete}
-                    />
-                  ))}
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="list-view"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.18, ease: "easeOut" }}
-                >
-                  <ChapterTable
-                    chapters={chapters}
-                    onEdit={handleEdit}
-                    onTogglePublish={handleTogglePublish}
-                    onDelete={handleDelete}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
+        <motion.div
+          className="chapters-container pb-12"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+        >
+          {/* Top KPI stats cards */}
+          <section className="mb-8" aria-label="Chapter Statistics">
+            {isLoading ? (
+              <LoadingSkeleton type="stats" />
+            ) : (
+              <ChapterStats chapters={chapters} stats={stats} />
+            )}
           </section>
-        )}
+
+          {/* Search, Filter, & Sort Controls */}
+          <section className="mb-6" aria-label="Controls and filters">
+            {isLoading ? (
+              <LoadingSkeleton type="toolbar" />
+            ) : (
+              <ChapterToolbar
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                selectedIslandGroup={selectedIslandGroup}
+                setSelectedIslandGroup={setSelectedIslandGroup}
+                selectedRegion={selectedRegion}
+                setSelectedRegion={setSelectedRegion}
+                selectedStatus={selectedStatus}
+                setSelectedStatus={setSelectedStatus}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+              />
+            )}
+          </section>
+
+          {/* Main Content Area */}
+          {isLoading ? (
+            <LoadingSkeleton type={viewMode === "card" ? "cards" : "table"} />
+          ) : chapters.length === 0 ? (
+            <EmptyState
+              onCreateChapter={handleCreateChapter}
+              isSearchActive={
+                Boolean(searchQuery) ||
+                selectedIslandGroup !== "All" ||
+                selectedRegion !== "All" ||
+                selectedStatus !== "All"
+              }
+              onClearFilters={handleClearFilters}
+            />
+          ) : (
+            <section className="chapters-section" aria-label="Chapters list">
+              <div className="flex items-center justify-between gap-4">
+                <h2 className="chapters-section__label">
+                  All Chapters
+                  {isRefreshing && (
+                    <span className="ml-3 text-slate-400 text-[16px] font-normal animate-pulse">
+                      Refreshing…
+                    </span>
+                  )}
+                </h2>
+                <ViewToggle viewMode={viewMode} onChange={setViewMode} />
+              </div>
+              <AnimatePresence mode="wait">
+                {viewMode === "card" ? (
+                  <motion.div
+                    key="card-view"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.18, ease: "easeOut" }}
+                    className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 min-w-0"
+                  >
+                    {chapters.map((chapter) => (
+                      <ChapterCard
+                        key={chapter.id}
+                        chapter={chapter}
+                        onEdit={handleEdit}
+                        onTogglePublish={handleTogglePublishRequest}
+                        onViewAllOfficers={handleViewAllOfficers}
+                        onDelete={handleDeleteRequest}
+                      />
+                    ))}
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="list-view"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.18, ease: "easeOut" }}
+                  >
+                    <ChapterTable
+                      chapters={chapters}
+                      onEdit={handleEdit}
+                      onTogglePublish={handleTogglePublishRequest}
+                      onDelete={handleDeleteRequest}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </section>
+          )}
 
         {!isLoading && totalItems > 0 && (
           <div className="mt-4">
@@ -314,9 +337,38 @@ export default function ChaptersPage() {
             />
           </div>
         )}
-
       </motion.div>
     </AdminSidebarLayout>
+
+    {/* Unpublish / Publish Confirmation Dialog */}
+    <ConfirmDialog
+      open={Boolean(publishTarget)}
+      title={publishTarget?.status === "published" ? "Unpublish Chapter" : "Publish Chapter"}
+      message={
+        publishTarget?.status === "published"
+          ? `Are you sure you want to unpublish "${publishTarget?.name}"? It will be hidden from the public website.`
+          : `Are you sure you want to publish "${publishTarget?.name}"? It will become visible on the public website.`
+      }
+      confirmLabel={publishTarget?.status === "published" ? "Unpublish Chapter" : "Publish Chapter"}
+      cancelLabel="Cancel"
+      variant={publishTarget?.status === "published" ? "danger" : "primary"}
+      icon={publishTarget?.status === "published" ? <EyeOff size={28} strokeWidth={2} /> : <Globe size={28} strokeWidth={2} />}
+      onConfirm={handlePublishConfirm}
+      onCancel={() => setPublishTarget(null)}
+    />
+
+    {/* Delete Confirmation Dialog */}
+    <ConfirmDialog
+      open={Boolean(deleteTarget)}
+      title="Delete Chapter"
+      message={`Are you sure you want to delete "${deleteTarget?.name}"? This action will permanently remove the chapter, its officers, activities, and documents.`}
+      confirmLabel="Delete Chapter"
+      cancelLabel="Cancel"
+      variant="danger"
+      icon={<Trash2 size={28} strokeWidth={2} />}
+      onConfirm={handleDeleteConfirm}
+      onCancel={() => setDeleteTarget(null)}
+    />
     </>
   );
 }

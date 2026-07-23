@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { AlertTriangle, X } from "lucide-react";
+import { useEffect, useRef, type ReactNode } from "react";
+import { AlertTriangle } from "lucide-react";
 
 type ConfirmDialogProps = {
   open: boolean;
@@ -9,6 +9,8 @@ type ConfirmDialogProps = {
   message: string;
   confirmLabel?: string;
   cancelLabel?: string;
+  variant?: "danger" | "primary";
+  icon?: ReactNode;
   onConfirm: () => void;
   onCancel: () => void;
 };
@@ -17,8 +19,10 @@ export default function ConfirmDialog({
   open,
   title,
   message,
-  confirmLabel = "Delete",
+  confirmLabel = "Confirm",
   cancelLabel = "Cancel",
+  variant = "danger",
+  icon,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
@@ -43,6 +47,8 @@ export default function ConfirmDialog({
 
   if (!open) return null;
 
+  const isPrimary = variant === "primary";
+
   return (
     <div
       className="conv-modal-overlay"
@@ -54,8 +60,15 @@ export default function ConfirmDialog({
       }}
     >
       <div className="conv-modal conv-confirm">
-        <div className="conv-confirm__icon">
-          <AlertTriangle size={28} strokeWidth={2} />
+        <div
+          className="conv-confirm__icon"
+          style={
+            isPrimary
+              ? { background: "#e8f1fb", color: "#1e538e" }
+              : { background: "#ffe4e9", color: "#e11d48" }
+          }
+        >
+          {icon || <AlertTriangle size={28} strokeWidth={2} />}
         </div>
 
         <h2 id="confirm-dialog-title" className="conv-confirm__title">
@@ -76,7 +89,7 @@ export default function ConfirmDialog({
           </button>
           <button
             type="button"
-            className="conv-btn conv-btn--danger"
+            className={`conv-btn ${isPrimary ? "conv-btn--primary" : "conv-btn--danger"}`}
             onClick={onConfirm}
             style={{ minHeight: "48px", padding: "0 28px" }}
           >

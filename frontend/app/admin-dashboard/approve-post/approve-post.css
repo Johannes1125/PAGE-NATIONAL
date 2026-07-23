@@ -85,8 +85,8 @@ html, body {
 .approve-select {
   border: 1px solid var(--approve-border);
   border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 13px;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--approve-navy);
   background: var(--approve-surface);
@@ -376,12 +376,30 @@ html, body {
   gap: 12px;
 }
 
+.approve-feedback {
+  width: 100%;
+  border: 1px solid var(--approve-border);
+  border-radius: 8px;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  color: var(--approve-navy);
+  background: var(--approve-surface);
+  transition: all 0.2s ease;
+  resize: vertical;
+}
+
+.approve-feedback:focus {
+  outline: none;
+  border-color: var(--approve-blue);
+  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.15);
+}
+
 .approve-btn {
   border: none;
   border-radius: 8px;
-  padding: 12px;
-  font-size: 13px;
-  font-weight: 700;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: var(--shadow-sm);
@@ -389,6 +407,7 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  min-height: 40px;
 }
 
 .approve-btn--accept {
