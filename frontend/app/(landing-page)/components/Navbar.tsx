@@ -650,7 +650,7 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
           </Link>
         </div>
 
-        {user ? (
+        {user && (
           <div className="navbar__user-menu">
             {user.role === 'admin' && (
               <Link href="/admin-dashboard" className="navbar__dashboard-btn">Dashboard</Link>
@@ -660,8 +660,6 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
             )}
             <button onClick={handleSignOut} className="navbar__signout-btn">Sign Out</button>
           </div>
-        ) : (
-          <Link href="/member-login" className="navbar__signin">Sign In</Link>
         )}
 
         <button className="navbar__hamburger" onClick={() => setMenuOpen(p => !p)} aria-label="Toggle menu">
@@ -796,7 +794,7 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
         <Link href="/contact" className={`navbar__mobile-link${isContactActive ? " navbar__mobile-link--active" : ""}`} onClick={() => setMenuOpen(false)}>
           Contact
         </Link>
-        {user ? (
+        {user && (
           <div className="navbar__mobile-user-menu">
             <div className="navbar__mobile-user-info">
               <span className="navbar__mobile-user-name">{user.name}</span>
@@ -810,8 +808,6 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
             )}
             <button onClick={() => { handleSignOut(); setMenuOpen(false); }} className="navbar__mobile-signout">Sign Out</button>
           </div>
-        ) : (
-          <Link href="/member-login" className="navbar__mobile-signin" onClick={() => setMenuOpen(false)}>Sign In</Link>
         )}
       </div>
     </header>
@@ -845,7 +841,6 @@ export default function Navbar(props: { scrolled: boolean }) {
             <span className="navbar__link">National Activities</span>
             <span className="navbar__link">Contact</span>
           </div>
-          <div className="navbar__signin" style={{ opacity: 0.7 }}>Sign In</div>
         </nav>
       </header>
     }>
