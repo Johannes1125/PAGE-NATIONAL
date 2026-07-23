@@ -153,9 +153,13 @@ html, body {
 }
 
 .audit-toolbar__search input {
-  width: 100%; padding: 10px 14px 10px 40px;
-  border-radius: 8px; border: 1px solid var(--audit-border);
-  font-size: 14px; color: var(--audit-navy); background: rgba(30, 83, 142, 0.02);
+  width: 100%;
+  padding: 0.625rem 0.875rem 0.625rem 2.375rem;
+  border-radius: 8px;
+  border: 1px solid var(--audit-border);
+  font-size: 0.875rem;
+  color: var(--audit-navy);
+  background: rgba(30, 83, 142, 0.02);
   transition: all 0.2s ease;
 }
 
@@ -170,7 +174,7 @@ html, body {
 
 .audit-select {
   border: 1px solid var(--audit-border); border-radius: 8px;
-  padding: 10px 14px; font-size: 13px; font-weight: 600; color: var(--audit-navy);
+  padding: 0.625rem 0.875rem; font-size: 0.875rem; font-weight: 600; color: var(--audit-navy);
   background: rgba(30, 83, 142, 0.02); cursor: pointer; transition: all 0.2s ease;
 }
 
@@ -376,7 +380,7 @@ html, body {
 .cnp-field { display: grid; gap: 6px; }
 .cnp-field > span { font-size: 13px; font-weight: 700; color: var(--audit-navy); }
 .cnp-required { color: #ef4444; }
-.cnp-field input, .cnp-field select, .cnp-field textarea { border: 1px solid var(--audit-border); border-radius: 8px; padding: 10px 12px; font-size: 14px; color: var(--audit-navy); font-family: inherit; background: rgba(30, 83, 142, 0.02); }
+.cnp-field input, .cnp-field select, .cnp-field textarea { border: 1px solid var(--audit-border); border-radius: 8px; padding: 0.625rem 0.875rem; font-size: 0.875rem; color: var(--audit-navy); font-family: inherit; background: rgba(30, 83, 142, 0.02); }
 .cnp-field input:focus, .cnp-field select:focus, .cnp-field textarea:focus { outline: none; background: var(--audit-surface); border-color: var(--audit-blue); box-shadow: var(--audit-focus); }
 .cnp-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
@@ -414,7 +418,7 @@ html, body {
 .cnp-review-grid article span { font-size: 12px; color: var(--audit-muted); font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 4px; }
 .cnp-review-grid article strong { font-size: 15px; color: var(--audit-navy); }
 
-.cnp-btn { border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+.cnp-btn { border: none; padding: 0.625rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.875rem; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.2s; }
 .cnp-btn--primary { background: var(--audit-navy); color: #fff; box-shadow: var(--shadow-sm); }
 .cnp-btn--primary:hover { background: var(--audit-blue); box-shadow: var(--shadow-md); }
 .cnp-btn--secondary { background: var(--audit-surface); border: 1px solid var(--audit-border); color: var(--audit-navy); }

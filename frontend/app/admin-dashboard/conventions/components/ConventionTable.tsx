@@ -1,8 +1,11 @@
 "use client";
 
-import { Pencil, SendHorizonal } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
+import { Pencil, MoreVertical, EyeOff, Globe, Trash2 } from "lucide-react";
 import type { Convention } from "../types";
 import StatusBadge from "./StatusBadge";
+import PillButton from "../../components/PillButton";
 
 type ConventionTableProps = {
   conventions: Convention[];
@@ -37,6 +40,90 @@ export default function ConventionTable({
   onDelete,
   onTogglePublish,
 }: ConventionTableProps) {
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const computeMenuPos = (el: HTMLDivElement) => {
+    const rect = el.getBoundingClientRect();
+    const dropdownHeight = 110;
+    const spaceBelow = window.innerHeight - rect.bottom;
+
+    if (spaceBelow < dropdownHeight && rect.top > dropdownHeight) {
+      return {
+        top: Math.max(10, rect.top - dropdownHeight - 6),
+        right: Math.max(10, window.innerWidth - rect.right),
+      };
+    }
+    return {
+      top: rect.bottom + 6,
+      right: Math.max(10, window.innerWidth - rect.right),
+    };
+  };
+
+  const handleToggleMenu = (conventionId: string) => {
+    if (activeMenuId === conventionId) {
+      setActiveMenuId(null);
+      setMenuPos(null);
+    } else {
+      const el = buttonRefs.current[conventionId];
+      if (el) {
+        setMenuPos(computeMenuPos(el));
+        setActiveMenuId(conventionId);
+      }
+    }
+  };
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        activeMenuId &&
+        buttonRefs.current[activeMenuId] &&
+        !buttonRefs.current[activeMenuId]?.contains(event.target as Node)
+      ) {
+        setActiveMenuId(null);
+        setMenuPos(null);
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setActiveMenuId(null);
+        setMenuPos(null);
+      }
+    }
+
+    function handleScrollOrResize() {
+      if (activeMenuId && buttonRefs.current[activeMenuId]) {
+        setMenuPos(computeMenuPos(buttonRefs.current[activeMenuId]!));
+      }
+    }
+
+    if (activeMenuId !== null) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleEscape);
+      window.addEventListener("scroll", handleScrollOrResize, true);
+      window.addEventListener("resize", handleScrollOrResize);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+      window.removeEventListener("scroll", handleScrollOrResize, true);
+      window.removeEventListener("resize", handleScrollOrResize);
+    };
+  }, [activeMenuId]);
+
+  const activeConvention = conventions.find((c) => c.id === activeMenuId);
+
   return (
     <div className="conv-table-wrap">
       <div className="conv-table-scroll">
@@ -88,50 +175,45 @@ export default function ConventionTable({
                 </td>
 
                 {/* Last Updated */}
-                <td style={{ fontSize: "16px", fontWeight: 600, color: "#64748b", whiteSpace: "nowrap" }}>
+                <td style={{ fontSize: "15px", fontWeight: 600, color: "#64748b", whiteSpace: "nowrap" }}>
                   {formatDate(convention.updated_at)}
                 </td>
 
-                {/* Actions */}
+                {/* Actions: Edit (primary) + ⋯ Actions dropdown */}
                 <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>
                   <div className="conv-table__actions">
-                    <button
-                      type="button"
-                      className="conv-btn conv-btn--primary"
-                      style={{ minHeight: "40px", padding: "0 16px", fontSize: "15px" }}
-                      onClick={() => onEdit(convention)}
+                    <PillButton
+                      variant="primary"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit(convention);
+                      }}
+                      icon={<Pencil size={15} strokeWidth={2.2} aria-hidden="true" />}
                       aria-label={`Edit ${convention.title}`}
                     >
-                      <Pencil size={14} strokeWidth={2.5} aria-hidden="true" />
                       Edit
-                    </button>
+                    </PillButton>
 
-                    <button
-                      type="button"
-                      className={`conv-btn ${convention.status === "published" ? "conv-btn--secondary" : "conv-btn--primary"}`}
-                      style={{ minHeight: "40px", padding: "0 16px", fontSize: "15px" }}
-                      onClick={() => onTogglePublish(convention)}
-                      aria-label={
-                        convention.status === "published"
-                          ? `Unpublish ${convention.title}`
-                          : `Publish ${convention.title}`
-                      }
+                    <div
+                      className="inline-block relative"
+                      ref={(el) => {
+                        buttonRefs.current[convention.id] = el;
+                      }}
                     >
-                      <SendHorizonal size={14} strokeWidth={2.5} aria-hidden="true" />
-                      {convention.status === "published"
-                        ? "Unpublish"
-                        : "Publish"}
-                    </button>
-
-                    <button
-                      type="button"
-                      className="conv-btn conv-btn--danger"
-                      style={{ minHeight: "40px", padding: "0 16px", fontSize: "15px" }}
-                      onClick={() => onDelete(convention)}
-                      aria-label={`Delete ${convention.title}`}
-                    >
-                      Delete
-                    </button>
+                      <PillButton
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleMenu(convention.id);
+                        }}
+                        icon={<MoreVertical size={16} strokeWidth={2.2} aria-hidden="true" />}
+                        aria-label={`Actions for ${convention.title}`}
+                        aria-expanded={activeMenuId === convention.id}
+                        aria-haspopup="true"
+                      />
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -139,7 +221,76 @@ export default function ConventionTable({
           </tbody>
         </table>
       </div>
+
+      {/* ── Fixed Portal Dropdown Menu ── */}
+      {mounted && activeMenuId && menuPos && activeConvention && typeof window !== "undefined" && createPortal(
+        <div
+          ref={menuRef}
+          className="conv-card__dropdown"
+          style={{
+            position: "fixed",
+            top: `${menuPos.top}px`,
+            right: `${menuPos.right}px`,
+            bottom: "auto",
+            left: "auto",
+            background: "#ffffff",
+            zIndex: 99999,
+            minWidth: "180px",
+            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.18)",
+          }}
+          role="menu"
+          aria-label={`Actions for ${activeConvention.title}`}
+        >
+          {onTogglePublish && (
+            <button
+              type="button"
+              role="menuitem"
+              onClick={(e) => {
+                e.stopPropagation();
+                onTogglePublish(activeConvention);
+                setActiveMenuId(null);
+                setMenuPos(null);
+              }}
+              className="conv-card__dropdown-item"
+              aria-label={
+                activeConvention.status === "published"
+                  ? `Unpublish ${activeConvention.title}`
+                  : `Publish ${activeConvention.title}`
+              }
+            >
+              {activeConvention.status === "published" ? (
+                <>
+                  <EyeOff size={16} aria-hidden="true" />
+                  Unpublish
+                </>
+              ) : (
+                <>
+                  <Globe size={16} aria-hidden="true" />
+                  Publish
+                </>
+              )}
+            </button>
+          )}
+          {onDelete && (
+            <button
+              type="button"
+              role="menuitem"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(activeConvention);
+                setActiveMenuId(null);
+                setMenuPos(null);
+              }}
+              className="conv-card__dropdown-item conv-card__dropdown-item--danger"
+              aria-label={`Delete ${activeConvention.title}`}
+            >
+              <Trash2 size={16} aria-hidden="true" />
+              Delete
+            </button>
+          )}
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
-

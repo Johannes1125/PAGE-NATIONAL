@@ -65,8 +65,8 @@
 .applications-select {
   border: 1px solid var(--admin-border);
   border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 13px;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--admin-navy);
   background: var(--admin-surface);
@@ -321,11 +321,11 @@
   width: 100%;
   border: 1px solid var(--admin-border);
   border-radius: 8px;
-  padding: 12px;
-  font-size: 13px;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
   font-family: inherit;
   resize: vertical;
-  min-height: 80px;
+  min-height: 96px;
   margin-bottom: 16px;
   outline: none;
   background-color: var(--admin-surface);
@@ -345,15 +345,16 @@
   flex: 1;
   border: none;
   border-radius: 8px;
-  padding: 12px;
-  font-size: 13px;
-  font-weight: 700;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
+  min-height: 40px;
   transition: all 0.2s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .decision-btn--approve {

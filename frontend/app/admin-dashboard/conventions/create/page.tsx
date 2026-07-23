@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Landmark } from "lucide-react";
+import { ArrowLeft, Landmark } from "lucide-react";
 import AdminSidebarLayout from "../../components/AdminSidebarLayout";
 import ConventionWizard from "../components/ConventionWizard";
 import "../conventions.css";
@@ -33,7 +33,20 @@ function useAdminAuth() {
 }
 
 export default function CreateConventionPage() {
+  const router = useRouter();
   useAdminAuth();
+
+  const backButton = (
+    <button
+      type="button"
+      className="conv-btn conv-btn--secondary"
+      onClick={() => router.push("/admin-dashboard/conventions")}
+      style={{ minHeight: "44px", fontSize: "15px", fontWeight: 600, padding: "0 20px" }}
+    >
+      <ArrowLeft size={18} strokeWidth={2.2} aria-hidden="true" />
+      <span>Back to Conventions</span>
+    </button>
+  );
 
   return (
     <AdminSidebarLayout
@@ -45,6 +58,7 @@ export default function CreateConventionPage() {
       seniorFriendlyHeader={true}
       titleIcon={<Landmark size={28} strokeWidth={2.2} aria-hidden="true" />}
       premiumHeader={true}
+      headerActions={backButton}
     >
       <ConventionWizard mode="create" />
     </AdminSidebarLayout>

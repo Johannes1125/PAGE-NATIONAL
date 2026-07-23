@@ -155,11 +155,11 @@ export default function SecRegistrationForm({
                 aria-describedby={errors.registrationName ? "registrationName-error" : undefined}
                 className="about-input focus-ring"
                 style={{
-                  height: "52px",
-                  fontSize: "18px",
-                  borderRadius: "10px",
+                  height: "40px",
+                  fontSize: "0.875rem",
+                  borderRadius: "8px",
                   border: "1.5px solid var(--r-border-mid)",
-                  padding: "0 18px 0 48px",
+                  padding: "0 0.875rem 0 2.375rem",
                   background: "#fff",
                   color: "var(--r-text)",
                   fontFamily: "var(--font-body)",
@@ -210,11 +210,11 @@ export default function SecRegistrationForm({
                 aria-describedby={errors.registrationNumber ? "registrationNumber-error" : undefined}
                 className="about-input focus-ring"
                 style={{
-                  height: "52px",
-                  fontSize: "18px",
-                  borderRadius: "10px",
+                  height: "40px",
+                  fontSize: "0.875rem",
+                  borderRadius: "8px",
                   border: "1.5px solid var(--r-border-mid)",
-                  padding: "0 18px 0 48px",
+                  padding: "0 0.875rem 0 2.375rem",
                   background: "#fff",
                   color: "var(--r-text)",
                   fontFamily: "var(--font-body)",
@@ -265,11 +265,11 @@ export default function SecRegistrationForm({
               aria-describedby={errors.dateOfIncorporation ? "dateOfIncorporation-error" : undefined}
               className="about-input focus-ring"
               style={{
-                height: "52px",
-                fontSize: "18px",
-                borderRadius: "10px",
+                height: "40px",
+                fontSize: "0.875rem",
+                borderRadius: "8px",
                 border: "1.5px solid var(--r-border-mid)",
-                padding: "0 18px 0 48px",
+                padding: "0 0.875rem 0 2.375rem",
                 background: "#fff",
                 color: "var(--r-text)",
                 fontFamily: "var(--font-body)",
@@ -319,11 +319,11 @@ export default function SecRegistrationForm({
               aria-describedby={errors.exemptionCategory ? "exemptionCategory-error" : undefined}
               className="about-input focus-ring"
               style={{
-                height: "52px",
-                fontSize: "18px",
-                borderRadius: "10px",
+                height: "40px",
+                fontSize: "0.875rem",
+                borderRadius: "8px",
                 border: "1.5px solid var(--r-border-mid)",
-                padding: "0 48px",
+                padding: "0 2.375rem",
                 background: "#fff",
                 color: exemptionCategory ? "var(--r-text)" : "var(--r-text-muted)",
                 fontFamily: "var(--font-body)",
@@ -387,7 +387,7 @@ export default function SecRegistrationForm({
         gap: "16px", 
         background: "var(--r-surface)",
         borderTop: "1px solid var(--r-border-mid)",
-        padding: "24px 32px",
+        padding: "16px 32px",
         flexShrink: 0
       }}>
         <button
@@ -396,9 +396,9 @@ export default function SecRegistrationForm({
           disabled={isSubmitting}
           className="focus-ring"
           style={{
-            height: "48px",
-            borderRadius: "10px",
-            fontSize: "16px",
+            height: "40px",
+            borderRadius: "8px",
+            fontSize: "0.875rem",
             fontWeight: 600,
             color: "var(--p-navy)",
             background: "#fff",
@@ -407,7 +407,7 @@ export default function SecRegistrationForm({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: "0 24px"
+            padding: "0.625rem 1rem"
           }}
         >
           Cancel
@@ -417,9 +417,9 @@ export default function SecRegistrationForm({
           disabled={isSubmitting}
           className="focus-ring"
           style={{
-            height: "48px",
-            borderRadius: "10px",
-            fontSize: "16px",
+            height: "40px",
+            borderRadius: "8px",
+            fontSize: "0.875rem",
             fontWeight: 600,
             color: "#fff",
             background: isSubmitting ? "var(--p-blue-light)" : "var(--p-blue)",
@@ -429,7 +429,7 @@ export default function SecRegistrationForm({
             alignItems: "center",
             justifyContent: "center",
             gap: "8px",
-            padding: "0 24px"
+            padding: "0.625rem 1rem"
           }}
         >
           {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}

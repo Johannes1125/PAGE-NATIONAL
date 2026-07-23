@@ -21,7 +21,7 @@ export default function PillButton({
   ...props
 }: PillButtonProps) {
   // Determine standard classes
-  const baseClass = "inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200 cursor-pointer active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-blue-600 whitespace-nowrap";
+  const baseClass = "inline-flex items-center justify-center gap-2.5 font-semibold transition-all duration-200 cursor-pointer active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-blue-600 whitespace-nowrap";
   
   // Variant styling
   let variantClass = "";
@@ -42,20 +42,19 @@ export default function PillButton({
   }
 
   // Size styling
-  // Size styling
   let sizeClass = "";
   if (size === "sm") {
     sizeClass = children
-      ? "min-h-[44px] px-4 py-2 rounded-xl text-[16px]"
-      : "w-[44px] h-[44px] rounded-xl flex items-center justify-center";
+      ? "min-h-[40px] px-6 py-2 rounded-xl text-[14.5px] min-w-[92px]"
+      : "w-[40px] h-[40px] rounded-xl flex items-center justify-center flex-shrink-0";
   } else if (size === "md") {
     sizeClass = children
-      ? "min-h-[48px] px-5 py-2.5 rounded-xl text-[18px]"
-      : "w-[48px] h-[48px] rounded-xl flex items-center justify-center";
+      ? "min-h-[44px] px-7 py-2.5 rounded-xl text-[15px] min-w-[104px]"
+      : "w-[44px] h-[44px] rounded-xl flex items-center justify-center flex-shrink-0";
   } else if (size === "lg") {
     sizeClass = children
-      ? "min-h-[52px] px-6 py-3 rounded-2xl text-[18px]"
-      : "w-[52px] h-[52px] rounded-2xl flex items-center justify-center";
+      ? "min-h-[48px] px-8 py-3 rounded-2xl text-[16px] min-w-[116px]"
+      : "w-[48px] h-[48px] rounded-2xl flex items-center justify-center flex-shrink-0";
   }
 
   // Width
@@ -66,9 +65,9 @@ export default function PillButton({
 
   return (
     <button className={combinedClassName} style={style} {...props}>
-      <span className="flex items-center justify-center">
-        {icon}
-        {children && <span className={icon ? "ml-2" : ""}>{children}</span>}
+      <span className="inline-flex items-center justify-center gap-2">
+        {icon && <span className="shrink-0 flex items-center justify-center">{icon}</span>}
+        {children && <span>{children}</span>}
       </span>
     </button>
   );

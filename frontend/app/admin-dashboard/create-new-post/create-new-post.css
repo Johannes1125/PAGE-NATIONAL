@@ -57,14 +57,14 @@
 .cnp-card__section-title h3 {
   margin: 0;
   color: var(--cnp-navy);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
 }
 
 .cnp-card__section-title p {
   margin: 4px 0 0;
   color: var(--cnp-muted);
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .cnp-card__divider {
@@ -80,7 +80,7 @@
 }
 
 .cnp-field > span {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: #2c4766;
 }
@@ -95,8 +95,8 @@
 .cnp-field textarea {
   border: 1px solid #d5e0eb;
   border-radius: 8px;
-  padding: 10px 11px;
-  font-size: 12px;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.8125rem;
   color: var(--cnp-navy);
   font-family: inherit;
   background: #fff;
@@ -112,7 +112,7 @@
 }
 
 .cnp-field textarea {
-  min-height: 82px;
+  min-height: 96px;
   resize: vertical;
 }
 
@@ -124,7 +124,7 @@
 .cnp-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 16px;
 }
 
 /* Input with icon */
@@ -143,7 +143,7 @@
 
 .cnp-field__with-icon input {
   width: 100%;
-  padding-left: 34px;
+  padding-left: 2.375rem;
 }
 
 /* Editor */
@@ -159,7 +159,7 @@
 }
 
 .cnp-editor-head > span {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: #2c4766;
 }
@@ -193,7 +193,7 @@
   border-radius: 8px;
   min-height: 180px;
   padding: 10px 11px;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--cnp-navy);
   background: #fff;
   line-height: 1.5;
@@ -225,7 +225,7 @@
 }
 
 .cnp-upload span {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: #2c4766;
 }
@@ -326,7 +326,7 @@
   border: 1px solid #cbd5e1;
   background: #fff;
   color: var(--cnp-navy);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   padding: 8px 14px;
   cursor: pointer;
@@ -363,14 +363,14 @@
 .cnp-side-block h3 {
   margin: 0;
   color: #17395f;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
 }
 
 .cnp-side-block p {
   margin: 0;
   color: #315472;
-  font-size: 11px;
+  font-size: 10px;
 }
 
 /* Radios */
@@ -384,7 +384,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--cnp-navy);
   cursor: pointer;
@@ -408,22 +408,22 @@
 /* Stack of action buttons */
 .cnp-actions-stack {
   display: grid;
-  gap: 8px;
+  gap: 12px;
 }
 
 .cnp-btn {
   border: none;
   border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 12px;
-  font-weight: 700;
+  padding: 0.625rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   transition: background 0.2s, border-color 0.2s;
-  min-height: 38px;
+  min-height: 40px;
 }
 
 .cnp-btn--primary {
@@ -471,7 +471,7 @@
 .cnp-record-item p {
   margin: 0;
   color: #16385f;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
@@ -526,7 +526,7 @@
 .cnp-preview__head h2 {
   margin: 0;
   color: #112c49;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 800;
 }
 
@@ -545,14 +545,14 @@
 .cnp-preview h3 {
   margin: 10px 0 0;
   color: #0f2b4a;
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 700;
 }
 
 .cnp-preview__meta {
   margin: 6px 0 10px;
   color: #5f738b;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
 }
 
@@ -560,7 +560,7 @@
   border-top: 1px solid #e4ecf6;
   padding-top: 10px;
   color: #173351;
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.6;
 }
 

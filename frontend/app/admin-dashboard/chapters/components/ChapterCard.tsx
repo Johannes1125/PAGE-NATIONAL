@@ -122,7 +122,7 @@ export default function ChapterCard({
               </button>
             )}
             {chapter.officers.length === 0 && (
-              <span className="text-[16px] text-slate-400 italic">No officers assigned</span>
+              <span className="text-[14px] text-slate-400 italic">No officers assigned</span>
             )}
           </div>
         </div>

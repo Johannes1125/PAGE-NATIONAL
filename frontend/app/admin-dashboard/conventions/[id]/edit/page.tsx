@@ -63,7 +63,7 @@ export default function EditConventionPage() {
       style={{ minHeight: "52px", fontSize: "18px", fontWeight: 600, padding: "0 24px" }}
     >
       <ArrowLeft size={20} strokeWidth={2.5} aria-hidden="true" />
-      <span>Back to Dashboard</span>
+      <span>Back to Conventions</span>
     </button>
   );
 

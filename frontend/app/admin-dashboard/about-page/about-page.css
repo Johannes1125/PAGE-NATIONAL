@@ -44,14 +44,14 @@
 
 .about-search-input {
   width: 100%;
-  height: 52px; /* ≥44px touch target */
+  height: 40px;
   background: var(--r-bg);
   border: 1px solid var(--r-border);
-  border-radius: 10px;
-  padding: 0 12px 0 40px;
+  border-radius: 8px;
+  padding: 0 0.875rem 0 2.375rem;
   color: var(--r-text);
   font-family: var(--font-body);
-  font-size: 18px; /* PAGE minimum */
+  font-size: 0.8125rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -69,14 +69,14 @@
 }
 
 .about-filter-btn {
-  height: 52px; /* ≥44px touch target — PAGE standard */
-  padding: 0 20px;
+  height: 40px;
+  padding: 0 1rem;
   background: transparent;
   border: 1px solid var(--r-border);
-  border-radius: 10px;
+  border-radius: 8px;
   color: var(--r-text-mid);
   font-family: var(--font-body);
-  font-size: 18px; /* PAGE minimum */
+  font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -145,7 +145,7 @@
 }
 
 .about-summary-label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
@@ -153,7 +153,7 @@
 }
 
 .about-summary-value {
-  font-size: 36px;
+  font-size: 30px;
   font-weight: 800;
   color: var(--p-navy);
   line-height: 1.1;
@@ -163,13 +163,13 @@
 }
 
 .about-summary-unit {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--r-text-muted);
 }
 
 .about-summary-value-title {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--p-navy);
   line-height: 1.2;
@@ -182,7 +182,7 @@
 }
 
 .about-summary-label-sub {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
   color: var(--r-text-muted);
@@ -190,7 +190,7 @@
 }
 
 .about-summary-value-time {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--r-text-mid);
 }
@@ -257,7 +257,7 @@
 }
 
 .about-card-title {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--p-navy);
   line-height: 1.25;
@@ -281,7 +281,7 @@
 }
 
 .about-card-stat-label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   color: var(--r-text-muted);
@@ -289,7 +289,7 @@
 }
 
 .about-card-stat-value {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--p-navy);
 }
@@ -312,7 +312,7 @@
   border-radius: 12px;
   color: #ffffff;
   font-family: var(--font-body);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
@@ -341,7 +341,7 @@
   gap: 5px;
   padding: 5px 12px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.4px;
@@ -368,16 +368,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  height: 52px;
-  border-radius: 10px;
-  font-size: 18px;
+  gap: 8px;
+  height: 40px;
+  min-height: 40px;
+  border-radius: 8px;
+  font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.18s ease, border-color 0.18s ease;
   font-family: var(--font-body);
   white-space: nowrap;
-  padding: 0 12px;
+  padding: 0.625rem 1rem;
 }
 
 .about-btn--primary {
@@ -427,7 +428,7 @@
   height: 52px; /* PAGE minimum */
   padding: 0 22px;
   border-radius: 999px;
-  font-size: 18px; /* PAGE minimum */
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   font-family: var(--font-body);
@@ -464,7 +465,7 @@
 }
 
 .about-form-label {
-  font-size: 18px; /* PAGE minimum */
+  font-size: 16px;
   font-weight: 600;
   color: var(--p-navy);
 }
@@ -477,7 +478,7 @@
   padding: 0 14px;
   color: var(--r-text);
   font-family: var(--font-body);
-  font-size: 18px; /* PAGE minimum */
+  font-size: 16px;
   width: 100%;
 }
 
@@ -495,7 +496,7 @@
   padding: 14px;
   color: var(--r-text);
   font-family: var(--font-body);
-  font-size: 18px; /* PAGE minimum */
+  font-size: 16px;
   width: 100%;
   resize: vertical;
   min-height: 100px;
@@ -533,7 +534,7 @@
 .about-doc-table th {
   font-weight: 600;
   color: var(--p-navy);
-  font-size: 14px; /* header labels — secondary text */
+  font-size: 13px; /* header labels — secondary text */
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -563,7 +564,7 @@
   padding: 3px 10px;
   border-radius: 6px;
   font-weight: 600;
-  font-size: 14px; /* compact tag — supplementary */
+  font-size: 13px; /* compact tag — supplementary */
 }
 
 /* Title and description uplifted via inline styles in page.tsx */
@@ -579,7 +580,7 @@
 .history-timeline-card__remove-btn {
   height: 44px !important;   /* raised from 36px — minimum 44px touch target */
   padding: 0 16px !important;
-  font-size: 14px !important; /* compact remove btn — supplementary */
+  font-size: 13px !important; /* compact remove btn — supplementary */
   min-height: 44px;
 }
 
@@ -783,7 +784,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: #334155 !important;
   background: #ffffff !important;
@@ -828,7 +829,7 @@
 
 .cbl-tab-btn {
   padding: 16px 24px !important;
-  font-size: 18px !important;
+  font-size: 16px !important;
   font-weight: 500;
   color: #64748b;
   background: transparent;
@@ -861,7 +862,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 18px; /* Senior-friendly label */
+  font-size: 16px;
   font-weight: 500;
   color: var(--r-text-mid, #475569);
   white-space: nowrap;
@@ -873,7 +874,7 @@
   gap: 6px;
   padding: 6px 16px !important;
   border-radius: 9999px !important;
-  font-size: 16px !important;
+  font-size: 14px !important;
   font-weight: 600 !important;
   text-transform: capitalize;
   border: none !important;
@@ -896,7 +897,7 @@
 }
 
 .cbl-timestamp {
-  font-size: 16px;
+  font-size: 14px;
   color: var(--r-text-muted, #64748b);
 }
 
@@ -909,7 +910,7 @@
   height: 48px !important;
   min-height: 48px !important;
   padding: 0 24px !important;
-  font-size: 18px !important;
+  font-size: 16px !important;
   font-weight: 600 !important;
   color: #ffffff !important;
   background: #1e3a5f !important;

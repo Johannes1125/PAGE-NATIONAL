@@ -4,9 +4,9 @@
 :root {
   --accessible-font-title: 36px;
   --accessible-font-section: 28px;
-  --accessible-font-body: 18px;
-  --accessible-font-label: 18px;
-  --accessible-control-height: 52px;
+  --accessible-font-body: 0.875rem;
+  --accessible-font-label: 14px;
+  --accessible-control-height: 40px;
 }
 
 /* ─── Page Title Header Overrides ─── */
@@ -150,12 +150,12 @@
 
 .search-input-field {
   width: 100%;
-  height: 48px;
+  height: 40px;
   background: #ffffff;
   border: 1.5px solid #cbd5e1;
   border-radius: 9999px; /* Pill design */
-  padding: 0 16px 0 44px;
-  font-size: 16px;
+  padding: 0 1rem 0 2.375rem;
+  font-size: 0.875rem;
   color: var(--r-text);
   font-family: var(--font-body);
   transition: all 0.2s ease;
@@ -435,14 +435,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   height: var(--accessible-control-height);
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: var(--accessible-font-body);
   font-weight: 600;
   cursor: pointer;
   font-family: var(--font-body);
-  padding: 0 28px;
+  padding: 0.625rem 1rem;
   transition: all 0.2s ease;
   border: none;
 }

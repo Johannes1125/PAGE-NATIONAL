@@ -9,14 +9,14 @@
 
 /* Date picker specific input styles */
 input[type="date"].bir-date-input {
-  min-height: 52px;
-  padding: 0 18px 0 48px;
-  border-radius: 10px;
+  min-height: 40px;
+  padding: 0 0.875rem 0 2.375rem;
+  border-radius: 8px;
   border: 1.5px solid var(--r-border-mid);
   background: #fff;
   color: var(--r-text);
   font-family: var(--font-body);
-  font-size: 18px;
+  font-size: 0.8125rem;
   width: 100%;
   box-sizing: border-box;
 }
@@ -31,7 +31,7 @@ input[type="date"].bir-date-input:focus {
 .bir-table th,
 .bir-table td {
   padding: 16px 20px;
-  font-size: 18px;
+  font-size: 15px;
   vertical-align: middle;
 }
 
@@ -50,7 +50,7 @@ input[type="date"].bir-date-input:focus {
   color: var(--p-navy);
   font-weight: 700;
   text-transform: uppercase;
-  font-size: 14px;
+  font-size: 13px;
   letter-spacing: 0.5px;
   position: sticky;
   top: 0;
@@ -113,7 +113,7 @@ input[type="date"].bir-date-input:focus {
 }
 
 .form-error-text {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--p-rose);
   display: flex;

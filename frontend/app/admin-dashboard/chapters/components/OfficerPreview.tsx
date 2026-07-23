@@ -38,12 +38,12 @@ export default function OfficerPreview({ officers, onViewMoreClick }: OfficerPre
   return (
     <div className="space-y-4 select-none">
       {/* Uppercase heading with count */}
-      <h4 className="text-[16px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+      <h4 className="text-[14px] font-bold text-slate-500 uppercase tracking-wider mb-2">
         OFFICERS ({officers.length})
       </h4>
 
       {officers.length === 0 ? (
-        <div className="text-slate-500 italic text-[18px] py-1">
+        <div className="text-slate-500 italic text-[15px] py-1">
           No officers assigned yet.
         </div>
       ) : (
@@ -64,10 +64,10 @@ export default function OfficerPreview({ officers, onViewMoreClick }: OfficerPre
                 
                 {/* Name & Role */}
                 <div className="min-w-0">
-                  <p className="text-[18px] font-bold text-slate-800 truncate leading-tight">
+                  <p className="text-[15px] font-bold text-slate-800 truncate leading-tight">
                     {officer.name}
                   </p>
-                  <p className="text-[16px] text-slate-500 font-semibold mt-1">
+                  <p className="text-[14px] text-slate-500 font-semibold mt-1">
                     {officer.role}
                   </p>
                 </div>
@@ -81,7 +81,7 @@ export default function OfficerPreview({ officers, onViewMoreClick }: OfficerPre
         <button
           type="button"
           onClick={onViewMoreClick}
-          className="w-full h-[52px] rounded-xl bg-blue-50/50 hover:bg-blue-100/50 text-blue-700 text-[18px] font-bold transition-all duration-200 flex items-center justify-center gap-2 active:scale-98 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 cursor-pointer"
+          className="w-full h-[52px] rounded-xl bg-blue-50/50 hover:bg-blue-100/50 text-blue-700 text-[15px] font-bold transition-all duration-200 flex items-center justify-center gap-2 active:scale-98 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 cursor-pointer"
           aria-label={`View ${remainingCount} more officers`}
         >
           <span>+{remainingCount} More Officers</span>
