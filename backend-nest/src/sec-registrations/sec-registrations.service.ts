@@ -98,9 +98,10 @@ export class SecRegistrationsService {
       data: records,
       meta: {
         total,
+        totalItems: total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / limit) || 1,
       },
       message: 'SEC registrations retrieved successfully.',
     };

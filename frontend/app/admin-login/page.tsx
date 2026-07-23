@@ -4,20 +4,37 @@ import { useState, useEffect } from "react";
 import './admin-login.css';
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { gooeyToast } from "goey-toast";
+import "goey-toast/styles.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { faGraduationCap, faUserShield } from "../lib/fontawesome-icons";
-import { faCheckCircle, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import { api } from "../lib/api-client";
+import { faCheckCircle, faEye, faEyeSlash, faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { api, AuthResponse } from "../lib/api-client";
+
+const notifyError = (msg: string) => {
+  if (typeof gooeyToast !== "undefined" && gooeyToast.error) {
+    gooeyToast.error(msg);
+  } else {
+    toast.error(msg);
+  }
+};
+
+const notifySuccess = (msg: string) => {
+  if (typeof gooeyToast !== "undefined" && gooeyToast.success) {
+    gooeyToast.success(msg);
+  } else {
+    toast.success(msg);
+  }
+};
 
 export default function OrgLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -25,30 +42,35 @@ export default function OrgLogin() {
     localStorage.removeItem("page_user_payload");
   }, []);
 
-  const handleSignIn = async () => {
-    if (!email || !password) {
-      toast.error("Please fill in all fields!");
+  const handleSignIn = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (isSubmitting) return;
+
+    if (!email.trim() || !password) {
+      notifyError("Please fill in all fields!");
       return;
     }
-    setIsLoading(true);
+
+    setIsSubmitting(true);
     try {
-      const data = await api.post('/login', { email, password });
+      const data = await api.post<AuthResponse>('/login', { email: email.trim(), password });
 
       if (data.user.role !== 'admin') {
-        toast.error("Access Denied: Not an administrator account.");
-        setIsLoading(false);
+        notifyError("Access Denied: Not an administrator account.");
+        setIsSubmitting(false);
         return;
       }
 
       localStorage.setItem('page_user_token', data.token);
       localStorage.setItem('page_user_payload', JSON.stringify(data.user));
 
-      toast.success("Login successful!");
+      notifySuccess("Login successful!");
       router.push('/admin-dashboard');
-    } catch (err: any) {
-      toast.error(err.message || "Authentication failed. Invalid email or password.");
-    } finally {
-      setIsLoading(false);
+      // Keep isSubmitting active during navigation to prevent form re-enabling flash
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string };
+      notifyError(errorObj.message || "Authentication failed. Invalid email or password.");
+      setIsSubmitting(false);
     }
   };
 
@@ -143,58 +165,71 @@ export default function OrgLogin() {
               <p className="admin-subtext">Sign in to manage the PAGE system</p>
             </div>
 
-            <div className="login-form-container">
+            <form onSubmit={handleSignIn}>
+              <div className="login-form-container">
 
-              {/* EMAIL */}
-              <div className="login-form">
-                <label htmlFor="adminEmail">ADMIN EMAIL</label>
-                <div className="input-wrapper">
+                {/* EMAIL */}
+                <div className="login-form">
+                  <label htmlFor="adminEmail">ADMIN EMAIL</label>
+                  <div className="input-wrapper">
+                    <input
+                      type="email"
+                      id="adminEmail"
+                      placeholder="name@university.edu"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                </div>
+
+                {/* PASSWORD */}
+                <div className="login-form">
+                  <label htmlFor="adminPassword">PASSWORD</label>
+                  <div className="input-wrapper">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      id="adminPassword"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      disabled={isSubmitting}
+                    />
+                    <FontAwesomeIcon
+                      icon={showPassword ? faEyeSlash : faEye}
+                      className="eye-icon"
+                      onClick={() => !isSubmitting && setShowPassword(prev => !prev)}
+                    />
+                  </div>
+                </div>
+
+              </div>
+
+              {/* REMEMBER ME */}
+              <div className="remember-forgot">
+                <div className="remember-me">
                   <input
-                    type="email"
-                    id="adminEmail"
-                    placeholder="name@university.edu"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    type="checkbox"
+                    id="rememberMe"
+                    className="checkbox"
+                    disabled={isSubmitting}
                   />
+                  <label htmlFor="rememberMe">Remember this device</label>
                 </div>
               </div>
 
-              {/* PASSWORD */}
-              <div className="login-form">
-                <label htmlFor="adminPassword">PASSWORD</label>
-                <div className="input-wrapper">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    id="adminPassword"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                  <FontAwesomeIcon
-                    icon={showPassword ? faEyeSlash : faEye}
-                    className="eye-icon"
-                    onClick={() => setShowPassword(prev => !prev)}
-                  />
-                </div>
-              </div>
-
-            </div>
-
-            {/* REMEMBER + FORGOT */}
-            <div className="remember-forgot">
-              <div className="remember-me">
-                <input type="checkbox" id="rememberMe" className="checkbox" />
-                <label htmlFor="rememberMe">Remember this device</label>
-              </div>
-              <div className="remember-me">
-                <span className="forgot"><Link href="/forgot-password">Forgot Password?</Link></span>
-              </div>
-            </div>
-
-            {/* BUTTON */}
-            <button className="login-btn" onClick={handleSignIn} disabled={isLoading}>
-              {isLoading ? "Signing In..." : "Sign In"}
-            </button>
+              {/* BUTTON */}
+              <button type="submit" className="login-btn" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <FontAwesomeIcon icon={faSpinner} spin style={{ marginRight: '8px' }} />
+                    Signing In...
+                  </>
+                ) : (
+                  "Sign In"
+                )}
+              </button>
+            </form>
 
             {/* DIVIDER */}
             <div className="divider">

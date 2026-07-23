@@ -263,10 +263,6 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
             />
             <span className="navbar__logo-mark-fallback" style={{ display: "none" }}>PAGE</span>
           </div>
-          <div className="navbar__logo-text">
-            <div className="navbar__logo-name">PAGE</div>
-            <div className="navbar__logo-sub">Philippine Association for Graduate Education</div>
-          </div>
         </Link>
 
         <div className="navbar__links">
@@ -822,10 +818,6 @@ export default function Navbar(props: { scrolled: boolean }) {
           <div className="navbar__logo">
             <div className="navbar__logo-mark">
               <img src="/PAGE.jpg" width={50} height={50} alt="PAGE Logo" />
-            </div>
-            <div className="navbar__logo-text">
-              <div className="navbar__logo-name">PAGE</div>
-              <div className="navbar__logo-sub">Philippine Association for Graduate Education</div>
             </div>
           </div>
           <div className="navbar__links" style={{ opacity: 0.7 }}>

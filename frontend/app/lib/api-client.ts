@@ -289,11 +289,40 @@ function mockActivitiesShow(slug: string): ActivityDetailResponse {
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalItems: number;
+}
+
+export interface PaginatedResponse<T> {
+  success: boolean;
+  data: T[];
+  message?: string;
+  meta: PaginationMeta;
+}
+
 export interface ApiResponse<T = any> {
   success: boolean;
   message?: string;
   errors?: Record<string, string[]>;
   [key: string]: any;
+}
+
+export interface UserPayload {
+  id?: string | number;
+  name?: string;
+  email: string;
+  role: 'admin' | 'organization' | 'member' | string;
+  [key: string]: unknown;
+}
+
+export interface AuthResponse {
+  success?: boolean;
+  message?: string;
+  token: string;
+  user: UserPayload;
 }
 
 const getHeaders = (isMultipart = false) => {

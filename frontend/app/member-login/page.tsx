@@ -265,7 +265,7 @@ export default function MemberLogin() {
               </AnimatePresence>
             </div>
 
-            {/* Remember + Forgot */}
+            {/* Remember */}
             <div className="ml-remember-row">
               <label className="ml-remember-label" htmlFor="ml-remember">
                 <input
@@ -277,7 +277,6 @@ export default function MemberLogin() {
                 />
                 Remember me
               </label>
-              <Link href="/forgot-password" className="ml-forgot">Forgot Password?</Link>
             </div>
 
             {/* Sign In Button */}

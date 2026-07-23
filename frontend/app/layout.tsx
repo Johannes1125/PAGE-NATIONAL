@@ -33,8 +33,13 @@ const geistMono = Geist_Mono({
 
 // This works perfectly because this file is a Server Component!
 export const metadata: Metadata = {
-  title: "PAGE — Philippine Association for Graduate Education",
+  title: "PAGE",
   description: "Advancing excellence in graduate education through collaboration, research, and professional development across the Philippines.",
+  icons: {
+    icon: "/PAGE-favicon.png",
+    shortcut: "/PAGE-favicon.png",
+    apple: "/PAGE-favicon.png",
+  },
 };
 
 export default function RootLayout({

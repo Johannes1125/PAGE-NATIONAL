@@ -264,7 +264,7 @@ export default function OrgLogin() {
               </AnimatePresence>
             </div>
 
-            {/* Remember + Forgot */}
+            {/* Remember */}
             <div className="ol-remember-row">
               <label className="ol-remember-label" htmlFor="ol-remember">
                 <input
@@ -276,7 +276,6 @@ export default function OrgLogin() {
                 />
                 Keep me signed in
               </label>
-              <Link href="/forgot-password" className="ol-forgot">Forgot Password?</Link>
             </div>
 
             {/* Sign In Button */}

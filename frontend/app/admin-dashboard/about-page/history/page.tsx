@@ -3,7 +3,8 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import AdminSidebarLayout from "../../components/AdminSidebarLayout";
-import { api } from "../../../lib/api-client";
+import { api, PaginatedResponse, PaginationMeta } from "../../../lib/api-client";
+import Pagination from "../components/Pagination";
 import { gooeyToast } from "goey-toast";
 import "goey-toast/styles.css";
 import "../about-page.css";
@@ -561,27 +562,44 @@ export default function HistoryManagement() {
   const [editingRecord, setEditingRecord] = useState<HistoricalRecord | undefined>(undefined);
   const [deletingRecord, setDeletingRecord] = useState<HistoricalRecord | null>(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [meta, setMeta] = useState<PaginationMeta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
+
   // Drag and Drop state
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [isReordering, setIsReordering] = useState(false);
 
   // ── Fetch ────────────────────────────────────────────────────────────────
-  const fetchRecords = useCallback(async () => {
+  const fetchRecords = useCallback(async (page = currentPage, limit = itemsPerPage) => {
     try {
       setIsLoading(true);
-      const res = await api.get<{ success: boolean; data: HistoricalRecord[] }>("/historical-records");
+      const res = await api.get<PaginatedResponse<HistoricalRecord>>(`/historical-records?page=${page}&limit=${limit}`);
       if (res.success) {
         setRecords(res.data ?? []);
+        if (res.meta) setMeta(res.meta);
       }
     } catch (err) {
       gooeyToast.error("Failed to load historical records.");
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [currentPage, itemsPerPage]);
 
-  useEffect(() => { fetchRecords(); }, [fetchRecords]);
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    fetchRecords(newPage, itemsPerPage);
+  };
+
+  const handleLimitChange = (newLimit: number) => {
+    setItemsPerPage(newLimit);
+    setCurrentPage(1);
+    fetchRecords(1, newLimit);
+  };
+
+  useEffect(() => { fetchRecords(currentPage, itemsPerPage); }, [fetchRecords]);
 
   // ── Filtered records ─────────────────────────────────────────────────────
   const filtered = records.filter(r =>
@@ -954,6 +972,16 @@ export default function HistoryManagement() {
               </table>
             </div>
           )}
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={meta.totalPages}
+            totalItems={meta.totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+            onItemsPerPageChange={handleLimitChange}
+            isLoading={isLoading}
+          />
         </div>
       </div>
 
