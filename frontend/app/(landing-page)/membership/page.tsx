@@ -22,6 +22,7 @@ import {
   Phone
 } from "lucide-react";
 import Navbar from "../components/Navbar";
+import { PageSeal } from "../components/PageSeal";
 import { MembershipCategory } from "../../lib/membership-types";
 import "./membership.css";
 
@@ -111,14 +112,19 @@ const MOCK_BENEFITS = [
   }
 ];
 
-// ── Icons Mapper ───────────────────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────────────────────
 
-const categoryIcons = {
-  life: Users,
-  institutional: Building2,
-  associate: UserCheck,
-  regular: UserPlus
-};
+function getPriceLabel(id: string): string {
+  if (id === "life") return "Lifetime Investment";
+  if (id === "institutional") return "Annual Institutional Fee";
+  return "Annual Dues";
+}
+
+function getCardCTA(id: string): string {
+  if (id === "institutional") return "Explore Institutional Track";
+  if (id === "associate") return "See Eligibility";
+  return "Review Credentials";
+}
 
 // ── Shared Page Components ──────────────────────────────────────────────────
 
@@ -184,7 +190,7 @@ function MembershipContent() {
             transition={{ duration: 0.5, delay: 0.3 }}
           >
             <Link href="/membership/apply" className="membership-hero__cta">
-              Apply Now <ArrowRight size={18} />
+              Begin Your Application <ArrowRight size={16} />
             </Link>
           </motion.div>
         </div>
@@ -201,35 +207,60 @@ function MembershipContent() {
         </div>
 
         <div className="membership-categories-grid">
-          {MOCK_MEMBERSHIP_CATEGORIES.map((cat, idx) => {
-            const Icon = categoryIcons[cat.id];
-            return (
-              <motion.div
-                key={cat.id}
-                className={`membership-category-card membership-category-card--${cat.id}`}
-                initial={{ opacity: 0, y: 25 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+          {MOCK_MEMBERSHIP_CATEGORIES.map((cat, idx) => (
+            <motion.div
+              key={cat.id}
+              className={`membership-category-card membership-category-card--${cat.id}`}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45, delay: idx * 0.09 }}
+            >
+              {cat.id === "institutional" ? (
+                // Institutional — landscape two-column layout
+                <>
+                  <div className="membership-card__content">
+                    <h3 className="membership-category-card__name">{cat.name}</h3>
+                    <p className="membership-category-card__description">{cat.description}</p>
+                  </div>
+                  <div className="membership-card__actions">
+                    <div className="membership-category-card__price-box">
+                      <span className="membership-category-card__price-label">{getPriceLabel(cat.id)}</span>
+                      <span className="membership-category-card__price-value">{cat.annualFee}</span>
+                    </div>
+                    <button
+                      onClick={() => scrollToRequirements(cat.id)}
+                      className="membership-category-card__link"
+                    >
+                      {getCardCTA(cat.id)} <ArrowRight size={13} />
+                    </button>
+                  </div>
+                </>
+              ) : (
+                // Individual tiers — vertical with seal watermark
+                <>
+                  <div className="mk-card-seal">
+                    <PageSeal
+                      size={cat.id === "regular" ? 50 : 40}
+                      variant={cat.id === "regular" ? "gold" : "navy-outline"}
+                    />
+                  </div>
                   <h3 className="membership-category-card__name">{cat.name}</h3>
-                  <Icon size={24} style={{ opacity: 0.8 }} />
-                </div>
-                <p className="membership-category-card__description">{cat.description}</p>
-                <div className="membership-category-card__price-box">
-                  <span className="membership-category-card__price-label">Annual Fee</span>
-                  <span className="membership-category-card__price-value">{cat.annualFee}</span>
-                </div>
-                <button
-                  onClick={() => scrollToRequirements(cat.id)}
-                  className="membership-category-card__link"
-                >
-                  View Requirements <ArrowRight size={14} />
-                </button>
-              </motion.div>
-            );
-          })}
+                  <p className="membership-category-card__description">{cat.description}</p>
+                  <div className="membership-category-card__price-box">
+                    <span className="membership-category-card__price-label">{getPriceLabel(cat.id)}</span>
+                    <span className="membership-category-card__price-value">{cat.annualFee}</span>
+                  </div>
+                  <button
+                    onClick={() => scrollToRequirements(cat.id)}
+                    className="membership-category-card__link"
+                  >
+                    {getCardCTA(cat.id)} <ArrowRight size={13} />
+                  </button>
+                </>
+              )}
+            </motion.div>
+          ))}
         </div>
       </section>
 
