@@ -351,15 +351,15 @@ function ResourcesSection() {
 
 function MembershipSection() {
   return (
-    <section className="membership-section">
-      <div className="membership-container">
-        <div className="membership-content">
+    <section className="home-membership-section">
+      <div className="home-membership-container">
+        <div className="home-membership-content">
           <div className="section-label-light">MEMBERSHIP BENEFITS</div>
-          <h2 className="membership-title">Stronger Together</h2>
-          <p className="membership-description">
+          <h2 className="home-membership-title">Stronger Together</h2>
+          <p className="home-membership-description">
             PAGE brings together graduate institutions to collaborate, share knowledge, and create impact.
           </p>
-          <Link href="/membership" className="membership-link">
+          <Link href="/membership" className="home-membership-link">
             Become a Member <ArrowRightIcon />
           </Link>
         </div>

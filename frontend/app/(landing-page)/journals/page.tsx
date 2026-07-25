@@ -409,16 +409,28 @@ function JournalsSection() {
     <>
       {/* Hero section */}
       <section className="journals-hero">
+        <div className="journals-hero-bg-container">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/resources-bg.png" alt="Research Journals Background" className="journals-hero-bg-img" />
+          <div className="journals-hero-bg-overlay" />
+        </div>
+
         <div className="journals-container">
           <div className="journals-hero__breadcrumb">
             <Link href="/" className="journals-hero__breadcrumb-link">Home</Link>
             <span className="journals-hero__breadcrumb-sep">/</span>
-            <span className="journals-hero__breadcrumb-current">Journals</span>
+            <span className="journals-hero__breadcrumb-current">Research Journals</span>
           </div>
-          
+
           <h1 className="journals-hero__title">
             Research Journals
           </h1>
+          
+          <div className="journals-hero__divider" />
+
+          <p className="journals-hero__subtitle">
+            Explore peer-reviewed academic publications, multidisciplinary studies, and scholarly research advancing graduate education across the Philippines.
+          </p>
           
           <div className="journals-hero__search-wrap">
             <span className="journals-hero__search-icon">
@@ -427,7 +439,7 @@ function JournalsSection() {
             <input
               type="text"
               className="journals-hero__search-input"
-              placeholder="Search journals by title or author name..."
+              placeholder="Search journals by title, volume, or author name..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               aria-label="Search journals"
@@ -620,6 +632,11 @@ export default function ResearchJournalsPage() {
         <Suspense fallback={
           <>
             <section className="journals-hero">
+              <div className="journals-hero-bg-container">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/resources-bg.png" alt="Research Journals Background" className="journals-hero-bg-img" />
+                <div className="journals-hero-bg-overlay" />
+              </div>
               <div className="journals-container">
                 <div className="journals-hero__breadcrumb">
                   <span className="journals-hero__breadcrumb-link">Home</span>

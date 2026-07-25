@@ -56,15 +56,37 @@ a {
    HERO SECTION
    ============================================================ */
 .journals-hero {
-  background: var(--white);
-  padding: 112px 0 48px;
+  background: #ffffff;
+  padding: 120px 0 65px;
   position: relative;
   overflow: hidden;
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 1px solid #cbd5e1;
+  box-shadow: 0 2px 10px rgba(8, 23, 52, 0.03);
 }
 
-.journals-hero::before {
-  display: none;
+.journals-hero-bg-container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 65%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.journals-hero-bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center right;
+  filter: grayscale(100%) contrast(1.1) brightness(1.08);
+  opacity: 0.38;
+}
+
+.journals-hero-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0.85) 25%, rgba(255, 255, 255, 0.2) 65%, rgba(255, 255, 255, 0.05) 100%);
 }
 
 .journals-hero .journals-container {
@@ -80,63 +102,66 @@ a {
 }
 
 .journals-hero__breadcrumb-link {
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--accent);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #081734;
   transition: color var(--t-fast);
   letter-spacing: 0.1px;
 }
 
 .journals-hero__breadcrumb-link:hover {
-  color: var(--ink);
+  color: #d4a053;
 }
 
 .journals-hero__breadcrumb-sep {
-  font-size: 13px;
+  font-size: 13.5px;
   color: var(--ink-30);
 }
 
 .journals-hero__breadcrumb-current {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 13.5px;
+  font-weight: 600;
   color: var(--ink-60);
   letter-spacing: 0.1px;
 }
 
 .journals-hero__title {
   font-family: var(--sans);
-  font-size: clamp(28px, 4vw, 44px);
-  font-weight: 700;
-  color: var(--ink);
-  margin: 0 0 20px;
-  letter-spacing: -0.5px;
-  line-height: 1.1;
+  font-size: clamp(34px, 4vw, 48px);
+  font-weight: 800;
+  color: #081734;
+  margin: 0 0 16px;
+  letter-spacing: -0.6px;
+  line-height: 1.15;
 }
 
 .journals-hero__divider {
-  width: 56px;
-  height: 4px;
-  background: linear-gradient(90deg, var(--ink), var(--accent));
+  width: 60px;
+  height: 3.5px;
+  background: #d4a053;
   border-radius: 2px;
-  margin-bottom: 22px;
+  margin-bottom: 20px;
 }
 
 .journals-hero__subtitle {
-  font-size: 15px;
-  font-weight: 300;
-  color: var(--ink-60);
-  max-width: 560px;
-  line-height: 1.75;
-  margin: 0;
+  font-size: 16.5px;
+  font-weight: 400;
+  color: #4a5568;
+  max-width: 620px;
+  line-height: 1.68;
+  margin: 0 0 28px;
   letter-spacing: 0.1px;
 }
 
 /* Hero Prominent Search */
 .journals-hero__search-wrap {
-  max-width: 600px;
+  max-width: 580px;
   position: relative;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(8, 23, 52, 0.06);
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  overflow: hidden;
+  background: #ffffff;
 }
 
 .journals-hero__search-icon {
@@ -152,16 +177,15 @@ a {
 
 .journals-hero__search-input {
   width: 100%;
-  padding: 14px 52px 14px 48px;
+  padding: 15px 52px 15px 48px;
   font-family: var(--sans);
   font-size: 15px;
   font-weight: 400;
-  color: var(--ink);
-  background: var(--white);
-  border: 1px solid var(--rule);
-  border-radius: 12px;
-  transition: all var(--t-mid);
+  color: #081734;
+  background: #ffffff;
+  border: none;
   outline: none;
+  transition: all var(--t-mid);
 }
 
 .journals-hero__search-input::placeholder {

@@ -8,35 +8,35 @@
 
 /* ── Page Shell ─────────────────────────────────────────── */
 .apply-page {
-  /* Core palette — mirrors membership.css mk-* tokens */
-  --af-ink:         #0C1A2E;
-  --af-navy:        #143152;
-  --af-slate:       #2C4A6B;
-  --af-gold:        #A8850A;
-  --af-gold-lt:     #EBD3A0;
-  --af-parchment:   #F5F0E8;
-  --af-ivory:       #FDFAF5;
-  --af-seal:        #8B1A1A;
-  --af-success:     #1A5C3B;
-  --af-ink-60:      rgba(12, 26, 46, 0.60);
-  --af-ink-30:      rgba(12, 26, 46, 0.30);
-  --af-ink-15:      rgba(12, 26, 46, 0.15);
+  /* Core palette — aligned with cbl.css tokens */
+  --af-ink:         #081734;
+  --af-navy:        #081734;
+  --af-slate:       #1b2a4a;
+  --af-gold:        #d4a053;
+  --af-gold-lt:     #e2b266;
+  --af-parchment:   #ffffff;
+  --af-ivory:       #ffffff;
+  --af-seal:        #b8860b;
+  --af-success:     #16a34a;
+  --af-ink-60:      #4a5568;
+  --af-ink-30:      #718096;
+  --af-ink-15:      #e2e8f0;
 
-  /* Legacy aliases (referenced throughout page.tsx) */
-  --af-navy-dark:    #0C1A2E;
-  --af-blue:         #1a3c6e;
-  --af-blue-mid:     #2d62ae;
+  /* Legacy aliases */
+  --af-navy-dark:    #051026;
+  --af-blue:         #081734;
+  --af-blue-mid:     #1b2a4a;
   --af-gold-light:   var(--af-gold-lt);
-  --af-bg:           var(--af-parchment);
-  --af-cream:        var(--af-ivory);
+  --af-bg:           #f9fafb;
+  --af-cream:        #ffffff;
   --af-surface:      #ffffff;
-  --af-border:       rgba(12, 26, 46, 0.13);
-  --af-border-light: rgba(12, 26, 46, 0.08);
-  --af-text:         var(--af-ink);
-  --af-text-muted:   var(--af-ink-60);
-  --af-error:        var(--af-seal);
-  --af-radius:       4px;
-  --af-radius-sm:    4px;
+  --af-border:       #e2e8f0;
+  --af-border-light: #e2e8f0;
+  --af-text:         #081734;
+  --af-text-muted:   #4a5568;
+  --af-error:        #b8860b;
+  --af-radius:       8px;
+  --af-radius-sm:    6px;
 
   /* Typography */
   --serif: var(--font-poppins), var(--sans, 'Poppins', sans-serif);
@@ -45,62 +45,67 @@
   /* Motion */
   --af-ease: cubic-bezier(0.16, 1, 0.3, 1);
 
-  background:  var(--af-parchment);
+  background:  #ffffff;
   color:       var(--af-ink);
   font-family: var(--sans);
   min-height:  100vh;
 }
 
-/* ── Hero Banner ─────────────────────────────────────────── */
+/* ── Hero Banner (CBL Dark Navy Colorway — Centered Header) ── */
 .af-hero {
   position: relative;
-  padding: 120px 24px 72px;
+  padding: 125px 24px 75px;
   text-align: center;
-  background: linear-gradient(160deg, #0C1A2E 0%, #143152 52%, #1B4177 100%);
-  color: #fff;
+  background: linear-gradient(135deg, #051026 0%, #081734 60%, #112347 100%);
+  color: #ffffff;
   overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 20px rgba(5, 16, 38, 0.25);
 }
 
-/* Letterhead cross-hatch (replaces generic dot pattern) */
-.af-hero__pattern {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      transparent, transparent 23px,
-      rgba(255, 255, 255, 0.025) 23px, rgba(255, 255, 255, 0.025) 24px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent, transparent 23px,
-      rgba(255, 255, 255, 0.015) 23px, rgba(255, 255, 255, 0.015) 24px
-    );
-}
-
-/* Gold ribbon separator */
-.af-hero::after {
+.af-hero::before {
   content: '';
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    var(--af-gold)    15%,
-    var(--af-gold-lt) 50%,
-    var(--af-gold)    85%,
-    transparent 100%
-  );
+  top: -40%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(27, 42, 74, 0.6) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .af-hero__content {
   position: relative;
   max-width: 720px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  z-index: 2;
+}
+
+.af-hero-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 6px 16px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+}
+
+.af-hero-label-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--af-gold, #d4a053);
 }
 
 .af-hero__breadcrumbs {
@@ -127,17 +132,30 @@
 
 .af-hero__title {
   font-family: var(--serif, 'Poppins', sans-serif);
-  font-size: clamp(2rem, 4vw, 2.8rem);
-  font-weight: 700;
-  line-height: 1.15;
-  margin-bottom: 12px;
-  letter-spacing: -0.3px;
+  font-size: clamp(36px, 4vw, 48px);
+  font-weight: 800;
+  line-height: 1.18;
+  margin-bottom: 0;
+  letter-spacing: -0.6px;
+  color: #ffffff;
+  text-align: center;
+}
+
+.af-hero__gold-line {
+  width: 60px;
+  height: 3.5px;
+  background: var(--af-gold, #d4a053);
+  margin: 20px auto 24px;
+  border-radius: 2px;
 }
 
 .af-hero__subtitle {
-  font-size: 15px;
-  line-height: 1.6;
-  opacity: 0.85;
+  font-size: 17.5px;
+  line-height: 1.68;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
 }
 
 /* ── Dossier Tab Banner ──────────────────────────────────── */
@@ -368,23 +386,30 @@
 .af-category {
   background: var(--af-surface);
   border: 1px solid var(--af-border-light);
-  border-radius: 4px;
+  border-radius: 16px;
   padding: 28px 24px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
-  transition:
-    transform  0.26s var(--af-ease),
-    box-shadow 0.26s var(--af-ease),
-    border-color 0.2s;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 2px 8px rgba(8, 23, 52, 0.04);
 }
+
+.af-category::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--af-navy) 0%, var(--af-slate) 100%);
+}
+
 .af-category:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 28px -8px rgba(12, 26, 46, 0.10);
+  box-shadow: 0 4px 14px rgba(12, 26, 46, 0.08);
 }
 .af-category:focus-visible {
   outline: 2px solid var(--af-gold);
@@ -393,8 +418,8 @@
 
 .af-category__seal {
   position: absolute;
-  top: 14px;
-  right: 14px;
+  top: 18px;
+  right: 18px;
   pointer-events: none;
 }
 
@@ -412,19 +437,19 @@
 }
 
 .af-category__desc {
-  font-size: 13px;
+  font-size: 13.5px;
   color: var(--af-ink-60);
-  line-height: 1.55;
+  line-height: 1.6;
   margin: 0 0 20px;
   flex-grow: 1;
   min-height: 60px;
 }
 
 .af-category__price-label {
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.2px;
   color: var(--af-ink-30);
   display: block;
   margin-bottom: 4px;
@@ -458,8 +483,8 @@
 
 .af-category__price-value {
   font-family: var(--sans);
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 800;
   color: var(--af-navy);
   display: block;
   margin-bottom: 16px;
@@ -472,7 +497,7 @@
 
 .af-category__cta {
   width: 100%;
-  padding: 10px 18px;
+  padding: 11px 18px;
   font-size: 12.5px;
   font-weight: 700;
   letter-spacing: 0.4px;
@@ -480,13 +505,13 @@
   background: var(--af-navy);
   color: #fff;
   border: none;
-  border-radius: 3px;
+  border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: background 0.2s, transform 0.15s;
+  transition: background 0.2s;
   font-family: var(--sans);
 }
 .af-category--life .af-category__cta {
@@ -494,7 +519,6 @@
 }
 .af-category__cta:hover {
   filter: brightness(1.1);
-  transform: translateY(-1px);
 }
 
 /* ── Main Layout ─────────────────────────────────────────── */

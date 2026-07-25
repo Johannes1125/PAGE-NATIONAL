@@ -32,83 +32,86 @@ const MOCK_MEMBERSHIP_CATEGORIES: MembershipCategory[] = [
   {
     id: "life",
     name: "Life Member",
-    description: "A lifetime commitment to the development and advancement of graduate education in the Philippines. Tailored for senior educators and academic administrators.",
-    annualFee: "₱10,000 (One-time)",
+    description: "Active in PAGE activities for 1+ years and holds a doctoral degree.",
+    annualFee: "₱5,000 (One-time)",
     requirements: [
-      "Must have been an active individual member in good standing for at least 3 consecutive years.",
-      "Submit a photocopy of a valid professional ID (PRC card) or passport.",
-      "Proof of active participation in at least 3 past PAGE national conventions or regional activities.",
-      "Endorsement/Nomination form signed by two active Life Members in good standing."
-    ]
-  },
-  {
-    id: "institutional",
-    name: "Institutional Member",
-    description: "For universities, colleges, and higher education institutions offering graduate programs that seek national collaboration, alignment, and prestige.",
-    annualFee: "₱5,000 / year",
-    requirements: [
-      "Certified true copy of SEC Registration Certificate or DTI Certificate.",
-      "Copy of CHED Government Recognition / Permit for graduate programs offered.",
-      "Official Letter of Intent signed by the University President or Graduate School Dean.",
-      "Institution Profile, including a list of active graduate school faculty and active courses."
-    ]
-  },
-  {
-    id: "associate",
-    name: "Associate Member",
-    description: "For graduate researchers, lecturers, and industry professionals who are actively contributing to graduate studies and academic development.",
-    annualFee: "₱2,000 / year",
-    requirements: [
-      "Copy of valid government or institutional ID.",
-      "Recommendation/Endorsement letter from a PAGE national officer or institutional member dean.",
-      "Updated Curriculum Vitae highlighting graduate teaching history or research publications.",
-      "Copy of highest graduate degree diploma or transcript of records (Master's or Doctorate)."
+      "Accomplished PAGE Membership Application Form",
+      "Scanned 2x2 ID picture (jpg/png)",
+      "Proof of highest educational attainment",
+      "CV or BIO sketch (for individual members)",
+      "One-time payment"
     ]
   },
   {
     id: "regular",
     name: "Regular Member",
-    description: "For active deans, administrators, program coordinators, and full-time faculty teaching graduate level courses in PAGE-member institutions.",
-    annualFee: "₱1,500 / year",
+    description: "Doctoral/Master's degree holder, active in PAGE nationally or at chapter level.",
+    annualFee: "₱2,000.00/year",
     requirements: [
-      "Copy of valid institutional ID from a PAGE-member graduate school.",
-      "Completed individual member profile form.",
-      "Endorsement letter from the Graduate School Dean of the employing institution.",
-      "Proof of academic load/affiliation (e.g. certificate of employment or teaching load contract)."
+      "Accomplished PAGE Membership Application Form",
+      "Scanned 2x2 ID picture (jpg/png)",
+      "Proof of highest educational attainment",
+      "CV or BIO sketch (for individual members)",
+      "Annual membership"
+    ]
+  },
+  {
+    id: "associate",
+    name: "Associate Member",
+    description: "Currently enrolled graduate student (Master's or Doctoral).",
+    annualFee: "₱500/year",
+    requirements: [
+      "Accomplished PAGE Membership Application Form",
+      "Scanned 2x2 ID picture (jpg/png)",
+      "Proof of highest educational attainment",
+      "CV or BIO sketch (for individual members)",
+      "Annual membership"
+    ]
+  },
+  {
+    id: "institutional",
+    name: "Institutional Member",
+    description: "Higher education institutions offering graduate course studies.",
+    annualFee: "₱1,200 - ₱3,000/year",
+    requirements: [
+      "For Institutional Members: SEC Registration or Government Recognition Document",
+      "Endorsement from the Head of Institution (for Institutional Members)",
+      "Payment of membership fee",
+      "Annual membership"
     ]
   }
 ];
 
 const MOCK_BENEFITS = [
   {
-    icon: Globe,
-    title: "National & Global Networking",
-    description: "Connect with deans, administrators, and researchers across the country and access international academic exchange pathways."
+    icon: GraduationCap,
+    title: "Professional Development",
+    description: "Access to webinars, conferences, and capacity building programs."
+  },
+  {
+    icon: Users,
+    title: "Networking Opportunities",
+    description: "Connect with graduate education leaders, practitioners, and institutions."
   },
   {
     icon: BookOpen,
-    title: "Research & Publication Support",
-    description: "Enjoy priority double-blind peer reviews and publishing discounts inside the academic PAGE National Research Journals."
+    title: "Publications & Resources",
+    description: "Receive PAGE publications, research updates, and access to exclusive resources."
   },
   {
-    icon: GraduationCap,
-    title: "Professional Development",
-    description: "Free or subsidized access to training seminars, academic leadership roundtables, and graduate curriculum design workshops."
+    icon: Globe,
+    title: "Advocacy & Representation",
+    description: "Be part of advocacy efforts that promote quality graduate education in the Philippines."
   },
   {
     icon: Award,
-    title: "Annual Convention Delegations",
-    description: "Register with exclusive member rates for the prestigious PAGE National Annual Convention and cluster level summits."
-  },
-  {
-    icon: ShieldAlert,
-    title: "CHED & Regulatory Alignment",
-    description: "Receive updates, briefs, and guidance regarding new policies, accreditation parameters, and CHED guidelines."
+    title: "Recognition & Awards",
+    description: "Opportunities for recognition of excellence in graduate education."
   },
   {
     icon: Handshake,
-    title: "Collaborative Research Grants",
-    description: "Qualify to participate in and apply for PAGE-sponsored interdisciplinary research funding and national projects."
+    title: "Discounts & Privileges",
+    description: "Enjoy discounts on PAGE events, partner offerings, and other privileges."
   }
 ];
 
@@ -159,30 +162,31 @@ function MembershipContent() {
 
   return (
     <div className="membership-page">
-      <Navbar scrolled={scrolled} />
-
       {/* Hero Section */}
       <section className="membership-hero">
-        <div className="membership-hero__pattern" />
+        <div className="membership-hero-bg-container">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/membership-bg.jpg" alt="Membership Background" className="membership-hero-bg-img" />
+          <div className="membership-hero-bg-overlay" />
+        </div>
+
         <div className="membership-container">
-          <div className="membership-hero__breadcrumbs">
-            <Link href="/" className="membership-hero__breadcrumb-link">Home</Link>
-            <span className="membership-hero__breadcrumb-sep">/</span>
-            <span className="membership-hero__breadcrumb-current">Membership</span>
-          </div>
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            Become a PAGE Member
+            Become a<br />PAGE Member
           </motion.h1>
+          <div className="membership-hero__gold-line" />
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.15 }}
           >
-            Join a prestigious network of graduate school administrators, faculty, and researchers shaping the future of advanced higher education in the Philippines.
+            Join a distinguished community of educators, researchers,<br />
+            and institutions committed to advancing graduate<br />
+            education and nation-building in the Philippines.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -190,7 +194,8 @@ function MembershipContent() {
             transition={{ duration: 0.5, delay: 0.3 }}
           >
             <Link href="/membership/apply" className="membership-hero__cta">
-              Begin Your Application <ArrowRight size={16} />
+              <Users size={22} />
+              Join PAGE Today
             </Link>
           </motion.div>
         </div>
@@ -199,68 +204,54 @@ function MembershipContent() {
       {/* Categories Section */}
       <section className="membership-section membership-container">
         <div className="membership-section-header">
-          <span className="membership-section-eyebrow">Classifications</span>
           <h2 className="membership-section-title">Membership Categories</h2>
-          <p className="membership-section-desc">
-            We offer institutional and individual membership options suited to your academic profile and administrative role.
-          </p>
         </div>
 
         <div className="membership-categories-grid">
-          {MOCK_MEMBERSHIP_CATEGORIES.map((cat, idx) => (
-            <motion.div
-              key={cat.id}
-              className={`membership-category-card membership-category-card--${cat.id}`}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: idx * 0.09 }}
-            >
-              {cat.id === "institutional" ? (
-                // Institutional — landscape two-column layout
-                <>
-                  <div className="membership-card__content">
+          {MOCK_MEMBERSHIP_CATEGORIES.map((cat, idx) => {
+            let Icon = Users;
+            if (cat.id === "regular") Icon = UserCheck;
+            if (cat.id === "associate") Icon = UserPlus;
+            if (cat.id === "institutional") Icon = Building2;
+
+            return (
+              <motion.div
+                key={cat.id}
+                className={`membership-category-card membership-category-card--${cat.id}`}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.45, delay: idx * 0.09 }}
+              >
+                <div className="membership-category-header">
+                  <div className="membership-category-icon">
+                    <Icon size={24} />
+                  </div>
+                  <div className="membership-category-title-group">
                     <h3 className="membership-category-card__name">{cat.name}</h3>
-                    <p className="membership-category-card__description">{cat.description}</p>
-                  </div>
-                  <div className="membership-card__actions">
-                    <div className="membership-category-card__price-box">
-                      <span className="membership-category-card__price-label">{getPriceLabel(cat.id)}</span>
-                      <span className="membership-category-card__price-value">{cat.annualFee}</span>
+                    <div className="membership-category-card__meta">
+                      <CheckCircle2 size={13} />
+                      <span>
+                        {cat.id === "life" ? "One-time payment" : "Annual membership"}
+                      </span>
                     </div>
-                    <button
-                      onClick={() => scrollToRequirements(cat.id)}
-                      className="membership-category-card__link"
-                    >
-                      {getCardCTA(cat.id)} <ArrowRight size={13} />
-                    </button>
                   </div>
-                </>
-              ) : (
-                // Individual tiers — vertical with seal watermark
-                <>
-                  <div className="mk-card-seal">
-                    <PageSeal
-                      size={cat.id === "regular" ? 50 : 40}
-                      variant={cat.id === "regular" ? "gold" : "navy-outline"}
-                    />
-                  </div>
-                  <h3 className="membership-category-card__name">{cat.name}</h3>
-                  <p className="membership-category-card__description">{cat.description}</p>
-                  <div className="membership-category-card__price-box">
-                    <span className="membership-category-card__price-label">{getPriceLabel(cat.id)}</span>
-                    <span className="membership-category-card__price-value">{cat.annualFee}</span>
-                  </div>
-                  <button
-                    onClick={() => scrollToRequirements(cat.id)}
-                    className="membership-category-card__link"
-                  >
-                    {getCardCTA(cat.id)} <ArrowRight size={13} />
-                  </button>
-                </>
-              )}
-            </motion.div>
-          ))}
+                </div>
+
+                <p className="membership-category-card__description">{cat.description}</p>
+
+                <div className="membership-category-price">
+                  <span className="membership-category-card__price-label">
+                    {cat.id === "life" ? "Lifetime Investment" : cat.id === "institutional" ? "Annual Institutional Fee" : "Annual Dues"}
+                  </span>
+                  <span className="membership-category-card__price-value">{cat.annualFee}</span>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+        <div className="membership-note">
+          All membership dues are non-refundable.
         </div>
       </section>
 
@@ -268,11 +259,7 @@ function MembershipContent() {
       <section className="membership-section membership-section--alt">
         <div className="membership-container">
           <div className="membership-section-header">
-            <span className="membership-section-eyebrow">Advantages</span>
             <h2 className="membership-section-title">Benefits &amp; Services</h2>
-            <p className="membership-section-desc">
-              Discover the benefits of joining PAGE, designed to support your institution's growth and accelerate your research career.
-            </p>
           </div>
 
           <div className="membership-benefits-grid">
@@ -288,12 +275,10 @@ function MembershipContent() {
                   transition={{ duration: 0.4, delay: idx * 0.08 }}
                 >
                   <div className="membership-benefit-item__icon-wrap">
-                    <Icon size={22} />
+                    <Icon size={28} />
                   </div>
-                  <div>
-                    <h3 className="membership-benefit-item__title">{benefit.title}</h3>
-                    <p className="membership-benefit-item__desc">{benefit.description}</p>
-                  </div>
+                  <h3 className="membership-benefit-item__title">{benefit.title}</h3>
+                  <p className="membership-benefit-item__desc">{benefit.description}</p>
                 </motion.div>
               );
             })}
@@ -304,11 +289,7 @@ function MembershipContent() {
       {/* Requirements Section */}
       <section id="requirements" className="membership-section membership-container">
         <div className="membership-section-header">
-          <span className="membership-section-eyebrow">Checklists</span>
           <h2 className="membership-section-title">Requirements &amp; Credentials</h2>
-          <p className="membership-section-desc">
-            Ensure you prepare all relevant documents and certifications before beginning the online registration form.
-          </p>
         </div>
 
         <div className="membership-tabs" role="tablist" aria-label="Requirements categories">
@@ -337,20 +318,27 @@ function MembershipContent() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <div className="membership-requirements-card__header">
-            <h3 className="membership-requirements-card__title">{activeCategoryData.name} Requirements</h3>
-            <p className="membership-requirements-card__subtitle">
-              All documents listed below must be uploaded in PDF or high-resolution image formats (under 5MB).
-            </p>
-          </div>
-
-          <div className="membership-requirements-list">
-            {activeCategoryData.requirements.map((req, index) => (
-              <div key={index} className="membership-requirement-item">
-                <CheckCircle2 size={18} strokeWidth={2.5} />
-                <span>{req}</span>
+          <div className="membership-requirements-wrapper">
+            <div className="membership-requirements-icon">
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                <path d="M9 12l2 2 4-4" />
+              </svg>
+            </div>
+            <div className="membership-requirements-content">
+              <div className="membership-requirements-columns">
+                {activeCategoryData.requirements.map((req, index) => (
+                  <div key={index} className="membership-requirement-item">
+                    <CheckCircle2 size={18} strokeWidth={2.5} />
+                    <span>{req}</span>
+                  </div>
+                ))}
               </div>
-            ))}
+              <div className="membership-requirements-note">
+                <span className="membership-requirements-note__icon">ℹ</span>
+                <span>Requirements may vary depending on the membership category.</span>
+              </div>
+            </div>
           </div>
         </motion.div>
       </section>

@@ -1101,10 +1101,10 @@ function ApplyContent() {
       <div className="apply-page">
         <Navbar scrolled={scrolled} />
         <div className="af-hero">
-          <div className="af-hero__pattern" />
           <div className="af-hero__content">
-            <h1 className="af-hero__title" style={{ fontFamily: "var(--font-poppins), 'Poppins', sans-serif", fontWeight: 800 }}>PAGE Membership Registration</h1>
-            <p className="af-hero__subtitle" style={{ fontSize: "18px", marginTop: "8px" }}>
+            <h1 className="af-hero__title">PAGE Membership Registration</h1>
+            <div className="af-hero__gold-line" />
+            <p className="af-hero__subtitle">
               Choose your membership classification to start your application process.
             </p>
           </div>
