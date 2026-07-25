@@ -96,7 +96,7 @@ function PrintableForm({ state }: { state: ApplicationFormState }) {
       <div className="pf-header">
         <div className="pf-logo">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/PAGE.jpg" alt="PAGE Logo" />
+          <img src="/PAGE-favicon.png" alt="PAGE Logo" />
         </div>
         <div className="pf-title-block">
           <h2>PHILIPPINE ASSOCIATION FOR GRADUATE EDUCATION</h2>

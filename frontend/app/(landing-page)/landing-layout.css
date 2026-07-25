@@ -6,11 +6,13 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  font-family: var(--font-poppins), 'Poppins', sans-serif !important;
 }
 
 .landing-content {
   flex: 1;
   padding-top: 80px; /* offset for fixed navbar */
+  font-family: var(--font-poppins), 'Poppins', sans-serif;
 }
 
 /* Loading State */

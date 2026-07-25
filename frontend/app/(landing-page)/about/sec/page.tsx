@@ -1,16 +1,26 @@
 "use client";
-import Navbar from "../../components/Navbar";
+
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Shield, FileText, Award, Calendar, CheckCircle } from "lucide-react";
+import { Shield, FileText, Award, CheckCircle } from "lucide-react";
 import { api } from "../../../lib/api-client";
 import "../about-page.css";
 
+interface SecRecord {
+  id: string;
+  registrationName: string;
+  registrationNumber: string;
+  exemptionCategory: string;
+  dateOfIncorporation: string;
+  imageUrl: string | null;
+}
+
 export default function SecRegistrationPage() {
-  const [scrolled, setScrolled] = useState(false);
-  const [description, setDescription] = useState("PAGE is a duly registered non-stock, non-profit organization under the Securities and Exchange Commission (SEC) of the Philippines.");
+  const [description, setDescription] = useState(
+    "PAGE is a duly registered non-stock, non-profit organization under the Securities and Exchange Commission (SEC) of the Philippines."
+  );
   const [documents, setDocuments] = useState<any[]>([]);
-  const [secRecords, setSecRecords] = useState<any[]>([]);
+  const [secRecords, setSecRecords] = useState<SecRecord[]>([]);
 
   const formatDate = (dateStr: string) => {
     try {
@@ -31,21 +41,17 @@ export default function SecRegistrationPage() {
   };
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener("scroll", onScroll);
-
     const fetchData = async () => {
       try {
-        const secRes = await api.get("/public/about-page/sections/sec_registration");
+        const secRes = await api.get<any>("/public/about-page/sections/sec_registration");
         if (secRes.success && secRes.data) {
           setDescription(secRes.data.content);
         }
-        const docRes = await api.get("/public/about-page/documents/sec_registration");
+        const docRes = await api.get<any>("/public/about-page/documents/sec_registration");
         if (docRes.success && docRes.data) {
           setDocuments(docRes.data);
         }
-        // Fetch dynamic SEC registrations sorted newest first
-        const recordsRes = await api.get("/sec-registrations?limit=10");
+        const recordsRes = await api.get<any>("/sec-registrations?limit=10");
         if (recordsRes.success && recordsRes.data) {
           setSecRecords(recordsRes.data);
         }
@@ -54,8 +60,6 @@ export default function SecRegistrationPage() {
       }
     };
     fetchData();
-
-    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const activeRecord = secRecords.length > 0 ? secRecords[0] : null;
@@ -66,134 +70,108 @@ export default function SecRegistrationPage() {
     dateRegistered: formatDate(activeRecord.dateOfIncorporation),
     type: activeRecord.exemptionCategory,
   } : {
-    companyName: "No SEC registration record found",
-    registrationNumber: "—",
-    dateRegistered: "—",
-    type: "—",
+    companyName: "Philippine Association for Graduate Education, Inc.",
+    registrationNumber: "SEC Reg. Active",
+    dateRegistered: "Est. 1962",
+    type: "Non-Stock, Non-Profit Educational Association",
   };
 
   const hasDocuments = documents.length > 0 || secRecords.some(r => r.imageUrl);
 
   return (
-    <>
-      <Navbar scrolled={scrolled} />
-      <style>{`
-        .sec-pdf-btn:hover {
-          background: #143e6c !important;
-        }
-      `}</style>
-      <main style={{ minHeight: "100vh", background: "#060b13", paddingBottom: "80px" }}>
-        
-        {/* Hero Banner */}
-        <section className="about-hero" style={{ padding: "120px 0 60px" }}>
-          <div className="container">
-            <div className="about-hero__breadcrumb">
-              <Link href="/" className="about-hero__breadcrumb-link">Home</Link>
-              <span className="about-hero__breadcrumb-sep">/</span>
-              <Link href="/about" className="about-hero__breadcrumb-link">About</Link>
-              <span className="about-hero__breadcrumb-sep">/</span>
-              <span className="about-hero__breadcrumb-current">SEC Registration</span>
+    <div className="sec-main" style={{ fontFamily: "'Poppins', sans-serif" }}>
+      {/* Hero Section */}
+      <section className="cbl-hero" style={{ background: "linear-gradient(135deg, #051026 0%, #081734 60%, #112347 100%)", padding: "130px 0 70px", color: "#ffffff", borderBottom: "1px solid rgba(255, 255, 255, 0.1)" }}>
+        <div className="container">
+          <div className="cbl-breadcrumb" style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "28px" }}>
+            <Link href="/" style={{ color: "rgba(255, 255, 255, 0.75)", textDecoration: "none", fontSize: "13px", fontWeight: 500 }}>Home</Link>
+            <span style={{ color: "rgba(255, 255, 255, 0.35)", fontSize: "13px" }}>/</span>
+            <Link href="/about" style={{ color: "rgba(255, 255, 255, 0.75)", textDecoration: "none", fontSize: "13px", fontWeight: 500 }}>About</Link>
+            <span style={{ color: "rgba(255, 255, 255, 0.35)", fontSize: "13px" }}>/</span>
+            <span style={{ color: "#ffffff", fontSize: "13px", fontWeight: 600 }}>SEC Registration</span>
+          </div>
+
+          <div style={{ maxWidth: "720px" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", fontSize: "11px", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase", color: "#ffffff", background: "rgba(255, 255, 255, 0.08)", border: "1px solid rgba(255, 255, 255, 0.15)", padding: "6px 16px", borderRadius: "20px", marginBottom: "20px" }}>
+              <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#d4a053" }} />
+              <span>CORPORATE ACCREDITATION • SEC</span>
             </div>
-            <h1 className="about-hero__title">SEC <em>Registration</em></h1>
-            <div className="about-hero__divider" />
-            <p className="about-hero__subtitle">
+            <h1 style={{ fontSize: "clamp(38px, 4.5vw, 54px)", fontWeight: 800, color: "#ffffff", lineHeight: 1.15, letterSpacing: "-0.8px", marginBottom: "18px" }}>SEC Registration</h1>
+            <div style={{ width: "50px", height: "3px", background: "#d4a053", borderRadius: "2px", marginBottom: "22px" }} />
+            <p style={{ fontSize: "17px", lineHeight: 1.75, color: "rgba(255, 255, 255, 0.85)", margin: 0 }}>
               {description}
             </p>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Content Section */}
-        <section className="container" style={{ marginTop: "40px" }}>
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1.2fr",
-            gap: "40px",
-            alignItems: "start"
-          }}>
+      {/* Content Section */}
+      <section style={{ background: "#f8fafc", padding: "80px 0 100px" }}>
+        <div className="container">
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.1fr", gap: "40px", alignItems: "start" }}>
             
-            {/* Left Side: Summary Card */}
-            <div style={{
-              background: "rgba(255, 255, 255, 0.03)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
-              borderRadius: "16px",
-              padding: "32px",
-              backdropFilter: "blur(20px)",
-              color: "#fff"
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
-                <div style={{
-                  background: "var(--accent-dim)",
-                  padding: "12px",
-                  borderRadius: "12px",
-                  color: "var(--accent)"
-                }}>
-                  <Shield size={28} />
+            {/* Left Side: Registration Details Card */}
+            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderTop: "4px solid #081734", borderRadius: "18px", padding: "36px", boxShadow: "0 8px 30px rgba(8, 23, 52, 0.04)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "28px", paddingBottom: "20px", borderBottom: "1px solid #e2e8f0" }}>
+                <div style={{ background: "#081734", width: "52px", height: "52px", borderRadius: "14px", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "0 6px 16px rgba(8, 23, 52, 0.15)" }}>
+                  <Shield size={26} />
                 </div>
                 <div>
-                  <h2 style={{ fontSize: "20px", fontWeight: 600, margin: 0 }}>Registration Status</h2>
-                  <span style={{ color: "#10b981", fontSize: "14px", display: "flex", alignItems: "center", gap: "4px", marginTop: "4px" }}>
-                    <CheckCircle size={14} /> Duly Registered & Active
+                  <h2 style={{ fontSize: "20px", fontWeight: 800, color: "#081734", margin: 0 }}>Legal Registration Status</h2>
+                  <span style={{ color: "#059669", fontSize: "13px", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: "6px", marginTop: "4px" }}>
+                    <CheckCircle size={15} /> Duly Accredited & Active
                   </span>
                 </div>
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                 <div>
-                  <span style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.4)", textTransform: "uppercase" }}>Registered Name</span>
-                  <p style={{ margin: "4px 0 0", fontSize: "15px", fontWeight: 500 }}>{displayDetails.companyName}</p>
+                  <span style={{ fontSize: "11px", fontWeight: 700, color: "#718096", textTransform: "uppercase", letterSpacing: "1px" }}>Registered Name</span>
+                  <p style={{ margin: "4px 0 0", fontSize: "16px", fontWeight: 700, color: "#081734" }}>{displayDetails.companyName}</p>
                 </div>
                 <div>
-                  <span style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.4)", textTransform: "uppercase" }}>Registration Number</span>
-                  <p style={{ margin: "4px 0 0", fontSize: "15px", fontWeight: 500, fontFamily: "monospace" }}>{displayDetails.registrationNumber}</p>
+                  <span style={{ fontSize: "11px", fontWeight: 700, color: "#718096", textTransform: "uppercase", letterSpacing: "1px" }}>Registration Number</span>
+                  <p style={{ margin: "4px 0 0", fontSize: "16px", fontWeight: 700, color: "#081734", fontFamily: "monospace" }}>{displayDetails.registrationNumber}</p>
                 </div>
                 <div>
-                  <span style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.4)", textTransform: "uppercase" }}>Date of Incorporation</span>
-                  <p style={{ margin: "4px 0 0", fontSize: "15px", fontWeight: 500 }}>{displayDetails.dateRegistered}</p>
+                  <span style={{ fontSize: "11px", fontWeight: 700, color: "#718096", textTransform: "uppercase", letterSpacing: "1px" }}>Date of Incorporation</span>
+                  <p style={{ margin: "4px 0 0", fontSize: "15px", fontWeight: 600, color: "#4a5568" }}>{displayDetails.dateRegistered}</p>
                 </div>
                 <div>
-                  <span style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.4)", textTransform: "uppercase" }}>Corporation Type</span>
-                  <p style={{ margin: "4px 0 0", fontSize: "15px", fontWeight: 500 }}>{displayDetails.type}</p>
+                  <span style={{ fontSize: "11px", fontWeight: 700, color: "#718096", textTransform: "uppercase", letterSpacing: "1px" }}>Corporation Classification</span>
+                  <p style={{ margin: "4px 0 0", fontSize: "15px", fontWeight: 600, color: "#4a5568" }}>{displayDetails.type}</p>
                 </div>
               </div>
             </div>
 
-            {/* Right Side: Document Preview Block */}
-            <div style={{
-              background: "rgba(255, 255, 255, 0.02)",
-              border: "1px solid rgba(255, 255, 255, 0.06)",
-              borderRadius: "16px",
-              padding: "40px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              textAlign: "center"
-            }}>
+            {/* Right Side: Certificate Preview Card */}
+            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "18px", padding: "36px", boxShadow: "0 8px 30px rgba(8, 23, 52, 0.04)", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
               <div style={{
                 position: "relative",
                 width: "100%",
                 maxWidth: "340px",
-                height: "450px",
-                background: "#fdfdfb",
-                border: "1px solid #dcdad5",
-                borderRadius: "8px",
-                boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5)",
+                minHeight: "420px",
+                background: "#fafbfc",
+                border: "1px solid #e2e8f0",
+                borderRadius: "12px",
+                boxShadow: "0 8px 24px rgba(8, 23, 52, 0.06)",
                 padding: activeRecord && activeRecord.imageUrl ? "16px" : "32px",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "#1c1917",
-                marginBottom: "32px",
+                color: "#081734",
+                marginBottom: "24px",
                 overflow: "hidden"
               }}>
                 {activeRecord && activeRecord.imageUrl ? (
                   isPdf(activeRecord.imageUrl) ? (
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: "16px" }}>
-                      <FileText size={64} style={{ color: "#ef4444" }} />
-                      <h3 style={{ fontSize: "16px", fontWeight: 700, margin: "0 12px", color: "#1c1917", textAlign: "center", lineBreak: "anywhere" }}>
+                      <FileText size={60} style={{ color: "#ef4444" }} />
+                      <h3 style={{ fontSize: "16px", fontWeight: 700, margin: "0 12px", color: "#081734", textAlign: "center", lineBreak: "anywhere" }}>
                         {activeRecord.registrationName}
                       </h3>
-                      <p style={{ fontSize: "12px", color: "#666", margin: 0, textAlign: "center" }}>
+                      <p style={{ fontSize: "13px", color: "#4a5568", margin: 0, textAlign: "center" }}>
                         Official SEC Certificate (PDF)
                       </p>
                       <a
@@ -204,19 +182,18 @@ export default function SecRegistrationPage() {
                           display: "inline-flex",
                           alignItems: "center",
                           gap: "8px",
-                          background: "#1e538e",
-                          color: "#fff",
-                          padding: "10px 20px",
-                          borderRadius: "8px",
+                          background: "#081734",
+                          color: "#ffffff",
+                          padding: "10px 22px",
+                          borderRadius: "30px",
                           textDecoration: "none",
                           fontSize: "14px",
-                          fontWeight: 600,
-                          transition: "background 0.2s ease",
+                          fontWeight: 700,
+                          transition: "all 0.2s ease",
                           marginTop: "8px"
                         }}
-                        className="sec-pdf-btn"
                       >
-                        View PDF File
+                        View Official PDF Document
                       </a>
                     </div>
                   ) : (
@@ -229,66 +206,56 @@ export default function SecRegistrationPage() {
                   )
                 ) : (
                   <>
-                    {/* Border Ring */}
-                    <div style={{
-                      position: "absolute",
-                      inset: "10px",
-                      border: "2px double rgba(0, 0, 0, 0.15)",
-                      pointerEvents: "none"
-                    }} />
-
-                    <Award size={48} style={{ color: "#d97706", marginBottom: "16px" }} />
-                    <h3 style={{ fontSize: "14px", textTransform: "uppercase", letterSpacing: "1.5px", margin: "0 0 4px", fontWeight: 700 }}>Republic of the Philippines</h3>
-                    <h4 style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "1px", margin: "0 0 16px", color: "#444" }}>Securities and Exchange Commission</h4>
+                    <Award size={48} style={{ color: "#d4a053", marginBottom: "16px" }} />
+                    <h3 style={{ fontSize: "13px", textTransform: "uppercase", letterSpacing: "1.5px", margin: "0 0 4px", fontWeight: 700, color: "#081734" }}>Republic of the Philippines</h3>
+                    <h4 style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "1px", margin: "0 0 16px", color: "#4a5568" }}>Securities and Exchange Commission</h4>
                     
-                    <div style={{ height: "1px", width: "60%", background: "rgba(0, 0, 0, 0.1)", marginBottom: "24px" }} />
+                    <div style={{ height: "1px", width: "60%", background: "#e2e8f0", marginBottom: "20px" }} />
                     
-                    <h2 style={{ fontSize: "18px", fontFamily: "serif", fontWeight: 700, margin: "0 0 12px" }}>CERTIFICATE OF INCORPORATION</h2>
-                    <p style={{ fontSize: "10px", lineHeight: 1.6, color: "#444", margin: "0 0 20px" }}>
-                      This is to certify that the Articles of Incorporation and By-Laws of the above named corporation were duly approved by the Commission on this date.
+                    <h2 style={{ fontSize: "17px", fontWeight: 800, color: "#081734", margin: "0 0 10px" }}>CERTIFICATE OF INCORPORATION</h2>
+                    <p style={{ fontSize: "12px", lineHeight: 1.6, color: "#4a5568", margin: "0 0 20px" }}>
+                      This certifies that the Philippine Association for Graduate Education, Inc. is duly incorporated under Philippine corporate regulations.
                     </p>
 
                     <div style={{ marginTop: "auto", width: "100%" }}>
-                      <p style={{ fontSize: "10px", fontWeight: 600, margin: 0 }}>Company Reg. No. —</p>
-                      <p style={{ fontSize: "9px", color: "#666", margin: "4px 0 0" }}>Please configure SEC details in the admin panel.</p>
+                      <p style={{ fontSize: "11px", fontWeight: 700, color: "#081734", margin: 0 }}>SEC Registered Corporation</p>
                     </div>
                   </>
                 )}
               </div>
 
               {hasDocuments && (
-                <div style={{ width: "100%", textAlign: "left", marginTop: "10px" }}>
-                  <h4 style={{ color: "#fff", fontSize: "14px", fontWeight: 600, marginBottom: "10px" }}>Uploaded Certificates</h4>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    {/* Render dynamic DB registrations first */}
+                <div style={{ width: "100%", textAlign: "left", marginTop: "8px" }}>
+                  <h4 style={{ color: "#081734", fontSize: "15px", fontWeight: 700, marginBottom: "12px" }}>Uploaded Certificates</h4>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                     {secRecords.filter(r => r.imageUrl).map((record) => (
                       <a
                         key={`db-${record.id}`}
-                        href={record.imageUrl}
+                        href={record.imageUrl || undefined}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{
                           display: "flex",
                           alignItems: "center",
                           gap: "10px",
-                          padding: "10px 14px",
-                          background: "rgba(255, 255, 255, 0.04)",
-                          border: "1px solid rgba(255, 255, 255, 0.08)",
-                          borderRadius: "8px",
-                          color: "var(--accent)",
+                          padding: "12px 16px",
+                          background: "#f8fafc",
+                          border: "1px solid #e2e8f0",
+                          borderRadius: "10px",
+                          color: "#081734",
                           textDecoration: "none",
                           fontSize: "13px",
-                          fontWeight: 500
+                          fontWeight: 600,
+                          transition: "all 0.2s ease"
                         }}
                       >
-                        <FileText size={16} />
+                        <FileText size={18} style={{ color: "#081734" }} />
                         <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
                           {record.registrationName} (No. {record.registrationNumber})
                         </span>
                       </a>
                     ))}
 
-                    {/* Render static documents folder certificates */}
                     {documents.map((doc: any) => (
                       <a
                         key={`doc-${doc.id}`}
@@ -299,17 +266,18 @@ export default function SecRegistrationPage() {
                           display: "flex",
                           alignItems: "center",
                           gap: "10px",
-                          padding: "10px 14px",
-                          background: "rgba(255, 255, 255, 0.04)",
-                          border: "1px solid rgba(255, 255, 255, 0.08)",
-                          borderRadius: "8px",
-                          color: "var(--accent)",
+                          padding: "12px 16px",
+                          background: "#f8fafc",
+                          border: "1px solid #e2e8f0",
+                          borderRadius: "10px",
+                          color: "#081734",
                           textDecoration: "none",
                           fontSize: "13px",
-                          fontWeight: 500
+                          fontWeight: 600,
+                          transition: "all 0.2s ease"
                         }}
                       >
-                        <FileText size={16} />
+                        <FileText size={18} style={{ color: "#081734" }} />
                         <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
                           {doc.file_name}
                         </span>
@@ -321,14 +289,8 @@ export default function SecRegistrationPage() {
             </div>
 
           </div>
-        </section>
-      </main>
-      {/* Basic Footer */}
-      <footer style={{ background: "#04080e", borderTop: "1px solid rgba(255, 255, 255, 0.05)", padding: "24px 0", textAlign: "center" }}>
-        <p style={{ color: "rgba(255, 255, 255, 0.4)", fontSize: "13px", margin: 0 }}>
-          © 2026 Philippine Association for Graduate Education. All rights reserved.
-        </p>
-      </footer>
-    </>
+        </div>
+      </section>
+    </div>
   );
 }

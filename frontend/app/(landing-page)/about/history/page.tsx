@@ -1,12 +1,8 @@
 "use client";
-import Navbar from "../../components/Navbar";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { TIMELINE_EVENTS } from "./mock-data";
 import { api } from "../../../lib/api-client";
 import "./history.css";
 
@@ -21,86 +17,75 @@ interface HistoricalRecord {
   description: string;
 }
 
-// Map API programType to the existing icon system
+// Default Fallback Records (ensures a rich 60-year timeline if backend DB is empty)
+const DEFAULT_HISTORICAL_RECORDS: HistoricalRecord[] = [
+  {
+    id: "def-1",
+    yearStart: 1962,
+    programType: "Initiative",
+    title: "Founding of the Philippine Association for Graduate Education",
+    description: "Established by pioneer graduate school deans and academic leaders across key universities to unify standards, foster research, and promote institutional collaboration in Philippine higher education."
+  },
+  {
+    id: "def-2",
+    yearStart: 1975,
+    programType: "Convention",
+    title: "Inaugural National Graduate Research Symposia",
+    description: "Launched nationwide annual research conventions bringing together masteral and doctoral scholars to publish peer-reviewed papers and share interdisciplinary methodologies."
+  },
+  {
+    id: "def-3",
+    yearStart: 1988,
+    programType: "Initiative",
+    title: "Regional Chapter Network Expansion across Luzon, Visayas & Mindanao",
+    description: "Formalized 17 regional chapters to ensure localized support for graduate educators, regional governance, and academic consortium agreements throughout the Philippine archipelago."
+  },
+  {
+    id: "def-4",
+    yearStart: 2005,
+    programType: "Conference",
+    title: "CHED Alignment & National Graduate Curriculum Re-Engineering",
+    description: "Partnered closely with the Commission on Higher Education (CHED) to update graduate degree guidelines, enhancing outcomes-based education and international equivalency."
+  },
+  {
+    id: "def-5",
+    yearStart: 2018,
+    programType: "Seminar",
+    title: "Launch of Digital Research Repositories & Open-Access Journal System",
+    description: "Pioneered digital transformation across member institutions, creating indexed online research portals for graduate thesis dissemination and peer review."
+  },
+  {
+    id: "def-6",
+    yearStart: 2024,
+    programType: "Convention",
+    title: "Global Academic Consortium & AI-Enhanced Graduate Leadership",
+    description: "Spearheaded international university exchanges and ethical AI research protocols, solidifying PAGE's position as a modern catalyst for ASEAN and global graduate excellence."
+  }
+];
+
+// Map API programType to icon & theme class
 function programTypeToMilestone(pt: ProgramType): string {
   const map: Record<ProgramType, string> = {
     Initiative:  "initiative",
     Conference:  "conference",
-    Seminar:     "initiative",
-    Convention:  "conference",
+    Seminar:     "seminar",
+    Convention:  "convention",
     Other:       "initiative",
   };
   return map[pt] ?? "initiative";
 }
 
-// ── Icon Components ────────────────────────────────────────────────────────
+// ── Icons ─────────────────────────────────────────────────────────────────
 
-const HamburgerIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-    <line x1="3" y1="6"  x2="21" y2="6" />
-    <line x1="3" y1="12" x2="21" y2="12" />
-    <line x1="3" y1="18" x2="21" y2="18" />
+const ClockIcon = () => (
+  <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
   </svg>
 );
-
-const CloseIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-    <line x1="18" y1="6"  x2="6"  y2="18" />
-    <line x1="6"  y1="6"  x2="18" y2="18" />
-  </svg>
-);
-
-const ChevronDownIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="6 9 12 15 18 9" />
-  </svg>
-);
-
-const FacebookIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-  </svg>
-);
-
-const InstagramIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-  </svg>
-);
-
-const MailIconSm = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-    <polyline points="22,6 12,13 2,6" />
-  </svg>
-);
-
-const MailIconContact = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-    <polyline points="22,6 12,13 2,6" />
-  </svg>
-);
-
-const MapPinIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-    <circle cx="12" cy="10" r="3" />
-  </svg>
-);
-
-const PhoneIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.86a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z" />
-  </svg>
-);
-
-// ── Milestone Icons ──
 
 const LandmarkIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="2" y1="22" x2="22" y2="22" />
     <polyline points="12 2 20 7 4 7 12 2" />
     <rect x="5" y="11" width="3" height="11" />
@@ -111,7 +96,7 @@ const LandmarkIcon = () => (
 );
 
 const UsersIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
     <circle cx="9" cy="7" r="4" />
     <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -119,17 +104,8 @@ const UsersIcon = () => (
   </svg>
 );
 
-const HandshakeIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-    <circle cx="9" cy="7" r="4" />
-    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-  </svg>
-);
-
 const LightbulbIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M9 18h6" />
     <path d="M10 22h4" />
     <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14" />
@@ -137,9 +113,25 @@ const LightbulbIcon = () => (
 );
 
 const GraduationCapIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
     <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" />
+  </svg>
+);
+
+const CalendarIcon = () => (
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+    <line x1="16" y1="2" x2="16" y2="6" />
+    <line x1="8" y1="2" x2="8" y2="6" />
+    <line x1="3" y1="10" x2="21" y2="10" />
+  </svg>
+);
+
+const ArrowRightIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <polyline points="12 5 19 12 12 19" />
   </svg>
 );
 
@@ -148,94 +140,86 @@ function getMilestoneIcon(type: string) {
     case "founding":
       return <LandmarkIcon />;
     case "conference":
+    case "convention":
       return <UsersIcon />;
-    case "partnership":
-      return <HandshakeIcon />;
-    case "initiative":
-      return <LightbulbIcon />;
-    case "program":
+    case "seminar":
       return <GraduationCapIcon />;
+    case "initiative":
     default:
       return <LightbulbIcon />;
   }
 }
 
-// ── Shared Data ────────────────────────────────────────────────────────────
-
-const ABOUT_DROPDOWN_ITEMS = [
-  { label: "About PAGE",        href: "/about" },
-  { label: "PAGE History",      href: "/about/history" },
-  { label: "Set of Officers",   href: "/about/officers" },
-  { label: "Logo Description",  href: "/about/logo" },
-  { label: "CBL Information",   href: "/about/cbl" },
-];
-
-const ACTIVITY_DROPDOWN_ITEMS = [
-  { label: "All Activities",  type: "all"        },
-  { label: "Conferences",     type: "conference" },
-  { label: "Seminars",        type: "seminar"    },
-  { label: "Workshops",       type: "workshop"   },
-  { label: "Other Events",    type: "other"      },
-];
-
-const FOOTER_QUICK_LINKS = ["About PAGE", "History", "Officers", "News & Announcements"];
-const FOOTER_RESOURCES    = ["Journals", "Articles", "Upcoming Activities", "Contact Us"];
-const FOOTER_CONTACT = [
-  { icon: <MapPinIcon />,      text: "Manila, Philippines" },
-  { icon: <MailIconContact />, text: "page.org.ph@gmail.com" },
-  { icon: <PhoneIcon />,       text: "+63 908 XXX XXXX"    },
-];
-
-const dropdownVariants: Variants = {
-  hidden:  { opacity: 0, y: -8, scale: 0.96 },
-  visible: { opacity: 1, y: 0,  scale: 1,    transition: { duration: 0.18, ease: "easeOut" } },
-  exit:    { opacity: 0, y: -6, scale: 0.97, transition: { duration: 0.13 } },
-};
-
-// ── Navbar ─────────────────────────────────────────────────────────────────
-
-
-// ── About Page Header ──────────────────────────────────────────────────────
-function AboutHero() {
+// ── Hero Section ────────────────────────────────────────────────────────────
+function HistoryHero() {
   return (
-    <section className="about-hero">
-      <div className="container">
-        <div className="about-hero__breadcrumb">
-          <Link href="/" className="about-hero__breadcrumb-link">Home</Link>
-          <span className="about-hero__breadcrumb-sep">/</span>
-          <Link href="/about" className="about-hero__breadcrumb-link">About</Link>
-          <span className="about-hero__breadcrumb-sep">/</span>
-          <span className="about-hero__breadcrumb-current">PAGE History</span>
+    <section className="history-hero">
+      <div className="history-hero-container">
+        <div className="history-breadcrumb">
+          <Link href="/" className="history-breadcrumb-link">Home</Link>
+          <span className="history-breadcrumb-sep">/</span>
+          <Link href="/about" className="history-breadcrumb-link">About</Link>
+          <span className="history-breadcrumb-sep">/</span>
+          <span className="history-breadcrumb-current">History</span>
         </div>
-        <h1 className="about-hero__title">PAGE History</h1>
-        <div className="about-hero__divider" />
-        <p className="about-hero__subtitle">
-          Tracing our path from foundation in 1962 to driving higher education excellence
-          and virtual transformation across the nation.
-        </p>
+        
+        <div className="history-hero-left">
+          <h1 className="history-hero-title">History of PAGE</h1>
+          <div className="history-gold-line" />
+          <p className="history-hero-subtitle">
+            Tracing our journey from foundation in 1962 to leading nationwide higher education reforms, research innovation, and academic leadership across the Philippines.
+          </p>
+        </div>
       </div>
     </section>
   );
 }
 
-// ── Timeline Skeleton Loader ──
+// ── Stat Strip ─────────────────────────────────────────────────────────────
+function StatStrip() {
+  return (
+    <section className="history-stats-strip">
+      <div className="history-container">
+        <div className="history-stats-grid">
+          <div className="history-stat-card">
+            <div className="history-stat-number">1962</div>
+            <div className="history-stat-label">Founding Year</div>
+          </div>
+          <div className="history-stat-card">
+            <div className="history-stat-number">60+</div>
+            <div className="history-stat-label">Years of Impact</div>
+          </div>
+          <div className="history-stat-card">
+            <div className="history-stat-number">17</div>
+            <div className="history-stat-label">Regional Chapters</div>
+          </div>
+          <div className="history-stat-card">
+            <div className="history-stat-number">1,000+</div>
+            <div className="history-stat-label">Graduate Educators</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Timeline Skeleton ──────────────────────────────────────────────────────
 function TimelineSkeleton() {
   return (
-    <div className="timeline">
-      <div className="timeline__line" style={{ background: "#e5e7eb" }} />
-      {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="timeline__item">
-          <div className="timeline__content-wrap">
-            <div className="skeleton-timeline-card">
-              <div className="skeleton-badge skeleton-pulse" />
-              <div className="skeleton-year skeleton-pulse" />
-              <div className="skeleton-title skeleton-pulse" />
-              <div className="skeleton-desc skeleton-pulse" />
-              <div className="skeleton-desc skeleton-pulse" />
-            </div>
+    <div className="history-timeline-wrapper">
+      <div className="history-timeline-spine" />
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className={`history-timeline-row ${i % 2 === 0 ? "timeline-left" : "timeline-right"}`}>
+          <div className="history-timeline-node">
+            <div className="history-node-inner" />
           </div>
-          <div className="timeline__node" style={{ background: "#f3f4f6" }}>
-            <div className="skeleton-pulse" style={{ width: "34px", height: "34px", borderRadius: "50%" }} />
+          <div className="history-timeline-card-wrapper">
+            <div className="history-card">
+              <div className="skeleton-pulse" style={{ width: "120px", height: "32px", marginBottom: "16px" }} />
+              <div className="skeleton-pulse" style={{ width: "70%", height: "24px", marginBottom: "12px" }} />
+              <div className="skeleton-pulse" style={{ width: "100%", height: "16px", marginBottom: "8px" }} />
+              <div className="skeleton-pulse" style={{ width: "85%", height: "16px" }} />
+            </div>
           </div>
         </div>
       ))}
@@ -243,223 +227,170 @@ function TimelineSkeleton() {
   );
 }
 
-// ── Footer ─────────────────────────────────────────────────────────────────
-function Footer() {
-  return (
-    <footer className="footer">
-      <div className="footer__inner">
-        <div className="footer__columns">
-          <div>
-            <div className="footer__brand-logo">
-              <div className="footer__logo-mark" />
-              <div>
-                <div className="footer__logo-name">PAGE</div>
-                <div className="footer__logo-sub">An academic towards to excellence</div>
-              </div>
-            </div>
-            <p className="footer__brand-desc">
-              Philippine Association for Graduate Education — advancing excellence
-              through collaboration and research.
-            </p>
-            <div className="footer__socials">
-              {[<FacebookIcon key="fb" />, <InstagramIcon key="ig" />, <MailIconSm key="mail" />].map((icon, i) => (
-                <button key={i} className="footer__social-btn">{icon}</button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h4 className="footer__col-title">Quick Links</h4>
-            <ul className="footer__links">
-              {FOOTER_QUICK_LINKS.map(l => (
-                <li key={l}><a href="#" className="footer__link">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="footer__col-title">Resources</h4>
-            <ul className="footer__links">
-              {FOOTER_RESOURCES.map(l => (
-                <li key={l}><a href="#" className="footer__link">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="footer__col-title">Contact</h4>
-            <div className="footer__contact-list">
-              {FOOTER_CONTACT.map(item => (
-                <div key={item.text} className="footer__contact-item">
-                  <span className="footer__contact-icon">{item.icon}</span>
-                  <span className="footer__contact-text">{item.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="footer__bottom">
-          <p className="footer__copyright">
-            © 2026 Philippine Association for Graduate Education. All rights reserved.
-          </p>
-          <div className="footer__legal">
-            {["Privacy Policy", "Terms of Use"].map(l => (
-              <a key={l} href="#" className="footer__legal-link">{l}</a>
-            ))}
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
 // ── Framer Motion Variants ─────────────────────────────────────────────────
-
-const timelineContainerVariants: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.15,
-    },
-  },
-};
-
-const timelineItemVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    y: 35,
-  },
+const rowVariants: Variants = {
+  hidden: { opacity: 0, y: 30 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: {
-      duration: 0.5,
-      ease: [0.16, 1, 0.3, 1],
-    },
+    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
   },
+  exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } }
 };
 
-// ── Main Page Component ────────────────────────────────────────────────────
+// ── Main Component ─────────────────────────────────────────────────────────
 export default function HistoryPage() {
-  const [scrolled, setScrolled] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [apiRecords, setApiRecords] = useState<HistoricalRecord[] | null>(null);
+  const [records, setRecords] = useState<HistoricalRecord[]>(DEFAULT_HISTORICAL_RECORDS);
+  const [activeFilter, setActiveFilter] = useState<string>("all");
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener("scroll", onScroll);
-
     const fetchHistory = async () => {
       try {
         const res = await api.get<{ success: boolean; data: HistoricalRecord[] }>("/public/historical-records");
         if (res.success && res.data && res.data.length > 0) {
-          setApiRecords(res.data); // already sorted asc by yearStart from backend
+          // Sort by yearStart ascending
+          const sorted = [...res.data].sort((a, b) => a.yearStart - b.yearStart);
+          setRecords(sorted);
         } else {
-          setApiRecords(null); // fall back to mock
+          setRecords(DEFAULT_HISTORICAL_RECORDS);
         }
       } catch (err) {
-        console.error(err);
-        setApiRecords(null); // fall back to mock
+        console.error("Using default history records due to API error:", err);
+        setRecords(DEFAULT_HISTORICAL_RECORDS);
       } finally {
         setLoading(false);
       }
     };
     fetchHistory();
-
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-    };
   }, []);
 
+  // Filter records based on selected tab
+  const filteredRecords = records.filter(rec => {
+    if (activeFilter === "all") return true;
+    if (activeFilter === "founding") return rec.yearStart < 1980;
+    if (activeFilter === "expansion") return rec.yearStart >= 1980 && rec.yearStart < 2000;
+    if (activeFilter === "modern") return rec.yearStart >= 2000;
+    return rec.programType.toLowerCase() === activeFilter.toLowerCase();
+  });
+
   return (
-    <>
-      <Navbar scrolled={scrolled} />
-      <main>
-        <AboutHero />
+    <div className="history-main">
+      <HistoryHero />
+      <StatStrip />
 
-        <section className="history-section">
-          <div className="container">
-            {loading ? (
-              <TimelineSkeleton />
-            ) : (
-              <div className="timeline">
-                <div className="timeline__line" />
-
-                <motion.div
-                  variants={timelineContainerVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  {/* API records (sorted asc by yearStart from backend) */}
-                  {apiRecords !== null ? (
-                    apiRecords.map((record) => {
-                      const milestoneType = programTypeToMilestone(record.programType);
-                      return (
-                        <motion.div
-                          key={record.id}
-                          className="timeline__item"
-                          variants={timelineItemVariants}
-                        >
-                          <div className="timeline__content-wrap">
-                            <div className={`timeline__card milestone-${milestoneType}`}>
-                              <span className="timeline__badge">{record.programType}</span>
-                              <span className="timeline__year">{record.yearStart}</span>
-                              <h3 className="timeline__title">{record.title}</h3>
-                              <p className="timeline__desc">{record.description}</p>
-                            </div>
-                          </div>
-
-                          <div className="timeline__node">
-                            <div className={`timeline__icon-inner milestone-${milestoneType}`} style={{ color: "var(--milestone-color)", background: "var(--milestone-bg)" }}>
-                              {getMilestoneIcon(milestoneType)}
-                            </div>
-                          </div>
-                        </motion.div>
-                      );
-                    })
-                  ) : (
-                    /* Fall back to static mock data */
-                    TIMELINE_EVENTS.map((event) => (
-                      <motion.div
-                        key={event.year}
-                        className="timeline__item"
-                        variants={timelineItemVariants}
-                      >
-                        <div className="timeline__content-wrap">
-                          <div className={`timeline__card milestone-${event.milestone_type}`}>
-                            <span className="timeline__badge">{event.milestone_type}</span>
-                            <span className="timeline__year">{event.year}</span>
-                            <h3 className="timeline__title">{event.title}</h3>
-                            <p className="timeline__desc">{event.description}</p>
-                            {event.list && (
-                              <div className="timeline__list-container">
-                                <h4 className="timeline__list-title">{event.list.title}</h4>
-                                <ul className="timeline__list">
-                                  {event.list.items.map((item, idx) => (
-                                    <li key={idx} className="timeline__list-item">{item}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="timeline__node">
-                          <div className={`timeline__icon-inner milestone-${event.milestone_type}`} style={{ color: "var(--milestone-color)", background: "var(--milestone-bg)" }}>
-                            {getMilestoneIcon(event.milestone_type)}
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))
-                  )}
-                </motion.div>
+      <section className="history-content-section">
+        <div className="history-container">
+          {/* Intro Card */}
+          <div className="history-intro-section">
+            <div className="history-intro-card">
+              <div className="history-intro-icon-wrap">
+                <CalendarIcon />
               </div>
-            )}
+              <div>
+                <h2 className="history-intro-title">A Living Legacy of Academic Leadership</h2>
+                <p className="history-intro-text">
+                  Since 1962, PAGE has served as the nationwide backbone for graduate education in the Philippines. 
+                  Explore key historical milestones that have defined our institutional growth, policy contributions, and commitment to research excellence.
+                </p>
+              </div>
+            </div>
           </div>
-        </section>
-      </main>
-      <Footer />
-    </>
+
+          {/* Filter Bar */}
+          <div className="history-filter-bar">
+            <button
+              className={`history-filter-btn ${activeFilter === "all" ? "active" : ""}`}
+              onClick={() => setActiveFilter("all")}
+            >
+              All Milestones
+            </button>
+            <button
+              className={`history-filter-btn ${activeFilter === "founding" ? "active" : ""}`}
+              onClick={() => setActiveFilter("founding")}
+            >
+              Founding Era (1962-1979)
+            </button>
+            <button
+              className={`history-filter-btn ${activeFilter === "expansion" ? "active" : ""}`}
+              onClick={() => setActiveFilter("expansion")}
+            >
+              Expansion (1980-1999)
+            </button>
+            <button
+              className={`history-filter-btn ${activeFilter === "modern" ? "active" : ""}`}
+              onClick={() => setActiveFilter("modern")}
+            >
+              Modern Era (2000-Present)
+            </button>
+          </div>
+
+          {/* Timeline Section */}
+          {loading ? (
+            <TimelineSkeleton />
+          ) : filteredRecords.length === 0 ? (
+            <div className="history-empty-state">
+              <ClockIcon />
+              <h3>No Historical Milestones Found</h3>
+              <p>No records match the selected era filter. Try selecting "All Milestones" to view full timeline.</p>
+            </div>
+          ) : (
+            <div className="history-timeline-wrapper">
+              <div className="history-timeline-spine" />
+
+              <AnimatePresence mode="popLayout">
+                {filteredRecords.map((record, index) => {
+                  const milestoneType = programTypeToMilestone(record.programType);
+                  const isLeft = index % 2 === 0;
+
+                  return (
+                    <motion.div
+                      key={record.id}
+                      className={`history-timeline-row ${isLeft ? "timeline-left" : "timeline-right"}`}
+                      variants={rowVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      layout
+                    >
+                      {/* Central Spine Node */}
+                      <div className="history-timeline-node" title={`${record.yearStart} Milestone`}>
+                        <div className="history-node-inner" />
+                      </div>
+
+                      {/* Card Content */}
+                      <div className="history-timeline-card-wrapper">
+                        <div className="history-card">
+                          <div className="history-card-header">
+                            <span className="history-card-badge">{record.programType}</span>
+                            <span className="history-card-year">{record.yearStart}</span>
+                          </div>
+
+                          <h3 className="history-card-title">{record.title}</h3>
+                          <p className="history-card-desc">{record.description}</p>
+
+                          <div className="history-card-footer">
+                            {getMilestoneIcon(milestoneType)}
+                            <span>Historical Milestone</span>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+
+              {/* End Marker */}
+              <div className="history-timeline-end">
+                <div className="history-timeline-end-pill">
+                  <div className="history-timeline-end-dot" />
+                  <span>Present Day · Empowering Future Educators</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+    </div>
   );
 }

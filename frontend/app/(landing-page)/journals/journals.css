@@ -3,7 +3,7 @@
    Design system: matches activities.css / news.css / convention.css
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap');
 
 /* Global resets */
 a {
@@ -24,8 +24,8 @@ a {
   --parchment:    #f7f6f3;
   --white:        #ffffff;
   --rule:         rgba(15,25,35,0.12);
-  --serif:        var(--font-instrument-serif), serif;
-  --sans:         var(--font-poppins), sans-serif;
+  --serif:        var(--font-poppins), 'Poppins', sans-serif;
+  --sans:         var(--font-poppins), 'Poppins', sans-serif;
   --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
   --t-fast:       0.14s ease;
   --t-mid:        0.24s ease;
@@ -1578,7 +1578,7 @@ a {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background-image: url('/PAGE.jpg');
+  background-image: url('/PAGE-favicon.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
