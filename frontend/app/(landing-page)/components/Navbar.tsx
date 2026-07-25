@@ -22,12 +22,33 @@ const CloseIcon = () => (
 );
 
 const ChevronDownIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="6 9 12 15 18 9" />
   </svg>
 );
 
-// ── Navigation Menu Data ──────────────────────────────────────────────────
+const FacebookIconHeader = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
+
+const LinkedinIconHeader = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+    <rect x="2" y="9" width="4" height="12" />
+    <circle cx="4" cy="4" r="2" />
+  </svg>
+);
+
+const MailIconHeader = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+    <polyline points="22,6 12,13 2,6" />
+  </svg>
+);
+
+// ── Dropdown Items Configuration ──────────────────────────────────────────
 const ABOUT_DROPDOWN_ITEMS = [
   { label: "About PAGE",                href: "/about" },
   { label: "Constitution and By-Laws",  href: "/about/cbl" },
@@ -38,77 +59,35 @@ const ABOUT_DROPDOWN_ITEMS = [
   { label: "BIR Certification",         href: "/about/bir" },
 ];
 
-const ACTIVITY_DROPDOWN_ITEMS = [
-  { label: "Latest Activities",  timeframe: "latest" },
-  { label: "Future Activities",  timeframe: "future" },
-];
-
-const CONVENTIONS_DROPDOWN_ITEMS = [
-  { label: "All Conventions",   href: "/convention" },
-  { label: "53rd Convention",   href: "/convention/53rd-national-convention" },
-  { label: "54th Convention",   href: "/convention/54th-national-convention" },
-  { label: "55th Convention",   href: "/convention/55th-national-convention" },
-  { label: "56th Convention",   href: "/convention/56th-national-convention" },
-];
-
-const JOURNALS_DROPDOWN_ITEMS = [
-  { label: "All Journals",                  href: "/journals" },
-  { label: "Submission Guidelines",         href: "/journals/guidelines" },
-  { label: "Education",                     href: "/journals?discipline=Education" },
-  { label: "Humanities & Social Sciences",  href: "/journals?discipline=Humanities and Social Sciences" },
-  { label: "Engineering & Technology",      href: "/journals?discipline=Engineering and Technology" },
-  { label: "Health & Sciences",             href: "/journals?discipline=Health and Sciences" },
-  { label: "Business Education",            href: "/journals?discipline=Business Education" },
-  { label: "Public Administration",         href: "/journals?discipline=Public Administration" },
-  { label: "Other Disciplines",             href: "/journals?discipline=Other Disciplines" },
-];
-
 const MEMBERSHIP_DROPDOWN_ITEMS = [
   { label: "Membership Categories",   href: "/membership" },
   { label: "Apply Online",            href: "/membership/apply" },
+  { label: "Regular Members",         href: "/membership?cat=regular#requirements" },
   { label: "Life Members",            href: "/membership?cat=life#requirements" },
-  { label: "Regular Members",           href: "/membership?cat=regular#requirements" },
   { label: "Membership Forms",        href: "/membership/apply" },
   { label: "Membership Requirements", href: "/membership#requirements" },
 ];
 
-const PARTNERS_DROPDOWN_ITEMS = [
-  { label: "MOU/MOA with Phil. Universities", href: "/partners?tab=phil" },
-  { label: "MOU/MOA with Foreign Universities", href: "/partners?tab=foreign" },
-  { label: "MOU/MOA with Industries",          href: "/partners?tab=industries" },
+const RESOURCES_DROPDOWN_ITEMS = [
+  { label: "Graduate Education Standards", href: "/library" },
+  { label: "Policies & Advocacy",           href: "/library?tab=cmo" },
+  { label: "Research & Journals",           href: "/journals" },
+  { label: "Forms & Templates",             href: "/library?tab=other" },
+  { label: "Member Directory",              href: "/membership" },
+  { label: "Regional Chapters",             href: "/chapters" },
+  { label: "Partnerships",                  href: "/partners" },
 ];
 
-const LIBRARY_DROPDOWN_ITEMS = [
-  { label: "CMO 15",      href: "/library?tab=cmo15" },
-  { label: "CMO 21",      href: "/library?tab=cmo21" },
-  { label: "Other CMOs",  href: "/library?tab=other" },
+const NEWS_DROPDOWN_ITEMS = [
+  { label: "All News & Announcements", href: "/news" },
+  { label: "Press Releases",            href: "/news?cat=press" },
+  { label: "Statements & Policy Briefs",href: "/news?cat=statements" },
 ];
 
-const LUZON_CHAPTERS = [
-  { short: "PAGE NCR", slug: "ncr" },
-  { short: "PAGE CAR", slug: "car" },
-  { short: "PAGE I", slug: "region-1" },
-  { short: "PAGE II", slug: "region-2" },
-  { short: "PAGE III", slug: "region-3" },
-  { short: "PAGE IV-A", slug: "region-4a" },
-  { short: "PAGE IV-B", slug: "region-4b" },
-  { short: "PAGE V", slug: "region-5" },
-];
-
-const VISAYAS_CHAPTERS = [
-  { short: "PAGE VI", slug: "region-6" },
-  { short: "PAGE VII", slug: "region-7" },
-  { short: "PAGE VIII", slug: "region-8" },
-  { short: "PAGE XVIII- NIR", slug: "nir" },
-];
-
-const MINDANAO_CHAPTERS = [
-  { short: "PAGE IX", slug: "region-9" },
-  { short: "PAGE X", slug: "region-10" },
-  { short: "PAGE XI", slug: "region-11" },
-  { short: "PAGE XII", slug: "region-12" },
-  { short: "PAGE XIII", slug: "region-13" },
-  { short: "PAGE CARAGA", slug: "caraga" },
+const EVENTS_DROPDOWN_ITEMS = [
+  { label: "All Events & Activities", href: "/activities" },
+  { label: "Upcoming Webinars",       href: "/activities?timeframe=future" },
+  { label: "National Conventions",   href: "/convention" },
 ];
 
 const dropdownVariants: Variants = {
@@ -120,7 +99,6 @@ const dropdownVariants: Variants = {
 function NavbarContent({ scrolled }: { scrolled: boolean }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
@@ -155,43 +133,28 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
       }
       return true;
     }
-    if (pathname === href) {
-      if (href === "/activities" && searchParams.has("timeframe")) return false;
-      if (href === "/journals" && searchParams.has("discipline")) return false;
-      return true;
-    }
-    return false;
+    return pathname === href;
   };
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activitiesDropdownOpen, setActivitiesDropdownOpen] = useState(false);
-  const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false);
-  const [chaptersDropdownOpen, setChaptersDropdownOpen] = useState(false);
-  const [conventionDropdownOpen, setConventionDropdownOpen] = useState(false);
-  const [journalsDropdownOpen, setJournalsDropdownOpen] = useState(false);
-  const [membershipDropdownOpen, setMembershipDropdownOpen] = useState(false);
-  const [partnersDropdownOpen, setPartnersDropdownOpen] = useState(false);
-  const [libraryDropdownOpen, setLibraryDropdownOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
+  const [membershipOpen, setMembershipOpen] = useState(false);
+  const [resourcesOpen, setResourcesOpen] = useState(false);
+  const [newsOpen, setNewsOpen] = useState(false);
+  const [eventsOpen, setEventsOpen] = useState(false);
 
-  const activitiesRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
-  const chaptersRef = useRef<HTMLDivElement>(null);
-  const conventionRef = useRef<HTMLDivElement>(null);
-  const journalsRef = useRef<HTMLDivElement>(null);
   const membershipRef = useRef<HTMLDivElement>(null);
-  const partnersRef = useRef<HTMLDivElement>(null);
-  const libraryRef = useRef<HTMLDivElement>(null);
+  const resourcesRef = useRef<HTMLDivElement>(null);
+  const newsRef = useRef<HTMLDivElement>(null);
+  const eventsRef = useRef<HTMLDivElement>(null);
 
-  // Close all dropdowns
   const closeAll = () => {
-    setActivitiesDropdownOpen(false);
-    setAboutDropdownOpen(false);
-    setChaptersDropdownOpen(false);
-    setConventionDropdownOpen(false);
-    setJournalsDropdownOpen(false);
-    setMembershipDropdownOpen(false);
-    setPartnersDropdownOpen(false);
-    setLibraryDropdownOpen(false);
+    setAboutOpen(false);
+    setMembershipOpen(false);
+    setResourcesOpen(false);
+    setNewsOpen(false);
+    setEventsOpen(false);
   };
 
   useEffect(() => {
@@ -203,14 +166,11 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
     };
     const onClick = (e: MouseEvent) => {
       const target = e.target as Node;
-      if (activitiesRef.current && !activitiesRef.current.contains(target)) setActivitiesDropdownOpen(false);
-      if (aboutRef.current && !aboutRef.current.contains(target)) setAboutDropdownOpen(false);
-      if (chaptersRef.current && !chaptersRef.current.contains(target)) setChaptersDropdownOpen(false);
-      if (conventionRef.current && !conventionRef.current.contains(target)) setConventionDropdownOpen(false);
-      if (journalsRef.current && !journalsRef.current.contains(target)) setJournalsDropdownOpen(false);
-      if (membershipRef.current && !membershipRef.current.contains(target)) setMembershipDropdownOpen(false);
-      if (partnersRef.current && !partnersRef.current.contains(target)) setPartnersDropdownOpen(false);
-      if (libraryRef.current && !libraryRef.current.contains(target)) setLibraryDropdownOpen(false);
+      if (aboutRef.current && !aboutRef.current.contains(target)) setAboutOpen(false);
+      if (membershipRef.current && !membershipRef.current.contains(target)) setMembershipOpen(false);
+      if (resourcesRef.current && !resourcesRef.current.contains(target)) setResourcesOpen(false);
+      if (newsRef.current && !newsRef.current.contains(target)) setNewsOpen(false);
+      if (eventsRef.current && !eventsRef.current.contains(target)) setEventsOpen(false);
     };
     document.addEventListener("keydown", onKey);
     document.addEventListener("mousedown", onClick);
@@ -226,7 +186,7 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
   }, [pathname, searchParams]);
 
   useEffect(() => {
-    const onResize = () => { if (window.innerWidth > 1360) setMenuOpen(false); };
+    const onResize = () => { if (window.innerWidth > 1100) setMenuOpen(false); };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
@@ -234,583 +194,337 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
   const isHomeActive = pathname === "/";
   const isAboutActive = pathname?.startsWith("/about");
   const isMembershipActive = pathname?.startsWith("/membership");
-  const isPartnersActive = pathname?.startsWith("/partners");
-  const isLibraryActive = pathname?.startsWith("/library");
+  const isResourcesActive = pathname?.startsWith("/library") || pathname?.startsWith("/journals") || pathname?.startsWith("/chapters") || pathname?.startsWith("/partners");
   const isNewsActive = pathname?.startsWith("/news");
-  const isActivitiesActive = pathname?.startsWith("/activities");
-  const isChaptersActive = pathname?.startsWith("/chapters");
-  const isConventionActive = pathname?.startsWith("/convention");
-  const isJournalsActive = pathname?.startsWith("/journals");
+  const isEventsActive = pathname?.startsWith("/activities") || pathname?.startsWith("/convention");
   const isContactActive = pathname?.startsWith("/contact");
 
   return (
-    <header className={`navbar${scrolled ? " navbar--scrolled" : ""}${menuOpen ? " navbar--open" : ""}`}>
-      <nav className="navbar__inner">
-        <Link href="/" className="navbar__logo">
-          <div className="navbar__logo-mark">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/PAGE.jpg"
-              width={50}
-              height={50}
-              alt="PAGE Logo"
-              onError={(e) => {
-                const target = e.currentTarget as HTMLImageElement;
-                target.style.display = "none";
-                const fallback = target.nextElementSibling as HTMLElement;
-                if (fallback) fallback.style.display = "flex";
-              }}
-            />
-            <span className="navbar__logo-mark-fallback" style={{ display: "none" }}>PAGE</span>
-          </div>
-        </Link>
+    <div className="navbar-wrapper">
 
-        <div className="navbar__links">
-          {/* Home Link */}
-          <Link href="/" className={`navbar__link${isHomeActive ? " navbar__link--active" : ""}`}>
+
+      {/* Main Header / Navbar */}
+      <header className={`navbar${scrolled ? " navbar--scrolled" : ""}${menuOpen ? " navbar--open" : ""}`}>
+        <nav className="navbar__inner">
+          {/* Logo */}
+          <Link href="/" className="navbar__logo">
+            <div className="navbar__logo-mark">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/PAGE-favicon.png"
+                width={50}
+                height={50}
+                alt="PAGE Logo"
+                onError={(e) => {
+                  const target = e.currentTarget as HTMLImageElement;
+                  target.style.display = "none";
+                  const fallback = target.nextElementSibling as HTMLElement;
+                  if (fallback) fallback.style.display = "flex";
+                }}
+              />
+              <span className="navbar__logo-mark-fallback" style={{ display: "none" }}>PAGE</span>
+            </div>
+            <div className="navbar__logo-text">
+              <span className="navbar__logo-name">PHILIPPINE ASSOCIATION</span>
+              <span className="navbar__logo-name">FOR GRADUATE EDUCATION</span>
+              <span className="navbar__logo-badge">PAGE National</span>
+            </div>
+          </Link>
+
+          {/* Desktop Nav Links */}
+          <div className="navbar__links">
+            {/* Home */}
+            <Link href="/" className={`navbar__link${isHomeActive ? " navbar__link--active" : ""}`}>
+              Home
+            </Link>
+
+            {/* About PAGE Dropdown */}
+            <div
+              className="navbar__dropdown-wrap"
+              ref={aboutRef}
+              onMouseEnter={() => setAboutOpen(true)}
+              onMouseLeave={() => setAboutOpen(false)}
+            >
+              <button
+                className={`navbar__dropdown-trigger${aboutOpen ? " navbar__dropdown-trigger--open" : ""}${isAboutActive ? " navbar__dropdown-trigger--active" : ""}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setAboutOpen(prev => !prev);
+                }}
+                aria-haspopup="true"
+                aria-expanded={aboutOpen}
+              >
+                About PAGE
+                <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
+              </button>
+              <AnimatePresence>
+                {aboutOpen && (
+                  <motion.div role="menu" className="navbar__dropdown"
+                    variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
+                    {ABOUT_DROPDOWN_ITEMS.map((item, i) => (
+                      <Link key={item.href}
+                        href={item.href}
+                        role="menuitem"
+                        className={`navbar__dropdown-item${i === 0 ? " navbar__dropdown-item--all" : ""}${isDropdownItemActive(item.href) ? " navbar__dropdown-item--active" : ""}`}
+                        onClick={() => setAboutOpen(false)}>
+                        {item.label}
+                      </Link>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Membership Dropdown */}
+            <div
+              className="navbar__dropdown-wrap"
+              ref={membershipRef}
+              onMouseEnter={() => setMembershipOpen(true)}
+              onMouseLeave={() => setMembershipOpen(false)}
+            >
+              <button
+                className={`navbar__dropdown-trigger${membershipOpen ? " navbar__dropdown-trigger--open" : ""}${isMembershipActive ? " navbar__dropdown-trigger--active" : ""}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setMembershipOpen(prev => !prev);
+                }}
+                aria-haspopup="true"
+                aria-expanded={membershipOpen}
+              >
+                Membership
+                <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
+              </button>
+              <AnimatePresence>
+                {membershipOpen && (
+                  <motion.div role="menu" className="navbar__dropdown"
+                    variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
+                    {MEMBERSHIP_DROPDOWN_ITEMS.map((item, i) => (
+                      <Link key={item.label}
+                        href={item.href}
+                        role="menuitem"
+                        className={`navbar__dropdown-item${i === 0 ? " navbar__dropdown-item--all" : ""}${isDropdownItemActive(item.href) ? " navbar__dropdown-item--active" : ""}`}
+                        onClick={() => setMembershipOpen(false)}>
+                        {item.label}
+                      </Link>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Resources Dropdown */}
+            <div
+              className="navbar__dropdown-wrap"
+              ref={resourcesRef}
+              onMouseEnter={() => setResourcesOpen(true)}
+              onMouseLeave={() => setResourcesOpen(false)}
+            >
+              <button
+                className={`navbar__dropdown-trigger${resourcesOpen ? " navbar__dropdown-trigger--open" : ""}${isResourcesActive ? " navbar__dropdown-trigger--active" : ""}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setResourcesOpen(prev => !prev);
+                }}
+                aria-haspopup="true"
+                aria-expanded={resourcesOpen}
+              >
+                Resources
+                <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
+              </button>
+              <AnimatePresence>
+                {resourcesOpen && (
+                  <motion.div role="menu" className="navbar__dropdown"
+                    variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
+                    {RESOURCES_DROPDOWN_ITEMS.map((item) => (
+                      <Link key={item.label}
+                        href={item.href}
+                        role="menuitem"
+                        className={`navbar__dropdown-item${isDropdownItemActive(item.href) ? " navbar__dropdown-item--active" : ""}`}
+                        onClick={() => setResourcesOpen(false)}>
+                        {item.label}
+                      </Link>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* News Dropdown */}
+            <div
+              className="navbar__dropdown-wrap"
+              ref={newsRef}
+              onMouseEnter={() => setNewsOpen(true)}
+              onMouseLeave={() => setNewsOpen(false)}
+            >
+              <button
+                className={`navbar__dropdown-trigger${newsOpen ? " navbar__dropdown-trigger--open" : ""}${isNewsActive ? " navbar__dropdown-trigger--active" : ""}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setNewsOpen(prev => !prev);
+                }}
+                aria-haspopup="true"
+                aria-expanded={newsOpen}
+              >
+                News
+                <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
+              </button>
+              <AnimatePresence>
+                {newsOpen && (
+                  <motion.div role="menu" className="navbar__dropdown"
+                    variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
+                    {NEWS_DROPDOWN_ITEMS.map((item) => (
+                      <Link key={item.label}
+                        href={item.href}
+                        role="menuitem"
+                        className={`navbar__dropdown-item${isDropdownItemActive(item.href) ? " navbar__dropdown-item--active" : ""}`}
+                        onClick={() => setNewsOpen(false)}>
+                        {item.label}
+                      </Link>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Events Dropdown */}
+            <div
+              className="navbar__dropdown-wrap"
+              ref={eventsRef}
+              onMouseEnter={() => setEventsOpen(true)}
+              onMouseLeave={() => setEventsOpen(false)}
+            >
+              <button
+                className={`navbar__dropdown-trigger${eventsOpen ? " navbar__dropdown-trigger--open" : ""}${isEventsActive ? " navbar__dropdown-trigger--active" : ""}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setEventsOpen(prev => !prev);
+                }}
+                aria-haspopup="true"
+                aria-expanded={eventsOpen}
+              >
+                Events
+                <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
+              </button>
+              <AnimatePresence>
+                {eventsOpen && (
+                  <motion.div role="menu" className="navbar__dropdown"
+                    variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
+                    {EVENTS_DROPDOWN_ITEMS.map((item) => (
+                      <Link key={item.label}
+                        href={item.href}
+                        role="menuitem"
+                        className={`navbar__dropdown-item${isDropdownItemActive(item.href) ? " navbar__dropdown-item--active" : ""}`}
+                        onClick={() => setEventsOpen(false)}>
+                        {item.label}
+                      </Link>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Contact Link */}
+            <Link href="/contact" className={`navbar__link${isContactActive ? " navbar__link--active" : ""}`}>
+              Contact
+            </Link>
+          </div>
+
+          {/* Right Action CTA Button */}
+          <div className="navbar__actions">
+            {user ? (
+              <div className="navbar__user-menu">
+                {user.role === 'admin' && (
+                  <Link href="/admin-dashboard" className="navbar__dashboard-btn">Dashboard</Link>
+                )}
+                {user.role === 'organization' && (
+                  <Link href="/org-dashboard" className="navbar__dashboard-btn">Dashboard</Link>
+                )}
+                <button onClick={handleSignOut} className="navbar__signout-btn">Sign Out</button>
+              </div>
+            ) : (
+              <Link href="/membership" className="btn-join-page">
+                Join PAGE
+              </Link>
+            )}
+
+            <button className="navbar__hamburger" onClick={() => setMenuOpen(p => !p)} aria-label="Toggle menu">
+              {menuOpen ? <CloseIcon /> : <HamburgerIcon />}
+            </button>
+          </div>
+        </nav>
+
+        {/* Mobile Menu */}
+        <div className={`navbar__mobile-menu${menuOpen ? " navbar__mobile-menu--open" : ""}`}>
+          <Link href="/" className={`navbar__mobile-link${isHomeActive ? " navbar__mobile-link--active" : ""}`} onClick={() => setMenuOpen(false)}>
             Home
           </Link>
 
-          {/* About Dropdown */}
-          <div
-            className="navbar__dropdown-wrap"
-            ref={aboutRef}
-            onMouseEnter={() => setAboutDropdownOpen(true)}
-            onMouseLeave={() => setAboutDropdownOpen(false)}
-          >
-            <button
-              id="about-dropdown-btn"
-              className={`navbar__dropdown-trigger${aboutDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isAboutActive ? " navbar__dropdown-trigger--active" : ""}`}
-              onClick={(e) => {
-                e.preventDefault();
-                setAboutDropdownOpen(prev => !prev);
-              }}
-              aria-haspopup="true"
-              aria-expanded={aboutDropdownOpen}
-            >
-              About
-              <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
-            </button>
-            <AnimatePresence>
-              {aboutDropdownOpen && (
-                <motion.div role="menu" className="navbar__dropdown"
-                  variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
-                  {ABOUT_DROPDOWN_ITEMS.map((item, i) => (
-                    <Link key={item.href}
-                      href={item.href}
-                      role="menuitem"
-                      className={`navbar__dropdown-item${i === 0 ? " navbar__dropdown-item--all" : ""}${isDropdownItemActive(item.href) ? " navbar__dropdown-item--active" : ""}`}
-                      onClick={() => setAboutDropdownOpen(false)}>
-                      {item.label}
-                    </Link>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Chapters Dropdown */}
-          <div
-            className="navbar__dropdown-wrap"
-            ref={chaptersRef}
-            onMouseEnter={() => setChaptersDropdownOpen(true)}
-            onMouseLeave={() => setChaptersDropdownOpen(false)}
-          >
-            <button
-              id="chapters-dropdown-btn"
-              className={`navbar__dropdown-trigger${chaptersDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isChaptersActive ? " navbar__dropdown-trigger--active" : ""}`}
-              onClick={(e) => {
-                e.preventDefault();
-                setChaptersDropdownOpen(prev => !prev);
-              }}
-              aria-haspopup="true"
-              aria-expanded={chaptersDropdownOpen}
-            >
-              Chapters
-              <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
-            </button>
-            <AnimatePresence>
-              {chaptersDropdownOpen && (
-                <motion.div role="menu" className="navbar__dropdown navbar__dropdown--chapters"
-                  variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
-                  <Link href="/chapters" className={`navbar__dropdown-item navbar__dropdown-item--all${isDropdownItemActive("/chapters") ? " navbar__dropdown-item--active" : ""}`}
-                    onClick={() => setChaptersDropdownOpen(false)}>
-                    View All Chapters
-                  </Link>
-                  <div className="navbar__chapters-columns">
-                    {/* Luzon Column */}
-                    <div className="navbar__chapters-col">
-                      <div className="navbar__chapters-col-header">Luzon</div>
-                      <div className="navbar__chapters-col-grid">
-                        {LUZON_CHAPTERS.map((item) => {
-                          const href = `/chapters/${item.slug}`;
-                          return (
-                            <Link key={item.slug}
-                              href={href}
-                              role="menuitem"
-                              className={`navbar__dropdown-item navbar__dropdown-item--chapter${isDropdownItemActive(href) ? " navbar__dropdown-item--chapter-active" : ""}`}
-                              onClick={() => setChaptersDropdownOpen(false)}>
-                              {item.short}
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </div>
-                    {/* Visayas Column */}
-                    <div className="navbar__chapters-col">
-                      <div className="navbar__chapters-col-header">Visayas</div>
-                      <div className="navbar__chapters-col-grid">
-                        {VISAYAS_CHAPTERS.map((item) => {
-                          const href = `/chapters/${item.slug}`;
-                          return (
-                            <Link key={item.slug}
-                              href={href}
-                              role="menuitem"
-                              className={`navbar__dropdown-item navbar__dropdown-item--chapter${isDropdownItemActive(href) ? " navbar__dropdown-item--chapter-active" : ""}`}
-                              onClick={() => setChaptersDropdownOpen(false)}>
-                              {item.short}
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </div>
-                    {/* Mindanao Column */}
-                    <div className="navbar__chapters-col">
-                      <div className="navbar__chapters-col-header">Mindanao</div>
-                      <div className="navbar__chapters-col-grid">
-                        {MINDANAO_CHAPTERS.map((item) => {
-                          const href = `/chapters/${item.slug}`;
-                          return (
-                            <Link key={item.slug}
-                              href={href}
-                              role="menuitem"
-                              className={`navbar__dropdown-item navbar__dropdown-item--chapter${isDropdownItemActive(href) ? " navbar__dropdown-item--chapter-active" : ""}`}
-                              onClick={() => setChaptersDropdownOpen(false)}>
-                              {item.short}
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Convention Dropdown */}
-          <div
-            className="navbar__dropdown-wrap"
-            ref={conventionRef}
-            onMouseEnter={() => setConventionDropdownOpen(true)}
-            onMouseLeave={() => setConventionDropdownOpen(false)}
-          >
-            <button
-              id="convention-dropdown-btn"
-              className={`navbar__dropdown-trigger${conventionDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isConventionActive ? " navbar__dropdown-trigger--active" : ""}`}
-              onClick={(e) => {
-                e.preventDefault();
-                setConventionDropdownOpen(prev => !prev);
-              }}
-              aria-haspopup="true"
-              aria-expanded={conventionDropdownOpen}
-            >
-              Convention
-              <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
-            </button>
-            <AnimatePresence>
-              {conventionDropdownOpen && (
-                <motion.div role="menu" className="navbar__dropdown"
-                  variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
-                  {CONVENTIONS_DROPDOWN_ITEMS.map((item, i) => (
-                    <Link key={item.href}
-                      href={item.href}
-                      role="menuitem"
-                      className={`navbar__dropdown-item${i === 0 ? " navbar__dropdown-item--all" : ""}${isDropdownItemActive(item.href) ? " navbar__dropdown-item--active" : ""}`}
-                      onClick={() => setConventionDropdownOpen(false)}>
-                      {item.label}
-                    </Link>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Research Journals Dropdown */}
-          <div
-            className="navbar__dropdown-wrap"
-            ref={journalsRef}
-            onMouseEnter={() => setJournalsDropdownOpen(true)}
-            onMouseLeave={() => setJournalsDropdownOpen(false)}
-          >
-            <button
-              id="journals-dropdown-btn"
-              className={`navbar__dropdown-trigger${journalsDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isJournalsActive ? " navbar__dropdown-trigger--active" : ""}`}
-              onClick={(e) => {
-                e.preventDefault();
-                setJournalsDropdownOpen(prev => !prev);
-              }}
-              aria-haspopup="true"
-              aria-expanded={journalsDropdownOpen}
-            >
-              Research Journals
-              <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
-            </button>
-            <AnimatePresence>
-              {journalsDropdownOpen && (
-                <motion.div role="menu" className="navbar__dropdown"
-                  variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
-                  {JOURNALS_DROPDOWN_ITEMS.map((item, i) => (
-                    <Link key={item.href}
-                      href={item.href}
-                      role="menuitem"
-                      className={`navbar__dropdown-item${i === 0 ? " navbar__dropdown-item--all" : ""}${isDropdownItemActive(item.href) ? " navbar__dropdown-item--active" : ""}`}
-                      onClick={() => setJournalsDropdownOpen(false)}>
-                      {item.label}
-                    </Link>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Membership Dropdown */}
-          <div
-            className="navbar__dropdown-wrap"
-            ref={membershipRef}
-            onMouseEnter={() => setMembershipDropdownOpen(true)}
-            onMouseLeave={() => setMembershipDropdownOpen(false)}
-          >
-            <button
-              id="membership-dropdown-btn"
-              className={`navbar__dropdown-trigger${membershipDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isMembershipActive ? " navbar__dropdown-trigger--active" : ""}`}
-              onClick={(e) => {
-                e.preventDefault();
-                setMembershipDropdownOpen(prev => !prev);
-              }}
-              aria-haspopup="true"
-              aria-expanded={membershipDropdownOpen}
-            >
-              Membership
-              <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
-            </button>
-            <AnimatePresence>
-              {membershipDropdownOpen && (
-                <motion.div role="menu" className="navbar__dropdown"
-                  variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
-                  {MEMBERSHIP_DROPDOWN_ITEMS.map((item, i) => (
-                    <Link key={item.label}
-                      href={item.href}
-                      role="menuitem"
-                      className={`navbar__dropdown-item${i === 0 ? " navbar__dropdown-item--all" : ""}${isDropdownItemActive(item.href) ? " navbar__dropdown-item--active" : ""}`}
-                      onClick={() => setMembershipDropdownOpen(false)}>
-                      {item.label}
-                    </Link>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* PAGE Partners Dropdown */}
-          <div
-            className="navbar__dropdown-wrap"
-            ref={partnersRef}
-            onMouseEnter={() => setPartnersDropdownOpen(true)}
-            onMouseLeave={() => setPartnersDropdownOpen(false)}
-          >
-            <button
-              id="partners-dropdown-btn"
-              className={`navbar__dropdown-trigger${partnersDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isPartnersActive ? " navbar__dropdown-trigger--active" : ""}`}
-              onClick={(e) => {
-                e.preventDefault();
-                setPartnersDropdownOpen(prev => !prev);
-              }}
-              aria-haspopup="true"
-              aria-expanded={partnersDropdownOpen}
-            >
-              Partnerships
-              <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
-            </button>
-            <AnimatePresence>
-              {partnersDropdownOpen && (
-                <motion.div role="menu" className="navbar__dropdown"
-                  variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
-                  {PARTNERS_DROPDOWN_ITEMS.map((item) => (
-                    <Link key={item.label}
-                      href={item.href}
-                      role="menuitem"
-                      className={`navbar__dropdown-item${isDropdownItemActive(item.href) ? " navbar__dropdown-item--active" : ""}`}
-                      onClick={() => setPartnersDropdownOpen(false)}>
-                      {item.label}
-                    </Link>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* PAGE Library Dropdown */}
-          <div
-            className="navbar__dropdown-wrap"
-            ref={libraryRef}
-            onMouseEnter={() => setLibraryDropdownOpen(true)}
-            onMouseLeave={() => setLibraryDropdownOpen(false)}
-          >
-            <button
-              id="library-dropdown-btn"
-              className={`navbar__dropdown-trigger${libraryDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isLibraryActive ? " navbar__dropdown-trigger--active" : ""}`}
-              onClick={(e) => {
-                e.preventDefault();
-                setLibraryDropdownOpen(prev => !prev);
-              }}
-              aria-haspopup="true"
-              aria-expanded={libraryDropdownOpen}
-            >
-              Library
-              <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
-            </button>
-            <AnimatePresence>
-              {libraryDropdownOpen && (
-                <motion.div role="menu" className="navbar__dropdown"
-                  variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
-                  {LIBRARY_DROPDOWN_ITEMS.map((item) => (
-                    <Link key={item.label}
-                      href={item.href}
-                      role="menuitem"
-                      className={`navbar__dropdown-item${isDropdownItemActive(item.href) ? " navbar__dropdown-item--active" : ""}`}
-                      onClick={() => setLibraryDropdownOpen(false)}>
-                      {item.label}
-                    </Link>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* News Link */}
-          <Link href="/news" className={`navbar__link${isNewsActive ? " navbar__link--active" : ""}`}>
-            News
-          </Link>
-
-          {/* Activities Dropdown */}
-          <div
-            className="navbar__dropdown-wrap"
-            ref={activitiesRef}
-            onMouseEnter={() => setActivitiesDropdownOpen(true)}
-            onMouseLeave={() => setActivitiesDropdownOpen(false)}
-          >
-            <button
-              id="activities-dropdown-btn"
-              className={`navbar__dropdown-trigger${activitiesDropdownOpen ? " navbar__dropdown-trigger--open" : ""}${isActivitiesActive ? " navbar__dropdown-trigger--active" : ""}`}
-              onClick={(e) => {
-                e.preventDefault();
-                setActivitiesDropdownOpen(prev => !prev);
-              }}
-              aria-haspopup="true"
-              aria-expanded={activitiesDropdownOpen}
-            >
-              National Activities
-              <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
-            </button>
-            <AnimatePresence>
-              {activitiesDropdownOpen && (
-                <motion.div role="menu" className="navbar__dropdown"
-                  variants={dropdownVariants} initial="hidden" animate="visible" exit="exit">
-                  <Link href="/activities"
-                    role="menuitem"
-                    className={`navbar__dropdown-item navbar__dropdown-item--all${isDropdownItemActive("/activities") ? " navbar__dropdown-item--active" : ""}`}
-                    onClick={() => setActivitiesDropdownOpen(false)}>
-                    All Activities
-                  </Link>
-                  {ACTIVITY_DROPDOWN_ITEMS.map((item) => {
-                    const href = `/activities?timeframe=${item.timeframe}`;
-                    return (
-                      <Link key={item.timeframe}
-                        href={href}
-                        role="menuitem"
-                        className={`navbar__dropdown-item${isDropdownItemActive(href) ? " navbar__dropdown-item--active" : ""}`}
-                        onClick={() => setActivitiesDropdownOpen(false)}>
-                        {item.label}
-                      </Link>
-                    );
-                  })}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Contact Link */}
-          <Link href="/contact" className={`navbar__link${isContactActive ? " navbar__link--active" : ""}`}>
-            Contact
-          </Link>
-        </div>
-
-        {user ? (
-          <div className="navbar__user-menu">
-            {user.role === 'admin' && (
-              <Link href="/admin-dashboard" className="navbar__dashboard-btn">Dashboard</Link>
-            )}
-            {user.role === 'organization' && (
-              <Link href="/org-dashboard" className="navbar__dashboard-btn">Dashboard</Link>
-            )}
-            <button onClick={handleSignOut} className="navbar__signout-btn">Sign Out</button>
-          </div>
-        ) : (
-          <Link href="/member-login" className="navbar__signin">Sign In</Link>
-        )}
-
-        <button className="navbar__hamburger" onClick={() => setMenuOpen(p => !p)} aria-label="Toggle menu">
-          {menuOpen ? <CloseIcon /> : <HamburgerIcon />}
-        </button>
-      </nav>
-
-      {/* Mobile Menu */}
-      <div className={`navbar__mobile-menu${menuOpen ? " navbar__mobile-menu--open" : ""}`}>
-        <Link href="/" className={`navbar__mobile-link${isHomeActive ? " navbar__mobile-link--active" : ""}`} onClick={() => setMenuOpen(false)}>
-          Home
-        </Link>
-
-        {/* About PAGE mobile */}
-        <Link href="/about" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
-          About PAGE
-        </Link>
-        {ABOUT_DROPDOWN_ITEMS.slice(1).map(item => (
-          <Link key={item.href} href={item.href} className={`navbar__mobile-sublink${isDropdownItemActive(item.href) ? " navbar__mobile-sublink--active" : ""}`} onClick={() => setMenuOpen(false)}>
-            {item.label}
-          </Link>
-        ))}
-
-        {/* Chapters mobile */}
-        <Link href="/chapters" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
-          Chapters - Luzon
-        </Link>
-        <div className="navbar__mobile-chapters-grid">
-          {LUZON_CHAPTERS.map(item => {
-            const href = `/chapters/${item.slug}`;
-            return (
-              <Link key={item.slug} href={href} className={`navbar__mobile-chapter-link${isDropdownItemActive(href) ? " navbar__mobile-chapter-link--active" : ""}`} onClick={() => setMenuOpen(false)}>
-                {item.short}
-              </Link>
-            );
-          })}
-        </div>
-        <Link href="/chapters" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
-          Chapters - Visayas
-        </Link>
-        <div className="navbar__mobile-chapters-grid">
-          {VISAYAS_CHAPTERS.map(item => {
-            const href = `/chapters/${item.slug}`;
-            return (
-              <Link key={item.slug} href={href} className={`navbar__mobile-chapter-link${isDropdownItemActive(href) ? " navbar__mobile-chapter-link--active" : ""}`} onClick={() => setMenuOpen(false)}>
-                {item.short}
-              </Link>
-            );
-          })}
-        </div>
-        <Link href="/chapters" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
-          Chapters - Mindanao
-        </Link>
-        <div className="navbar__mobile-chapters-grid">
-          {MINDANAO_CHAPTERS.map(item => {
-            const href = `/chapters/${item.slug}`;
-            return (
-              <Link key={item.slug} href={href} className={`navbar__mobile-chapter-link${isDropdownItemActive(href) ? " navbar__mobile-chapter-link--active" : ""}`} onClick={() => setMenuOpen(false)}>
-                {item.short}
-              </Link>
-            );
-          })}
-        </div>
-
-        {/* Convention mobile */}
-        <Link href="/convention" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
-          Convention
-        </Link>
-        {CONVENTIONS_DROPDOWN_ITEMS.slice(1).map(item => (
-          <Link key={item.href} href={item.href} className={`navbar__mobile-sublink${isDropdownItemActive(item.href) ? " navbar__mobile-sublink--active" : ""}`} onClick={() => setMenuOpen(false)}>
-            {item.label}
-          </Link>
-        ))}
-
-        {/* Research Journals mobile */}
-        <Link href="/journals" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
-          Research Journals
-        </Link>
-        {JOURNALS_DROPDOWN_ITEMS.slice(1).map(item => (
-          <Link key={item.href} href={item.href} className={`navbar__mobile-sublink${isDropdownItemActive(item.href) ? " navbar__mobile-sublink--active" : ""}`} onClick={() => setMenuOpen(false)}>
-            {item.label}
-          </Link>
-        ))}
-
-        {/* Membership mobile */}
-        <Link href="/membership" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
-          Membership
-        </Link>
-        {MEMBERSHIP_DROPDOWN_ITEMS.map(item => (
-          <Link key={item.label} href={item.href} className={`navbar__mobile-sublink${isDropdownItemActive(item.href) ? " navbar__mobile-sublink--active" : ""}`} onClick={() => setMenuOpen(false)}>
-            {item.label}
-          </Link>
-        ))}
-
-        {/* PAGE Partners mobile */}
-        <span className="navbar__mobile-dropdown-label">
-          Partnerships
-        </span>
-        {PARTNERS_DROPDOWN_ITEMS.map(item => (
-          <Link key={item.label} href={item.href} className={`navbar__mobile-sublink${isDropdownItemActive(item.href) ? " navbar__mobile-sublink--active" : ""}`} onClick={() => setMenuOpen(false)}>
-            {item.label}
-          </Link>
-        ))}
-
-        {/* PAGE Library mobile */}
-        <span className="navbar__mobile-dropdown-label">
-          Library
-        </span>
-        {LIBRARY_DROPDOWN_ITEMS.map(item => (
-          <Link key={item.label} href={item.href} className={`navbar__mobile-sublink${isDropdownItemActive(item.href) ? " navbar__mobile-sublink--active" : ""}`} onClick={() => setMenuOpen(false)}>
-            {item.label}
-          </Link>
-        ))}
-
-        <Link href="/news" className={`navbar__mobile-link${isNewsActive ? " navbar__mobile-link--active" : ""}`} onClick={() => setMenuOpen(false)}>
-          News
-        </Link>
-
-        {/* Activities mobile */}
-        <Link href="/activities" className="navbar__mobile-dropdown-label navbar__mobile-dropdown-label--link" onClick={() => setMenuOpen(false)}>
-          National Activities
-        </Link>
-        {ACTIVITY_DROPDOWN_ITEMS.map(item => {
-          const href = `/activities?timeframe=${item.timeframe}`;
-          return (
-            <Link key={item.timeframe} href={href} className={`navbar__mobile-sublink${isDropdownItemActive(href) ? " navbar__mobile-sublink--active" : ""}`} onClick={() => setMenuOpen(false)}>
+          {/* About PAGE mobile */}
+          <span className="navbar__mobile-dropdown-label">About PAGE</span>
+          {ABOUT_DROPDOWN_ITEMS.map(item => (
+            <Link key={item.href} href={item.href} className={`navbar__mobile-sublink${isDropdownItemActive(item.href) ? " navbar__mobile-sublink--active" : ""}`} onClick={() => setMenuOpen(false)}>
               {item.label}
             </Link>
-          );
-        })}
+          ))}
 
-        <Link href="/contact" className={`navbar__mobile-link${isContactActive ? " navbar__mobile-link--active" : ""}`} onClick={() => setMenuOpen(false)}>
-          Contact
-        </Link>
-        {user ? (
-          <div className="navbar__mobile-user-menu">
-            <div className="navbar__mobile-user-info">
-              <span className="navbar__mobile-user-name">{user.name}</span>
-              <span className="navbar__mobile-user-role">{user.role}</span>
+          {/* Membership mobile */}
+          <span className="navbar__mobile-dropdown-label">Membership</span>
+          {MEMBERSHIP_DROPDOWN_ITEMS.map(item => (
+            <Link key={item.label} href={item.href} className={`navbar__mobile-sublink${isDropdownItemActive(item.href) ? " navbar__mobile-sublink--active" : ""}`} onClick={() => setMenuOpen(false)}>
+              {item.label}
+            </Link>
+          ))}
+
+          {/* Resources mobile */}
+          <span className="navbar__mobile-dropdown-label">Resources</span>
+          {RESOURCES_DROPDOWN_ITEMS.map(item => (
+            <Link key={item.label} href={item.href} className={`navbar__mobile-sublink${isDropdownItemActive(item.href) ? " navbar__mobile-sublink--active" : ""}`} onClick={() => setMenuOpen(false)}>
+              {item.label}
+            </Link>
+          ))}
+
+          {/* News mobile */}
+          <span className="navbar__mobile-dropdown-label">News</span>
+          {NEWS_DROPDOWN_ITEMS.map(item => (
+            <Link key={item.label} href={item.href} className={`navbar__mobile-sublink${isDropdownItemActive(item.href) ? " navbar__mobile-sublink--active" : ""}`} onClick={() => setMenuOpen(false)}>
+              {item.label}
+            </Link>
+          ))}
+
+          {/* Events mobile */}
+          <span className="navbar__mobile-dropdown-label">Events</span>
+          {EVENTS_DROPDOWN_ITEMS.map(item => (
+            <Link key={item.label} href={item.href} className={`navbar__mobile-sublink${isDropdownItemActive(item.href) ? " navbar__mobile-sublink--active" : ""}`} onClick={() => setMenuOpen(false)}>
+              {item.label}
+            </Link>
+          ))}
+
+          <Link href="/contact" className={`navbar__mobile-link${isContactActive ? " navbar__mobile-link--active" : ""}`} onClick={() => setMenuOpen(false)}>
+            Contact
+          </Link>
+
+          {user ? (
+            <div className="navbar__mobile-user-menu">
+              <div className="navbar__mobile-user-info">
+                <span className="navbar__mobile-user-name">{user.name}</span>
+                <span className="navbar__mobile-user-role">{user.role}</span>
+              </div>
+              {user.role === 'admin' && (
+                <Link href="/admin-dashboard" className="navbar__mobile-dashboard" onClick={() => setMenuOpen(false)}>Admin Dashboard</Link>
+              )}
+              {user.role === 'organization' && (
+                <Link href="/org-dashboard" className="navbar__mobile-dashboard" onClick={() => setMenuOpen(false)}>Organization Dashboard</Link>
+              )}
+              <button onClick={() => { handleSignOut(); setMenuOpen(false); }} className="navbar__mobile-signout">Sign Out</button>
             </div>
-            {user.role === 'admin' && (
-              <Link href="/admin-dashboard" className="navbar__mobile-dashboard" onClick={() => setMenuOpen(false)}>Admin Dashboard</Link>
-            )}
-            {user.role === 'organization' && (
-              <Link href="/org-dashboard" className="navbar__mobile-dashboard" onClick={() => setMenuOpen(false)}>Organization Dashboard</Link>
-            )}
-            <button onClick={() => { handleSignOut(); setMenuOpen(false); }} className="navbar__mobile-signout">Sign Out</button>
-          </div>
-        ) : (
-          <Link href="/member-login" className="navbar__mobile-signin" onClick={() => setMenuOpen(false)}>Sign In</Link>
-        )}
-      </div>
-    </header>
+          ) : (
+            <Link href="/membership" className="navbar__mobile-signin" onClick={() => setMenuOpen(false)}>
+              Join PAGE
+            </Link>
+          )}
+        </div>
+      </header>
+    </div>
   );
 }
 
@@ -821,23 +535,19 @@ export default function Navbar(props: { scrolled: boolean }) {
         <nav className="navbar__inner">
           <div className="navbar__logo">
             <div className="navbar__logo-mark">
-              <img src="/PAGE.jpg" width={50} height={50} alt="PAGE Logo" />
+              <img src="/PAGE-favicon.png" width={50} height={50} alt="PAGE Logo" />
             </div>
           </div>
           <div className="navbar__links" style={{ opacity: 0.7 }}>
             <span className="navbar__link">Home</span>
-            <span className="navbar__link">About</span>
-            <span className="navbar__link">Chapters</span>
-            <span className="navbar__link">Convention</span>
-            <span className="navbar__link">Research Journals</span>
+            <span className="navbar__link">About PAGE</span>
             <span className="navbar__link">Membership</span>
-            <span className="navbar__link">Partnerships</span>
-            <span className="navbar__link">Library</span>
+            <span className="navbar__link">Resources</span>
             <span className="navbar__link">News</span>
-            <span className="navbar__link">National Activities</span>
+            <span className="navbar__link">Events</span>
             <span className="navbar__link">Contact</span>
           </div>
-          <div className="navbar__signin" style={{ opacity: 0.7 }}>Sign In</div>
+          <div className="btn-join-page">Join PAGE</div>
         </nav>
       </header>
     }>
