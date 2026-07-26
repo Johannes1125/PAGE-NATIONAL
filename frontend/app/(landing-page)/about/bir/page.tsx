@@ -109,15 +109,13 @@ export default function BirCertificationPage() {
             </p>
           </div>
         </div>
-      </section>
-
-      {/* Content Section */}
-      <section style={{ background: "#f8fafc", padding: "80px 0 100px" }}>
+      </section>      {/* Content Section */}
+      <section style={{ background: "#f8fafc", padding: "clamp(40px, 6vw, 80px) 0 clamp(60px, 8vw, 100px)" }}>
         <div className="container">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.1fr", gap: "40px", alignItems: "start" }}>
+          <div className="sec-content-grid">
             
             {/* Left Side: Summary Card */}
-            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderTop: "4px solid #081734", borderRadius: "18px", padding: "36px", boxShadow: "0 8px 30px rgba(8, 23, 52, 0.04)" }}>
+            <div className="sec-card sec-card--details">
               <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "28px", paddingBottom: "20px", borderBottom: "1px solid #e2e8f0" }}>
                 <div style={{ background: "#081734", width: "52px", height: "52px", borderRadius: "14px", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "0 6px 16px rgba(8, 23, 52, 0.15)" }}>
                   <ShieldCheck size={26} />
@@ -155,24 +153,9 @@ export default function BirCertificationPage() {
             </div>
 
             {/* Right Side: Document Preview Block */}
-            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "18px", padding: "36px", boxShadow: "0 8px 30px rgba(8, 23, 52, 0.04)", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-              <div style={{
-                position: "relative",
-                width: "100%",
-                maxWidth: "340px",
-                minHeight: "420px",
-                background: "#fafbfc",
-                border: "1px solid #e2e8f0",
-                borderRadius: "12px",
-                boxShadow: "0 8px 24px rgba(8, 23, 52, 0.06)",
+            <div className="sec-card sec-card--preview">
+              <div className="sec-cert-box" style={{
                 padding: activeRecord && activeRecord.imageUrl ? "16px" : "32px",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#081734",
-                marginBottom: "24px",
-                overflow: "hidden"
               }}>
                 {activeRecord && activeRecord.imageUrl ? (
                   isPdf(activeRecord.imageUrl) ? (

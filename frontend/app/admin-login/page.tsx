@@ -1,17 +1,27 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import './admin-login.css';
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { gooeyToast } from "goey-toast";
 import "goey-toast/styles.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { faGraduationCap, faUserShield } from "../lib/fontawesome-icons";
-import { faCheckCircle, faEye, faEyeSlash, faSpinner } from "@fortawesome/free-solid-svg-icons";
+import Link from "next/link";
+import {
+  faEye,
+  faEyeSlash,
+  faSpinner,
+  faEnvelope,
+  faLock,
+  faArrowRight,
+  faArrowLeft,
+  faShieldAlt,
+  faUserShield,
+} from "@fortawesome/free-solid-svg-icons";
 import { api, AuthResponse } from "../lib/api-client";
 
 const notifyError = (msg: string) => {
@@ -30,10 +40,11 @@ const notifySuccess = (msg: string) => {
   }
 };
 
-export default function OrgLogin() {
+export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberDevice, setRememberDevice] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
@@ -66,7 +77,6 @@ export default function OrgLogin() {
 
       notifySuccess("Login successful!");
       router.push('/admin-dashboard');
-      // Keep isSubmitting active during navigation to prevent form re-enabling flash
     } catch (err: unknown) {
       const errorObj = err as { message?: string };
       notifyError(errorObj.message || "Authentication failed. Invalid email or password.");
@@ -75,170 +85,158 @@ export default function OrgLogin() {
   };
 
   return (
-    <div className="login-container">
+    <>
       <ToastContainer position="top-right" autoClose={3000} />
+      <div className="al-page">
+        {/* Back to Home Button */}
+        <Link href="/" className="al-back-btn">
+          <FontAwesomeIcon icon={faArrowLeft} className="al-back-icon" />
+          <span>Back to Home</span>
+        </Link>
 
-      {/* Compact header shown only on small screens, replaces the left panel */}
-      <div className="mobile-masthead">
-        <div className="icon-bg">
-          <FontAwesomeIcon icon={faGraduationCap} />
+        {/* ── LEFT PANEL ── */}
+        <div className="al-left">
+        {/* Corner brackets */}
+        <span className="al-corner al-corner--tl" />
+        <span className="al-corner al-corner--br" />
+
+        {/* Watermark seal */}
+        <div className="al-watermark" aria-hidden="true">
+          <Image
+            src="/PAGE-favicon.png"
+            alt=""
+            width={900}
+            height={900}
+            className="al-watermark-img"
+          />
         </div>
-        <div className="mobile-masthead-text">
-          <h1 className="login-title">PAGE</h1>
-          <p className="login-tagline">Philippine Association for Graduate Education</p>
+
+        <div className="al-left-inner">
+          {/* Logo + brand */}
+          <div className="al-brand">
+            <div className="al-logo-ring">
+              <Image
+                src="/PAGE-favicon.png"
+                alt="PAGE seal"
+                width={200}
+                height={200}
+                className="al-logo-img"
+              />
+            </div>
+            <h1 className="al-org-name">PAGE</h1>
+            <p className="al-org-full">
+              Philippine Association for<br />Graduate Education
+            </p>
+            <div className="al-gold-rule" />
+            <span className="al-portal-badge">ADMIN PORTAL</span>
+          </div>
         </div>
       </div>
 
-      <div className="login-separation">
+      {/* ── RIGHT PANEL ── */}
+      <div className="al-right">
+        {/* Card */}
+        <div className="al-card">
 
-        {/* LEFT SIDE */}
-        <div className="login-left-side">
-          <FontAwesomeIcon icon={faGraduationCap} className="watermark-icon" />
-          <div className="overlay">
-            <div className="login-alignment">
+          {/* Admin icon circle */}
+          <div className="al-card-icon-wrap">
+          <FontAwesomeIcon icon={faUserShield} className="al-card-icon" />
+          </div>
 
-              <div className="top-content">
-                <div className="brand-block">
-                  {/* ICON + TITLE */}
-                  <div className="icon-title">
-                    <div className="icon-bg">
-                      <FontAwesomeIcon icon={faGraduationCap} className="graduation-icon" />
-                    </div>
-                    <h1 className="login-title">PAGE</h1>
-                  </div>
-                  <p className="login-tagline">Philippine Association for Graduate Education</p>
-                </div>
+          <h2 className="al-card-title">Admin Access</h2>
+          <p className="al-card-sub">Sign in to manage the PAGE system</p>
 
-                {/* TEXT */}
-                <div className="title-page">
-                  <div className="admin-portal">ADMIN PORTAL</div>
-                  <h1 className="title">System Administration Panel</h1>
-                </div>
+          <form onSubmit={handleSignIn} className="al-form" noValidate>
 
-                {/* STATS — fills the gap between headline and checklist */}
-                <div className="stats-row">
-                  <div className="stat-item">
-                    <h4>120+</h4>
-                    <p>Member Institutions</p>
-                  </div>
-                  <div className="stat-divider" />
-                  <div className="stat-item">
-                    <h4>3.2k</h4>
-                    <p>Published Works</p>
-                  </div>
-                  <div className="stat-divider" />
-                  <div className="stat-item">
-                    <h4>24/7</h4>
-                    <p>System Uptime</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* CHECKLIST */}
-              <div className="login-checklist">
-                {[
-                  { title: "Post Approval & Publishing", desc: "Verify and curate scholarly contributions." },
-                  { title: "User & Role Management", desc: "Control institutional access and permissions." },
-                  { title: "System-wide Content Control", desc: "Oversee global metadata and taxonomies." },
-                  { title: "Message & Inquiry Management", desc: "Monitor communications and official help desk." }
-                ].map((item, index) => (
-                  <div className="login-check" key={index}>
-                    <FontAwesomeIcon icon={faCheckCircle} className="check-icon" />
-                    <div className="checklist-container">
-                      <h3 className="title-container">{item.title}</h3>
-                      <p>{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
+            {/* Email */}
+            <div className="al-field">
+              <label htmlFor="adminEmail" className="al-label">ADMIN EMAIL</label>
+              <div className="al-input-wrap">
+                <FontAwesomeIcon icon={faEnvelope} className="al-input-icon" />
+                <input
+                  type="email"
+                  id="adminEmail"
+                  className="al-input"
+                  placeholder="izyoboitoshi@gmail.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isSubmitting}
+                  autoComplete="email"
+                />
               </div>
             </div>
-          </div>
+
+            {/* Password */}
+            <div className="al-field">
+              <label htmlFor="adminPassword" className="al-label">PASSWORD</label>
+              <div className="al-input-wrap">
+                <FontAwesomeIcon icon={faLock} className="al-input-icon" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="adminPassword"
+                  className="al-input al-input--pw"
+                  placeholder="••••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isSubmitting}
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  className="al-eye-btn"
+                  onClick={() => !isSubmitting && setShowPassword(prev => !prev)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  tabIndex={-1}
+                >
+                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                </button>
+              </div>
+            </div>
+
+            {/* Remember device */}
+            <div className="al-row">
+              <label className="al-remember">
+                <input
+                  type="checkbox"
+                  id="rememberDevice"
+                  className="al-checkbox"
+                  checked={rememberDevice}
+                  onChange={(e) => setRememberDevice(e.target.checked)}
+                  disabled={isSubmitting}
+                />
+                <span>Remember this device</span>
+              </label>
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              className="al-btn"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <FontAwesomeIcon icon={faSpinner} spin />
+                  Signing In...
+                </>
+              ) : (
+                <>
+                  Sign In
+                  <FontAwesomeIcon icon={faArrowRight} />
+                </>
+              )}
+            </button>
+
+          </form>
         </div>
 
-        {/* RIGHT SIDE */}
-        <div className="login-right-side">
-          <div className="login-right-container">
-
-            <div className="icon-header">
-              <FontAwesomeIcon icon={faUserShield} className="shield-icon" />
-              <h3 className="Admin-title">Admin Access</h3>
-              <p className="admin-subtext">Sign in to manage the PAGE system</p>
-            </div>
-
-            <form onSubmit={handleSignIn}>
-              <div className="login-form-container">
-
-                {/* EMAIL */}
-                <div className="login-form">
-                  <label htmlFor="adminEmail">ADMIN EMAIL</label>
-                  <div className="input-wrapper">
-                    <input
-                      type="email"
-                      id="adminEmail"
-                      placeholder="name@university.edu"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      disabled={isSubmitting}
-                    />
-                  </div>
-                </div>
-
-                {/* PASSWORD */}
-                <div className="login-form">
-                  <label htmlFor="adminPassword">PASSWORD</label>
-                  <div className="input-wrapper">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      id="adminPassword"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      disabled={isSubmitting}
-                    />
-                    <FontAwesomeIcon
-                      icon={showPassword ? faEyeSlash : faEye}
-                      className="eye-icon"
-                      onClick={() => !isSubmitting && setShowPassword(prev => !prev)}
-                    />
-                  </div>
-                </div>
-
-              </div>
-
-              {/* REMEMBER ME */}
-              <div className="remember-forgot">
-                <div className="remember-me">
-                  <input
-                    type="checkbox"
-                    id="rememberMe"
-                    className="checkbox"
-                    disabled={isSubmitting}
-                  />
-                  <label htmlFor="rememberMe">Remember this device</label>
-                </div>
-              </div>
-
-              {/* BUTTON */}
-              <button type="submit" className="login-btn" disabled={isSubmitting}>
-                {isSubmitting ? (
-                  <>
-                    <FontAwesomeIcon icon={faSpinner} spin style={{ marginRight: '8px' }} />
-                    Signing In...
-                  </>
-                ) : (
-                  "Sign In"
-                )}
-              </button>
-            </form>
-
-            {/* DIVIDER */}
-            <div className="divider">
-              <hr />
-            </div>
-          </div>
+        {/* Security note */}
+        <div className="al-security-note">
+          <FontAwesomeIcon icon={faShieldAlt} className="al-sec-icon" />
+          <span>Secure access. Trusted by PAGE administrators.</span>
         </div>
-
       </div>
     </div>
+    </>
   );
 }
