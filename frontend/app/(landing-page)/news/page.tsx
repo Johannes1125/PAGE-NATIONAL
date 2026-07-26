@@ -379,18 +379,6 @@ function NewsSection() {
   return (
     <section className="news-section">
       <div className="container">
-        {/* Section heading */}
-        <div className="section-header" style={{ textAlign: "left", marginBottom: "32px" }}>
-          <span className="section-label">Latest Updates</span>
-          <h2 className="section-title" style={{ textAlign: "left", margin: "0 0 8px" }}>
-            News &amp; Announcements
-          </h2>
-          <p className="section-subtitle" style={{ textAlign: "left", margin: 0, maxWidth: "600px" }}>
-            Stay informed with the latest news, research breakthroughs, and upcoming events
-            from the Philippine Association for Graduate Education.
-          </p>
-        </div>
-
         {/* Filters */}
         <div className="news-filters">
           <select
@@ -671,6 +659,29 @@ function JournalsSection() {
 
 
 
+// ── News Hero (Matching CBL Hero Design, NO Top Label Badge) ─────────────────
+function NewsHero() {
+  return (
+    <section className="cbl-hero">
+      <div className="cbl-hero-container">
+        <div className="cbl-breadcrumb">
+          <Link href="/" className="cbl-breadcrumb-link">Home</Link>
+          <span className="cbl-breadcrumb-sep">/</span>
+          <span className="cbl-breadcrumb-current">News &amp; Announcements</span>
+        </div>
+        
+        <div className="cbl-hero-left">
+          <h1 className="cbl-hero-title">News &amp; Announcements</h1>
+          <div className="cbl-gold-line" />
+          <p className="cbl-hero-subtitle">
+            Stay informed with official announcements, research breakthroughs, publication releases, and upcoming academic events from the Philippine Association for Graduate Education.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── Main Page ──────────────────────────────────────────────────────────────
 export default function NewsPage() {
   const [scrolled, setScrolled] = useState(false);
@@ -682,12 +693,11 @@ export default function NewsPage() {
   }, []);
 
   return (
-    <>
+    <main className="news-main">
       <Navbar scrolled={scrolled} />
-      <main>
-        <NewsSection />
-        <JournalsSection />
-      </main>
-    </>
+      <NewsHero />
+      <NewsSection />
+      <JournalsSection />
+    </main>
   );
 }

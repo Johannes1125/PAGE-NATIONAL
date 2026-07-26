@@ -1,21 +1,15 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import {
   FileText,
   Download,
   Calendar,
   Search,
-  X,
   BookOpen,
-  ArrowUpRight,
-  Info,
-  MapPin,
-  Mail,
-  Phone
+  CheckCircle2
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import { gooeyToast } from "goey-toast";
@@ -109,17 +103,45 @@ const MOCK_DOCS: CMODocument[] = [
   }
 ];
 
-const tabs = [
-  { id: "cmo15", label: "CMO 15", icon: BookOpen },
-  { id: "cmo21", label: "CMO 21", icon: FileText },
-  { id: "other", label: "Other CMOs", icon: Info }
-] as const;
+// ── Hero Section (CBL Dark Navy Gradient, NO top pill label) ─────────────────
+function LibraryHero() {
+  return (
+    <section className="cbl-hero">
+      <div className="cbl-hero-container">
+        <div className="cbl-breadcrumb">
+          <Link href="/" className="cbl-breadcrumb-link">Home</Link>
+          <span className="cbl-breadcrumb-sep">/</span>
+          <span className="cbl-breadcrumb-current">Library</span>
+        </div>
+        
+        <div className="cbl-hero-left">
+          <h1 className="cbl-hero-title">CHED Memorandum Orders</h1>
+          <div className="cbl-gold-line" />
+          <p className="cbl-hero-subtitle">
+            Access official issuances, regulatory standards, and policies governing graduate education under the Commission on Higher Education.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Framer Motion Variants ──────────────────────────────────────────────────
+const pageVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.06 }
+  }
+};
+
+const cardItemVariants: Variants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } }
+};
 
 // ── Library Content Component ───────────────────────────────────────────────
-
 function LibraryContent() {
-  const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState<"cmo15" | "cmo21" | "other">("cmo15");
   const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
 
@@ -129,210 +151,147 @@ function LibraryContent() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Sync state with URL parameter
-  useEffect(() => {
-    const tabParam = searchParams.get("tab");
-    if (tabParam && ["cmo15", "cmo21", "other"].includes(tabParam)) {
-      setActiveTab(tabParam as any);
-    }
-  }, [searchParams]);
-
-  // Filter documents based on active tab and search query
-  const filteredDocs = MOCK_DOCS.filter((doc) => {
-    const matchesTab = doc.category === activeTab;
+  const filteredDocs = useMemo(() => {
     const cleanQuery = searchQuery.trim().toLowerCase();
+    if (!cleanQuery) return MOCK_DOCS;
     
-    if (!cleanQuery) return matchesTab;
-    
-    const matchesQuery =
-      doc.title.toLowerCase().includes(cleanQuery) ||
-      doc.number.toLowerCase().includes(cleanQuery) ||
-      doc.description.toLowerCase().includes(cleanQuery) ||
-      doc.provisions.some((p) => p.toLowerCase().includes(cleanQuery));
-
-    return matchesTab && matchesQuery;
-  });
+    return MOCK_DOCS.filter((doc) => {
+      return (
+        doc.title.toLowerCase().includes(cleanQuery) ||
+        doc.number.toLowerCase().includes(cleanQuery) ||
+        doc.description.toLowerCase().includes(cleanQuery) ||
+        doc.provisions.some((p) => p.toLowerCase().includes(cleanQuery))
+      );
+    });
+  }, [searchQuery]);
 
   const handleDownload = (docName: string) => {
     gooeyToast.success(`Downloading ${docName} PDF...`);
-    
-    // Simulate real file download
     setTimeout(() => {
-      const link = document.createElement("a");
-      link.href = "#"; // simulated link
-      link.setAttribute("download", `${docName.replace(/[\s,]+/g, "-")}.pdf`);
-      document.body.appendChild(link);
-      // We don't click it since it's mock, but we log execution
-      document.body.removeChild(link);
       gooeyToast.success(`Download complete: ${docName}`);
     }, 1200);
   };
 
   return (
-    <div className="library-page">
+    <main className="library-main">
       <Navbar scrolled={scrolled} />
+      <LibraryHero />
 
-      {/* Hero Section */}
-      <section className="library-hero">
-        <div className="library-hero__pattern" />
-        <div className="library-container">
-          <div className="library-hero__breadcrumbs">
-            <Link href="/" className="library-hero__breadcrumb-link">Home</Link>
-            <span className="library-hero__breadcrumb-sep">/</span>
-            <span className="library-hero__breadcrumb-current">Library</span>
-          </div>
-          <motion.h1
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+      <section className="cbl-content-section">
+        <div className="cbl-container">
+          <motion.div
+            className="library-body-wrapper"
+            variants={pageVariants}
+            initial="hidden"
+            animate="visible"
           >
-            CHED Memorandum Orders
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-          >
-            Access official issuances, regulatory standards, and policies governing graduate education under the Commission on Higher Education.
-          </motion.p>
-        </div>
-      </section>
-
-      {/* Main Content Section */}
-      <section className="library-section library-container">
-        
-        {/* Interactive Search Bar */}
-        <div className="library-search-container">
-          <Search size={18} className="library-search-icon" />
-          <input
-            type="text"
-            className="library-search-input"
-            placeholder="Search documents, guidelines, or specific provisions..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          {searchQuery && (
-            <button
-              className="library-search-clear"
-              onClick={() => setSearchQuery("")}
-              aria-label="Clear search"
-            >
-              <X size={16} />
-            </button>
-          )}
-        </div>
-
-        {/* Tab Selection Row */}
-        <div className="library-tabs" role="tablist" aria-label="Library Categories">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                role="tab"
-                aria-selected={activeTab === tab.id}
-                aria-controls={`panel-${tab.id}`}
-                id={`tab-${tab.id}`}
-                className={`library-tab-btn ${activeTab === tab.id ? "library-tab-btn--active" : ""}`}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-                  <Icon size={16} /> {tab.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Document Cards Grid */}
-        <motion.div
-          key={activeTab}
-          role="tabpanel"
-          id={`panel-${activeTab}`}
-          aria-labelledby={`tab-${activeTab}`}
-          className="library-grid"
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          {filteredDocs.length > 0 ? (
-            filteredDocs.map((doc, idx) => (
-              <motion.article
-                key={doc.id}
-                className="library-card"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: idx * 0.08 }}
-              >
-                <div className="library-card__header">
-                  <div className="library-card__icon-wrap">
-                    <FileText size={22} />
-                  </div>
-                  <span className="library-card__badge">
-                    CHED Issuance
-                  </span>
+            {/* Section Header Card with Search Input */}
+            <div className="cbl-section-header library-section-header">
+              <div className="library-header-left">
+                <BookOpen size={32} />
+                <div>
+                  <h2 className="cbl-section-title">
+                    CHED Regulatory Frameworks &amp; Issuances
+                  </h2>
+                  <p className="cbl-section-subtitle">
+                    Showing {filteredDocs.length} official {filteredDocs.length === 1 ? "issuance" : "issuances"} governing graduate education
+                  </p>
                 </div>
-
-                <h3 className="library-card__title">{doc.number}</h3>
-                
-                <div className="library-card__date">
-                  <Calendar size={13} /> Published: {doc.dateIssued}
-                </div>
-
-                <p className="library-card__desc">{doc.title}</p>
-                <p style={{ fontSize: "13px", color: "var(--lib-text-muted)", lineHeight: "1.5", marginBottom: "20px" }}>
-                  {doc.description}
-                </p>
-
-                {/* Key Provisions */}
-                <div className="library-card__provisions">
-                  <div className="library-card__provisions-header">Key Provisions</div>
-                  <ul className="library-card__provision-list">
-                    {doc.provisions.map((provision, pIdx) => (
-                      <li key={pIdx} className="library-card__provision-item">
-                        {provision}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="library-card__footer">
-                  <button
-                    className="library-download-btn"
-                    onClick={() => handleDownload(doc.number)}
-                  >
-                    <Download size={14} /> Download PDF
-                  </button>
-                </div>
-              </motion.article>
-            ))
-          ) : (
-            <div className="library-empty-state" style={{ gridColumn: "1 / -1" }}>
-              <div className="library-empty-state__icon">
-                <Search size={48} strokeWidth={1.5} style={{ margin: "0 auto" }} />
               </div>
-              <h3>No Documents Found</h3>
-              <p>
-                We couldn't find any results matching "{searchQuery}" under this tab. Try checking spelling or switching tabs.
-              </p>
-            </div>
-          )}
-        </motion.div>
-      </section>
 
-    </div>
+              <div className="library-search-box">
+                <Search size={16} className="library-search-icon" />
+                <input
+                  type="text"
+                  placeholder="Search document title, provisions..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  aria-label="Search CHED Memorandum Orders"
+                />
+              </div>
+            </div>
+
+            {/* Document Cards Grid */}
+            <div className="library-grid">
+              {filteredDocs.length === 0 ? (
+                <div className="cbl-empty-state library-empty-state">
+                  <FileText size={48} />
+                  <h3>No Documents Found</h3>
+                  <p>No CHED memorandum orders match your search criteria. Try clearing the search query.</p>
+                </div>
+              ) : (
+                filteredDocs.map((doc) => (
+                  <motion.article
+                    key={doc.id}
+                    variants={cardItemVariants}
+                    className="library-card"
+                  >
+                    <div className="library-card__header">
+                      <div className="library-card__icon-wrap">
+                        <FileText size={22} />
+                      </div>
+                      <span className="library-card__badge">
+                        CHED ISSUANCE
+                      </span>
+                    </div>
+
+                    <h3 className="library-card__number">{doc.number}</h3>
+                    <h4 className="library-card__title">{doc.title}</h4>
+
+                    <div className="library-card__date">
+                      <Calendar size={13} />
+                      <span>Issued: {doc.dateIssued}</span>
+                    </div>
+
+                    <p className="library-card__desc">{doc.description}</p>
+
+                    {/* Key Provisions */}
+                    <div className="library-card__provisions">
+                      <div className="library-card__provisions-header">
+                        <CheckCircle2 size={14} />
+                        <span>Key Provisions</span>
+                      </div>
+                      <ul className="library-card__provision-list">
+                        {doc.provisions.map((provision, pIdx) => (
+                          <li key={pIdx} className="library-card__provision-item">
+                            {provision}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="library-card__footer">
+                      <button
+                        className="library-download-btn"
+                        onClick={() => handleDownload(doc.number)}
+                      >
+                        <Download size={14} />
+                        <span>Download PDF</span>
+                      </button>
+                    </div>
+                  </motion.article>
+                ))
+              )}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+    </main>
   );
 }
 
+// ── Main Export with Suspense ──────────────────────────────────────────────
 export default function LibraryPage() {
   return (
-    <Suspense fallback={
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: 'var(--font-sans)', color: '#143152' }}>
-        <h3>Loading Library...</h3>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: 'var(--font-sans)', color: '#081734' }}>
+          <h3>Loading Library Page...</h3>
+        </div>
+      }
+    >
       <LibraryContent />
     </Suspense>
   );
 }
+

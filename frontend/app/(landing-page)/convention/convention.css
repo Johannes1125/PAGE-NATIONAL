@@ -2,21 +2,23 @@
    PAGE Convention Archives — convention.css
    ============================================================ */
 
-/* ── Reset and Variables ─────────────────────────────────── */
+/* ── Design Tokens (CBL Colorway) ────────────────────────── */
 :root {
-  --ink:          #0f1923;
-  --ink-60:       rgba(15,25,35,0.6);
-  --ink-30:       rgba(15,25,35,0.3);
-  --ink-10:       rgba(15,25,35,0.08);
-  --ink-05:       rgba(15,25,35,0.04);
-  --accent:       #1a4b8c;
-  --accent-light: #e8eef8;
-  --accent-mid:   #2d62ae;
-  --parchment:    #f7f6f3;
+  --ink:          #081734;
+  --ink-60:       #4a5568;
+  --ink-30:       #718096;
+  --ink-10:       rgba(8, 23, 52, 0.08);
+  --ink-05:       rgba(8, 23, 52, 0.04);
+  --accent:       #081734;
+  --accent-light: #f4f6fa;
+  --accent-mid:   #1b2a4a;
+  --parchment:    #f9fafb;
   --white:        #ffffff;
-  --rule:         rgba(15,25,35,0.12);
-  --serif:        var(--font-poppins), 'Poppins', sans-serif;
-  --sans:         var(--font-poppins), 'Poppins', sans-serif;
+  --rule:         #e2e8f0;
+  --gold:         #d4a053;
+  --gold-dark:    #b8860b;
+  --serif:        'Poppins', sans-serif;
+  --sans:         'Poppins', sans-serif;
   --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
   --t-fast:       0.14s ease;
   --t-mid:        0.24s ease;
@@ -31,9 +33,9 @@ body {
 
 .container {
   width: 100%;
-  max-width: 1240px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 0 48px;
+  padding: 0 40px;
 }
 
 /* ============================================================
@@ -96,88 +98,94 @@ body {
 }
 
 /* ============================================================
-   CONVENTION HERO SECTION
+   CBL HERO SECTION (Matching CBL Hero Design, NO Top Label Badge)
    ============================================================ */
-.convention-hero {
-  background: var(--white);
-  padding: 112px 0 48px;
+.cbl-hero {
+  background: linear-gradient(135deg, #051026 0%, #081734 60%, #112347 100%);
+  padding: 100px 0 40px;
   position: relative;
   overflow: hidden;
-  color: var(--ink);
-  border-bottom: 1px solid var(--rule);
+  color: #ffffff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 20px rgba(5, 16, 38, 0.25);
 }
 
-.convention-hero::before {
+.cbl-hero::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 80% 20%, rgba(26, 75, 140, 0.04) 0%, transparent 60%);
+  top: -40%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(27, 42, 74, 0.6) 0%, transparent 70%);
   pointer-events: none;
 }
 
-.convention-hero__breadcrumb {
+.cbl-hero-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 40px;
+  position: relative;
+  z-index: 2;
+}
+
+.cbl-breadcrumb {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
-.convention-hero__breadcrumb-link {
+.cbl-breadcrumb-link {
   font-size: 13px;
-  font-weight: 400;
-  color: var(--accent);
-  text-decoration: none;
-  transition: color var(--t-fast);
-  letter-spacing: 0.1px;
-}
-
-.convention-hero__breadcrumb-link:hover {
-  color: var(--ink);
-}
-
-.convention-hero__breadcrumb-sep {
-  font-size: 13px;
-  color: var(--ink-30);
-}
-
-.convention-hero__breadcrumb-current {
-  font-size: 13px;
-  color: var(--ink-60);
   font-weight: 500;
-  letter-spacing: 0.1px;
+  color: rgba(255, 255, 255, 0.75);
+  transition: color var(--t-fast);
+  text-decoration: none;
 }
 
-.convention-hero__title {
+.cbl-breadcrumb-link:hover {
+  color: #ffffff;
+}
+
+.cbl-breadcrumb-sep {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.cbl-breadcrumb-current {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.cbl-hero-left {
+  max-width: 620px;
+}
+
+.cbl-hero-title {
   font-family: var(--sans);
-  font-size: clamp(28px, 4vw, 44px);
-  font-weight: 700;
-  line-height: 1.1;
-  margin-bottom: 20px;
+  font-size: clamp(28px, 3.5vw, 38px);
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
   letter-spacing: -0.5px;
-  color: var(--ink);
+  margin-bottom: 12px;
 }
 
-.convention-hero__title em {
-  font-style: italic;
-  font-family: var(--sans);
-}
-
-.convention-hero__divider {
-  width: 56px;
-  height: 4px;
-  background: linear-gradient(90deg, var(--ink), var(--accent));
+.cbl-gold-line {
+  width: 44px;
+  height: 3px;
+  background: var(--gold);
   border-radius: 2px;
-  margin-bottom: 22px;
+  margin-bottom: 14px;
 }
 
-.convention-hero__subtitle {
-  font-size: 15px;
-  font-weight: 300;
-  color: var(--ink-60);
-  line-height: 1.75;
-  max-width: 680px;
-  margin: 0;
-  letter-spacing: 0.1px;
+.cbl-hero-subtitle {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 560px;
 }
 
 /* ============================================================
@@ -185,18 +193,19 @@ body {
    ============================================================ */
 .convention-section {
   padding: 56px 0 96px;
+  background: var(--parchment);
 }
 
 .convention-filters-container {
   background: var(--white);
-  border: 1px solid var(--rule);
-  border-radius: 16px;
+  border: 2px solid var(--rule);
+  border-radius: 12px;
   padding: 24px 32px;
   margin-bottom: 40px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  box-shadow: 0 4px 20px rgba(15, 25, 35, 0.02);
+  box-shadow: 0 4px 12px rgba(8, 23, 52, 0.04);
 }
 
 .convention-filter-group {
@@ -208,11 +217,12 @@ body {
 
 .convention-filter-label {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--ink);
-  width: 120px;
+  width: 130px;
   text-transform: uppercase;
   letter-spacing: 0.8px;
+  font-family: var(--sans);
 }
 
 .convention-filter-pills {
@@ -224,7 +234,7 @@ body {
 .convention-filter-btn {
   font-family: var(--sans);
   font-size: 12.5px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--ink-60);
   background: var(--ink-05);
   border: 1px solid transparent;
@@ -237,13 +247,14 @@ body {
   outline: none;
 }
 
-.convention-filter-btn:hover {
+.convention-filter-btn:hover:not(.convention-filter-btn--active) {
   background: var(--ink-10);
   color: var(--ink);
 }
 
-.convention-filter-btn--active {
-  color: var(--white);
+.convention-filter-btn--active,
+.convention-filter-btn--active:hover {
+  color: var(--white) !important;
   background: transparent;
 }
 
@@ -259,7 +270,7 @@ body {
   display: flex;
   justify-content: flex-end;
   padding-top: 10px;
-  border-top: 1px solid var(--ink-10);
+  border-top: 1px solid var(--rule);
 }
 
 .btn-reset {
@@ -281,35 +292,36 @@ body {
 }
 
 /* ============================================================
-   CONVENTION CARDS GRID
+   CONVENTION CARDS GRID (3-Column Layout)
    ============================================================ */
 .convention-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 32px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
 }
 
 .convention-card {
   background: var(--white);
-  border: 1px solid var(--rule);
-  border-radius: 16px;
+  border: 2px solid var(--rule);
+  border-radius: 12px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 4px 12px rgba(8, 23, 52, 0.06);
   transition: all var(--t-mid);
 }
 
 .convention-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--ink-30);
-  box-shadow: 0 16px 40px rgba(15, 25, 35, 0.05);
+  border-color: var(--ink);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(8, 23, 52, 0.12);
 }
 
 .convention-card__cover {
-  height: 240px;
+  height: 180px;
   position: relative;
   overflow: hidden;
-  background: #0d1520;
+  background: linear-gradient(135deg, #051026 0%, #081734 100%);
 }
 
 .convention-card__img {
@@ -327,41 +339,43 @@ body {
 
 .convention-card__year-badge {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  background: var(--white);
-  color: var(--ink);
-  font-size: 11px;
+  top: 14px;
+  right: 14px;
+  background: #081734;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  font-size: 10px;
   font-weight: 700;
-  padding: 4px 12px;
-  border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: var(--sans);
+  padding: 3px 12px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .convention-card__body {
-  padding: 28px 32px 32px;
+  padding: 20px 22px 22px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
 }
 
 .convention-card__edition {
-  font-size: 9px;
+  font-size: 9.5px;
   font-weight: 700;
-  color: var(--accent-mid);
+  color: var(--ink-60);
   text-transform: uppercase;
-  letter-spacing: 1.5px;
-  margin-bottom: 8px;
+  letter-spacing: 1.2px;
+  margin-bottom: 6px;
 }
 
 .convention-card__title {
-  font-family: var(--serif);
-  font-size: clamp(20px, 2vw, 24px);
-  font-weight: 400;
+  font-family: var(--sans);
+  font-size: clamp(15px, 1.5vw, 18px);
+  font-weight: 700;
   color: var(--ink);
-  line-height: 1.25;
-  margin-bottom: 16px;
-  height: 60px;
+  line-height: 1.35;
+  margin-bottom: 14px;
+  height: 48px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -371,17 +385,17 @@ body {
 .convention-card__meta {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 24px;
+  gap: 6px;
+  margin-bottom: 18px;
 }
 
 .convention-card__meta-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--ink-60);
-  font-weight: 300;
+  font-weight: 400;
 }
 
 .convention-card__meta-item svg {

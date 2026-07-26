@@ -222,10 +222,12 @@ function AboutSection() {
   return (
     <section className="about-section">
       <div className="about-container">
-        <div className="about-content">
+        <div className="about-header">
           <div className="section-label">ABOUT PAGE</div>
           <h2 className="section-title">Who We Are</h2>
+        </div>
 
+        <div className="about-grid">
           <div className="about-card">
             <div className="about-icon">
               <ShieldGradIcon />
@@ -237,42 +239,42 @@ function AboutSection() {
               Learn more about PAGE <ArrowRightIcon />
             </Link>
           </div>
-        </div>
 
-        <div className="about-features">
-          <div className="feature-item">
-            <div className="feature-icon">
-              <UsersIcon />
+          <div className="about-features">
+            <div className="feature-item">
+              <div className="feature-icon">
+                <UsersIcon />
+              </div>
+              <div className="feature-content">
+                <h3 className="feature-title">Our Mission</h3>
+                <p className="feature-description">
+                  To advance quality graduate education and research in support of national development.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="feature-title">Our Mission</h3>
-              <p className="feature-description">
-                To advance quality graduate education and research in support of national development.
-              </p>
-            </div>
-          </div>
 
-          <div className="feature-item">
-            <div className="feature-icon">
-              <EyeIcon />
+            <div className="feature-item">
+              <div className="feature-icon">
+                <EyeIcon />
+              </div>
+              <div className="feature-content">
+                <h3 className="feature-title">Our Vision</h3>
+                <p className="feature-description">
+                  A leading community of graduate institutions shaping a better future for the Philippines.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="feature-title">Our Vision</h3>
-              <p className="feature-description">
-                A leading community of graduate institutions shaping a better future for the Philippines.
-              </p>
-            </div>
-          </div>
 
-          <div className="feature-item">
-            <div className="feature-icon">
-              <ScalesIcon />
-            </div>
-            <div>
-              <h3 className="feature-title">Our Values</h3>
-              <p className="feature-description">
-                Excellence, Collaboration, Integrity, Inclusivity, and Service.
-              </p>
+            <div className="feature-item">
+              <div className="feature-icon">
+                <ScalesIcon />
+              </div>
+              <div className="feature-content">
+                <h3 className="feature-title">Our Values</h3>
+                <p className="feature-description">
+                  Excellence, Collaboration, Integrity, Inclusivity, and Service.
+                </p>
+              </div>
             </div>
           </div>
         </div>

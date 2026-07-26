@@ -12,21 +12,23 @@ body { background: #f7f6f3; font-family: var(--sans); color: #1a1a1a; }
 a { text-decoration: none; }
 ul { list-style: none; }
 
-/* ── Design Tokens ─────────────────────────────────────── */
+/* ── Design Tokens (CBL Colorway) ────────────────────────── */
 :root {
-  --ink:          #0f1923;
-  --ink-60:       rgba(15,25,35,0.6);
-  --ink-30:       rgba(15,25,35,0.3);
-  --ink-10:       rgba(15,25,35,0.08);
-  --ink-05:       rgba(15,25,35,0.04);
-  --accent:       #1a4b8c;
-  --accent-light: #e8eef8;
-  --accent-mid:   #2d62ae;
-  --parchment:    #f7f6f3;
+  --ink:          #081734;
+  --ink-60:       #4a5568;
+  --ink-30:       #718096;
+  --ink-10:       rgba(8, 23, 52, 0.08);
+  --ink-05:       rgba(8, 23, 52, 0.04);
+  --accent:       #081734;
+  --accent-light: #f4f6fa;
+  --accent-mid:   #1b2a4a;
+  --parchment:    #f9fafb;
   --white:        #ffffff;
-  --rule:         rgba(15,25,35,0.12);
-  --serif:        var(--font-poppins), 'Poppins', sans-serif;
-  --sans:         var(--font-poppins), 'Poppins', sans-serif;
+  --rule:         #e2e8f0;
+  --gold:         #d4a053;
+  --gold-dark:    #b8860b;
+  --serif:        'Poppins', sans-serif;
+  --sans:         'Poppins', sans-serif;
   --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
   --t-fast:       0.14s ease;
   --t-mid:        0.24s ease;
@@ -36,109 +38,136 @@ ul { list-style: none; }
 /* ── Shared Utility ─────────────────────────────────────── */
 .container {
   width: 100%;
-  max-width: 1240px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 0 48px;
+  padding: 0 40px;
 }
 
 .section-header {
   text-align: center;
-  margin-bottom: 64px;
+  margin-bottom: 48px;
 }
 
 .section-label {
   display: inline-block;
-  margin-bottom: 16px;
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--accent);
-  letter-spacing: 2.5px;
+  margin-bottom: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold-dark);
+  letter-spacing: 2px;
   text-transform: uppercase;
+  font-family: var(--sans);
 }
 
 .section-title {
   font-family: var(--sans);
-  font-size: clamp(30px, 3.5vw, 46px);
-  font-weight: 700;
+  font-size: clamp(28px, 3.5vw, 40px);
+  font-weight: 800;
   color: var(--ink);
-  margin: 0 0 16px;
+  margin: 0 0 12px;
   letter-spacing: -0.5px;
-  line-height: 1.1;
+  line-height: 1.2;
 }
 
 .section-subtitle {
-  font-size: 17px;
-  font-weight: 300;
+  font-size: 15px;
+  font-weight: 400;
   color: var(--ink-60);
-  max-width: 540px;
+  max-width: 600px;
   margin: 0 auto;
-  line-height: 1.7;
+  line-height: 1.65;
+  font-family: var(--sans);
 }
 
 /* ============================================================
-   NEWS HERO
+   CBL HERO SECTION (Matching CBL Hero Design, NO Top Label Badge)
    ============================================================ */
-.news-hero {
-  background: var(--white);
-  padding: 112px 0 48px;
-  border-bottom: 1px solid var(--rule);
+.cbl-hero {
+  background: linear-gradient(135deg, #051026 0%, #081734 60%, #112347 100%);
+  padding: 100px 0 40px;
+  position: relative;
+  overflow: hidden;
+  color: #ffffff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 20px rgba(5, 16, 38, 0.25);
 }
 
-.news-hero__breadcrumb {
+.cbl-hero::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(27, 42, 74, 0.6) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.cbl-hero-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 40px;
+  position: relative;
+  z-index: 2;
+}
+
+.cbl-breadcrumb {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
-.news-hero__breadcrumb-link {
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--accent);
-  transition: color var(--t-fast);
-  letter-spacing: 0.1px;
-}
-
-.news-hero__breadcrumb-link:hover { color: var(--ink); }
-
-.news-hero__breadcrumb-sep {
-  font-size: 13px;
-  color: var(--ink-30);
-}
-
-.news-hero__breadcrumb-current {
+.cbl-breadcrumb-link {
   font-size: 13px;
   font-weight: 500;
-  color: var(--ink-60);
-  letter-spacing: 0.1px;
+  color: rgba(255, 255, 255, 0.75);
+  transition: color var(--t-fast);
+  text-decoration: none;
 }
 
-.news-hero__title {
+.cbl-breadcrumb-link:hover {
+  color: #ffffff;
+}
+
+.cbl-breadcrumb-sep {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.cbl-breadcrumb-current {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.cbl-hero-left {
+  max-width: 620px;
+}
+
+.cbl-hero-title {
   font-family: var(--sans);
-  font-size: clamp(28px, 4vw, 44px);
-  font-weight: 700;
-  color: var(--ink);
-  margin: 0 0 20px;
+  font-size: clamp(28px, 3.5vw, 38px);
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
   letter-spacing: -0.5px;
-  line-height: 1.1;
+  margin-bottom: 12px;
 }
 
-.news-hero__divider {
-  width: 56px;
-  height: 4px;
-  background: linear-gradient(90deg, var(--ink), var(--accent));
+.cbl-gold-line {
+  width: 44px;
+  height: 3px;
+  background: var(--gold);
   border-radius: 2px;
-  margin-bottom: 22px;
+  margin-bottom: 14px;
 }
 
-.news-hero__subtitle {
-  font-size: 15px;
-  font-weight: 300;
-  color: var(--ink-60);
+.cbl-hero-subtitle {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.85);
   max-width: 560px;
-  line-height: 1.75;
-  margin: 0;
-  letter-spacing: 0.1px;
 }
 
 /* ============================================================

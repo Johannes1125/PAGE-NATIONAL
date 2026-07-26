@@ -195,33 +195,25 @@ const SUBJECT_OPTIONS = [
 // ── Navbar ─────────────────────────────────────────────────────────────────
 
 
-// ── Contact Page Hero Banner ───────────────────────────────────────────────
+// ── Contact Page Hero Banner (CBL Hero Header Design) ─────────────────────
 function ContactHero() {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => { const t = setTimeout(() => setVisible(true), 80); return () => clearTimeout(t); }, []);
-
   return (
-    <section className="contact-hero">
-      <div className="contact-hero__bg-base" />
-      <div className="contact-hero__spiral-1" />
-      <div className="contact-hero__spiral-2" />
-      <div className="contact-hero__nucleus" />
-      <div className="contact-hero__rule-left" />
-      <div className="contact-hero__rule-right" />
-
-      <div className={`contact-hero__content${visible ? " contact-hero__content--visible" : ""}`}>
-        <div className="contact-hero__eyebrow">
-          <span className="contact-hero__eyebrow-dot" />
-          We're here to help
-          <span className="contact-hero__eyebrow-dot" />
+    <section className="cbl-hero">
+      <div className="cbl-hero-container">
+        <div className="cbl-breadcrumb">
+          <Link href="/" className="cbl-breadcrumb-link">Home</Link>
+          <span className="cbl-breadcrumb-sep">/</span>
+          <span className="cbl-breadcrumb-current">Contact Us</span>
         </div>
-        <h1 className="contact-hero__title">
-          Get in <em>Touch</em><br />with PAGE
-        </h1>
-        <p className="contact-hero__subtitle">
-          Have questions about our programs, membership, or research initiatives?
-          We'd love to hear from the graduate education community.
-        </p>
+
+        <div className="cbl-hero-left">
+          <h1 className="cbl-hero-title">Contact Us</h1>
+          <div className="cbl-gold-line" />
+          <p className="cbl-hero-subtitle">
+            Have questions about our programs, membership, or research initiatives?
+            We'd love to hear from the graduate education community.
+          </p>
+        </div>
       </div>
     </section>
   );

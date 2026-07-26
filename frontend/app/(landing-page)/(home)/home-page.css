@@ -252,22 +252,32 @@ body {
   max-width: var(--container-max-width);
   margin: 0 auto;
   padding: 0 40px;
+}
+
+.about-header {
+  margin-bottom: 36px;
+}
+
+.about-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 80px;
-  align-items: flex-start;
+  gap: 32px;
+  align-items: stretch;
 }
 
 .about-card {
   background: #ffffff;
   border: 1px solid var(--color-border);
   border-radius: 12px;
-  padding: 40px;
+  padding: 36px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .about-icon {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   color: var(--color-navy-primary);
 }
 
@@ -287,6 +297,7 @@ body {
   color: var(--color-navy-primary);
   text-decoration: none;
   transition: all 0.2s ease;
+  margin-top: auto;
 }
 
 .about-link:hover {
@@ -297,38 +308,56 @@ body {
 .about-features {
   display: flex;
   flex-direction: column;
-  gap: 36px;
+  justify-content: space-between;
+  gap: 20px;
 }
 
 .feature-item {
   display: flex;
-  gap: 24px;
+  gap: 20px;
   align-items: flex-start;
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+  flex: 1;
+}
+
+.feature-item:hover {
+  border-color: var(--color-navy-light);
+  box-shadow: 0 6px 20px rgba(8, 23, 52, 0.07);
+  transform: translateY(-2px);
 }
 
 .feature-icon {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background: #ffffff;
-  border: 1px solid var(--color-border);
+  background: #f4f6fa;
+  border: 1px solid rgba(8, 23, 52, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   color: var(--color-navy-primary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.feature-content {
+  flex: 1;
 }
 
 .feature-title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--color-navy-primary);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .feature-description {
-  font-size: 15px;
+  font-size: 14.5px;
   line-height: 1.6;
   color: var(--color-text-secondary);
 }
@@ -783,10 +812,10 @@ body {
 
 @media (max-width: 992px) {
   .hero-container,
-  .about-container,
+  .about-grid,
   .news-events-container {
     grid-template-columns: 1fr;
-    gap: 60px;
+    gap: 40px;
   }
   
   .resources-grid {

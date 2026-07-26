@@ -83,20 +83,21 @@ const FOOTER_CONTACT = [
 // ── Convention Hero Component ───────────────────────────────────────────────
 function ConventionHero() {
   return (
-    <section className="convention-hero">
-      <div className="container">
-        <div className="convention-hero__breadcrumb">
-          <Link href="/" className="convention-hero__breadcrumb-link">Home</Link>
-          <span className="convention-hero__breadcrumb-sep">/</span>
-          <span className="convention-hero__breadcrumb-current">Convention Archives</span>
+    <section className="cbl-hero">
+      <div className="cbl-hero-container">
+        <div className="cbl-breadcrumb">
+          <Link href="/" className="cbl-breadcrumb-link">Home</Link>
+          <span className="cbl-breadcrumb-sep">/</span>
+          <span className="cbl-breadcrumb-current">Convention Archives</span>
         </div>
-        <h1 className="convention-hero__title">
-          National Conventions
-        </h1>
-        <div className="convention-hero__divider" />
-        <p className="convention-hero__subtitle">
-          Browse our archives of past PAGE National Conventions. Explore themes, program schedules, speakers, academic journals, and photo galleries of graduate education leadership.
-        </p>
+
+        <div className="cbl-hero-left">
+          <h1 className="cbl-hero-title">National Conventions</h1>
+          <div className="cbl-gold-line" />
+          <p className="cbl-hero-subtitle">
+            Browse our archives of past PAGE National Conventions. Explore themes, program schedules, speakers, academic journals, and photo galleries of graduate education leadership.
+          </p>
+        </div>
       </div>
     </section>
   );

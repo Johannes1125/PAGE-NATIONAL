@@ -178,24 +178,24 @@ const dropdownVariants: Variants = {
 // ── Navbar ─────────────────────────────────────────────────────────────────
 
 
-// ── Activities Hero ────────────────────────────────────────────────────────
+// ── Activities Hero (CBL Hero Header Design) ────────────────────────────────
 function ActivitiesHero() {
   return (
-    <section className="acts-hero">
-      <div className="container">
-        <div className="acts-hero__breadcrumb">
-          <Link href="/" className="acts-hero__breadcrumb-link">Home</Link>
-          <span className="acts-hero__breadcrumb-sep">/</span>
-          <span className="acts-hero__breadcrumb-current">National Activities</span>
+    <section className="cbl-hero">
+      <div className="cbl-hero-container">
+        <div className="cbl-breadcrumb">
+          <Link href="/" className="cbl-breadcrumb-link">Home</Link>
+          <span className="cbl-breadcrumb-sep">/</span>
+          <span className="cbl-breadcrumb-current">National Activities</span>
         </div>
-        <h1 className="acts-hero__title">
-          National Activities
-        </h1>
-        <div className="acts-hero__divider" />
-        <p className="acts-hero__subtitle">
-          Explore conferences, seminars, workshops, and events organized by PAGE for
-          graduate education professionals across the Philippines.
-        </p>
+        
+        <div className="cbl-hero-left">
+          <h1 className="cbl-hero-title">National Activities</h1>
+          <div className="cbl-gold-line" />
+          <p className="cbl-hero-subtitle">
+            Explore conferences, seminars, workshops, and events organized by PAGE for graduate education professionals across the Philippines.
+          </p>
+        </div>
       </div>
     </section>
   );
@@ -369,21 +369,6 @@ function ActivitiesSection() {
   return (
     <section className="acts-section">
       <div className="container">
-        {/* Section header */}
-        <div className="section-header" style={{ textAlign: "left", marginBottom: "36px" }}>
-          <span className="section-label">Events & Programs</span>
-          <h2 className="section-title" style={{ textAlign: "left", margin: "0 0 8px" }}>
-            {timeframeFilter === "latest" ? "Latest Activities" : timeframeFilter === "future" ? "Future Activities" : "National Activities"}
-          </h2>
-          <p className="section-subtitle" style={{ textAlign: "left", margin: 0, maxWidth: "600px" }}>
-            {timeframeFilter === "latest" 
-              ? "Browse recently completed conferences, seminars, and workshops organized by PAGE." 
-              : timeframeFilter === "future"
-              ? "Register for upcoming conferences, seminars, and workshops scheduled by PAGE."
-              : "Browse PAGE-organized conferences, seminars, workshops, and events open to graduate education professionals nationwide."}
-          </p>
-        </div>
-
         {/* Filter toolbar */}
         <div className="acts-filters">
           {/* Type dropdown */}
