@@ -3,10 +3,10 @@
    Design: split-screen, navy left / light right with card
    ═══════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
 * {
-  font-family: 'Inter', 'Poppins', sans-serif;
+  font-family: var(--font-poppins), 'Poppins', sans-serif;
   box-sizing: border-box;
   margin: 0;
   padding: 0;

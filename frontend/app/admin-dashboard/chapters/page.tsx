@@ -17,6 +17,7 @@ import EmptyState from "./components/EmptyState";
 import LoadingSkeleton from "./components/LoadingSkeleton";
 import ChapterPagination from "./components/ChapterPagination";
 import ConfirmDialog from "../conventions/components/ConfirmDialog";
+import OfficerModal from "./components/OfficerModal";
 import { Chapter, ChapterStatsData, mapApiChapterToChapter } from "./types";
 import { chaptersApi } from "../../lib/api-client";
 import "../admin-dashboard.css";
@@ -34,6 +35,7 @@ export default function ChaptersPage() {
   const [totalItems, setTotalItems] = useState(0);
   const [deleteTarget, setDeleteTarget] = useState<Chapter | null>(null);
   const [publishTarget, setPublishTarget] = useState<Chapter | null>(null);
+  const [viewOfficersTarget, setViewOfficersTarget] = useState<Chapter | null>(null);
 
   // ── Filter / sort state (mirrors toolbar props) ─────────────────────────────
   const [searchQuery, setSearchQuery] = useState("");
@@ -169,8 +171,9 @@ export default function ChaptersPage() {
   };
 
   const handleViewAllOfficers = (chapter: Chapter) => {
-    gooeyToast.info(`Displaying full officer registry for ${chapter.name} (${chapter.officers.length} members).`);
+    setViewOfficersTarget(chapter);
   };
+
 
   const handleClearFilters = () => {
     setSearchQuery("");
@@ -251,6 +254,7 @@ export default function ChaptersPage() {
                 setSelectedStatus={setSelectedStatus}
                 sortBy={sortBy}
                 setSortBy={setSortBy}
+                onClearFilters={handleClearFilters}
               />
             )}
           </section>
@@ -272,16 +276,21 @@ export default function ChaptersPage() {
           ) : (
             <section className="chapters-section" aria-label="Chapters list">
               <div className="flex items-center justify-between gap-4">
-                <h2 className="chapters-section__label">
-                  All Chapters
+                <div className="flex items-center gap-3">
+                  <h2 className="chapters-section__label">All Chapters</h2>
+                  <span className="chapters-count-chip">
+                    {totalItems} {totalItems === 1 ? "chapter" : "chapters"}
+                  </span>
                   {isRefreshing && (
-                    <span className="ml-3 text-slate-400 text-[16px] font-normal animate-pulse">
-                      Refreshing…
+                    <span className="text-slate-400 text-[15px] font-normal animate-pulse flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-blue-500 animate-ping inline-block" />
+                      Updating…
                     </span>
                   )}
-                </h2>
+                </div>
                 <ViewToggle viewMode={viewMode} onChange={setViewMode} />
               </div>
+
               <AnimatePresence mode="wait">
                 {viewMode === "card" ? (
                   <motion.div
@@ -290,7 +299,8 @@ export default function ChaptersPage() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.18, ease: "easeOut" }}
-                    className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 min-w-0"
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 min-w-0"
+
                   >
                     {chapters.map((chapter) => (
                       <ChapterCard
@@ -316,6 +326,7 @@ export default function ChaptersPage() {
                       onEdit={handleEdit}
                       onTogglePublish={handleTogglePublishRequest}
                       onDelete={handleDeleteRequest}
+                      onViewOfficers={handleViewAllOfficers}
                     />
                   </motion.div>
                 )}
@@ -339,6 +350,13 @@ export default function ChaptersPage() {
         )}
       </motion.div>
     </AdminSidebarLayout>
+
+    {/* Officers Registry Modal */}
+    <OfficerModal
+      open={Boolean(viewOfficersTarget)}
+      chapter={viewOfficersTarget}
+      onClose={() => setViewOfficersTarget(null)}
+    />
 
     {/* Unpublish / Publish Confirmation Dialog */}
     <ConfirmDialog
@@ -372,3 +390,4 @@ export default function ChaptersPage() {
     </>
   );
 }
+

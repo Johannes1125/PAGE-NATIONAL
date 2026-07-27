@@ -226,21 +226,21 @@ function RecordModal({ mode, initialData, onClose, onSaved }: ModalProps) {
   };
 
   const fieldStyle = (hasError: boolean): React.CSSProperties => ({
-    height: 52,
+    height: 44,
     background: "var(--r-surface-2)",
     border: `1px solid ${hasError ? "var(--p-rose)" : "var(--r-border)"}`,
     borderRadius: 8,
     padding: "0 14px",
     color: "var(--r-text)",
     fontFamily: "var(--font-body)",
-    fontSize: 18,
+    fontSize: 14,
     width: "100%",
     outline: "none",
     boxSizing: "border-box" as const,
   });
 
   const errorStyle: React.CSSProperties = {
-    fontSize: 14,
+    fontSize: 13,
     color: "var(--p-rose)",
     marginTop: 4,
     fontWeight: 500,
@@ -283,22 +283,22 @@ function RecordModal({ mode, initialData, onClose, onSaved }: ModalProps) {
         `}</style>
 
         {/* Header */}
-        <div style={{ padding: "24px 28px 16px", borderBottom: "1px solid var(--r-border)" }}>
-          <h2 id="record-modal-title" style={{ fontSize: 20, fontWeight: 700, color: "var(--p-navy)", margin: 0, fontFamily: "var(--font-body)" }}>
+        <div style={{ padding: "20px 24px 14px", borderBottom: "1px solid var(--r-border)" }}>
+          <h2 id="record-modal-title" style={{ fontSize: 18, fontWeight: 700, color: "var(--p-navy)", margin: 0, fontFamily: "var(--font-body)" }}>
             {mode === "create" ? "Add Historical Record" : "Edit Historical Record"}
           </h2>
-          <p style={{ fontSize: 15, color: "var(--r-text-muted)", margin: "4px 0 0", fontFamily: "var(--font-body)" }}>
+          <p style={{ fontSize: 13, color: "var(--r-text-muted)", margin: "3px 0 0", fontFamily: "var(--font-body)" }}>
             {mode === "create" ? "Create a new organizational milestone." : "Update the selected milestone record."}
           </p>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} noValidate>
-          <div style={{ padding: "20px 28px" }}>
+          <div style={{ padding: "16px 24px" }}>
 
             {/* Title */}
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ display: "block", fontSize: 18, fontWeight: 600, color: "var(--p-navy)", marginBottom: 8, fontFamily: "var(--font-body)" }}>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "var(--p-navy)", marginBottom: 6, fontFamily: "var(--font-body)" }}>
                 Title <span style={{ color: "var(--p-rose)" }}>*</span>
               </label>
               <input
@@ -315,8 +315,8 @@ function RecordModal({ mode, initialData, onClose, onSaved }: ModalProps) {
             </div>
 
             {/* Year Start */}
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ display: "block", fontSize: 18, fontWeight: 600, color: "var(--p-navy)", marginBottom: 8, fontFamily: "var(--font-body)" }}>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "var(--p-navy)", marginBottom: 6, fontFamily: "var(--font-body)" }}>
                 Year Start <span style={{ color: "var(--p-rose)" }}>*</span>
               </label>
               <select
@@ -334,8 +334,8 @@ function RecordModal({ mode, initialData, onClose, onSaved }: ModalProps) {
             </div>
 
             {/* Program Type */}
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ display: "block", fontSize: 18, fontWeight: 600, color: "var(--p-navy)", marginBottom: 8, fontFamily: "var(--font-body)" }}>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "var(--p-navy)", marginBottom: 6, fontFamily: "var(--font-body)" }}>
                 Program Type <span style={{ color: "var(--p-rose)" }}>*</span>
               </label>
               <select
@@ -353,7 +353,7 @@ function RecordModal({ mode, initialData, onClose, onSaved }: ModalProps) {
 
             {/* Description */}
             <div style={{ marginBottom: 8 }}>
-              <label style={{ display: "block", fontSize: 18, fontWeight: 600, color: "var(--p-navy)", marginBottom: 8, fontFamily: "var(--font-body)" }}>
+              <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "var(--p-navy)", marginBottom: 6, fontFamily: "var(--font-body)" }}>
                 Description <span style={{ color: "var(--p-rose)" }}>*</span>
               </label>
               <textarea
@@ -366,13 +366,13 @@ function RecordModal({ mode, initialData, onClose, onSaved }: ModalProps) {
                   background: "var(--r-surface-2)",
                   border: `1px solid ${errors.description ? "var(--p-rose)" : "var(--r-border)"}`,
                   borderRadius: 8,
-                  padding: "14px",
+                  padding: "12px",
                   color: "var(--r-text)",
                   fontFamily: "var(--font-body)",
-                  fontSize: 18,
+                  fontSize: 14,
                   width: "100%",
                   resize: "vertical",
-                  minHeight: 120,
+                  minHeight: 100,
                   outline: "none",
                   boxSizing: "border-box",
                 }}
@@ -382,13 +382,13 @@ function RecordModal({ mode, initialData, onClose, onSaved }: ModalProps) {
           </div>
 
           {/* Actions */}
-          <div style={{ padding: "16px 28px 24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, borderTop: "1px solid var(--r-border)" }}>
+          <div style={{ padding: "14px 24px 20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, borderTop: "1px solid var(--r-border)" }}>
             <button
               type="button"
               onClick={onClose}
               disabled={saving}
               style={{
-                height: 52, borderRadius: 12, fontSize: 18, fontWeight: 600,
+                height: 42, borderRadius: 10, fontSize: 14, fontWeight: 600,
                 color: "var(--r-text-mid)", background: "var(--r-surface-2)",
                 border: "1px solid var(--r-border-mid)", cursor: saving ? "not-allowed" : "pointer",
                 fontFamily: "var(--font-body)", display: "flex", alignItems: "center", justifyContent: "center",
@@ -401,7 +401,7 @@ function RecordModal({ mode, initialData, onClose, onSaved }: ModalProps) {
               id="modal-submit-btn"
               disabled={saving}
               style={{
-                height: 52, borderRadius: 12, fontSize: 18, fontWeight: 600,
+                height: 42, borderRadius: 10, fontSize: 14, fontWeight: 600,
                 color: "#fff",
                 background: saving ? "#4a7098" : "var(--p-blue)",
                 border: "none", cursor: saving ? "not-allowed" : "pointer",
@@ -409,7 +409,7 @@ function RecordModal({ mode, initialData, onClose, onSaved }: ModalProps) {
                 opacity: saving ? 0.8 : 1,
               }}
             >
-              {saving ? <Loader size={18} /> : null}
+              {saving ? <Loader size={16} /> : null}
               {saving ? "Saving..." : mode === "create" ? "Create Record" : "Save Changes"}
             </button>
           </div>
@@ -512,14 +512,14 @@ function DeleteModal({ record, onClose, onDeleted }: DeleteModalProps) {
         </div>
 
         {/* Actions */}
-        <div style={{ padding: "20px 28px 28px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div style={{ padding: "16px 24px 24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           <button
             ref={cancelRef}
             type="button"
             onClick={onClose}
             disabled={deleting}
             style={{
-              height: 52, borderRadius: 12, fontSize: 18, fontWeight: 600,
+              height: 42, borderRadius: 10, fontSize: 14, fontWeight: 600,
               color: "var(--r-text-mid)", background: "var(--r-surface-2)",
               border: "1px solid var(--r-border-mid)", cursor: deleting ? "not-allowed" : "pointer",
               display: "flex", alignItems: "center", justifyContent: "center",
@@ -534,14 +534,14 @@ function DeleteModal({ record, onClose, onDeleted }: DeleteModalProps) {
             onClick={handleDelete}
             disabled={deleting}
             style={{
-              height: 52, borderRadius: 12, fontSize: 18, fontWeight: 600,
+              height: 42, borderRadius: 10, fontSize: 14, fontWeight: 600,
               color: "#fff", background: deleting ? "#c85a70" : "var(--p-rose)",
               border: "none", cursor: deleting ? "not-allowed" : "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
               fontFamily: "var(--font-body)", opacity: deleting ? 0.8 : 1,
             }}
           >
-            {deleting ? <Loader size={18} /> : <IconTrash />}
+            {deleting ? <Loader size={16} /> : <IconTrash />}
             {deleting ? "Deleting..." : "Delete"}
           </button>
         </div>
@@ -839,11 +839,11 @@ export default function HistoryManagement() {
               <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 640 }}>
                 <thead>
                   <tr style={{ background: "var(--r-surface-2)", borderBottom: "2px solid var(--r-border)" }}>
-                    <th style={{ width: 50, padding: "14px 18px", textAlign: "center" }}></th>
+                    <th style={{ width: 50, padding: "12px 14px", textAlign: "center" }}></th>
                     {["Year", "Title", "Program Type", "Description", "Actions"].map(h => (
                       <th key={h} style={{
-                        padding: "14px 18px", textAlign: "left",
-                        fontSize: 13, fontWeight: 700, color: "var(--p-navy)",
+                        padding: "12px 14px", textAlign: "left",
+                        fontSize: 12, fontWeight: 700, color: "var(--p-navy)",
                         textTransform: "uppercase", letterSpacing: "0.5px",
                         whiteSpace: "nowrap",
                       }}>
@@ -882,7 +882,7 @@ export default function HistoryManagement() {
                     >
                       {/* Drag Handle */}
                       <td style={{
-                        padding: "16px 18px",
+                        padding: "12px 14px",
                         verticalAlign: "middle",
                         textAlign: "center",
                         color: "var(--r-text-muted)",
@@ -890,37 +890,37 @@ export default function HistoryManagement() {
                       }}
                         title={searchQuery ? "Clear search to enable drag-and-drop reordering" : "Drag to reorder milestone"}
                       >
-                        <span style={{ fontSize: 18, cursor: searchQuery ? "not-allowed" : "grab" }}>☰</span>
+                        <span style={{ fontSize: 14, cursor: searchQuery ? "not-allowed" : "grab" }}>☰</span>
                       </td>
                       {/* Year */}
-                      <td style={{ padding: "16px 18px", verticalAlign: "top" }}>
+                      <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
                         <span style={{
                           display: "inline-block",
                           background: "var(--p-navy)",
                           color: "#fff",
-                          padding: "4px 12px",
+                          padding: "3px 10px",
                           borderRadius: 6,
                           fontWeight: 700,
-                          fontSize: 16,
+                          fontSize: 13,
                           whiteSpace: "nowrap",
                         }}>
                           {record.yearStart}
                         </span>
                       </td>
                       {/* Title */}
-                      <td style={{ padding: "16px 18px", verticalAlign: "top" }}>
-                        <span style={{ fontSize: 18, fontWeight: 600, color: "var(--p-navy)", fontFamily: "var(--font-body)" }}>
+                      <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
+                        <span style={{ fontSize: 15, fontWeight: 600, color: "var(--p-navy)", fontFamily: "var(--font-body)" }}>
                           {record.title}
                         </span>
                       </td>
                       {/* Program Type */}
-                      <td style={{ padding: "16px 18px", verticalAlign: "top" }}>
+                      <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
                         <ProgramBadge type={record.programType} />
                       </td>
                       {/* Description (truncated) */}
-                      <td style={{ padding: "16px 18px", verticalAlign: "top", maxWidth: 300 }}>
+                      <td style={{ padding: "12px 14px", verticalAlign: "top", maxWidth: 300 }}>
                         <span style={{
-                          fontSize: 15,
+                          fontSize: 13,
                           color: "var(--r-text-muted)",
                           display: "-webkit-box",
                           WebkitLineClamp: 2,
@@ -932,7 +932,7 @@ export default function HistoryManagement() {
                         </span>
                       </td>
                       {/* Actions */}
-                      <td style={{ padding: "16px 18px", verticalAlign: "top" }}>
+                      <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
                         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "nowrap" }}>
                           <button
                             id={`edit-record-${record.id}`}

@@ -224,7 +224,6 @@ export default function AdminHeader({
       >
         <div className={styles.introContent}>
           <div className={styles.introLeft}>
-            <p className={joinClasses(styles.eyebrow, seniorFriendlyHeader && styles.eyebrowSeniorFriendly)}>{eyebrow}</p>
             <h1
               className={joinClasses(
                 styles.title,
