@@ -182,7 +182,7 @@ function SkeletonTable() {
       </div>
 
       {/* ── rows ── */}
-      <div style={{ divide: "1px solid #f1f5f9" }}>
+      <div>
         {Array.from({ length: 7 }).map((_, r) => (
           <div
             key={r}
