@@ -1,129 +1,250 @@
 "use client";
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   Chapters – Loading Skeleton
+   Uses .chapters-skel (shimmer wave) defined in chapters.css
+   ───────────────────────────────────────────────────────────────────────────── */
+
 type LoadingSkeletonProps = {
   type: "stats" | "toolbar" | "cards" | "table" | "all";
 };
 
-export default function LoadingSkeleton({ type }: LoadingSkeletonProps) {
-  const shimmer = "animate-pulse bg-slate-200 rounded";
+/** One shimmer block. `delay` staggers the animation so items don't all wave in sync. */
+function Skel({
+  className = "",
+  modifier = "",
+  style,
+}: {
+  className?: string;
+  modifier?: "circle" | "card" | "sm" | "";
+  style?: React.CSSProperties;
+}) {
+  const base = "chapters-skel" + (modifier ? ` chapters-skel--${modifier}` : "");
+  return <div className={`${base} ${className}`} style={style} />;
+}
 
-  const renderStats = () => (
+/* ── Stats row: 4 KPI cards ─────────────────────────────────────────────────── */
+function SkeletonStats() {
+  return (
     <div className="chapters-section" aria-hidden="true">
-      <div className={`${shimmer} h-6 w-32 mb-4`} />
+      {/* section label */}
+      <Skel className="h-5 w-36" />
+
       <div className="chapters-stats-grid">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="chapters-stat-card min-h-[120px]">
+          <div
+            key={i}
+            className="chapters-stat-card min-h-[120px]"
+            style={{ animationDelay: `${i * 80}ms` }}
+          >
             <div className="chapters-stat-card__head">
-              <div className={`${shimmer} w-16 h-16 rounded-2xl shrink-0`} />
+              {/* icon box */}
+              <Skel modifier="card" className="w-[60px] h-[60px] shrink-0" />
+
               <div className="flex-1 space-y-3 min-w-0">
-                <div className={`${shimmer} h-5 w-36`} />
-                <div className={`${shimmer} h-10 w-20`} />
+                {/* label */}
+                <Skel className="h-[14px] w-28" />
+                {/* big number */}
+                <Skel className="h-9 w-16" />
               </div>
+            </div>
+
+            {/* bottom sub-row */}
+            <div className="flex items-center gap-2 mt-3 pt-3" style={{ borderTop: "1px solid #f1f5f9" }}>
+              <Skel modifier="circle" className="w-4 h-4" />
+              <Skel className="h-[13px] w-32" />
             </div>
           </div>
         ))}
       </div>
     </div>
   );
+}
 
-  const renderToolbar = () => (
+/* ── Toolbar: search + 4 filters + view toggle ──────────────────────────────── */
+function SkeletonToolbar() {
+  return (
     <div className="chapters-section" aria-hidden="true">
-      <div className={`${shimmer} h-6 w-40 mb-4`} />
+      {/* section label */}
+      <Skel className="h-5 w-40" />
+
       <div className="chapters-toolbar-panel">
         <div className="chapters-toolbar">
+          {/* search */}
           <div className="chapters-toolbar__search">
-            <div className={`${shimmer} h-[52px] w-full`} />
+            <Skel className="h-[52px] w-full" style={{ borderRadius: "14px" }} />
           </div>
+
+          {/* filter selects */}
           <div className="chapters-toolbar__filters">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="chapters-toolbar__filter">
-                <div className={`${shimmer} h-[52px] w-full`} />
+                <Skel
+                  className="h-[52px] w-full"
+                  style={{ borderRadius: "14px", animationDelay: `${i * 60}ms` }}
+                />
               </div>
             ))}
           </div>
-          <div className={`${shimmer} h-[52px] w-[260px] rounded-xl`} />
+
+          {/* view toggle pill */}
+          <Skel className="h-[52px] w-[130px]" style={{ borderRadius: "14px" }} />
         </div>
       </div>
     </div>
   );
+}
 
-  const renderCards = () => (
+/* ── Card grid: 8 chapter cards ──────────────────────────────────────────────── */
+function SkeletonCards() {
+  return (
     <div className="chapters-grid" aria-hidden="true">
       {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="chapters-card min-h-[380px]">
-          <div className="chapters-card__header pr-24">
-            <div className={`${shimmer} h-7 w-28 absolute top-0 right-0 rounded-full`} />
-            <div className={`${shimmer} h-7 w-full`} />
+        <div
+          key={i}
+          className="chapters-card"
+          style={{ minHeight: 380, animationDelay: `${i * 55}ms` }}
+        >
+          {/* ── header: title + status badge ── */}
+          <div className="chapters-card__header" style={{ position: "relative", paddingRight: "96px" }}>
+            {/* status badge (absolute top-right) */}
+            <Skel
+              modifier="circle"
+              className="h-7 w-24"
+              style={{ position: "absolute", top: 0, right: 0 }}
+            />
+            {/* chapter name */}
+            <Skel className="h-7 w-full" />
+            {/* region + island chips */}
             <div className="flex gap-2 mt-3">
-              <div className={`${shimmer} h-7 w-20 rounded-full`} />
-              <div className={`${shimmer} h-7 w-28 rounded-full`} />
+              <Skel modifier="circle" className="h-7 w-20" />
+              <Skel modifier="circle" className="h-7 w-28" />
             </div>
           </div>
+
+          {/* ── description lines ── */}
           <div className="chapters-card__description-wrap mt-4 space-y-2">
-            <div className={`${shimmer} h-5 w-full`} />
-            <div className={`${shimmer} h-5 w-full`} />
-            <div className={`${shimmer} h-5 w-2/3`} />
+            <Skel className="h-[15px] w-full" />
+            <Skel className="h-[15px] w-full" />
+            <Skel className="h-[15px] w-2/3" />
           </div>
+
+          {/* ── officer avatars ── */}
           <div className="mt-6 flex -space-x-2">
             {Array.from({ length: 3 }).map((_, a) => (
-              <div key={a} className={`${shimmer} w-11 h-11 rounded-full`} />
+              <Skel key={a} modifier="circle" className="w-11 h-11" style={{ border: "2px solid #fff" }} />
             ))}
+            {/* "+N more" bubble */}
+            <Skel modifier="circle" className="w-11 h-11" style={{ border: "2px solid #fff" }} />
           </div>
+
+          {/* ── footer ── */}
           <div className="chapters-card__footer mt-auto">
-            <div className={`${shimmer} h-12 w-2/3`} />
+            {/* date/meta block */}
+            <div className="space-y-1.5">
+              <Skel className="h-[13px] w-20" />
+              <Skel className="h-5 w-32" />
+            </div>
+
+            {/* action buttons */}
             <div className="flex gap-2">
-              <div className={`${shimmer} w-11 h-11 rounded-lg`} />
-              <div className={`${shimmer} w-11 h-11 rounded-lg`} />
+              <Skel className="w-11 h-11" style={{ borderRadius: "10px" }} />
+              <Skel className="w-11 h-11" style={{ borderRadius: "10px" }} />
             </div>
           </div>
         </div>
       ))}
     </div>
   );
+}
 
-  const renderTable = () => (
+/* ── Table: header + 7 rows ──────────────────────────────────────────────────── */
+function SkeletonTable() {
+  return (
     <div className="chapters-table-wrap" aria-hidden="true">
-      <div className="p-5 border-b border-slate-200 bg-slate-50 flex gap-6">
-        <div className={`${shimmer} w-6 h-6 rounded`} />
-        {Array.from({ length: 7 }).map((_, i) => (
-          <div key={i} className={`${shimmer} h-5 flex-1`} />
+      {/* ── table header ── */}
+      <div
+        style={{
+          padding: "14px 20px",
+          borderBottom: "1px solid #e2e8f0",
+          background: "#f8fafc",
+          display: "flex",
+          alignItems: "center",
+          gap: 20,
+        }}
+      >
+        {/* checkbox col */}
+        <Skel className="w-5 h-5 shrink-0" modifier="sm" />
+        {/* column labels */}
+        {["w-40", "w-24", "w-28", "w-24", "w-20", "w-28", "w-20"].map((w, i) => (
+          <Skel key={i} className={`h-[13px] ${w} flex-shrink-0`} />
         ))}
       </div>
-      <div className="divide-y divide-slate-100">
-        {Array.from({ length: 6 }).map((_, r) => (
-          <div key={r} className="flex items-center gap-6 px-5 py-5 min-h-[64px]">
-            <div className={`${shimmer} w-6 h-6 rounded shrink-0`} />
-            <div className="flex-1 space-y-2 min-w-0">
-              <div className={`${shimmer} h-5 w-3/4`} />
-              <div className={`${shimmer} h-4 w-1/2`} />
+
+      {/* ── rows ── */}
+      <div style={{ divide: "1px solid #f1f5f9" }}>
+        {Array.from({ length: 7 }).map((_, r) => (
+          <div
+            key={r}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 20,
+              padding: "16px 20px",
+              borderBottom: "1px solid #f1f5f9",
+              animationDelay: `${r * 55}ms`,
+            }}
+          >
+            {/* checkbox */}
+            <Skel className="w-5 h-5 shrink-0" modifier="sm" />
+
+            {/* chapter name + region */}
+            <div style={{ flex: "0 0 200px", display: "flex", flexDirection: "column", gap: 6 }}>
+              <Skel className="h-[15px] w-full" />
+              <Skel className="h-[13px] w-3/4" />
             </div>
-            <div className={`${shimmer} h-7 w-20 rounded-full`} />
-            <div className={`${shimmer} h-7 w-24 rounded-full`} />
-            <div className={`${shimmer} h-8 w-24 rounded-full`} />
-            <div className={`${shimmer} h-7 w-20 rounded-full`} />
-            <div className={`${shimmer} h-5 w-28`} />
-            <div className="flex gap-2">
-              <div className={`${shimmer} w-11 h-11 rounded-lg`} />
-              <div className={`${shimmer} w-11 h-11 rounded-lg`} />
+
+            {/* island group badge */}
+            <Skel modifier="circle" className="h-7 w-24 flex-shrink-0" />
+
+            {/* status badge */}
+            <Skel modifier="circle" className="h-7 w-24 flex-shrink-0" />
+
+            {/* type badge */}
+            <Skel modifier="circle" className="h-7 w-20 flex-shrink-0" />
+
+            {/* officers count */}
+            <Skel className="h-5 w-16 flex-shrink-0" />
+
+            {/* date */}
+            <Skel className="h-5 w-28 flex-shrink-0" />
+
+            {/* action buttons */}
+            <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+              <Skel className="w-10 h-10" style={{ borderRadius: "10px" }} />
+              <Skel className="w-10 h-10" style={{ borderRadius: "10px" }} />
             </div>
           </div>
         ))}
       </div>
     </div>
   );
+}
 
+/* ── Public component ──────────────────────────────────────────────────────── */
+export default function LoadingSkeleton({ type }: LoadingSkeletonProps) {
   if (type === "all") {
     return (
       <>
-        {renderStats()}
-        {renderToolbar()}
-        {renderCards()}
+        <SkeletonStats />
+        <SkeletonToolbar />
+        <SkeletonCards />
       </>
     );
   }
 
-  if (type === "stats") return renderStats();
-  if (type === "toolbar") return renderToolbar();
-  if (type === "cards") return renderCards();
-  return renderTable();
+  if (type === "stats")   return <SkeletonStats />;
+  if (type === "toolbar") return <SkeletonToolbar />;
+  if (type === "cards")   return <SkeletonCards />;
+  return <SkeletonTable />;
 }

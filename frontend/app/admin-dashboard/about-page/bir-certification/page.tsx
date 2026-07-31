@@ -216,28 +216,28 @@ export default function BirCertificationPage() {
 
         {/* Content Display */}
         {isLoading ? (
-          <div className="about-editor-card" style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "80px 0" }}>
-            <Loader2 className="animate-spin" size={40} style={{ color: "var(--p-blue)" }} />
+          <div className="about-editor-card" style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "60px 0" }}>
+            <Loader2 className="animate-spin" size={32} style={{ color: "var(--p-blue)" }} />
           </div>
         ) : record ? (
           /* Active Record Card Display */
-          <div className="about-editor-card" style={{ padding: "32px", display: "flex", flexDirection: "column", gap: "32px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--r-border-mid)", paddingBottom: "20px" }}>
+          <div className="about-editor-card" style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "20px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--r-border-mid)", paddingBottom: "16px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <div style={{ background: "rgba(30, 83, 142, 0.08)", padding: "10px", borderRadius: "10px", color: "var(--p-blue)" }}>
-                  <Shield size={24} />
+                <div style={{ background: "rgba(30, 83, 142, 0.08)", padding: "8px", borderRadius: "10px", color: "var(--p-blue)" }}>
+                  <Shield size={22} />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: "20px", fontWeight: 700, color: "var(--p-navy)", margin: 0 }}>Active BIR Certification</h3>
-                  <p style={{ fontSize: "14px", color: "var(--r-text-muted)", margin: "4px 0 0" }}>Currently synced with the website landing page.</p>
+                  <h3 style={{ fontSize: "18px", fontWeight: 700, color: "var(--p-navy)", margin: 0 }}>Active BIR Certification</h3>
+                  <p style={{ fontSize: "13px", color: "var(--r-text-muted)", margin: "2px 0 0" }}>Currently synced with the website landing page.</p>
                 </div>
               </div>
-              <div style={{ display: "flex", gap: "12px" }}>
+              <div style={{ display: "flex", gap: "10px" }}>
                 <button
                   type="button"
                   onClick={() => setModalMode("edit")}
                   className="about-btn about-btn--primary"
-                  style={{ height: "46px", padding: "0 20px" }}
+                  style={{ height: "40px", padding: "0 16px" }}
                 >
                   <Edit size={16} /> Edit Details
                 </button>
@@ -245,7 +245,7 @@ export default function BirCertificationPage() {
                   type="button"
                   onClick={() => setShowDeleteModal(true)}
                   className="about-btn about-btn--danger"
-                  style={{ height: "46px", padding: "0 20px" }}
+                  style={{ height: "40px", padding: "0 16px" }}
                 >
                   <Trash2 size={16} /> Delete
                 </button>
@@ -253,62 +253,62 @@ export default function BirCertificationPage() {
             </div>
 
             {/* Two-Column Grid layout */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px", alignItems: "start" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", alignItems: "start" }}>
               
               {/* Left Column: Details */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
                 <div>
-                  <span style={{ fontSize: "13px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Registration Name</span>
-                  <p style={{ fontSize: "18px", fontWeight: 600, color: "var(--p-navy)", margin: "6px 0 0" }}>{record.registrationName}</p>
+                  <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Registration Name</span>
+                  <p style={{ fontSize: "15px", fontWeight: 600, color: "var(--p-navy)", margin: "4px 0 0" }}>{record.registrationName}</p>
                 </div>
                 <div>
-                  <span style={{ fontSize: "13px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Tax Identification Number (TIN)</span>
-                  <p style={{ fontSize: "18px", fontWeight: 600, color: "var(--p-navy)", margin: "6px 0 0", fontFamily: "monospace" }}>{record.tinNumber}</p>
+                  <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Tax Identification Number (TIN)</span>
+                  <p style={{ fontSize: "15px", fontWeight: 600, color: "var(--p-navy)", margin: "4px 0 0", fontFamily: "monospace" }}>{record.tinNumber}</p>
                 </div>
                 <div>
-                  <span style={{ fontSize: "13px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Certification Number</span>
-                  <p style={{ fontSize: "18px", fontWeight: 600, color: "var(--p-navy)", margin: "6px 0 0", fontFamily: "monospace" }}>{record.certificationNumber}</p>
+                  <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Certification Number</span>
+                  <p style={{ fontSize: "15px", fontWeight: 600, color: "var(--p-navy)", margin: "4px 0 0", fontFamily: "monospace" }}>{record.certificationNumber}</p>
                 </div>
                 <div>
-                  <span style={{ fontSize: "13px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Exemption Category</span>
-                  <p style={{ fontSize: "17px", fontWeight: 500, color: "var(--r-text-mid)", margin: "6px 0 0" }}>{record.exemptionCategory}</p>
+                  <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Exemption Category</span>
+                  <p style={{ fontSize: "14px", fontWeight: 500, color: "var(--r-text-mid)", margin: "4px 0 0" }}>{record.exemptionCategory}</p>
                 </div>
                 <div>
-                  <span style={{ fontSize: "13px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Date of Issuance</span>
-                  <p style={{ fontSize: "17px", fontWeight: 500, color: "var(--r-text-mid)", margin: "6px 0 0" }}>{formatDate(record.dateOfIssuance)}</p>
+                  <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Date of Issuance</span>
+                  <p style={{ fontSize: "14px", fontWeight: 500, color: "var(--r-text-mid)", margin: "4px 0 0" }}>{formatDate(record.dateOfIssuance)}</p>
                 </div>
               </div>
 
               {/* Right Column: Certificate Preview */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
-                <span style={{ fontSize: "13px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px", alignSelf: "flex-start" }}>Certificate Document</span>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
+                <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px", alignSelf: "flex-start" }}>Certificate Document</span>
                 {record.imageUrl ? (
                   <div style={{
                     width: "100%",
-                    maxWidth: "280px",
-                    height: "360px",
-                    borderRadius: "12px",
+                    maxWidth: "260px",
+                    height: "320px",
+                    borderRadius: "10px",
                     border: "1px solid var(--r-border-mid)",
                     background: "#f8fafc",
                     overflow: "hidden",
-                    boxShadow: "0 10px 20px rgba(0,0,0,0.05)",
+                    boxShadow: "0 6px 16px rgba(0,0,0,0.04)",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
-                    padding: "16px",
+                    padding: "14px",
                     position: "relative"
                   }}>
                     {isPdf(record.imageUrl) ? (
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px" }}>
-                        <FileText size={64} style={{ color: "var(--p-rose)" }} />
-                        <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--p-navy)" }}>PDF Certificate</span>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+                        <FileText size={52} style={{ color: "var(--p-rose)" }} />
+                        <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--p-navy)" }}>PDF Certificate</span>
                         <a
                           href={record.imageUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="about-btn about-btn--secondary"
-                          style={{ height: "38px", padding: "0 16px", fontSize: "13px" }}
+                          style={{ height: "36px", padding: "0 14px", fontSize: "12px" }}
                         >
                           View File
                         </a>
@@ -323,28 +323,28 @@ export default function BirCertificationPage() {
                     )}
                   </div>
                 ) : (
-                  <p style={{ color: "var(--r-text-muted)", fontStyle: "italic", fontSize: "15px" }}>No document uploaded.</p>
+                  <p style={{ color: "var(--r-text-muted)", fontStyle: "italic", fontSize: "14px" }}>No document uploaded.</p>
                 )}
               </div>
             </div>
           </div>
         ) : (
           /* Empty Placeholder State */
-          <div className="about-editor-card" style={{ padding: "60px 32px", textAlign: "center" }}>
-            <div style={{ fontSize: "64px", marginBottom: "20px" }}>📄</div>
-            <h3 style={{ fontSize: "24px", fontWeight: 700, color: "var(--p-navy)", marginBottom: "12px" }}>
+          <div className="about-editor-card" style={{ padding: "48px 24px", textAlign: "center" }}>
+            <div style={{ fontSize: "48px", marginBottom: "16px" }}>📄</div>
+            <h3 style={{ fontSize: "20px", fontWeight: 700, color: "var(--p-navy)", marginBottom: "10px" }}>
               No BIR Certification record configured
             </h3>
-            <p style={{ fontSize: "16px", color: "var(--r-text-muted)", marginBottom: "28px", maxWidth: "480px", marginLeft: "auto", marginRight: "auto" }}>
+            <p style={{ fontSize: "14px", color: "var(--r-text-muted)", marginBottom: "24px", maxWidth: "460px", marginLeft: "auto", marginRight: "auto" }}>
               Add the official tax exemption details to sync and display them on the website landing page.
             </p>
             <button
               type="button"
               onClick={() => setModalMode("create")}
               className="about-btn about-btn--primary"
-              style={{ height: "52px", fontSize: "16px", padding: "0 28px", marginLeft: "auto", marginRight: "auto" }}
+              style={{ height: "42px", fontSize: "14px", padding: "0 20px", marginLeft: "auto", marginRight: "auto" }}
             >
-              <Plus size={20} strokeWidth={2.5} /> Add BIR Certification
+              <Plus size={18} strokeWidth={2.5} /> Add BIR Certification
             </button>
           </div>
         )}
@@ -398,41 +398,41 @@ export default function BirCertificationPage() {
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         title="Confirm Delete"
-        contentPadding="32px"
+        contentPadding="24px"
         scrollable={false}
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           <div style={{ 
             background: "var(--p-rose-pale)", 
             border: "1px solid rgba(244,63,94,0.2)", 
-            borderRadius: "12px", 
-            padding: "16px 24px",
+            borderRadius: "10px", 
+            padding: "14px 18px",
             display: "flex", 
             alignItems: "flex-start", 
-            gap: "12px",
+            gap: "10px",
           }}>
-            <AlertTriangle size={24} style={{ color: "var(--p-rose)", flexShrink: 0, marginTop: "2px" }} />
+            <AlertTriangle size={20} style={{ color: "var(--p-rose)", flexShrink: 0, marginTop: "2px" }} />
             <div>
-              <h4 style={{ fontSize: "18px", fontWeight: 700, color: "var(--p-rose)", margin: "0 0 6px 0" }}>
+              <h4 style={{ fontSize: "15px", fontWeight: 700, color: "var(--p-rose)", margin: "0 0 4px 0" }}>
                 Warning: Permanent Action
               </h4>
-              <p style={{ fontSize: "16px", color: "var(--p-rose)", margin: 0, lineHeight: 1.5 }}>
+              <p style={{ fontSize: "13px", color: "var(--p-rose)", margin: 0, lineHeight: 1.5 }}>
                 Are you sure you want to delete the active BIR certification record?
                 This action is permanent and will delete the document file from storage.
               </p>
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
             <button
               type="button"
               onClick={() => setShowDeleteModal(false)}
               disabled={isDeleting}
               className="focus-ring"
               style={{
-                height: "52px",
-                borderRadius: "12px",
-                fontSize: "18px",
+                height: "42px",
+                borderRadius: "10px",
+                fontSize: "14px",
                 fontWeight: 600,
                 color: "var(--r-text-mid)",
                 background: "var(--r-surface-2)",
@@ -451,9 +451,9 @@ export default function BirCertificationPage() {
               disabled={isDeleting}
               className="focus-ring"
               style={{
-                height: "52px",
-                borderRadius: "12px",
-                fontSize: "18px",
+                height: "42px",
+                borderRadius: "10px",
+                fontSize: "14px",
                 fontWeight: 600,
                 color: "#fff",
                 background: isDeleting ? "#c85a70" : "var(--p-rose)",
@@ -465,7 +465,7 @@ export default function BirCertificationPage() {
                 gap: "8px",
               }}
             >
-              {isDeleting && <Loader2 className="animate-spin" size={18} />}
+              {isDeleting && <Loader2 className="animate-spin" size={16} />}
               {isDeleting ? "Deleting..." : "Delete Record"}
             </button>
           </div>

@@ -11,8 +11,6 @@ import "goey-toast/styles.css";
 import "../about-page.css";
 import "../../admin-dashboard.css";
 
-import { LOGO_DATA } from "../../../(landing-page)/about/logo/mock-data";
-
 type Document = {
   id: string;
   file_name: string;
@@ -68,23 +66,23 @@ export default function LogoDescriptionManagement() {
     if (!section) return false;
     let initialDescription = "";
     let initialPhilosophy = "";
-    let initialSymbols = LOGO_DATA.symbol_breakdown;
-    let initialColors = LOGO_DATA.color_palette;
+    let initialSymbols: any[] = [];
+    let initialColors: any[] = [];
     
     try {
       const parsed = JSON.parse(section.content);
       if (parsed && typeof parsed === "object") {
         initialDescription = parsed.description || "";
-        initialPhilosophy = parsed.design_philosophy || LOGO_DATA.design_philosophy;
-        initialSymbols = parsed.symbol_breakdown || LOGO_DATA.symbol_breakdown;
-        initialColors = parsed.color_palette || LOGO_DATA.color_palette;
+        initialPhilosophy = parsed.design_philosophy || "";
+        initialSymbols = parsed.symbol_breakdown || [];
+        initialColors = parsed.color_palette || [];
       } else {
         initialDescription = section.content || "";
-        initialPhilosophy = LOGO_DATA.design_philosophy;
+        initialPhilosophy = "";
       }
     } catch (e) {
       initialDescription = section.content || "";
-      initialPhilosophy = LOGO_DATA.design_philosophy;
+      initialPhilosophy = "";
     }
 
     return (
@@ -132,20 +130,20 @@ export default function LogoDescriptionManagement() {
             const parsed = JSON.parse(secRes.data.content);
             if (parsed && typeof parsed === "object") {
               setDescription(parsed.description || "");
-              setDesignPhilosophy(parsed.design_philosophy || LOGO_DATA.design_philosophy);
-              setSymbolBreakdown(parsed.symbol_breakdown || LOGO_DATA.symbol_breakdown);
-              setColorPalette(parsed.color_palette || LOGO_DATA.color_palette);
+              setDesignPhilosophy(parsed.design_philosophy || "");
+              setSymbolBreakdown(parsed.symbol_breakdown || []);
+              setColorPalette(parsed.color_palette || []);
             } else {
               setDescription(secRes.data.content);
-              setDesignPhilosophy(LOGO_DATA.design_philosophy);
-              setSymbolBreakdown(LOGO_DATA.symbol_breakdown);
-              setColorPalette(LOGO_DATA.color_palette);
+              setDesignPhilosophy("");
+              setSymbolBreakdown([]);
+              setColorPalette([]);
             }
           } catch (e) {
             setDescription(secRes.data.content);
-            setDesignPhilosophy(LOGO_DATA.design_philosophy);
-            setSymbolBreakdown(LOGO_DATA.symbol_breakdown);
-            setColorPalette(LOGO_DATA.color_palette);
+            setDesignPhilosophy("");
+            setSymbolBreakdown([]);
+            setColorPalette([]);
           }
         }
         if (docRes.success) {
@@ -350,7 +348,7 @@ export default function LogoDescriptionManagement() {
     );
   }
 
-  const latestLogoUrl = documents[documents.length - 1]?.file_url || "/PAGE.jpg";
+  const latestLogoUrl = documents[documents.length - 1]?.file_url || "/PAGE-favicon.png";
 
   return (
     <AdminSidebarLayout
@@ -613,7 +611,7 @@ export default function LogoDescriptionManagement() {
                   }}
                   onError={(e) => {
                     const target = e.currentTarget as HTMLImageElement;
-                    target.src = "/PAGE.jpg";
+                    target.src = "/PAGE-favicon.png";
                   }}
                 />
               </div>

@@ -58,20 +58,19 @@ const T = {
   white:      "var(--r-surface)",
   border:     "var(--r-border)",
 
-  // Font sizes – bumped to follow PAGE Senior-Friendly Design Standards:
-  // "Minimum text size 18px. Minimum heading size 24px."
-  fs_xs:      18,
-  fs_sm:      18,
-  fs_base:    18,
-  fs_md:      24,
-  fs_lg:      24,
-  fs_xl:      28,
+  // Font sizes & heights standardized to PAGE Admin Design System:
+  fs_xs:      12,
+  fs_sm:      13,
+  fs_base:    14,
+  fs_md:      16,
+  fs_lg:      18,
+  fs_xl:      20,
 
-  // Heights – larger touch targets
-  inputH:     48,
-  btnH:       48,
-  btnHSm:     40,
-  rowH:       56,
+  // Heights – standard control targets
+  inputH:     42,
+  btnH:       42,
+  btnHSm:     36,
+  rowH:       48,
 } as const;
 
 // ── CUSTOM WYSIWYG RICH TEXT EDITOR ──────────────────────────────────────────
@@ -127,7 +126,7 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = "140px" }: R
   };
 
   const separatorStyle: React.CSSProperties = {
-    width: 1, height: 28, background: "#e2e8f0", margin: "0 8px",
+    width: 1, height: 24, background: "#e2e8f0", margin: "0 6px",
   };
 
   const cleanText = (value || "").replace(/<[^>]*>/g, "");
@@ -138,7 +137,7 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = "140px" }: R
     <div
       style={{
         border: "1px solid #e2e8f0",
-        borderRadius: 12,
+        borderRadius: 10,
         overflow: "hidden",
         background: "var(--r-surface)",
       }}
@@ -148,31 +147,31 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = "140px" }: R
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 6,
-          padding: "10px 14px",
+          gap: 4,
+          padding: "6px 10px",
           background: "var(--r-surface-2)",
           borderBottom: "1px solid #e2e8f0",
           flexWrap: "wrap",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
           {/* Undo / Redo */}
           <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("undo")} className={getToolBtnClass()} title="Undo (Ctrl+Z)">
-            <Undo2 size={18} />
+            <Undo2 size={15} />
           </button>
           <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("redo")} className={getToolBtnClass()} title="Redo (Ctrl+Y)">
-            <Redo2 size={18} />
+            <Redo2 size={15} />
           </button>
           <div style={separatorStyle} />
           {/* Formatting */}
           <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("bold")} className={getToolBtnClass("bold")} title="Bold (Ctrl+B)">
-            <Bold size={18} />
+            <Bold size={15} />
           </button>
           <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("italic")} className={getToolBtnClass("italic")} title="Italic (Ctrl+I)">
-            <Italic size={18} />
+            <Italic size={15} />
           </button>
           <button type="button" onMouseDown={preventBlur} onClick={() => handleCommand("underline")} className={getToolBtnClass("underline")} title="Underline (Ctrl+U)">
-            <Underline size={18} />
+            <Underline size={15} />
           </button>
         </div>
       </div>
@@ -186,11 +185,11 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = "140px" }: R
         onKeyUp={handleKeyUp}
         onMouseUp={handleMouseUp}
         style={{
-          padding: "16px",
+          padding: "12px 14px",
           outline: "none",
-          fontSize: "18px",
+          fontSize: "14px",
           color: "var(--r-text)",
-          lineHeight: 1.75,
+          lineHeight: 1.6,
           minHeight,
           overflowY: "auto",
           fontFamily: "var(--font-body)",
@@ -202,21 +201,21 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = "140px" }: R
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: 8,
-          padding: "12px 16px",
+          gap: 6,
+          padding: "8px 12px",
           background: "var(--r-surface-2)",
           borderTop: "1px solid #e2e8f0",
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
-          <span style={{ fontSize: "15px", color: "#94a3b8", fontFamily: "var(--font-body)", fontWeight: 500 }}>
+          <span style={{ fontSize: "12px", color: "#94a3b8", fontFamily: "var(--font-body)", fontWeight: 500 }}>
             {wordCount} {wordCount === 1 ? "word" : "words"}
           </span>
-          <span style={{ fontSize: "15px", color: charCount > 2000 ? "var(--p-rose)" : "#94a3b8", fontFamily: "var(--font-body)", fontWeight: charCount > 2000 ? 700 : 500 }}>
+          <span style={{ fontSize: "12px", color: charCount > 2000 ? "var(--p-rose)" : "#94a3b8", fontFamily: "var(--font-body)", fontWeight: charCount > 2000 ? 700 : 500 }}>
             {charCount} / 2000 characters {charCount > 2000 && "(Exceeds limit)"}
           </span>
         </div>
-        <div style={{ width: "100%", background: "#e2e8f0", height: 4, borderRadius: 2, overflow: "hidden" }}>
+        <div style={{ width: "100%", background: "#e2e8f0", height: 3, borderRadius: 2, overflow: "hidden" }}>
           <div
             style={{
               width: `${Math.min((charCount / 2000) * 100, 100)}%`,
@@ -622,10 +621,10 @@ export default function CblInformationManagement() {
 
   const labelStyle: React.CSSProperties = {
     display: "block",
-    fontSize: "18px",
+    fontSize: "14px",
     fontWeight: 600,
     color: "#0f172a",
-    marginBottom: 7,
+    marginBottom: 6,
     letterSpacing: "0.01em",
     fontFamily: "var(--font-body)",
   };
@@ -633,9 +632,9 @@ export default function CblInformationManagement() {
   const inputStyle: React.CSSProperties = {
     width: "100%",
     height: T.inputH,
-    padding: "0 14px",
+    padding: "0 12px",
     border: "1px solid var(--r-border-mid)",
-    borderRadius: 12,
+    borderRadius: 10,
     fontSize: T.fs_base,
     color: "var(--r-text)",
     outline: "none",
@@ -647,8 +646,8 @@ export default function CblInformationManagement() {
 
   const primaryBtn: React.CSSProperties = {
     height: T.btnH,
-    padding: "0 22px",
-    borderRadius: 12,
+    padding: "0 16px",
+    borderRadius: 10,
     fontSize: T.fs_base,
     fontWeight: 600,
     color: "var(--p-white)",
@@ -665,8 +664,8 @@ export default function CblInformationManagement() {
 
   const secondaryBtn: React.CSSProperties = {
     height: T.btnH,
-    padding: "0 18px",
-    borderRadius: 12,
+    padding: "0 14px",
+    borderRadius: 10,
     fontSize: T.fs_base,
     fontWeight: 600,
     color: "var(--r-text-mid)",
@@ -682,8 +681,8 @@ export default function CblInformationManagement() {
 
   const dangerBtn: React.CSSProperties = {
     height: T.btnH,
-    padding: "0 18px",
-    borderRadius: 12,
+    padding: "0 14px",
+    borderRadius: 10,
     fontSize: T.fs_base,
     fontWeight: 600,
     color: "var(--p-rose)",
@@ -708,14 +707,14 @@ export default function CblInformationManagement() {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingBottom: "20px",
-    marginBottom: "24px",
+    paddingBottom: "14px",
+    marginBottom: "16px",
     borderBottom: "1px solid #f1f5f9",
     background: "transparent",
   };
 
   const cardTitleStyle: React.CSSProperties = {
-    fontSize: "20px",
+    fontSize: "17px",
     fontWeight: 700,
     color: "#0f172a",
     margin: 0,
@@ -797,21 +796,21 @@ export default function CblInformationManagement() {
       </div>
 
       {/* ── PAGE CONTENT ── */}
-      <div style={{ padding: "28px 28px 80px" }}>
+      <div style={{ padding: "20px 20px 60px" }}>
         {/* Wrap process tab content in Framer Motion transition */}
         {activeTab === "process" && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.18 }}
-            className="flex flex-col gap-6"
+            className="flex flex-col gap-5"
           >
             {/* SECTION 1 — General Information */}
             <div className="cbl-section-card" style={cardStyle}>
               <div style={cardHeaderStyle}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div className="w-11 h-11 bg-[#1e3a5f]/10 text-[#1e3a5f] rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
-                    <FileText size={22} style={{ color: "#1e3a5f" }} />
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div className="w-9 h-9 bg-[#1e3a5f]/10 text-[#1e3a5f] rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <FileText size={18} style={{ color: "#1e3a5f" }} />
                   </div>
                   <h3 style={cardTitleStyle}>General Information</h3>
                 </div>
@@ -820,9 +819,9 @@ export default function CblInformationManagement() {
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "6px",
-                    padding: "6px 16px",
+                    padding: "4px 12px",
                     borderRadius: "9999px",
-                    fontSize: "16px",
+                    fontSize: "13px",
                     fontWeight: 600,
                     backgroundColor: "#dcfce7",
                     color: "#15803d",
@@ -833,7 +832,7 @@ export default function CblInformationManagement() {
                 </span>
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 {/* CBL Title */}
                 <div>
                   <label style={labelStyle}>CBL Title <span style={{ color: T.red }}>*</span></label>
@@ -842,7 +841,7 @@ export default function CblInformationManagement() {
                     placeholder="e.g. Constitution and By-Laws"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full min-h-[52px] rounded-lg border border-[#cbd5e1] px-4 text-[18px] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:border-[#1e3a5f] bg-white transition-all cbl-focus-ring"
+                    className="w-full min-h-[42px] rounded-lg border border-[#cbd5e1] px-3.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:border-[#1e3a5f] bg-white transition-all cbl-focus-ring"
                   />
                 </div>
 
@@ -853,7 +852,7 @@ export default function CblInformationManagement() {
                     value={generalDescription}
                     onChange={(val) => setGeneralDescription(val)}
                     placeholder="Write the preamble narrative details..."
-                    minHeight="130px"
+                    minHeight="120px"
                   />
                 </div>
               </div>
@@ -863,35 +862,35 @@ export default function CblInformationManagement() {
             <div className="cbl-section-card" style={cardStyle}>
               {/* Card Title Header */}
               <div style={cardHeaderStyle}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div className="w-11 h-11 bg-[#1e3a5f]/10 text-[#1e3a5f] rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
-                    <FileText size={22} style={{ color: "#1e3a5f" }} />
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div className="w-9 h-9 bg-[#1e3a5f]/10 text-[#1e3a5f] rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <FileText size={18} style={{ color: "#1e3a5f" }} />
                   </div>
                   <div>
                     <h3 style={{ ...cardTitleStyle, margin: 0 }}>Articles</h3>
-                    <span style={{ fontSize: "16px", color: "var(--r-text-muted)", fontWeight: 500 }}>
+                    <span style={{ fontSize: "13px", color: "var(--r-text-muted)", fontWeight: 500 }}>
                       {filteredArticles.length} of {articles.length} article{articles.length !== 1 ? "s" : ""}
                     </span>
                   </div>
                 </div>
                 {/* Search + Sort + Filter + New Article */}
-                <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                   {/* Search input */}
                   <div
                     className="flex items-center gap-2 px-3 border border-slate-300 rounded-lg bg-white transition-all focus-within:ring-2 focus-within:ring-[#1e3a5f] focus-within:border-[#1e3a5f]"
                     style={{
-                      height: 48,
-                      width: 260,
+                      height: 40,
+                      width: 240,
                       boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
                     }}
                   >
-                    <Search size={18} className="text-slate-400" />
+                    <Search size={16} className="text-slate-400" />
                     <input
                       type="text"
                       placeholder="Search articles..."
                       value={searchQueryTable}
                       onChange={(e) => setSearchQueryTable(e.target.value)}
-                      className="w-full text-[18px] text-slate-800 border-none outline-none bg-transparent placeholder-slate-400"
+                      className="w-full text-[14px] text-slate-800 border-none outline-none bg-transparent placeholder-slate-400"
                       style={{
                         fontFamily: "var(--font-body)",
                       }}
@@ -902,7 +901,7 @@ export default function CblInformationManagement() {
                         onClick={() => setSearchQueryTable("")}
                         className="bg-transparent border-none cursor-pointer p-0.5 text-slate-400 hover:text-slate-600 rounded"
                       >
-                        <X size={16} />
+                        <X size={14} />
                       </button>
                     )}
                   </div>
@@ -910,10 +909,10 @@ export default function CblInformationManagement() {
                   <button
                     type="button"
                     onClick={handleOpenCreateDrawer}
-                    className="bg-[#1e3a5f] hover:bg-[#152943] text-white font-semibold px-6 rounded-lg flex items-center justify-center gap-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1e3a5f] focus-visible:ring-offset-2 cursor-pointer text-[17px]"
-                    style={{ height: 48 }}
+                    className="bg-[#1e3a5f] hover:bg-[#152943] text-white font-semibold px-4 rounded-lg flex items-center justify-center gap-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1e3a5f] focus-visible:ring-offset-2 cursor-pointer text-[14px]"
+                    style={{ height: 40 }}
                   >
-                    <Plus size={18} /> New Article
+                    <Plus size={16} /> New Article
                   </button>
                 </div>
               </div>
@@ -932,11 +931,11 @@ export default function CblInformationManagement() {
                         <th
                           key={col.label}
                           style={{
-                            padding: "16px 24px",
+                            padding: "12px 18px",
                             textAlign: col.right ? "right" : "left",
                             fontWeight: 700,
                             color: "#64748b",
-                            fontSize: "13px",
+                            fontSize: "12px",
                             width: col.w,
                             letterSpacing: "0.06em",
                             textTransform: "uppercase",
@@ -955,71 +954,71 @@ export default function CblInformationManagement() {
                           style={{
                             borderBottom: "1px solid #f1f5f9",
                             background: idx % 2 === 0 ? "#ffffff" : "#f8fafc",
-                            fontSize: "18px",
+                            fontSize: "14px",
                             color: "#0f172a",
-                            height: 56,
+                            height: 48,
                           }}
                         >
                           {/* Number + Badge */}
-                          <td style={{ padding: "16px 24px" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                          <td style={{ padding: "12px 18px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                               <span style={{
-                                width: 32, height: 32, borderRadius: "50%",
+                                width: 28, height: 28, borderRadius: "50%",
                                 background: "#1e3a5f", color: "#ffffff",
-                                fontSize: "14px", fontWeight: 700,
+                                fontSize: "12px", fontWeight: 700,
                                 display: "flex", alignItems: "center", justifyContent: "center",
                                 flexShrink: 0,
                               }}>
                                 {idx + 1}
                               </span>
-                              <span style={{ fontWeight: 700, color: "#1e3a5f", fontSize: "18px" }}>{art.article_number}</span>
+                              <span style={{ fontWeight: 700, color: "#1e3a5f", fontSize: "14px" }}>{art.article_number}</span>
                             </div>
                           </td>
                           {/* Name */}
-                          <td style={{ padding: "16px 24px", color: "var(--r-text)", fontWeight: 600, fontSize: "18px" }}>
+                          <td style={{ padding: "12px 18px", color: "var(--r-text)", fontWeight: 600, fontSize: "14px" }}>
                             {art.article_name}
                           </td>
                           {/* Updated */}
-                          <td style={{ padding: "16px 24px", color: "var(--r-text-muted)", fontSize: "18px" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <Calendar size={18} className="text-slate-400" />
+                          <td style={{ padding: "12px 18px", color: "var(--r-text-muted)", fontSize: "13px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                              <Calendar size={15} className="text-slate-400" />
                               {formatDate(art.updated_at)}
                             </div>
                           </td>
                           {/* Actions */}
-                          <td style={{ padding: "16px 24px", textAlign: "right" }}>
-                            <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                          <td style={{ padding: "12px 18px", textAlign: "right" }}>
+                            <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
                               {/* View */}
                               <button
                                 type="button"
                                 onClick={() => setPreviewArticle(art)}
-                                className="cbl-focus-ring flex items-center gap-2 text-[#334155] hover:bg-[#f1f5f9] rounded-md transition-all cursor-pointer"
+                                className="cbl-focus-ring flex items-center gap-1.5 text-[#334155] hover:bg-[#f1f5f9] rounded-md transition-all cursor-pointer"
                                 style={{
                                   border: "1px solid #e2e8f0",
-                                  height: 36,
-                                  padding: "0 14px",
-                                  fontSize: "15px",
+                                  height: 34,
+                                  padding: "0 12px",
+                                  fontSize: "13px",
                                   fontWeight: 600,
                                   background: "white",
                                 }}
                               >
-                                <Eye size={16} /> View
+                                <Eye size={14} /> View
                               </button>
                               {/* Edit */}
                               <button
                                 type="button"
                                 onClick={() => handleOpenEditDrawer(art)}
-                                className="cbl-focus-ring flex items-center gap-2 text-[#1e3a5f] hover:bg-[#f1f5f9] rounded-md transition-all cursor-pointer"
+                                className="cbl-focus-ring flex items-center gap-1.5 text-[#1e3a5f] hover:bg-[#f1f5f9] rounded-md transition-all cursor-pointer"
                                 style={{
                                   border: "1px solid #e2e8f0",
-                                  height: 36,
-                                  padding: "0 14px",
-                                  fontSize: "15px",
+                                  height: 34,
+                                  padding: "0 12px",
+                                  fontSize: "13px",
                                   fontWeight: 600,
                                   background: "white",
                                 }}
                               >
-                                <Edit size={16} /> Edit
+                                <Edit size={14} /> Edit
                               </button>
                             </div>
                           </td>
@@ -1028,16 +1027,16 @@ export default function CblInformationManagement() {
                     })}
                     {filteredArticles.length === 0 && (
                       <tr>
-                        <td colSpan={4} style={{ padding: "64px 24px", textAlign: "center" }}>
-                          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
-                            <div style={{ width: 64, height: 64, borderRadius: "50%", background: "var(--p-blue-pale)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--p-blue)" }}>
-                              <FileText size={32} />
+                        <td colSpan={4} style={{ padding: "48px 24px", textAlign: "center" }}>
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14 }}>
+                            <div style={{ width: 52, height: 52, borderRadius: "50%", background: "var(--p-blue-pale)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--p-blue)" }}>
+                              <FileText size={26} />
                             </div>
                             <div>
-                              <h4 style={{ fontSize: "24px", fontWeight: 700, color: "var(--p-navy)", margin: "0 0 6px" }}>
+                              <h4 style={{ fontSize: "18px", fontWeight: 700, color: "var(--p-navy)", margin: "0 0 4px" }}>
                                 {searchQueryTable ? "No matching articles found" : "No articles registered yet"}
                               </h4>
-                              <p style={{ fontSize: "18px", color: "var(--r-text-muted)", margin: 0, maxWidth: 360, marginInline: "auto" }}>
+                              <p style={{ fontSize: "13px", color: "var(--r-text-muted)", margin: 0, maxWidth: 360, marginInline: "auto" }}>
                                 {searchQueryTable 
                                   ? `We couldn't find any articles matching "${searchQueryTable}". Try adjusting your keywords.` 
                                   : "Get started by adding the first article of your Constitution & By-Laws."}
@@ -1047,9 +1046,9 @@ export default function CblInformationManagement() {
                               <button
                                 type="button"
                                 onClick={handleOpenCreateDrawer}
-                                className="cbl-focus-ring min-h-[48px] px-5 bg-[#1e3a5f] hover:bg-[#152943] text-white font-semibold text-[18px] rounded-lg flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
+                                className="cbl-focus-ring min-h-[40px] px-4 bg-[#1e3a5f] hover:bg-[#152943] text-white font-semibold text-[14px] rounded-lg flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
                               >
-                                <Plus size={18} /> Add First Article
+                                <Plus size={16} /> Add First Article
                               </button>
                             )}
                           </div>
@@ -1104,15 +1103,15 @@ export default function CblInformationManagement() {
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <div>
                   <span style={{ fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "var(--font-body)", display: "block" }}>CBL Title</span>
-                  <p style={{ fontSize: "18px", fontWeight: 700, color: "#0f172a", margin: "6px 0 0", fontFamily: "var(--font-body)" }}>{title || "—"}</p>
+                  <p style={{ fontSize: "15px", fontWeight: 700, color: "#0f172a", margin: "4px 0 0", fontFamily: "var(--font-body)" }}>{title || "—"}</p>
                 </div>
                 <div>
                   <span style={{ fontSize: "12px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "var(--font-body)", display: "block" }}>General Description</span>
                   <div
                     style={{
-                      fontSize: "18px", color: "#1e293b", marginTop: 8,
+                      fontSize: "14px", color: "#1e293b", marginTop: 6,
                       border: "1px solid #e2e8f0", background: "white",
-                      borderRadius: 12, padding: "20px", maxHeight: 180, overflowY: "auto", lineHeight: 1.7,
+                      borderRadius: 10, padding: "14px", maxHeight: 160, overflowY: "auto", lineHeight: 1.6,
                       fontFamily: "var(--font-body)",
                     }}
                     dangerouslySetInnerHTML={{ __html: generalDescription || "Preamble content empty." }}
@@ -1124,81 +1123,81 @@ export default function CblInformationManagement() {
             {/* Governance PDF */}
             <div className="cbl-section-card" style={cardStyle}>
               <div style={cardHeaderStyle}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div className="w-11 h-11 bg-[#1e3a5f]/10 text-[#1e3a5f] rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
-                    <FileText size={22} style={{ color: "#1e3a5f" }} />
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div className="w-9 h-9 bg-[#1e3a5f]/10 text-[#1e3a5f] rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <FileText size={18} style={{ color: "#1e3a5f" }} />
                   </div>
                   <h3 style={cardTitleStyle}>Governance PDF Document</h3>
                 </div>
-                <Info size={20} className="text-slate-400" />
+                <Info size={18} className="text-slate-400" />
               </div>
-              <div style={{ padding: "0 8px" }}>
+              <div style={{ padding: "0 4px" }}>
                 {isUploading ? (
                   <div
                     style={{
-                      border: "2.5px dashed var(--r-border-mid)",
-                      borderRadius: 16, padding: "60px 24px",
+                      border: "2px dashed var(--r-border-mid)",
+                      borderRadius: 12, padding: "40px 20px",
                       display: "flex", flexDirection: "column", alignItems: "center",
                       justifyContent: "center", textAlign: "center",
                       background: "var(--r-surface-2)",
                     }}
                   >
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-                      <Loader2 className="animate-spin" size={36} style={{ color: "var(--p-blue)" }} />
-                      <p style={{ fontSize: "18px", fontWeight: 600, color: "var(--r-text-mid)", margin: 0, fontFamily: "var(--font-body)" }}>Uploading file, please wait...</p>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+                      <Loader2 className="animate-spin" size={32} style={{ color: "var(--p-blue)" }} />
+                      <p style={{ fontSize: "14px", fontWeight: 600, color: "var(--r-text-mid)", margin: 0, fontFamily: "var(--font-body)" }}>Uploading file, please wait...</p>
                     </div>
                   </div>
                 ) : !governanceDoc?.file_url ? (
                   <label
                     style={{
-                      border: "2.5px dashed var(--r-border-mid)",
-                      borderRadius: 16, padding: "60px 24px",
+                      border: "2px dashed var(--r-border-mid)",
+                      borderRadius: 12, padding: "40px 20px",
                       display: "flex", flexDirection: "column", alignItems: "center",
                       justifyContent: "center", cursor: "pointer", textAlign: "center",
                       background: "var(--r-surface-2)",
                     }}
                     className="hover:bg-slate-50/50 transition-all cbl-focus-ring"
                   >
-                    <div style={{ width: 64, height: 64, background: "var(--p-blue-pale)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
-                      <Upload size={28} color="var(--p-blue)" />
+                    <div style={{ width: 48, height: 48, background: "var(--p-blue-pale)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
+                      <Upload size={22} color="var(--p-blue)" />
                     </div>
-                    <p style={{ fontSize: "20px", fontWeight: 700, color: "var(--p-navy)", margin: "0 0 6px", fontFamily: "var(--font-body)" }}>Drop PDF here or click to upload</p>
-                    <p style={{ fontSize: "16px", color: "var(--r-text-muted)", margin: "0 0 20px", fontFamily: "var(--font-body)" }}>Only PDF documents are supported. Maximum size: 10 MB.</p>
+                    <p style={{ fontSize: "16px", fontWeight: 700, color: "var(--p-navy)", margin: "0 0 4px", fontFamily: "var(--font-body)" }}>Drop PDF here or click to upload</p>
+                    <p style={{ fontSize: "13px", color: "var(--r-text-muted)", margin: "0 0 16px", fontFamily: "var(--font-body)" }}>Only PDF documents are supported. Maximum size: 10 MB.</p>
                     <span style={{
-                      display: "inline-flex", alignItems: "center", gap: 8,
-                      padding: "0 22px", height: 48,
+                      display: "inline-flex", alignItems: "center", gap: 6,
+                      padding: "0 16px", height: 40,
                       background: "var(--p-blue)", color: "var(--p-white)",
-                      borderRadius: 12, fontSize: "18px", fontWeight: 600,
+                      borderRadius: 10, fontSize: "14px", fontWeight: 600,
                       fontFamily: "var(--font-body)",
                       pointerEvents: "none",
                     }}>
-                      <Upload size={16} /> Choose PDF file
+                      <Upload size={15} /> Choose PDF file
                     </span>
                     <input type="file" accept="application/pdf" style={{ display: "none" }} onChange={handleFileUpload} disabled={isUploading} />
                   </label>
                 ) : (
-                  <div style={{ border: "1px solid #e2e8f0", borderRadius: 10, padding: "20px 24px", background: "#f8fafc" }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                        <div style={{ width: 48, height: 48, background: "#fee2e2", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <FileText size={24} color="#dc2626" />
+                  <div style={{ border: "1px solid #e2e8f0", borderRadius: 10, padding: "16px 20px", background: "#f8fafc" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, flexWrap: "wrap" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                        <div style={{ width: 42, height: 42, background: "#fee2e2", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <FileText size={20} color="#dc2626" />
                         </div>
                         <div>
-                          <p style={{ fontSize: "18px", fontWeight: 700, color: "#0f172a", margin: 0, fontFamily: "var(--font-body)" }}>{governanceDoc.file_name}</p>
-                          <p style={{ fontSize: "15px", color: "#64748b", margin: "4px 0 0", fontFamily: "var(--font-body)" }}>
+                          <p style={{ fontSize: "15px", fontWeight: 700, color: "#0f172a", margin: 0, fontFamily: "var(--font-body)" }}>{governanceDoc.file_name}</p>
+                          <p style={{ fontSize: "13px", color: "#64748b", margin: "2px 0 0", fontFamily: "var(--font-body)" }}>
                             {formatFileSize(governanceDoc.file_size)} · Uploaded {formatDate(governanceDoc.created_at)}
                           </p>
                         </div>
                       </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                         <a
                           href={governanceDoc.file_url} target="_blank" rel="noreferrer"
-                          className="cbl-focus-ring border border-[#cbd5e1] hover:bg-slate-50 text-[#334155] font-semibold rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
-                          style={{ textDecoration: "none", fontSize: "16px", height: 44, padding: "0 18px", fontFamily: "var(--font-body)" }}
+                          className="cbl-focus-ring border border-[#cbd5e1] hover:bg-slate-50 text-[#334155] font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                          style={{ textDecoration: "none", fontSize: "13px", height: 38, padding: "0 14px", fontFamily: "var(--font-body)" }}
                         >
                           Preview File
                         </a>
-                        <label className="cbl-focus-ring border border-[#cbd5e1] hover:bg-slate-50 text-[#334155] font-semibold rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer" style={{ fontSize: "16px", height: 44, padding: "0 18px", fontFamily: "var(--font-body)" }}>
+                        <label className="cbl-focus-ring border border-[#cbd5e1] hover:bg-slate-50 text-[#334155] font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer" style={{ fontSize: "13px", height: 38, padding: "0 14px", fontFamily: "var(--font-body)" }}>
                           Replace
                           <input type="file" accept="application/pdf" style={{ display: "none" }} onChange={handleFileUpload} disabled={isUploading} />
                         </label>
@@ -1206,34 +1205,34 @@ export default function CblInformationManagement() {
                           type="button"
                           onClick={() => setShowDeletePDFModal(true)}
                           disabled={isUploading}
-                          className="cbl-focus-ring hover:bg-rose-50/50 font-semibold rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+                          className="cbl-focus-ring hover:bg-rose-50/50 font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                           style={{
-                            fontSize: "16px",
-                            height: 44,
-                            padding: "0 18px",
+                            fontSize: "13px",
+                            height: 38,
+                            padding: "0 14px",
                             fontFamily: "var(--font-body)",
                             border: "1px solid #fca5a5",
                             color: "#dc2626",
                             background: "white",
                           }}
                         >
-                          <Trash size={16} /> Remove File
+                          <Trash size={15} /> Remove File
                         </button>
                       </div>
                     </div>
 
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 16, marginTop: 24, paddingTop: 24, borderTop: "1px solid #e2e8f0" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 14, marginTop: 18, paddingTop: 18, borderTop: "1px solid #e2e8f0" }}>
                       {[
                         { label: "Uploaded By", value: governanceDoc.uploaded_by || "—" },
                         { label: "Upload Date", value: formatDate(governanceDoc.created_at) },
                         { label: "Last Modified", value: formatDate(governanceDoc.updated_at) },
-                        { label: "Link Status", value: "Active PDF", icon: <CheckCircle size={16} style={{ color: "#16a34a" }} /> },
+                        { label: "Link Status", value: "Active PDF", icon: <CheckCircle size={15} style={{ color: "#16a34a" }} /> },
                       ].map((meta) => (
                         <div key={meta.label}>
-                          <span style={{ fontSize: "13px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em", display: "block", fontFamily: "var(--font-body)" }}>
+                          <span style={{ fontSize: "11px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em", display: "block", fontFamily: "var(--font-body)" }}>
                             {meta.label}
                           </span>
-                          <span style={{ fontSize: "17px", fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: 6, marginTop: 6, fontFamily: "var(--font-body)" }}>
+                          <span style={{ fontSize: "14px", fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: 4, marginTop: 4, fontFamily: "var(--font-body)" }}>
                             {meta.icon} {meta.value}
                           </span>
                         </div>
@@ -1265,7 +1264,7 @@ export default function CblInformationManagement() {
       <div
         style={{
           position: "fixed", top: 0, right: 0, bottom: 0,
-          width: "100%", maxWidth: 650,
+          width: "100%", maxWidth: 600,
           background: T.white,
           boxShadow: "-6px 0 40px rgba(0,0,0,0.14)",
           zIndex: 50,
@@ -1278,16 +1277,16 @@ export default function CblInformationManagement() {
         <div
           style={{
             display: "flex", justifyContent: "space-between", alignItems: "center",
-            padding: "0 24px", height: 68,
+            padding: "0 20px", height: 60,
             borderBottom: `1px solid ${T.slate100}`,
             background: T.slate50, flexShrink: 0,
           }}
         >
           <div>
-            <h3 style={{ fontSize: "24px", fontWeight: 700, color: "#1e3a5f", margin: 0 }}>
+            <h3 style={{ fontSize: "18px", fontWeight: 700, color: "#1e3a5f", margin: 0 }}>
               {selectedArticleId ? "Edit Article" : "New Article"}
             </h3>
-            <p style={{ fontSize: "16px", color: "var(--r-text-muted)", margin: "3px 0 0" }}>
+            <p style={{ fontSize: "13px", color: "var(--r-text-muted)", margin: "2px 0 0" }}>
               Fill in the constitutional article details
             </p>
           </div>
@@ -1295,19 +1294,19 @@ export default function CblInformationManagement() {
             type="button" onClick={handleCloseDrawer}
             className="cbl-focus-ring"
             style={{
-              width: 38, height: 38, borderRadius: 8,
+              width: 34, height: 34, borderRadius: 8,
               border: `1.5px solid ${T.slate200}`,
               background: T.white, cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", color: T.slate500,
             }}
           >
-            <X size={17} />
+            <X size={16} />
           </button>
         </div>
 
         {/* Drawer Form */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "24px" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "20px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
 
             {/* Article Number */}
             <div>
@@ -1323,10 +1322,10 @@ export default function CblInformationManagement() {
                     value={articleNumber}
                     onChange={(e) => setArticleNumber(e.target.value)}
                     autoFocus
-                    className="w-full min-h-[52px] rounded-lg border border-slate-300 px-4 text-[18px] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:border-[#1e3a5f] bg-white transition-all cbl-focus-ring"
+                    className="w-full min-h-[42px] rounded-lg border border-slate-300 px-3.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:border-[#1e3a5f] bg-white transition-all cbl-focus-ring"
                     style={{ fontFamily: "var(--font-body)" }}
                   />
-                  <p style={{ margin: "7px 0 0", fontSize: "16px", color: "var(--r-text-muted)", lineHeight: 1.5 }}>
+                  <p style={{ margin: "5px 0 0", fontSize: "13px", color: "var(--r-text-muted)", lineHeight: 1.4 }}>
                     Enter a unique article identifier. Use Roman numerals or a custom label (e.g. Article I, Article II).
                   </p>
                 </>
@@ -1337,14 +1336,14 @@ export default function CblInformationManagement() {
                     type="text"
                     value={articleNumber}
                     onChange={(e) => setArticleNumber(e.target.value)}
-                    className="w-full min-h-[52px] rounded-lg border border-slate-300 px-4 text-[18px] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:border-[#1e3a5f] bg-white transition-all cbl-focus-ring"
+                    className="w-full min-h-[42px] rounded-lg border border-slate-300 px-3.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:border-[#1e3a5f] bg-white transition-all cbl-focus-ring"
                     style={{
                       fontWeight: 600,
                       color: "#1e3a5f",
                       fontFamily: "var(--font-body)",
                     }}
                   />
-                  <p style={{ margin: "7px 0 0", fontSize: "16px", color: "var(--r-text-muted)", lineHeight: 1.5 }}>
+                  <p style={{ margin: "5px 0 0", fontSize: "13px", color: "var(--r-text-muted)", lineHeight: 1.4 }}>
                     You may rename the article number. Changes take effect when you save.
                   </p>
                 </>
@@ -1359,7 +1358,7 @@ export default function CblInformationManagement() {
                 placeholder="e.g. Purposes and Objectives"
                 value={articleName}
                 onChange={(e) => setArticleName(e.target.value)}
-                className="w-full min-h-[52px] rounded-lg border border-slate-300 px-4 text-[18px] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:border-[#1e3a5f] bg-white transition-all cbl-focus-ring"
+                className="w-full min-h-[42px] rounded-lg border border-slate-300 px-3.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:border-[#1e3a5f] bg-white transition-all cbl-focus-ring"
                 style={{ fontFamily: "var(--font-body)" }}
               />
             </div>
@@ -1371,7 +1370,7 @@ export default function CblInformationManagement() {
                 value={articleDescription}
                 onChange={(val) => setArticleDescription(val)}
                 placeholder="Type the items, sections, and descriptions of this article..."
-                minHeight="280px"
+                minHeight="220px"
               />
             </div>
           </div>
@@ -1380,11 +1379,11 @@ export default function CblInformationManagement() {
         {/* Drawer Footer */}
         <div
           style={{
-            padding: "16px 20px",
+            padding: "14px 20px",
             borderTop: `1px solid ${T.slate100}`,
             background: T.slate50, flexShrink: 0,
             display: "flex", alignItems: "center", justifyContent: "space-between",
-            gap: 12, flexWrap: "wrap",
+            gap: 10, flexWrap: "wrap",
           }}
         >
           {/* Left: Delete */}
@@ -1394,19 +1393,19 @@ export default function CblInformationManagement() {
                 type="button"
                 disabled={isSaving}
                 onClick={() => setShowDeleteArticleModal(selectedArticleId)}
-                className="cbl-focus-ring min-h-[52px] px-6 bg-rose-50 border-2 border-rose-200 text-rose-700 hover:bg-rose-100/70 font-semibold text-[18px] rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+                className="cbl-focus-ring min-h-[40px] px-4 bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100/70 font-semibold text-[14px] rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               >
-                <Trash size={18} /> Delete Article
+                <Trash size={16} /> Delete Article
               </button>
             )}
           </div>
 
           {/* Right: Cancel + Save */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <button
               type="button"
               onClick={handleCloseDrawer}
-              className="cbl-focus-ring min-h-[52px] px-6 border-2 border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-[18px] rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+              className="cbl-focus-ring min-h-[40px] px-4 border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-[14px] rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
             >
               Cancel
             </button>
@@ -1414,9 +1413,9 @@ export default function CblInformationManagement() {
               type="button"
               onClick={handleSaveArticle}
               disabled={isSaving}
-              className="cbl-focus-ring min-h-[52px] px-6 bg-[#1e3a5f] hover:bg-[#152943] text-white font-semibold text-[18px] rounded-lg flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
+              className="cbl-focus-ring min-h-[40px] px-4 bg-[#1e3a5f] hover:bg-[#152943] text-white font-semibold text-[14px] rounded-lg flex items-center justify-center gap-1.5 shadow-md transition-all cursor-pointer"
             >
-              {isSaving ? <Loader2 className="animate-spin" size={18} /> : <Check size={18} />}
+              {isSaving ? <Loader2 className="animate-spin" size={16} /> : <Check size={16} />}
               Save Article
             </button>
           </div>

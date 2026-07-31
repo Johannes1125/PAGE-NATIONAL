@@ -924,3 +924,26 @@
 .conv-card__dropdown-item--danger:active {
   background: #fecdd3;
 }
+
+/* ─── Loading Skeleton Shimmer ─── */
+@keyframes conv-shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+
+.conv-skel {
+  background: linear-gradient(
+    90deg,
+    #e8edf5 0%,
+    #f4f6fa 40%,
+    #eef1f7 60%,
+    #e8edf5 100%
+  );
+  background-size: 1200px 100%;
+  animation: conv-shimmer 1.6s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+.conv-skel--circle { border-radius: 9999px; }
+.conv-skel--card   { border-radius: 16px; }
+.conv-skel--sm     { border-radius: 6px; }

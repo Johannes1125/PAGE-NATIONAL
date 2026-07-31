@@ -409,16 +409,28 @@ function JournalsSection() {
     <>
       {/* Hero section */}
       <section className="journals-hero">
+        <div className="journals-hero-bg-container">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/resources-bg.png" alt="Research Journals Background" className="journals-hero-bg-img" />
+          <div className="journals-hero-bg-overlay" />
+        </div>
+
         <div className="journals-container">
           <div className="journals-hero__breadcrumb">
             <Link href="/" className="journals-hero__breadcrumb-link">Home</Link>
             <span className="journals-hero__breadcrumb-sep">/</span>
-            <span className="journals-hero__breadcrumb-current">Journals</span>
+            <span className="journals-hero__breadcrumb-current">Research Journals</span>
           </div>
-          
+
           <h1 className="journals-hero__title">
             Research Journals
           </h1>
+          
+          <div className="journals-hero__divider" />
+
+          <p className="journals-hero__subtitle">
+            Explore peer-reviewed academic publications, multidisciplinary studies, and scholarly research advancing graduate education across the Philippines.
+          </p>
           
           <div className="journals-hero__search-wrap">
             <span className="journals-hero__search-icon">
@@ -427,7 +439,7 @@ function JournalsSection() {
             <input
               type="text"
               className="journals-hero__search-input"
-              placeholder="Search journals by title or author name..."
+              placeholder="Search journals by title, volume, or author name..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               aria-label="Search journals"
@@ -601,88 +613,7 @@ function JournalsSection() {
   );
 }
 
-// ── Footer Component ────────────────────────────────────────────────────────
-function Footer() {
-  return (
-    <footer className="footer">
-      <div className="footer__inner">
-        <div className="footer__columns">
-          {/* Brand */}
-          <div>
-            <div className="footer__brand-logo">
-              <div className="footer__logo-mark">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/PAGE.jpg"
-                  alt="PAGE Logo"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                  }}
-                />
-              </div>
-              <div>
-                <div className="footer__logo-name">PAGE</div>
-                <div className="footer__logo-sub">An academic towards to excellence</div>
-              </div>
-            </div>
-            <p className="footer__brand-desc">
-              Philippine Association for Graduate Education — advancing excellence through collaboration and research.
-            </p>
-            <div className="footer__socials">
-              {[<FacebookIcon key="fb" />, <InstagramIcon key="ig" />, <MailIconSm key="mail" />].map((icon, i) => (
-                <button key={i} className="footer__social-btn">{icon}</button>
-              ))}
-            </div>
-          </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="footer__col-title">Quick Links</h4>
-            <ul className="footer__links">
-              {FOOTER_QUICK_LINKS.map((l) => (
-                <li key={l}><a href="#" className="footer__link">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Resources */}
-          <div>
-            <h4 className="footer__col-title">Resources</h4>
-            <ul className="footer__links">
-              {FOOTER_RESOURCES.map((l) => (
-                <li key={l}><a href="#" className="footer__link">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h4 className="footer__col-title">Contact</h4>
-            <div className="footer__contact-list">
-              {FOOTER_CONTACT.map((item) => (
-                <div key={item.text} className="footer__contact-item">
-                  <span className="footer__contact-icon">{item.icon}</span>
-                  <span className="footer__contact-text">{item.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="footer__bottom">
-          <p className="footer__copyright">
-            © 2026 Philippine Association for Graduate Education. All rights reserved.
-          </p>
-          <div className="footer__legal">
-            {["Privacy Policy", "Terms of Use"].map((l) => (
-              <a key={l} href="#" className="footer__legal-link">{l}</a>
-            ))}
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
 
 // ── Main Page Component Wrapper (Handles Scroll Status) ──────────────────────
 export default function ResearchJournalsPage() {
@@ -701,6 +632,11 @@ export default function ResearchJournalsPage() {
         <Suspense fallback={
           <>
             <section className="journals-hero">
+              <div className="journals-hero-bg-container">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/resources-bg.png" alt="Research Journals Background" className="journals-hero-bg-img" />
+                <div className="journals-hero-bg-overlay" />
+              </div>
               <div className="journals-container">
                 <div className="journals-hero__breadcrumb">
                   <span className="journals-hero__breadcrumb-link">Home</span>
@@ -722,7 +658,6 @@ export default function ResearchJournalsPage() {
           <JournalsSection />
         </Suspense>
       </main>
-      <Footer />
     </>
   );
 }

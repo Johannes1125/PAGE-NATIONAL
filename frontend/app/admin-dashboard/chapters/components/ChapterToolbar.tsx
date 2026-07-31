@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Search, ChevronDown, X } from "lucide-react";
+import { Search, ChevronDown, X, MapPin, Globe, ShieldCheck, ArrowUpDown, RotateCcw, Filter } from "lucide-react";
 import { useMemo } from "react";
 
 type ChapterToolbarProps = {
@@ -15,6 +15,7 @@ type ChapterToolbarProps = {
   setSelectedStatus: (s: string) => void;
   sortBy: string;
   setSortBy: (s: string) => void;
+  onClearFilters?: () => void;
 };
 
 const REGIONS_MAP: Record<string, string[]> = {
@@ -39,29 +40,35 @@ const REGIONS_MAP: Record<string, string[]> = {
   ],
 };
 
-/** Visible-label filter select — label is promoted above the control */
+/** Visible-label filter select — label is promoted above the control with optional icon indicator */
 function FilterSelect({
   id,
   label,
   value,
+  icon: Icon,
+  isActive = false,
   onChange,
   children,
 }: {
   id: string;
   label: string;
   value: string;
+  icon?: React.ElementType;
+  isActive?: boolean;
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   children: React.ReactNode;
 }) {
   return (
     <div className="chapters-toolbar__field-group chapters-toolbar__filter">
       <label htmlFor={id} className="chapters-toolbar__field-label">
-        {label}
+        {Icon && <Icon size={14} className="chapters-toolbar__field-icon" aria-hidden="true" />}
+        <span>{label}</span>
+        {isActive && <span className="chapters-toolbar__active-dot" title="Filter active" />}
       </label>
       <div className="chapters-toolbar__select-wrap">
         <select
           id={id}
-          className="chapters-toolbar__control"
+          className={`chapters-toolbar__control ${isActive ? "chapters-toolbar__control--active" : ""}`}
           value={value}
           onChange={onChange}
         >
@@ -89,6 +96,7 @@ export default function ChapterToolbar({
   setSelectedStatus,
   sortBy,
   setSortBy,
+  onClearFilters,
 }: ChapterToolbarProps) {
   const regions = useMemo(() => {
     if (selectedIslandGroup && selectedIslandGroup !== "All") {
@@ -102,6 +110,23 @@ export default function ChapterToolbar({
     setSelectedRegion("All");
   };
 
+  const activeFilterCount =
+    (searchQuery.trim() ? 1 : 0) +
+    (selectedIslandGroup !== "All" ? 1 : 0) +
+    (selectedRegion !== "All" ? 1 : 0) +
+    (selectedStatus !== "All" ? 1 : 0);
+
+  const hasActiveFilters = activeFilterCount > 0;
+
+  const handleReset = () => {
+    setSearchQuery("");
+    setSelectedIslandGroup("All");
+    setSelectedRegion("All");
+    setSelectedStatus("All");
+    setSortBy("updated-desc");
+    onClearFilters?.();
+  };
+
   return (
     <motion.section
       initial={{ opacity: 0, y: 10 }}
@@ -110,18 +135,41 @@ export default function ChapterToolbar({
       className="chapters-section"
       aria-label="Search and filters"
     >
-      <h2 className="chapters-section__label">Search &amp; Filters</h2>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <h2 className="chapters-section__label">Search &amp; Filters</h2>
+          {hasActiveFilters && (
+            <span className="chapters-toolbar__filter-badge">
+              <Filter size={13} strokeWidth={2.5} aria-hidden="true" />
+              {activeFilterCount} active
+            </span>
+          )}
+        </div>
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={handleReset}
+            className="chapters-toolbar__reset-btn"
+            title="Reset search & filters to default"
+          >
+            <RotateCcw size={14} strokeWidth={2.2} aria-hidden="true" />
+            <span>Reset Filters</span>
+          </button>
+        )}
+      </div>
+
       <div className="chapters-toolbar-panel">
         <div className="chapters-toolbar-layout">
 
           {/* ── Row 1: Search ──────────────────────────────────── */}
           <div className="chapters-toolbar__field-group chapters-toolbar__search-group">
             <label htmlFor="search-chapters" className="chapters-toolbar__field-label">
-              Search Chapters
+              <Search size={14} className="chapters-toolbar__field-icon" aria-hidden="true" />
+              <span>Search Chapters</span>
             </label>
             <div className="relative w-full min-w-0">
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400">
-                <Search size={20} strokeWidth={2.5} aria-hidden="true" />
+                <Search size={20} strokeWidth={2.2} aria-hidden="true" />
               </div>
               <input
                 id="search-chapters"
@@ -146,6 +194,7 @@ export default function ChapterToolbar({
                   <X size={18} strokeWidth={2.5} />
                 </button>
               )}
+
             </div>
           </div>
 
@@ -154,6 +203,8 @@ export default function ChapterToolbar({
             <FilterSelect
               id="filter-island-group"
               label="Island Group"
+              icon={MapPin}
+              isActive={selectedIslandGroup !== "All"}
               value={selectedIslandGroup}
               onChange={handleIslandGroupChange}
             >
@@ -166,6 +217,8 @@ export default function ChapterToolbar({
             <FilterSelect
               id="filter-region"
               label="Region"
+              icon={Globe}
+              isActive={selectedRegion !== "All"}
               value={selectedRegion}
               onChange={(e) => setSelectedRegion(e.target.value)}
             >
@@ -180,6 +233,8 @@ export default function ChapterToolbar({
             <FilterSelect
               id="filter-status"
               label="Publication Status"
+              icon={ShieldCheck}
+              isActive={selectedStatus !== "All"}
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
             >
@@ -192,6 +247,8 @@ export default function ChapterToolbar({
             <FilterSelect
               id="filter-sort"
               label="Sort By"
+              icon={ArrowUpDown}
+              isActive={sortBy !== "updated-desc"}
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
@@ -215,3 +272,4 @@ export default function ChapterToolbar({
     </motion.section>
   );
 }
+

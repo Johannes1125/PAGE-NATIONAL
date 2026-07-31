@@ -10,7 +10,7 @@
      Border focus:#1a2744
    ═══════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
 /* ─── Reset / Base ──────────────────────────────────────────── */
 *,
@@ -25,7 +25,7 @@
 .ml-container {
   width: 100%;
   height: 100dvh;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-poppins), 'Poppins', sans-serif;
   background-color: #f7f8fc;
   overflow: hidden;
 }
@@ -297,7 +297,7 @@
   border: 1.5px solid #e5e7eb;
   border-radius: 8px;
   font-size: 14px;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-poppins), 'Poppins', sans-serif;
   color: #111827;
   background-color: #ffffff;
   transition: border-color 0.2s ease, background-color 0.2s ease;
@@ -404,7 +404,7 @@ input[type="password"]::-ms-clear {
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-poppins), 'Poppins', sans-serif;
   cursor: pointer;
   display: flex;
   align-items: center;

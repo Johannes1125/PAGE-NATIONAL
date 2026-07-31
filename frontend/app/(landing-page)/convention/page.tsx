@@ -83,20 +83,21 @@ const FOOTER_CONTACT = [
 // ── Convention Hero Component ───────────────────────────────────────────────
 function ConventionHero() {
   return (
-    <section className="convention-hero">
-      <div className="container">
-        <div className="convention-hero__breadcrumb">
-          <Link href="/" className="convention-hero__breadcrumb-link">Home</Link>
-          <span className="convention-hero__breadcrumb-sep">/</span>
-          <span className="convention-hero__breadcrumb-current">Convention Archives</span>
+    <section className="cbl-hero">
+      <div className="cbl-hero-container">
+        <div className="cbl-breadcrumb">
+          <Link href="/" className="cbl-breadcrumb-link">Home</Link>
+          <span className="cbl-breadcrumb-sep">/</span>
+          <span className="cbl-breadcrumb-current">Convention Archives</span>
         </div>
-        <h1 className="convention-hero__title">
-          National Conventions
-        </h1>
-        <div className="convention-hero__divider" />
-        <p className="convention-hero__subtitle">
-          Browse our archives of past PAGE National Conventions. Explore themes, program schedules, speakers, academic journals, and photo galleries of graduate education leadership.
-        </p>
+
+        <div className="cbl-hero-left">
+          <h1 className="cbl-hero-title">National Conventions</h1>
+          <div className="cbl-gold-line" />
+          <p className="cbl-hero-subtitle">
+            Browse our archives of past PAGE National Conventions. Explore themes, program schedules, speakers, academic journals, and photo galleries of graduate education leadership.
+          </p>
+        </div>
       </div>
     </section>
   );
@@ -122,82 +123,7 @@ function SkeletonGrid() {
   );
 }
 
-// ── Footer Component ────────────────────────────────────────────────────────
-function Footer() {
-  return (
-    <footer className="footer">
-      <div className="footer__inner">
-        <div className="footer__columns">
-          {/* Brand */}
-          <div>
-            <div className="footer__brand-logo">
-              <div className="footer__logo-mark">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/PAGE.jpg" alt="PAGE Logo" onError={(e) => { e.currentTarget.style.display="none"; }} />
-              </div>
-              <div>
-                <div className="footer__logo-name">PAGE</div>
-                <div className="footer__logo-sub">An academic towards to excellence</div>
-              </div>
-            </div>
-            <p className="footer__brand-desc">
-              Philippine Association for Graduate Education — advancing excellence through collaboration and research.
-            </p>
-            <div className="footer__socials">
-              {[<FacebookIcon key="fb" />, <InstagramIcon key="ig" />, <MailIconSm key="mail" />].map((icon, i) => (
-                <button key={i} className="footer__social-btn">{icon}</button>
-              ))}
-            </div>
-          </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="footer__col-title">Quick Links</h4>
-            <ul className="footer__links">
-              {FOOTER_QUICK_LINKS.map(l => (
-                <li key={l}><a href="#" className="footer__link">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Resources */}
-          <div>
-            <h4 className="footer__col-title">Resources</h4>
-            <ul className="footer__links">
-              {FOOTER_RESOURCES.map(l => (
-                <li key={l}><a href="#" className="footer__link">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h4 className="footer__col-title">Contact</h4>
-            <div className="footer__contact-list">
-              {FOOTER_CONTACT.map(item => (
-                <div key={item.text} className="footer__contact-item">
-                  <span className="footer__contact-icon">{item.icon}</span>
-                  <span className="footer__contact-text">{item.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="footer__bottom">
-          <p className="footer__copyright">
-            © 2026 Philippine Association for Graduate Education. All rights reserved.
-          </p>
-          <div className="footer__legal">
-            {["Privacy Policy", "Terms of Use"].map(l => (
-              <a key={l} href="#" className="footer__legal-link">{l}</a>
-            ))}
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
 
 // ── Framer Motion Stagger Variants ──────────────────────────────────────────
 const containerVariants: Variants = {
@@ -391,7 +317,6 @@ export default function ConventionArchivesPage() {
           </div>
         </section>
       </main>
-      <Footer />
     </>
   );
 }

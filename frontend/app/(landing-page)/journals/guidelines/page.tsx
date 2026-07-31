@@ -210,11 +210,6 @@ export default function SubmissionGuidelinesPage() {
           </div>
         </section>
       </main>
-      <footer style={{ background: "#04080e", borderTop: "1px solid rgba(255, 255, 255, 0.05)", padding: "24px 0", textAlign: "center" }}>
-        <p style={{ color: "rgba(255, 255, 255, 0.4)", fontSize: "13px", margin: 0 }}>
-          © 2026 Philippine Association for Graduate Education. All rights reserved.
-        </p>
-      </footer>
     </>
   );
 }

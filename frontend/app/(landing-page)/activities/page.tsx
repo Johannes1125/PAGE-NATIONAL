@@ -178,24 +178,24 @@ const dropdownVariants: Variants = {
 // ── Navbar ─────────────────────────────────────────────────────────────────
 
 
-// ── Activities Hero ────────────────────────────────────────────────────────
+// ── Activities Hero (CBL Hero Header Design) ────────────────────────────────
 function ActivitiesHero() {
   return (
-    <section className="acts-hero">
-      <div className="container">
-        <div className="acts-hero__breadcrumb">
-          <Link href="/" className="acts-hero__breadcrumb-link">Home</Link>
-          <span className="acts-hero__breadcrumb-sep">/</span>
-          <span className="acts-hero__breadcrumb-current">National Activities</span>
+    <section className="cbl-hero">
+      <div className="cbl-hero-container">
+        <div className="cbl-breadcrumb">
+          <Link href="/" className="cbl-breadcrumb-link">Home</Link>
+          <span className="cbl-breadcrumb-sep">/</span>
+          <span className="cbl-breadcrumb-current">National Activities</span>
         </div>
-        <h1 className="acts-hero__title">
-          National Activities
-        </h1>
-        <div className="acts-hero__divider" />
-        <p className="acts-hero__subtitle">
-          Explore conferences, seminars, workshops, and events organized by PAGE for
-          graduate education professionals across the Philippines.
-        </p>
+        
+        <div className="cbl-hero-left">
+          <h1 className="cbl-hero-title">National Activities</h1>
+          <div className="cbl-gold-line" />
+          <p className="cbl-hero-subtitle">
+            Explore conferences, seminars, workshops, and events organized by PAGE for graduate education professionals across the Philippines.
+          </p>
+        </div>
       </div>
     </section>
   );
@@ -369,21 +369,6 @@ function ActivitiesSection() {
   return (
     <section className="acts-section">
       <div className="container">
-        {/* Section header */}
-        <div className="section-header" style={{ textAlign: "left", marginBottom: "36px" }}>
-          <span className="section-label">Events & Programs</span>
-          <h2 className="section-title" style={{ textAlign: "left", margin: "0 0 8px" }}>
-            {timeframeFilter === "latest" ? "Latest Activities" : timeframeFilter === "future" ? "Future Activities" : "National Activities"}
-          </h2>
-          <p className="section-subtitle" style={{ textAlign: "left", margin: 0, maxWidth: "600px" }}>
-            {timeframeFilter === "latest" 
-              ? "Browse recently completed conferences, seminars, and workshops organized by PAGE." 
-              : timeframeFilter === "future"
-              ? "Register for upcoming conferences, seminars, and workshops scheduled by PAGE."
-              : "Browse PAGE-organized conferences, seminars, workshops, and events open to graduate education professionals nationwide."}
-          </p>
-        </div>
-
         {/* Filter toolbar */}
         <div className="acts-filters">
           {/* Type dropdown */}
@@ -508,84 +493,7 @@ function ActivitiesSection() {
   );
 }
 
-// ── Footer ─────────────────────────────────────────────────────────────────
-function Footer() {
-  return (
-    <footer className="footer">
-      <div className="footer__inner">
-        <div className="footer__columns">
-          <div>
-            <div className="footer__brand-logo">
-              <div className="footer__logo-mark">
-                <img src="/PAGE.jpg" alt="PAGE Logo"
-                  onError={(e) => {
-                    const t = e.currentTarget as HTMLImageElement;
-                    t.style.display = "none";
-                    const fb = t.nextElementSibling as HTMLElement;
-                    if (fb) fb.style.display = "flex";
-                  }} />
-              </div>
-              <div>
-                <div className="footer__logo-name">PAGE</div>
-                <div className="footer__logo-sub">An academic towards to excellence</div>
-              </div>
-            </div>
-            <p className="footer__brand-desc">
-              Philippine Association for Graduate Education — advancing excellence
-              through collaboration and research.
-            </p>
-            <div className="footer__socials">
-              {[<FacebookIcon key="fb" />, <InstagramIcon key="ig" />, <MailIconSm key="mail" />].map((icon, i) => (
-                <button key={i} className="footer__social-btn">{icon}</button>
-              ))}
-            </div>
-          </div>
 
-          <div>
-            <h4 className="footer__col-title">Quick Links</h4>
-            <ul className="footer__links">
-              {FOOTER_QUICK_LINKS.map(l => (
-                <li key={l}><a href="#" className="footer__link">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="footer__col-title">Resources</h4>
-            <ul className="footer__links">
-              {FOOTER_RESOURCES.map(l => (
-                <li key={l}><a href="#" className="footer__link">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="footer__col-title">Contact</h4>
-            <div className="footer__contact-list">
-              {FOOTER_CONTACT.map(item => (
-                <div key={item.text} className="footer__contact-item">
-                  <span className="footer__contact-icon">{item.icon}</span>
-                  <span className="footer__contact-text">{item.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="footer__bottom">
-          <p className="footer__copyright">
-            © 2026 Philippine Association for Graduate Education. All rights reserved.
-          </p>
-          <div className="footer__legal">
-            {["Privacy Policy", "Terms of Use"].map(l => (
-              <a key={l} href="#" className="footer__legal-link">{l}</a>
-            ))}
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
 
 // ── Main Page ──────────────────────────────────────────────────────────────
 export default function ActivitiesPage() {
@@ -606,7 +514,6 @@ export default function ActivitiesPage() {
           <ActivitiesSection />
         </Suspense>
       </main>
-      <Footer />
     </>
   );
 }

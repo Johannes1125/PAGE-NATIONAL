@@ -3,7 +3,7 @@
 import { useReducer, useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   User,
   Mail,
@@ -40,6 +40,7 @@ import { gooeyToast } from "goey-toast";
 import "goey-toast/styles.css";
 import "./apply.css";
 import { DocumentUpload } from "./DocumentUpload";
+import { PageSeal } from "../../components/PageSeal";
 import SearchableSelect from "./SearchableSelect";
 
 const REGIONS = [
@@ -481,6 +482,12 @@ const slideVariants = {
   }),
 };
 
+/* ── Helpers ───────────────────────────────────────────────────────────────── */
+
+/** Converts 1-5 to Roman numerals for the ordinal stepper tablets */
+const toRoman = (n: number): string =>
+  ["I", "II", "III", "IV", "V", "VI"][n - 1] ?? String(n);
+
 /* ── Page Component ────────────────────────────────────────────────────────── */
 
 function ApplyContent() {
@@ -499,6 +506,9 @@ function ApplyContent() {
 
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [fileErrors, setFileErrors] = useState<Record<string, string | null>>({});
+
+  /** Respects prefers-reduced-motion for step completion animation */
+  const prefersReducedMotion = useReducedMotion() ?? false;
 
   // 1. Scroll effect
   useEffect(() => {
@@ -1076,8 +1086,8 @@ function ApplyContent() {
       <div className="apply-page" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
         <div style={{ textAlign: "center" }}>
           <div className="af-spinner" />
-          <p style={{ marginTop: 16, fontSize: 18, fontWeight: 600, color: "var(--af-navy)" }}>
-            Loading Application Wizard...
+          <p style={{ marginTop: 16, fontSize: 16, fontWeight: 600, color: "var(--af-navy)", fontFamily: "var(--font-poppins), 'Poppins', sans-serif", fontStyle: "normal" }}>
+            Preparing your dossier…
           </p>
         </div>
       </div>
@@ -1091,89 +1101,71 @@ function ApplyContent() {
       <div className="apply-page">
         <Navbar scrolled={scrolled} />
         <div className="af-hero">
-          <div className="af-hero__pattern" />
           <div className="af-hero__content">
-            <h1 className="af-hero__title" style={{ fontFamily: "var(--serif, serif)", fontWeight: 900 }}>PAGE Membership Registration</h1>
-            <p className="af-hero__subtitle" style={{ fontSize: "18px", marginTop: "8px" }}>
+            <h1 className="af-hero__title">PAGE Membership Registration</h1>
+            <div className="af-hero__gold-line" />
+            <p className="af-hero__subtitle">
               Choose your membership classification to start your application process.
             </p>
           </div>
         </div>
 
-        <main className="af-main screen-only-wrapper" style={{ padding: "48px 24px", maxWidth: "1200px", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "32px" }}>
-            <h2 style={{ fontSize: "24px", fontWeight: 800, color: "var(--af-navy)", marginBottom: "8px" }}>
-              Select Membership Classification
+        <main className="af-main screen-only-wrapper" style={{ padding: "48px 24px 80px", maxWidth: "1200px", margin: "0 auto" }}>
+          {/* Section heading */}
+          <div style={{ textAlign: "center", marginBottom: "44px" }}>
+            <span style={{ display: "inline-block", fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "3px", color: "var(--af-gold)", marginBottom: "12px" }}>
+              Classification
+            </span>
+            <h2 style={{
+              fontFamily: "var(--font-poppins), 'Poppins', sans-serif",
+              fontSize: "clamp(1.8rem, 3.5vw, 2.4rem)",
+              fontWeight: 700,
+              color: "var(--af-navy)",
+              marginBottom: "10px",
+              letterSpacing: "-0.2px",
+            }}>
+              Select Your Membership Track
             </h2>
-            <p style={{ fontSize: "16px", color: "var(--af-text-muted)" }}>
-              Pricing and requirements are set in accordance with the PAGE Philippines membership structure.
+            <p style={{ fontSize: "15px", color: "var(--af-text-muted)", maxWidth: "520px", margin: "0 auto", lineHeight: 1.6 }}>
+              Each classification carries distinct obligations and privileges. Choose the track that reflects your academic role and standing.
             </p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px" }}>
-            {CATEGORIES.map((cat) => {
-              const Icon = cat.icon;
+          {/* Credentialing-style category cards */}
+          <div className="af-category-grid">
+            {CATEGORIES.map((cat, idx) => {
+              const isFeatured = cat.id === "regular";
+              const priceLabel = cat.id === "life" ? "Lifetime Investment" : cat.id === "institutional" ? "Annual Institutional Fee" : "Annual Dues";
               return (
                 <motion.div
                   key={cat.id}
-                  className="af-card"
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    padding: "32px",
-                    borderRadius: "16px",
-                    border: "2px solid var(--af-border-light)",
-                    cursor: "pointer",
-                    background: "var(--af-surface)",
-                  }}
-                  whileHover={{ y: -6, boxShadow: "0 12px 24px rgba(0,0,0,0.06)", borderColor: cat.color }}
+                  className={`af-category${isFeatured ? " af-category--featured" : ""}`}
+                  initial={{ opacity: 0, y: 18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
                   onClick={() => handleSelectType(cat.id)}
                 >
-                  <div>
-                    <div style={{
-                      width: "60px",
-                      height: "60px",
-                      borderRadius: "50%",
-                      background: `${cat.color}15`,
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      color: cat.color,
-                      marginBottom: "24px"
-                    }}>
-                      <Icon size={28} />
-                    </div>
-                    <h3 style={{ fontSize: "22px", fontWeight: 800, color: "var(--af-navy)", marginBottom: "8px" }}>
-                      {cat.name}
-                    </h3>
-                    <p style={{ fontSize: "15px", color: "var(--af-text-muted)", lineHeight: 1.5, marginBottom: "20px" }}>
-                      {cat.desc}
-                    </p>
+                  {/* Seal watermark */}
+                  <div className="af-category__seal">
+                    <PageSeal
+                      size={isFeatured ? 50 : 42}
+                      variant={isFeatured ? "gold" : "navy-outline"}
+                    />
                   </div>
 
-                  <div style={{ marginTop: "24px" }}>
-                    <div style={{ fontSize: "20px", fontWeight: 800, color: cat.color, marginBottom: "20px" }}>
-                      {cat.fee}
-                    </div>
+                  <div style={{ marginBottom: "20px" }}>
+                    <h3 className="af-category__name">{cat.name}</h3>
+                    <p className="af-category__desc">{cat.desc}</p>
+                  </div>
+
+                  <div>
+                    <span className="af-category__price-label">{priceLabel}</span>
+                    <span className="af-category__price-value">{cat.fee}</span>
                     <button
                       type="button"
-                      className="af-btn af-btn--primary"
-                      style={{
-                        width: "100%",
-                        minHeight: "48px",
-                        fontSize: "18px",
-                        fontWeight: 600,
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        gap: "8px",
-                        background: cat.color,
-                        border: "none",
-                        color: "#fff"
-                      }}
+                      className="af-category__cta"
                     >
-                      Apply Now <ArrowRight size={18} />
+                      Begin Application <ArrowRight size={15} />
                     </button>
                   </div>
                 </motion.div>
@@ -1206,8 +1198,14 @@ function ApplyContent() {
             <span className="af-hero__crumb-current">Apply</span>
           </div>
           <h1 className="af-hero__title">Membership Application</h1>
-          <p className="af-hero__subtitle" style={{ fontSize: "16px" }}>
-            Classification: <strong style={{ color: "var(--af-gold-light)", textTransform: "uppercase" }}>{selectedCategory?.name}</strong> ({getComputedFeeString()})
+          <p className="af-hero__subtitle" style={{ fontSize: "15px" }}>
+            Dossier Track —{" "}
+            <strong style={{ color: "var(--af-gold-lt, #EBD3A0)", fontStyle: "italic" }}>
+              {selectedCategory?.name}
+            </strong>
+            <span style={{ opacity: 0.6, marginLeft: "12px", fontSize: "13px" }}>
+              {getComputedFeeString()}
+            </span>
           </p>
         </motion.div>
       </div>
@@ -1215,35 +1213,21 @@ function ApplyContent() {
       {/* ── Main ──────────────────────────────────────────────────────── */}
       <main className="af-main screen-only-wrapper" style={{ paddingBottom: "72px" }}>
 
-        {/* Change Membership Type Banner */}
-        <div style={{ maxWidth: "800px", margin: "16px auto", padding: "16px 24px", background: "#fef3c7", border: "1px solid #f59e0b", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <AlertTriangle style={{ color: "#d97706", flexShrink: 0 }} size={24} />
+        {/* ─ Dossier Tab Banner ─ Replaces amber 'Applying as X' warning ─ */}
+        <div className="af-dossier-tab">
+          <div className="af-dossier-tab__info">
+            <PageSeal size={22} variant="gold" />
             <div>
-              <p style={{ fontSize: "15px", fontWeight: 700, color: "#92400e", margin: 0 }}>
-                Applying as {selectedCategory?.name}
-              </p>
-              <p style={{ fontSize: "13px", color: "#b45309", margin: 0 }}>
-                Fields and document slots have been customized for this membership type.
-              </p>
+              <p className="af-dossier-tab__label">Active Dossier</p>
+              <p className="af-dossier-tab__type">{selectedCategory?.name}</p>
             </div>
           </div>
           <button
             type="button"
             onClick={handleChangeMembershipType}
-            style={{
-              padding: "8px 16px",
-              fontSize: "14px",
-              fontWeight: 700,
-              color: "#fff",
-              background: "#d97706",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              whiteSpace: "nowrap"
-            }}
+            className="af-dossier-tab__change"
           >
-            Change Type
+            Change Classification
           </button>
         </div>
 
@@ -1261,7 +1245,6 @@ function ApplyContent() {
             {stepsList.map((step: any) => {
               const isActive = step.number === currentStep;
               const isCompleted = step.number < currentStep;
-              const StepIcon = step.icon;
               return (
                 <button
                   key={step.number}
@@ -1269,9 +1252,34 @@ function ApplyContent() {
                   className={`af-step ${isCompleted ? "af-step--done" : ""} ${isActive ? "af-step--active" : ""}`}
                   onClick={() => handleStepClick(step.number)}
                   aria-current={isActive ? "step" : undefined}
+                  aria-label={`Step ${step.number}: ${step.label}${isCompleted ? " — completed" : ""}`}
                 >
-                  <span className="af-step__circle">
-                    {isCompleted ? <CheckCircle size={16} strokeWidth={2.5} /> : <StepIcon size={16} />}
+                  {/* Ordinal tablet with wax-seal flip on completion */}
+                  <span className="af-step__tablet">
+                    <AnimatePresence mode="wait" initial={false}>
+                      {isCompleted ? (
+                        <motion.span
+                          key="seal"
+                          initial={prefersReducedMotion ? { opacity: 0 } : { scale: 0.4, opacity: 0, rotate: -120 }}
+                          animate={prefersReducedMotion ? { opacity: 1 } : { scale: 1, opacity: 1, rotate: 0 }}
+                          exit={{ opacity: 0, scale: 0.6 }}
+                          transition={{ type: "spring", stiffness: 380, damping: 20 }}
+                          style={{ display: "flex" }}
+                        >
+                          <PageSeal size={26} variant="gold" />
+                        </motion.span>
+                      ) : (
+                        <motion.span
+                          key="numeral"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="af-step__numeral"
+                        >
+                          {toRoman(step.number)}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
                   </span>
                   <span className="af-step__label">{step.label}</span>
                 </button>
@@ -2097,7 +2105,12 @@ function ApplyContent() {
                       </div>
                     </div>
 
-                    <div style={{ background: "var(--af-cream)", border: "1px solid var(--af-border-light)", borderRadius: "12px", padding: "32px", marginBottom: "32px" }}>
+                    {/* Review dossier summary — seal watermark in background */}
+                    <div style={{ background: "var(--af-cream)", border: "1px solid var(--af-border-light)", borderRadius: "4px", padding: "32px", marginBottom: "32px", position: "relative", overflow: "hidden" }}>
+                      {/* Wax-seal watermark — the signature motif's third controlled use */}
+                      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", opacity: 0.045, pointerEvents: "none", userSelect: "none" }}>
+                        <PageSeal size={200} variant="full" />
+                      </div>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid var(--af-navy)", paddingBottom: "16px", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
                           {(() => {
@@ -2367,8 +2380,8 @@ function ApplyContent() {
                     </div>
 
                     {/* Consent checkbox on Step 5 */}
-                    <div className="af-consent-box" style={{ marginTop: "32px", padding: "20px", background: "var(--af-cream)", borderRadius: "12px", border: "1px solid var(--af-border-light)", marginBottom: "40px" }}>
-                      <label className="af-consent-label" style={{ display: "flex", alignItems: "flex-start", gap: "12px", cursor: "pointer" }}>
+                    <div className="af-consent-box" style={{ marginTop: "32px", marginBottom: "40px" }}>
+                      <label className="af-consent-label" style={{ cursor: "pointer" }}>
                         <input
                           type="checkbox"
                           checked={consentChecked}
@@ -2377,14 +2390,13 @@ function ApplyContent() {
                             if (errors.consent) setErrors((p) => ({ ...p, consent: null }));
                           }}
                           className="af-consent-checkbox"
-                          style={{ marginTop: "4px", width: "20px", height: "20px" }}
                         />
-                        <span style={{ fontSize: "15px", lineHeight: 1.5, color: "var(--af-navy)" }}>
-                          <strong>Data Privacy Agreement *</strong><br />
-                          I hereby agree that I have read the PAGE Privacy Policy, understood its contents and explicitly consent to the collection, usage, and processing of my personal data under the Data Privacy Act of 2012 for registration purposes.
+                        <span style={{ fontSize: "14.5px", lineHeight: 1.6, color: "var(--af-navy)" }}>
+                          <strong>Certification &amp; Consent *</strong><br />
+                          I certify that all information provided in this application is true and accurate to the best of my knowledge. I consent to the collection, use, and processing of my personal data by PAGE under Republic Act 10173 (Data Privacy Act of 2012) for membership registration and verification purposes.
                         </span>
                       </label>
-                      {errors.consent && <span style={{ color: "var(--af-error)", fontSize: "14px", display: "block", marginTop: "8px", marginLeft: "32px", fontWeight: 600 }}>{errors.consent}</span>}
+                      {errors.consent && <span style={{ color: "var(--af-error)", fontSize: "13px", display: "block", marginTop: "8px", marginLeft: "32px", fontWeight: 600 }}>{errors.consent}</span>}
                     </div>
 
                     {/* Payment details box */}
@@ -2445,9 +2457,8 @@ function ApplyContent() {
                   className="af-btn af-btn--submit"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
-                  style={{ minHeight: "48px", fontSize: "18px", fontWeight: 700, padding: "0 32px", background: "var(--af-success)", color: "#fff", border: "none" }}
                 >
-                  {isSubmitting ? "Submitting Application..." : "Submit Application"}
+                  {isSubmitting ? "Submitting…" : "Submit Application for Membership"}
                 </motion.button>
               )}
             </div>

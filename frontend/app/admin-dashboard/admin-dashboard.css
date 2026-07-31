@@ -44,7 +44,7 @@
   --admin-header-height: 76px;
 
   /* Font */
-  --font-body: 'Poppins', system-ui, sans-serif;
+  --font-body: var(--font-poppins), 'Poppins', sans-serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

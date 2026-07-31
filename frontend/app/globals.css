@@ -4,8 +4,8 @@
 :root {
   --background: #f7f6f3;
   --foreground: #0f1923;
-  --font-sans: var(--font-poppins);        /* global UI font */
-  --font-editorial: var(--font-playfair); /* landing/editorial headlines */
+  --font-sans: var(--font-poppins), 'Poppins', sans-serif;
+  --font-editorial: var(--font-poppins), 'Poppins', sans-serif;
 }
 
 @theme inline {
@@ -13,19 +13,24 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-poppins);
   --font-mono: var(--font-geist-mono);
-  --font-editorial: var(--font-editorial);
+  --font-editorial: var(--font-poppins);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), sans-serif;
+  font-family: var(--font-poppins), 'Poppins', sans-serif;
 }
 
 .landing-zone {
-  --sans: var(--font-sans), sans-serif;
-  --serif: var(--font-editorial), serif;
-  font-family: var(--sans);
+  --sans: var(--font-poppins), 'Poppins', sans-serif;
+  --serif: var(--font-poppins), 'Poppins', sans-serif;
+  --font-serif: var(--font-poppins), 'Poppins', sans-serif;
+  --font-editorial: var(--font-poppins), 'Poppins', sans-serif;
+  --font-instrument-serif: var(--font-poppins), 'Poppins', sans-serif;
+  --font-playfair: var(--font-poppins), 'Poppins', sans-serif;
+  font-family: var(--font-poppins), 'Poppins', sans-serif;
 }
+
 
 

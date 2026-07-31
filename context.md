@@ -1,6 +1,6 @@
 # PAGE National Project Architecture & Structure
 
-This document outlines the directory structure, tech stack, and dependencies of the **PAGE National** fullstack web application.
+This document outlines the directory structure, tech stack, database schema, and UI design standards of the **PAGE National** fullstack web application.
 
 ---
 
@@ -61,7 +61,7 @@ PAGE-NATIONAL/
     ├── app/                  # Next.js App Router pages and assets
     │   ├── (landing-page)/   # Group of public-facing pages
     │   │   ├── (home)/       # Main homepage layout and CSS
-    │   │   ├── about/        # About Us page, featuring detailed section routes:
+    │   │   ├── about/        # About Us main hub & detailed subpages:
     │   │   │   ├── bir/      # BIR Certification page
     │   │   │   ├── cbl/      # Constitution & By-Laws page
     │   │   │   ├── history/  # Historical Milestones page
@@ -71,7 +71,7 @@ PAGE-NATIONAL/
     │   │   │   └── page.tsx  # About Us main entry page
     │   │   ├── activities/   # Events and activities listings
     │   │   ├── chapters/     # Chapters page
-    │   │   ├── components/   # Navbar, Lightbox and shared landing components
+    │   │   ├── components/   # Navbar, Footer, Lightbox, PageSeal, and shared landing components
     │   │   ├── contact/      # Contact details & contact forms
     │   │   ├── convention/   # Convention info page
     │   │   ├── journals/     # Professional journals index and access
@@ -107,14 +107,37 @@ PAGE-NATIONAL/
     │   ├── create-account/   # New user registration flow
     │   ├── forgot-password/  # Password reset flow
     │   ├── lib/              # API Client (axios instance), types, FontAwesome setup
-    │   ├── globals.css       # Tailwind stylesheets and baseline styles
+    │   ├── globals.css       # Baseline styles and utility rules
     │   └── layout.tsx        # Top-level Next.js layout
-    ├── public/               # Static assets (images, icons)
+    ├── public/               # Static assets (images, icons, PAGE-favicon.png, about-bg.jpg, hero-bg.jpg)
     ├── next.config.ts        # Next.js server configuration options
     ├── package.json          # Node packages and configuration
-    ├── postcss.config.mjs    # Tailwind PostCSS configuration
+    ├── postcss.config.mjs    # PostCSS configuration
     └── tsconfig.json         # TypeScript setup
 ```
+
+---
+
+## 🎨 UI Design Standards & Landing System Guidelines
+
+1. **Dominant Palette**:
+   - Primary Dark Navy: `#051026` / `#081734`
+   - Light Backgrounds: `#ffffff` / `#f8fafc`
+   - Dark Text & Headings: `#081734`
+   - Muted Subtitle Text: `#4a5568` / `#718096`
+
+2. **Gold Accent Allocation Rule**:
+   - **Strict ~15–20% Allocation**: Gold (`#d4a053`) is strictly reserved for subtle micro-accents (e.g. small 6px dot indicators, 3px line dividers, active timeline node centers). Solid gold fills, large gold gradients, or heavy gold borders are avoided to preserve a modern executive feel.
+
+3. **Logo Asset Directive**:
+   - Primary official emblem logo asset: [`/PAGE-favicon.png`](file:///d:/PAGE-NATIONAL/frontend/public/PAGE-favicon.png).
+
+4. **Outer Layout Scoping**:
+   - Outer layout `(landing-page)/layout.tsx` automatically renders the top `<Navbar />` and bottom `<Footer />`. Individual subpage routes must **not** render local `<Navbar />` or footer elements to prevent duplication.
+
+5. **Hero Headers & Background Grayscale Effects**:
+   - **Main About Hub (`/about`)**: Uses `/about-bg.jpg` styled with horizontal image flip (`transform: scaleX(-1);`), grayscale contrast filter (`filter: grayscale(100%) contrast(1.1) brightness(1.08); opacity: 0.38;`), and smooth linear gradient overlay matching the homepage hero section.
+   - **Subpages (`history`, `logo`, `officers`, `cbl`, `sec`, `bir`)**: Render dark navy headers with crisp white text (`#ffffff`), 1px bottom borderlines, and soft subtle divider drop shadows.
 
 ---
 
@@ -136,7 +159,6 @@ The database uses PostgreSQL via Prisma ORM. Key tables include:
 - **`Chapter` & related models** (`ChapterImage`, `ChapterDocument`, `ChapterOfficer`, `ChapterActivity`, `ChapterAnnouncement`): Models for storing regional chapter details, documents, active officers, events/activities, announcements, and image galleries.
 - **`Convention` & related models** (`ConventionAttachment`, `ConventionSchedule`, `ConventionSpeaker`): Models for scheduling, materials, announcements, and speaker profiles for PAGE national conventions.
 - **`user_activities`**: Action audit logs for administrators.
-- Other system metadata tables: `cache`, `cache_locks`, `failed_jobs`, `job_batches`, `jobs`, `sessions`, `migrations`, `password_reset_tokens`.
 
 ---
 
@@ -157,7 +179,6 @@ The database uses PostgreSQL via Prisma ORM. Key tables include:
   - `class-validator` & `class-transformer`: Input schema verification and data transfer object (DTO) validation.
   - `cloudinary`: Image and media CDN asset hosting.
   - `dotenv`: Local environment configuration variables management.
-  - `rxjs`: Reactive Extensions for JavaScript.
 
 ---
 
@@ -169,7 +190,6 @@ The database uses PostgreSQL via Prisma ORM. Key tables include:
 - **Key Frontend Dependencies**:
   - `framer-motion`: Animation suite for smooth page/modal transitions.
   - `lucide-react`: Modern SVG vector icons framework.
-  - `@fortawesome/react-fontawesome`, `@fortawesome/fontawesome-svg-core`, `@fortawesome/free-solid-svg-icons`: SVG icon packs integration.
+  - `@fortawesome/react-fontawesome`: FontAwesome icon integration.
   - `recharts`: D3-based charting layout library for dashboard usage.
   - `goey-toast` & `react-toastify`: Interface notifications and alert pop-ups.
-  - `eslint` & `eslint-config-next`: Static code quality review scripts.

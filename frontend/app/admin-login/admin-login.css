@@ -1,568 +1,646 @@
+/* ═══════════════════════════════════════════════════════════════
+   Admin Login — admin-login.css
+   Design: split-screen, navy left / light right with card
+   ═══════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
 * {
-  font-family: Poppins, sans-serif;
+  font-family: var(--font-poppins), 'Poppins', sans-serif;
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+/* ── TOKENS ────────────────────────────────────────── */
 :root {
-  --navy-900: #0a1830;
-  --navy-800: #12294f;
-  --navy-700: #1d3d74;
-  --accent: #4f7fff;
-  --accent-soft: #8fb0ff;
-  --accent-glow: rgba(79, 127, 255, 0.35);
-  --paper: #f7f8fb;
-  --card: #ffffff;
-  --slate-600: #5b6472;
-  --slate-400: #94a1b5;
-  --line: rgba(15, 23, 42, 0.09);
+  --navy-950: #071121;
+  --navy-900: #0c1e3a;
+  --navy-800: #102a52;
+  --navy-700: #173673;
+  --navy-600: #1e4490;
+  --accent:   #1e3a6e;        /* deep navy for button */
+  --accent-hover: #142d56;
+  --gold:     #c9a84c;
+  --gold-soft: rgba(201, 168, 76, 0.45);
+  --paper:    #f0f4f8;
+  --card-bg:  #ffffff;
+  --text-dark: #0f172a;
+  --text-mid:  #475569;
+  --text-mute: #94a3b8;
+  --border:   rgba(15, 23, 42, 0.10);
+  --border-focus: #1e3a6e;
+  --shadow-card: 0 8px 40px rgba(15, 23, 42, 0.10);
+  --shadow-btn:  0 4px 18px rgba(14, 30, 60, 0.30);
 }
 
-html, body {
-  height: 100%;
-}
+html, body { height: 100%; }
 
-.login-container {
-  width: 100%;
-  min-height: 100dvh;
-  color: #0f172a;
-  background-color: var(--paper);
-}
-
-/* ─── LAYOUT ─────────────────────────────────── */
-.login-separation {
+/* ── PAGE WRAPPER ──────────────────────────────────── */
+.al-page {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  width: 100%;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+  /* Grow to fill the flex-col body */
+  flex: 1 0 auto;
   min-height: 100dvh;
+  width: 100%;
+  align-items: stretch;
+  overflow: hidden;
+  background: var(--paper);
 }
 
-/* ─── LEFT SIDE ──────────────────────────────── */
+/* ── BACK TO HOME BUTTON ───────────────────────────── */
+.al-back-btn {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 20px;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+}
 
-.login-left-side {
+.al-back-btn:hover {
+  background: rgba(255, 255, 255, 0.24);
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #ffffff;
+  transform: translateX(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.al-back-icon {
+  font-size: 13px;
+  transition: transform 0.2s ease;
+}
+
+.al-back-btn:hover .al-back-icon {
+  transform: translateX(-3px);
+}
+
+/* ══════════════════════════════════════════════════════
+   LEFT PANEL
+   ══════════════════════════════════════════════════════ */
+.al-left {
   position: relative;
   overflow: hidden;
-  min-width: 0;
   min-height: 100%;
-  padding: clamp(28px, 4vw, 56px);
-  background: linear-gradient(160deg, var(--navy-900) 0%, var(--navy-800) 60%, var(--navy-700) 100%);
+  background: linear-gradient(165deg, var(--navy-950) 0%, var(--navy-900) 45%, var(--navy-800) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(36px, 5vw, 72px);
 }
 
-/* Thin corner frame — adds structure to otherwise empty corners */
-.login-left-side::before,
-.login-left-side::after {
-  content: '';
+/* Corner bracket decorations */
+.al-corner {
   position: absolute;
-  width: 64px;
-  height: 64px;
-  border: 1.5px solid rgba(143, 176, 255, 0.28);
-  z-index: 1;
+  width: 52px;
+  height: 52px;
+  border: 1.5px solid rgba(201, 168, 76, 0.35);
   pointer-events: none;
+  z-index: 2;
 }
+.al-corner--tl { top: 28px; left: 28px; border-right: none; border-bottom: none; }
+.al-corner--br { bottom: 28px; right: 28px; border-left: none; border-top: none; }
 
-.login-left-side::before {
-  top: clamp(20px, 3vw, 36px);
-  left: clamp(20px, 3vw, 36px);
-  border-right: none;
-  border-bottom: none;
-}
-
-.login-left-side::after {
-  bottom: clamp(20px, 3vw, 36px);
-  right: clamp(20px, 3vw, 36px);
-  border-left: none;
-  border-top: none;
-}
-
-/* One still, quiet watermark — the single signature element, no motion */
-.watermark-icon {
+/* Watermark seal */
+.al-watermark {
   position: absolute;
+  bottom: -22%;
+  left: -20%;
+  width: clamp(650px, 60vw, 920px);
+  height: clamp(650px, 60vw, 920px);
+  pointer-events: none;
   z-index: 0;
-  bottom: -8%;
-  right: -5%;
-  font-size: min(36vw, 360px);
-  color: rgba(143, 176, 255, 0.06);
-  transform: rotate(-6deg);
-  pointer-events: none;
+}
+.al-watermark-img {
+  width: 100%;
+  height: 100%;
+  opacity: 0.08;
+  filter: brightness(2.5) contrast(0.6);
+  object-fit: contain;
 }
 
-.login-alignment {
+/* Inner centered content */
+.al-left-inner {
   position: relative;
   z-index: 2;
   display: flex;
   flex-direction: column;
-  align-items: start;
-  justify-content: space-between;
-  height: 100%;
-  padding: 0;
-  gap: 24px;
-}
-
-.top-content {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
-  gap: 28px;
-}
-
-.brand-block {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* Stats row — fills the gap between the headline and the checklist */
-.stats-row {
-  display: flex;
   align-items: center;
-  gap: 28px;
-  padding: 18px 26px;
-  width: fit-content;
-  max-width: 100%;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(143, 176, 255, 0.16);
-  border-radius: 14px;
-  opacity: 0;
-  animation: fadeSlideUp 0.6s ease forwards;
-  animation-delay: 0.26s;
-}
-
-.stat-item h4 {
-  color: white;
-  font-size: clamp(20px, 2vw, 26px);
-  font-weight: 700;
-  line-height: 1.1;
-}
-
-.stat-item p {
-  color: var(--slate-400);
-  font-size: 12px;
-  margin-top: 4px;
-  white-space: nowrap;
-}
-
-.stat-divider {
-  width: 1px;
-  align-self: stretch;
-  background: rgba(143, 176, 255, 0.18);
-}
-
-.icon-title {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  opacity: 0;
-  animation: fadeSlideUp 0.6s ease forwards;
-  animation-delay: 0.05s;
-}
-
-.icon-bg {
-  width: 52px;
-  height: 52px;
-  background: rgba(79, 127, 255, 0.16);
-  border: 1px solid rgba(143, 176, 255, 0.4);
-  border-radius: 14px;
-  display: flex;
-  color: var(--accent-soft);
-  align-items: center;
-  justify-content: center;
-  font-size: 23px;
-  transition: box-shadow 0.3s ease;
-}
-
-.icon-title:hover .icon-bg {
-  box-shadow: 0 0 16px 2px var(--accent-glow);
-}
-
-.login-title {
-  font-size: 32px;
-  font-weight: 600;
-  color: white;
-}
-
-.login-tagline {
-  font-size: 14px;
-  color: var(--slate-400);
-  opacity: 0;
-  animation: fadeSlideUp 0.6s ease forwards;
-  animation-delay: 0.12s;
-}
-
-.title-page {
-  opacity: 0;
-  animation: fadeSlideUp 0.6s ease forwards;
-  animation-delay: 0.2s;
-}
-
-.admin-portal {
-  display: inline-block;
-  background-color: rgba(79, 127, 255, 0.12);
-  border: 1px solid rgba(79, 127, 255, 0.35);
-  padding: 6px 16px;
-  border-radius: 40px;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.03em;
   text-align: center;
-  color: var(--accent-soft);
-  margin-bottom: 12px;
+  gap: 0;
+  animation: alFadeUp 0.7s ease both;
 }
 
-.title {
-  max-width: 380px;
-  color: white;
-  font-size: clamp(30px, 3.4vw, 46px);
-  line-height: 1.18;
-}
-
-.login-checklist {
+/* Brand block */
+.al-brand {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  width: 100%;
-}
-
-.login-check {
-  display: flex;
   align-items: center;
-  gap: 12px;
-  opacity: 0;
-  animation: fadeSlideUp 0.5s ease forwards;
+  gap: 20px;
 }
 
-.login-check:nth-child(1) { animation-delay: 0.3s; }
-.login-check:nth-child(2) { animation-delay: 0.38s; }
-.login-check:nth-child(3) { animation-delay: 0.46s; }
-.login-check:nth-child(4) { animation-delay: 0.54s; }
-
-.login-check .check-icon {
-  color: var(--accent-soft);
-  font-size: 17px;
-  flex-shrink: 0;
-}
-
-.login-check p {
-  color: var(--slate-400);
-  font-weight: 300;
-  font-size: 13.5px;
-}
-
-.title-container {
-  color: white;
-  font-weight: 500;
-  font-size: 17px;
-}
-
-@keyframes fadeSlideUp {
-  from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Mobile masthead — shown only under the breakpoint */
-.mobile-masthead {
-  display: none;
-}
-
-/* ─── RIGHT SIDE ─────────────────────────────── */
-.login-right-side {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100%;
-  background-color: var(--paper);
-  padding: clamp(24px, 5vw, 56px) 20px;
-}
-
-.login-right-container {
-  width: 100%;
-  max-width: 420px;
-  display: flex;
-  flex-direction: column;
-  opacity: 0;
-  animation: fadeSlideUp 0.6s ease forwards;
-  animation-delay: 0.15s;
-}
-
-.icon-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 15px;
-  padding-bottom: 36px;
-  text-align: center;
-}
-
-.shield-icon {
-  background-color: var(--card);
-  color: var(--navy-800);
-  padding: 20px;
-  font-size: 20px;
+/* Logo ring */
+.al-logo-ring {
+  width: clamp(140px, 14vw, 200px);
+  height: clamp(140px, 14vw, 200px);
   border-radius: 50%;
-  border: 1px solid var(--line);
-  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
-  transition: transform 0.25s ease;
+  border: 3px solid rgba(255, 255, 255, 0.45);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  padding: 6px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 }
 
-.icon-header:hover .shield-icon {
-  transform: translateY(-2px) scale(1.03);
+.al-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 50%;
 }
 
-.Admin-title {
-  font-size: 24px;
+/* Org name */
+.al-org-name {
+  font-size: clamp(54px, 6.5vw, 84px);
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+
+/* Full name tagline */
+.al-org-full {
+  font-size: clamp(16px, 1.8vw, 22px);
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.45;
+  font-weight: 400;
+  text-align: center;
+}
+
+/* Gold rule */
+.al-gold-rule {
+  width: 90px;
+  height: 3px;
+  background: var(--gold);
+  border-radius: 3px;
+  margin: 6px 0;
+}
+
+/* Portal badge */
+.al-portal-badge {
+  font-size: clamp(15px, 1.5vw, 20px);
   font-weight: 700;
+  letter-spacing: 0.24em;
+  color: var(--gold);
+  opacity: 0.95;
 }
 
-.admin-subtext {
-  font-size: 14px;
-  color: var(--slate-600);
-}
-
-.login-form-container {
+/* ══════════════════════════════════════════════════════
+   RIGHT PANEL
+   ══════════════════════════════════════════════════════ */
+.al-right {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 24px;
-  padding-bottom: 24px;
+  min-height: 100%;
+  overflow-y: auto;
+  background-color: #f3f6fa;
+  background-image: radial-gradient(rgba(148, 163, 184, 0.25) 1.2px, transparent 1.2px);
+  background-size: 20px 20px;
+  padding: clamp(28px, 5vw, 64px) clamp(20px, 4vw, 48px);
 }
 
-.login-form label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--slate-600);
-  margin-bottom: 10px;
-  display: block;
+/* ── CARD ───────────────────────────────────────────── */
+.al-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: clamp(32px, 5vw, 48px) clamp(28px, 5vw, 44px);
+  box-shadow: var(--shadow-card);
+  border: 1px solid rgba(15,23,42,0.07);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  animation: alFadeUp 0.65s ease 0.1s both;
+}
+
+/* Icon circle */
+.al-card-icon-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #f1f5fb;
+  border: 1px solid rgba(15,23,42,0.09);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.al-card-icon-wrap:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(14,30,60,0.12);
+}
+
+.al-card-icon {
+  font-size: 26px;
+  color: var(--navy-800);
+}
+
+/* Card heading */
+.al-card-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.al-card-sub {
+  font-size: 14px;
+  color: var(--text-mid);
+  text-align: center;
+  margin-bottom: 30px;
+  font-weight: 400;
+}
+
+/* ── FORM ──────────────────────────────────────────── */
+.al-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Field group */
+.al-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.al-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-mid);
+  margin-bottom: 8px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
-.input-wrapper {
+/* Input wrapper */
+.al-input-wrap {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.input-wrapper input {
-  width: 100%;
-  padding: 15px 42px 15px 14px;
-  border: 1.5px solid var(--line);
-  background-color: var(--card);
-  border-radius: 10px;
-  font-size: 13.5px;
-  transition: 0.2s ease-in-out all;
-}
-
-.input-wrapper input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 4px var(--accent-glow);
-}
-
-.eye-icon {
+.al-input-icon {
   position: absolute;
-  right: 14px;
+  left: 14px;
   font-size: 14px;
-  color: var(--slate-600);
-  cursor: pointer;
+  color: var(--text-mute);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.al-input {
+  width: 100%;
+  padding: 13px 14px 13px 40px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--text-dark);
+  background: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+}
+
+.al-input::placeholder {
+  color: var(--text-mute);
+}
+
+.al-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3.5px rgba(30, 58, 110, 0.12);
+}
+
+.al-input:disabled {
   opacity: 0.6;
-  transition: 0.2s ease;
+  cursor: not-allowed;
 }
 
-.eye-icon:hover {
-  opacity: 1;
-  transform: scale(1.08);
+/* Password input — extra right padding for eye button */
+.al-input--pw {
+  padding-right: 46px;
 }
 
-input[type="password"]::-ms-reveal,
-input[type="password"]::-ms-clear {
-  display: none;
+/* Eye toggle button */
+.al-eye-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 44px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-mute);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
 }
 
-input[type="password"]::-webkit-credentials-auto-fill-button,
-input[type="password"]::-webkit-textfield-decoration-container {
-  display: none !important;
+.al-eye-btn:hover {
+  color: var(--text-dark);
 }
 
-.remember-forgot {
+/* ── REMEMBER / FORGOT ROW ──────────────────────────── */
+.al-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 24px;
   flex-wrap: wrap;
-  gap: 10px;
-  padding-bottom: 28px;
+  gap: 8px;
 }
 
-.checkbox {
-  width: 16px;
-  height: 16px;
-  border: 1.5px solid var(--line);
-  border-radius: 5px;
-  background-color: var(--card);
-  cursor: pointer;
-  accent-color: var(--accent);
-}
-
-.remember-me {
+.al-remember {
   display: flex;
   align-items: center;
-  gap: 7px;
-  font-size: 12.5px;
-  color: var(--slate-600);
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-mid);
+  user-select: none;
 }
 
-.forgot {
-  font-size: 12.5px;
-  font-weight: 550;
+.al-checkbox {
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+  accent-color: var(--navy-800);
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
-.forgot a {
-  color: var(--navy-800);
+.al-forgot {
+  font-size: 13px;
+  font-weight: 500;
+  color: #2563eb;
   text-decoration: none;
-  transition: 0.15s ease-in-out color;
+  transition: color 0.15s ease;
 }
 
-.forgot a:hover {
-  color: var(--accent);
+.al-forgot:hover {
+  color: var(--navy-700);
   text-decoration: underline;
 }
 
-.login-btn {
+/* ── SIGN IN BUTTON ────────────────────────────────── */
+.al-btn {
   width: 100%;
-  padding: 16px 0;
-  background: linear-gradient(135deg, var(--navy-800), var(--accent));
-  background-size: 160% 160%;
-  background-position: 0% 50%;
-  color: white;
+  padding: 15px 24px;
+  background: var(--navy-900);
+  color: #ffffff;
   border: none;
   border-radius: 10px;
   font-size: 15px;
   font-weight: 600;
   letter-spacing: 0.01em;
   cursor: pointer;
-  margin-bottom: 18px;
-  transition: background-position 0.4s ease, transform 0.15s ease, box-shadow 0.25s ease;
-  box-shadow: 0 8px 20px rgba(79, 127, 255, 0.22);
-}
-
-.login-btn:hover:not(:disabled) {
-  background-position: 100% 50%;
-  transform: translateY(-1px);
-  box-shadow: 0 10px 26px rgba(79, 127, 255, 0.32);
-}
-
-.login-btn:active:not(:disabled) {
-  transform: translateY(0px) scale(0.99);
-}
-
-.login-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.divider {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 4px 0 18px;
-}
-
-.divider hr {
-  flex: 1;
-  border: none;
-  border-top: 1px solid var(--line);
-}
-
-.arrow-return {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 9px;
+  gap: 10px;
+  box-shadow: var(--shadow-btn);
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
 
-.arrow-icon {
-  font-size: 11px;
-  color: var(--slate-600);
+.al-btn:hover:not(:disabled) {
+  background: var(--navy-800);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(14,30,60,0.38);
 }
 
-.return-page {
+.al-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.99);
+}
+
+.al-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ── SECURITY NOTE ──────────────────────────────────── */
+.al-security-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-mute);
   font-size: 13px;
-  color: var(--slate-600);
-  transition: 0.15s ease-in-out color;
+  animation: alFadeUp 0.65s ease 0.25s both;
 }
 
-.return-page:hover {
-  color: var(--accent);
+.al-sec-icon {
+  font-size: 18px;
+  color: var(--text-mute);
+  flex-shrink: 0;
 }
 
-/* ─── RESPONSIVE ─────────────────────────────── */
-
-@media (max-width: 1024px) {
-  .login-separation {
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
-  }
-
-  .login-checklist {
-    display: none;
-  }
+/* ── ANIMATION ──────────────────────────────────────── */
+@keyframes alFadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-@media (max-width: 760px) {
-  .login-separation {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
-  }
-
-  .login-left-side {
-    display: none;
-  }
-
-  .mobile-masthead {
+/* ── RESPONSIVE ─────────────────────────────────────── */
+@media (max-width: 900px) {
+  .al-page {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 12px;
-    padding: 20px clamp(20px, 6vw, 40px);
-    background: linear-gradient(135deg, var(--navy-900), var(--navy-700));
+    justify-content: center;
+    position: relative;
+    min-height: 100dvh;
+    width: 100%;
+    overflow-x: hidden;
   }
 
-  .mobile-masthead .icon-bg {
-    width: 40px;
-    height: 40px;
-    font-size: 16px;
-    animation: none;
+  .al-back-btn {
+    top: 14px;
+    left: 14px;
+    padding: 8px 14px;
+    font-size: 12.5px;
+    border-radius: 20px;
   }
 
-  .mobile-masthead-text .login-title {
-    font-size: 18px;
-    line-height: 1.1;
+  /* Navy logo side becomes full-screen background on mobile */
+  .al-left {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    padding: 32px 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
   }
 
-  .mobile-masthead-text .login-tagline {
-    font-size: 11px;
-    padding-bottom: 0;
-    animation: none;
+  .al-watermark {
+    bottom: -10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(100vw, 540px);
+    height: min(100vw, 540px);
+    opacity: 0.15;
+  }
+
+  .al-left-inner {
     opacity: 1;
+    transform: scale(0.75);
+    transform-origin: top center;
+    margin-top: 12px;
   }
 
-  .login-right-side {
-    padding: 32px 20px 40px;
+  .al-corner {
+    width: 28px;
+    height: 28px;
+    opacity: 0.5;
+  }
+  .al-corner--tl { top: 12px; left: 12px; }
+  .al-corner--br { bottom: 12px; right: 12px; }
+
+  /* Right panel floats pushed downward so logo is fully visible above */
+  .al-right {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background: transparent;
+    padding: clamp(210px, 26vh, 260px) 16px 44px;
   }
 
-  .remember-forgot {
-    padding-right: 0;
+  /* Centered floating login card */
+  .al-card {
+    max-width: 440px;
+    width: 100%;
+    padding: 36px 24px;
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 20px 60px rgba(5, 12, 24, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  /* Input styling for mobile touch */
+  .al-input {
+    font-size: 16px; /* Prevents iOS auto-zoom */
+    padding: 14px 14px 14px 44px;
+  }
+
+  .al-input-icon {
+    left: 16px;
+    font-size: 16px;
+  }
+
+  .al-eye-btn {
+    width: 48px;
+    font-size: 16px;
+  }
+
+  .al-remember {
+    font-size: 14px;
+  }
+
+  .al-checkbox {
+    width: 18px;
+    height: 18px;
+  }
+
+  .al-forgot {
+    font-size: 14px;
+  }
+
+  .al-btn {
+    padding: 16px 20px;
+    font-size: 16px;
+    border-radius: 12px;
+  }
+
+  .al-security-note {
+    font-size: 12.5px;
+    text-align: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.85);
+    margin-top: 6px;
+  }
+
+  .al-sec-icon {
+    color: var(--gold);
   }
 }
 
-@media (max-width: 400px) {
-  .login-right-container {
-    max-width: 100%;
+@media (max-width: 480px) {
+  .al-left-inner {
+    transform: scale(0.68);
+    margin-top: 8px;
+  }
+
+  .al-right {
+    padding-top: clamp(190px, 24vh, 230px);
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-bottom: 36px;
+  }
+
+  .al-card {
+    padding: 28px 18px;
+    border-radius: 16px;
+  }
+
+  .al-card-title {
+    font-size: 23px;
+  }
+
+  .al-card-sub {
+    font-size: 13px;
+    margin-bottom: 24px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
 }
