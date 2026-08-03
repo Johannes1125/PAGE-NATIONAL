@@ -11,7 +11,7 @@
   --admin-text: #0f172a;
   --admin-muted: #64748b;
   --admin-hover-bg: rgba(30, 83, 142, 0.02);
-  
+
   /* Status Colors */
   --badge-pending-bg: #fff4d8;
   --badge-pending-text: #9a6400;
@@ -39,7 +39,81 @@
 }
 
 /* =========================================
-   2. SEARCH & SUMMARY BAR
+   2. INFOGRAPHIC STATS BAR
+   ========================================= */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-left: 3px solid var(--admin-navy);
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.stat-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.stat-card__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: rgba(20, 49, 82, 0.08);
+  color: var(--admin-navy);
+}
+
+.stat-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.stat-card__info strong {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--admin-text);
+  line-height: 1.1;
+}
+
+.stat-card__info span {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--admin-muted);
+  white-space: nowrap;
+}
+
+.stat-card--pending { border-left-color: var(--badge-pending-text); }
+.stat-card--pending .stat-card__icon { background: var(--badge-pending-bg); color: var(--badge-pending-text); }
+
+.stat-card--review { border-left-color: var(--badge-review-text); }
+.stat-card--review .stat-card__icon { background: var(--badge-review-bg); color: var(--badge-review-text); }
+
+.stat-card--approved { border-left-color: var(--badge-approved-text); }
+.stat-card--approved .stat-card__icon { background: var(--badge-approved-bg); color: var(--badge-approved-text); }
+
+.stat-card--rejected { border-left-color: var(--badge-rejected-text); }
+.stat-card--rejected .stat-card__icon { background: var(--badge-rejected-bg); color: var(--badge-rejected-text); }
+
+/* =========================================
+   3. SEARCH & SUMMARY BAR
    ========================================= */
 .applications-toolbar {
   display: flex;
@@ -81,7 +155,7 @@
 }
 
 /* =========================================
-   3. APPLICATIONS DATA TABLE
+   4. APPLICATIONS DATA TABLE
    ========================================= */
 .table-container {
   background-color: var(--admin-surface);
@@ -180,7 +254,7 @@
 }
 
 /* =========================================
-   4. DETAIL SLIDE-IN SIDE PANEL
+   5. DETAIL SLIDE-IN SIDE PANEL
    ========================================= */
 .detail-overlay {
   position: fixed;
@@ -244,6 +318,7 @@
   padding: 24px;
   overflow-y: auto;
   flex-grow: 1;
+  height: calc(100vh - 260px);
 }
 
 .detail-section {
@@ -251,6 +326,9 @@
 }
 
 .detail-section__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
   font-weight: 800;
   color: var(--admin-navy);
@@ -263,7 +341,7 @@
 
 .detail-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
 
@@ -279,7 +357,7 @@
   font-size: 14px;
   font-weight: 700;
   color: var(--admin-text);
-  word-break: break-all;
+  word-break: break-word;
 }
 
 .detail-doc-item {
@@ -300,8 +378,177 @@
   margin-bottom: 0;
 }
 
+.detail-doc-item__link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: #fff;
+  background: var(--admin-blue);
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.detail-doc-item__link:hover {
+  background: var(--admin-navy);
+}
+
+/* Rejection audit note */
+.rejection-note {
+  background: #fff1f1;
+  border: 1px solid #fca5a5;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.rejection-note__label {
+  color: #991b1b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: bold;
+  margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.rejection-note__text {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #991b1b;
+  font-weight: 600;
+}
+
 /* =========================================
-   5. ADMIN DECISION ACTIONS & TEXTAREA
+   6. STATUS STEPPER (visual pipeline)
+   ========================================= */
+.status-stepper {
+  display: flex;
+  align-items: flex-start;
+  padding: 18px 24px 6px;
+  border-bottom: 1px solid var(--admin-border);
+  background: #f8fafc;
+}
+
+.status-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  position: relative;
+}
+
+.status-step::after {
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--admin-border);
+  z-index: 0;
+}
+
+.status-step:last-child::after {
+  display: none;
+}
+
+.status-step__icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--admin-border);
+  background: #fff;
+  color: var(--admin-muted);
+  z-index: 1;
+  transition: all 0.2s;
+}
+
+.status-step__label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--admin-muted);
+}
+
+.status-step--complete::after {
+  background: var(--admin-blue);
+}
+
+.status-step--complete .status-step__icon {
+  border-color: var(--admin-blue);
+  background: var(--admin-blue);
+  color: #fff;
+}
+
+.status-step--active .status-step__icon {
+  border-color: var(--admin-blue);
+  background: #fff;
+  color: var(--admin-blue);
+  box-shadow: 0 0 0 4px rgba(30, 83, 142, 0.12);
+}
+
+.status-step--active .status-step__label {
+  color: var(--admin-blue);
+}
+
+.status-step--rejected .status-step__icon {
+  border-color: #dc2626;
+  background: #dc2626;
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.12);
+}
+
+.status-step--rejected .status-step__label {
+  color: #dc2626;
+}
+
+/* =========================================
+   7. CONTACT ICON ROWS
+   ========================================= */
+.contact-row-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.contact-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--admin-text);
+}
+
+.contact-row svg {
+  color: var(--admin-blue);
+  flex-shrink: 0;
+}
+
+.contact-row__region {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--admin-blue);
+  background: rgba(30, 83, 142, 0.08);
+  padding: 2px 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+/* =========================================
+   8. ADMIN DECISION ACTIONS & TEXTAREA
    ========================================= */
 .decision-block {
   padding: 24px;
@@ -336,6 +583,13 @@
   box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.15);
 }
 
+.decision-error {
+  color: var(--badge-rejected-text);
+  font-size: 12px;
+  margin: -8px 0 12px;
+  font-weight: 600;
+}
+
 .decision-actions {
   display: flex;
   gap: 12px;
@@ -357,12 +611,17 @@
   gap: 8px;
 }
 
+.decision-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .decision-btn--approve {
   background-color: #16803d;
   color: #ffffff;
 }
 
-.decision-btn--approve:hover {
+.decision-btn--approve:hover:not(:disabled) {
   background-color: #15803d;
 }
 
@@ -371,7 +630,7 @@
   color: #ffffff;
 }
 
-.decision-btn--reject:hover {
+.decision-btn--reject:hover:not(:disabled) {
   background-color: #b91c1c;
 }
 
@@ -388,4 +647,160 @@
 
 .decision-btn--cancel:hover {
   background-color: #e2e8f0;
+}
+
+/* =========================================
+   9. RESPONSIVE — TABLET
+   ========================================= */
+@media (max-width: 1100px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .applications-content {
+    padding: 20px 16px;
+  }
+
+  .applications-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .applications-filters {
+    flex-direction: column;
+  }
+
+  .applications-select {
+    width: 100%;
+  }
+
+  .detail-drawer {
+    max-width: 420px;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-grid > [style*="span 2"] {
+    grid-column: auto;
+  }
+}
+
+/* =========================================
+   10. RESPONSIVE — MOBILE (stacked table + full-width drawer)
+   ========================================= */
+@media (max-width: 760px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 10px 12px;
+  }
+
+  .stat-card__info strong {
+    font-size: 17px;
+  }
+
+  .table-container {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  .applications-table,
+  .applications-table thead,
+  .applications-table tbody,
+  .applications-table tr,
+  .applications-table th,
+  .applications-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .applications-table thead {
+    display: none;
+  }
+
+  .applications-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .applications-table tbody tr {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-sm);
+    padding: 4px 14px;
+  }
+
+  .applications-table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid #f1f5f9;
+    text-align: right;
+  }
+
+  .applications-table td:last-child {
+    border-bottom: none;
+  }
+
+  .applications-table td::before {
+    content: attr(data-label);
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--admin-muted);
+    text-align: left;
+  }
+
+  .table-actions-cell {
+    justify-content: flex-end !important;
+  }
+
+  .table-actions-cell::before {
+    content: "" !important;
+  }
+
+  .row-review-btn {
+    width: 100%;
+    padding: 8px 12px;
+  }
+
+  .detail-drawer {
+    max-width: 100%;
+  }
+
+  .detail-drawer__body {
+    height: calc(100vh - 300px);
+  }
+
+  .status-stepper {
+    padding: 14px 16px 4px;
+  }
+
+  .status-step__label {
+    font-size: 9px;
+  }
+
+  .decision-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 420px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
 }
