@@ -323,7 +323,7 @@ export default function CblInformationManagement() {
       if (govRes.success && govRes.data) {
         const doc = govRes.data as GovernanceDoc;
         setGovernanceDoc(doc);
-        setTitle(doc.title);
+        setTitle(doc.title && doc.title.trim().toLowerCase() !== "csa" ? doc.title : "Constitution and By-Laws");
         setGeneralDescription(doc.general_description);
       }
       if (artRes.success && artRes.data) {

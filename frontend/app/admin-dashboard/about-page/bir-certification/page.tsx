@@ -18,13 +18,14 @@ import BirCertificationForm from "./components/BirCertificationForm";
 
 interface BirCertification {
   id: string;
-  registrationName: string;
-  tinNumber: string;
-  certificationNumber: string;
-  exemptionCategory: string;
-  dateOfIssuance: string;
+  registrationName?: string;
+  tinNumber?: string;
+  certificationNumber?: string;
+  exemptionCategory?: string;
+  dateOfIssuance?: string;
   imageUrl: string | null;
-  imagePublicId: string | null;
+  receiptUrl: string | null;
+  imagePublicId?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -102,7 +103,8 @@ export default function BirCertificationPage() {
   }, [verifySession, fetchRecord]);
 
   // Format date helper
-  const formatDate = (dateStr: string) => {
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return "—";
     try {
       return new Date(dateStr).toLocaleDateString("en-US", {
         month: "long",
@@ -124,42 +126,71 @@ export default function BirCertificationPage() {
   // Handle Form Submission (Create or Edit)
   const handleFormSubmit = async (
     values: any,
-    imageFile: File | null,
-    clearImage: boolean
+    certFile: File | null,
+    clearCert: boolean,
+    receiptFile: File | null,
+    clearReceipt: boolean
   ) => {
     setIsSubmitting(true);
     try {
-      const formData = new FormData();
-      formData.append("registrationName", values.registrationName);
-      formData.append("tinNumber", values.tinNumber);
-      formData.append("certificationNumber", values.certificationNumber);
-      formData.append("exemptionCategory", values.exemptionCategory);
-      formData.append("dateOfIssuance", values.dateOfIssuance);
+      let finalCertUrl = values.imageUrl;
+      let finalReceiptUrl = values.receiptUrl;
 
-      if (imageFile) {
-        formData.append("image", imageFile);
-      }
-
-      if (modalMode === "create") {
-        const res = await api.postMultipart<{ success: boolean }>("/bir-certifications", formData);
-        if (res.success) {
-          gooeyToast.success("BIR certification created successfully");
-          setModalMode(null);
-          fetchRecord();
-        } else {
-          gooeyToast.error("Failed to create record");
-        }
-      } else if (modalMode === "edit" && record) {
-        const res = await api.patchMultipart<{ success: boolean }>(
-          `/bir-certifications/${record.id}`,
+      // Upload Certificate File if selected
+      if (certFile) {
+        const formData = new FormData();
+        formData.append("image", certFile);
+        const uploadRes = await api.postMultipart<{ success: boolean; imageUrl: string }>(
+          "/bir-certifications/upload",
           formData
         );
+        if (uploadRes.success) {
+          finalCertUrl = uploadRes.imageUrl;
+        }
+      } else if (clearCert) {
+        finalCertUrl = null;
+      }
+
+      // Upload Receipt File if selected
+      if (receiptFile) {
+        const formData = new FormData();
+        formData.append("image", receiptFile);
+        const uploadRes = await api.postMultipart<{ success: boolean; imageUrl: string }>(
+          "/bir-certifications/upload",
+          formData
+        );
+        if (uploadRes.success) {
+          finalReceiptUrl = uploadRes.imageUrl;
+        }
+      } else if (clearReceipt) {
+        finalReceiptUrl = null;
+      }
+
+      const payload = {
+        imageUrl: finalCertUrl,
+        receiptUrl: finalReceiptUrl,
+      };
+
+      if (modalMode === "create") {
+        const res = await api.post<{ success: boolean }>("/bir-certifications", payload);
         if (res.success) {
-          gooeyToast.success("BIR certification updated successfully");
+          gooeyToast.success("BIR documents saved successfully");
           setModalMode(null);
           fetchRecord();
         } else {
-          gooeyToast.error("Failed to update record");
+          gooeyToast.error("Failed to save documents");
+        }
+      } else if (modalMode === "edit" && record) {
+        const res = await api.patch<{ success: boolean }>(
+          `/bir-certifications/${record.id}`,
+          payload
+        );
+        if (res.success) {
+          gooeyToast.success("BIR documents updated successfully");
+          setModalMode(null);
+          fetchRecord();
+        } else {
+          gooeyToast.error("Failed to update documents");
         }
       }
     } catch (err: any) {
@@ -196,8 +227,8 @@ export default function BirCertificationPage() {
     <AdminSidebarLayout
       pageClassName="admin-dashboard"
       mainClassName="admin-main"
-      title="BIR Certification"
-      subtitle="Manage the official BIR tax exemption record and certification document"
+      title="BIR Certification & Receipt"
+      subtitle="Manage the official BIR tax exemption certificate and official receipt documents"
       eyebrow="Content Manager"
       seniorFriendlyHeader={true}
     >
@@ -228,8 +259,8 @@ export default function BirCertificationPage() {
                   <Shield size={22} />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: "18px", fontWeight: 700, color: "var(--p-navy)", margin: 0 }}>Active BIR Certification</h3>
-                  <p style={{ fontSize: "13px", color: "var(--r-text-muted)", margin: "2px 0 0" }}>Currently synced with the website landing page.</p>
+                  <h3 style={{ fontSize: "18px", fontWeight: 700, color: "var(--p-navy)", margin: 0 }}>Active BIR Certification & Receipt</h3>
+                  <p style={{ fontSize: "13px", color: "var(--r-text-muted)", margin: "2px 0 0" }}>Official BIR tax compliance files (PDF or Photo).</p>
                 </div>
               </div>
               <div style={{ display: "flex", gap: "10px" }}>
@@ -239,7 +270,7 @@ export default function BirCertificationPage() {
                   className="about-btn about-btn--primary"
                   style={{ height: "40px", padding: "0 16px" }}
                 >
-                  <Edit size={16} /> Edit Details
+                  <Edit size={16} /> Edit Documents
                 </button>
                 <button
                   type="button"
@@ -252,46 +283,24 @@ export default function BirCertificationPage() {
               </div>
             </div>
 
-            {/* Two-Column Grid layout */}
+            {/* Two-Column Document Grid layout */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", alignItems: "start" }}>
               
-              {/* Left Column: Details */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-                <div>
-                  <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Registration Name</span>
-                  <p style={{ fontSize: "15px", fontWeight: 600, color: "var(--p-navy)", margin: "4px 0 0" }}>{record.registrationName}</p>
-                </div>
-                <div>
-                  <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Tax Identification Number (TIN)</span>
-                  <p style={{ fontSize: "15px", fontWeight: 600, color: "var(--p-navy)", margin: "4px 0 0", fontFamily: "monospace" }}>{record.tinNumber}</p>
-                </div>
-                <div>
-                  <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Certification Number</span>
-                  <p style={{ fontSize: "15px", fontWeight: 600, color: "var(--p-navy)", margin: "4px 0 0", fontFamily: "monospace" }}>{record.certificationNumber}</p>
-                </div>
-                <div>
-                  <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Exemption Category</span>
-                  <p style={{ fontSize: "14px", fontWeight: 500, color: "var(--r-text-mid)", margin: "4px 0 0" }}>{record.exemptionCategory}</p>
-                </div>
-                <div>
-                  <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Date of Issuance</span>
-                  <p style={{ fontSize: "14px", fontWeight: 500, color: "var(--r-text-mid)", margin: "4px 0 0" }}>{formatDate(record.dateOfIssuance)}</p>
-                </div>
-              </div>
-
-              {/* Right Column: Certificate Preview */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
-                <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px", alignSelf: "flex-start" }}>Certificate Document</span>
+              {/* Left Column: BIR Certificate Document */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
+                <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px", alignSelf: "flex-start" }}>
+                  BIR Certification Document
+                </span>
                 {record.imageUrl ? (
                   <div style={{
                     width: "100%",
-                    maxWidth: "260px",
-                    height: "320px",
+                    minHeight: "320px",
+                    maxHeight: "440px",
                     borderRadius: "10px",
-                    border: "1px solid var(--r-border-mid)",
+                    border: "1.5px solid var(--r-border-mid)",
                     background: "#f8fafc",
                     overflow: "hidden",
-                    boxShadow: "0 6px 16px rgba(0,0,0,0.04)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.03)",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
@@ -301,8 +310,8 @@ export default function BirCertificationPage() {
                   }}>
                     {isPdf(record.imageUrl) ? (
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
-                        <FileText size={52} style={{ color: "var(--p-rose)" }} />
-                        <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--p-navy)" }}>PDF Certificate</span>
+                        <FileText size={56} style={{ color: "var(--p-rose)" }} />
+                        <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--p-navy)" }}>BIR Certificate PDF</span>
                         <a
                           href={record.imageUrl}
                           target="_blank"
@@ -310,7 +319,7 @@ export default function BirCertificationPage() {
                           className="about-btn about-btn--secondary"
                           style={{ height: "36px", padding: "0 14px", fontSize: "12px" }}
                         >
-                          View File
+                          View Certificate File
                         </a>
                       </div>
                     ) : (
@@ -318,12 +327,66 @@ export default function BirCertificationPage() {
                       <img
                         src={record.imageUrl}
                         alt="BIR Certificate Document"
-                        style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                        style={{ width: "100%", height: "100%", maxHeight: "400px", objectFit: "contain" }}
                       />
                     )}
                   </div>
                 ) : (
-                  <p style={{ color: "var(--r-text-muted)", fontStyle: "italic", fontSize: "14px" }}>No document uploaded.</p>
+                  <div style={{ width: "100%", minHeight: "160px", border: "1.5px dashed var(--r-border-mid)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <p style={{ color: "var(--r-text-muted)", fontStyle: "italic", fontSize: "14px", margin: 0 }}>No BIR Certificate uploaded.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Right Column: BIR Receipt Document */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
+                <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px", alignSelf: "flex-start" }}>
+                  BIR Official Receipt Document
+                </span>
+                {record.receiptUrl ? (
+                  <div style={{
+                    width: "100%",
+                    minHeight: "320px",
+                    maxHeight: "440px",
+                    borderRadius: "10px",
+                    border: "1.5px solid var(--r-border-mid)",
+                    background: "#f8fafc",
+                    overflow: "hidden",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.03)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "14px",
+                    position: "relative"
+                  }}>
+                    {isPdf(record.receiptUrl) ? (
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+                        <FileText size={56} style={{ color: "var(--p-rose)" }} />
+                        <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--p-navy)" }}>BIR Receipt PDF</span>
+                        <a
+                          href={record.receiptUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="about-btn about-btn--secondary"
+                          style={{ height: "36px", padding: "0 14px", fontSize: "12px" }}
+                        >
+                          View Receipt File
+                        </a>
+                      </div>
+                    ) : (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={record.receiptUrl}
+                        alt="BIR Receipt Document"
+                        style={{ width: "100%", height: "100%", maxHeight: "400px", objectFit: "contain" }}
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <div style={{ width: "100%", minHeight: "160px", border: "1.5px dashed var(--r-border-mid)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <p style={{ color: "var(--r-text-muted)", fontStyle: "italic", fontSize: "14px", margin: 0 }}>No BIR Receipt uploaded.</p>
+                  </div>
                 )}
               </div>
             </div>
@@ -333,10 +396,10 @@ export default function BirCertificationPage() {
           <div className="about-editor-card" style={{ padding: "48px 24px", textAlign: "center" }}>
             <div style={{ fontSize: "48px", marginBottom: "16px" }}>📄</div>
             <h3 style={{ fontSize: "20px", fontWeight: 700, color: "var(--p-navy)", marginBottom: "10px" }}>
-              No BIR Certification record configured
+              No BIR Certification documents uploaded
             </h3>
             <p style={{ fontSize: "14px", color: "var(--r-text-muted)", marginBottom: "24px", maxWidth: "460px", marginLeft: "auto", marginRight: "auto" }}>
-              Add the official tax exemption details to sync and display them on the website landing page.
+              Upload the official BIR tax exemption certificate and official receipt (PDF or Photo).
             </p>
             <button
               type="button"
@@ -344,7 +407,7 @@ export default function BirCertificationPage() {
               className="about-btn about-btn--primary"
               style={{ height: "42px", fontSize: "14px", padding: "0 20px", marginLeft: "auto", marginRight: "auto" }}
             >
-              <Plus size={18} strokeWidth={2.5} /> Add BIR Certification
+              <Plus size={18} strokeWidth={2.5} /> Upload BIR Documents
             </button>
           </div>
         )}
@@ -368,22 +431,18 @@ export default function BirCertificationPage() {
         onClose={() => {
           setModalMode(null);
         }}
-        title={modalMode === "create" ? "Add BIR Certification" : "Edit BIR Certification"}
+        title={modalMode === "create" ? "Upload BIR Documents" : "Edit BIR Documents"}
         subtitle={modalMode === "create" 
-          ? "Fill in the details below to configure the tax exemption record." 
-          : "Fill in the details below to update the tax exemption record."
+          ? "Upload the BIR certificate and BIR official receipt files below (PDF or Photo)." 
+          : "Update the BIR certificate and BIR official receipt files below (PDF or Photo)."
         }
         contentPadding="0px"
         scrollable={false}
       >
         <BirCertificationForm
           initialValues={record && modalMode === "edit" ? {
-            registrationName: record.registrationName,
-            tinNumber: record.tinNumber,
-            certificationNumber: record.certificationNumber,
-            exemptionCategory: record.exemptionCategory,
-            dateOfIssuance: record.dateOfIssuance,
             imageUrl: record.imageUrl || undefined,
+            receiptUrl: record.receiptUrl || undefined,
           } : undefined}
           onSubmit={handleFormSubmit}
           onCancel={() => {

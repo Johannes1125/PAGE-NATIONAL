@@ -48,6 +48,7 @@ export default function ChapterTable({
   onEdit,
   onTogglePublish,
   onDelete,
+  onViewOfficers,
 }: ChapterTableProps) {
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);

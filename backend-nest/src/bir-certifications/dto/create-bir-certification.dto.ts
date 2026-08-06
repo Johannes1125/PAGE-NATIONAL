@@ -1,23 +1,31 @@
-import { IsString, IsNotEmpty, IsDateString } from 'class-validator';
+import { IsString, IsOptional } from 'class-validator';
 
 export class CreateBirCertificationDto {
   @IsString()
-  @IsNotEmpty({ message: 'Registration Name is required.' })
-  registrationName: string;
+  @IsOptional()
+  registrationName?: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'TIN Number is required.' })
-  tinNumber: string;
+  @IsOptional()
+  tinNumber?: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'Certification Number is required.' })
-  certificationNumber: string;
+  @IsOptional()
+  certificationNumber?: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'Exemption Category is required.' })
-  exemptionCategory: string;
+  @IsOptional()
+  exemptionCategory?: string;
 
-  @IsDateString({}, { message: 'Date of Issuance must be a valid ISO date string.' })
-  @IsNotEmpty({ message: 'Date of Issuance is required.' })
-  dateOfIssuance: string;
+  @IsString()
+  @IsOptional()
+  dateOfIssuance?: string;
+
+  @IsString()
+  @IsOptional()
+  imageUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  receiptUrl?: string;
 }

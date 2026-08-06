@@ -46,10 +46,10 @@ export class SecRegistrationsService {
   async create(dto: CreateSecRegistrationDto, user: { id: bigint }, ipAddress: string) {
     const record = await this.prisma.secRegistration.create({
       data: {
-        registrationName: dto.registrationName,
-        registrationNumber: dto.registrationNumber,
-        dateOfIncorporation: new Date(dto.dateOfIncorporation),
-        exemptionCategory: dto.exemptionCategory,
+        registrationName: dto.registrationName || 'Philippine Association for Graduate Education, Inc.',
+        registrationNumber: dto.registrationNumber || 'SEC-REG',
+        dateOfIncorporation: dto.dateOfIncorporation ? new Date(dto.dateOfIncorporation) : new Date(),
+        exemptionCategory: dto.exemptionCategory || 'Non-Stock Corporation',
         imageUrl: dto.imageUrl || null,
       },
     });

@@ -234,35 +234,7 @@ export default function SecRegistrationPage() {
                       >
                         <FileText size={18} style={{ color: "#081734" }} />
                         <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
-                          {record.registrationName} (No. {record.registrationNumber})
-                        </span>
-                      </a>
-                    ))}
-
-                    {documents.map((doc: any) => (
-                      <a
-                        key={`doc-${doc.id}`}
-                        href={doc.file_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "10px",
-                          padding: "12px 16px",
-                          background: "#f8fafc",
-                          border: "1px solid #e2e8f0",
-                          borderRadius: "10px",
-                          color: "#081734",
-                          textDecoration: "none",
-                          fontSize: "13px",
-                          fontWeight: 600,
-                          transition: "all 0.2s ease"
-                        }}
-                      >
-                        <FileText size={18} style={{ color: "#081734" }} />
-                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
-                          {doc.file_name}
+                          {record.registrationName || "SEC Certificate Document"}
                         </span>
                       </a>
                     ))}

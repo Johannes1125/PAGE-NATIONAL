@@ -255,76 +255,65 @@ export default function SecRegistrationsPage() {
               </div>
             </div>
 
-            {/* Grid Layout */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", alignItems: "start" }}>
-              
-              {/* Left Column: Details */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-                <div>
-                  <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Registration Name</span>
-                  <p style={{ fontSize: "15px", fontWeight: 600, color: "var(--p-navy)", margin: "4px 0 0" }}>{record.registrationName}</p>
-                </div>
-                <div>
-                  <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Registration Number</span>
-                  <p style={{ fontSize: "15px", fontWeight: 600, color: "var(--p-navy)", margin: "4px 0 0", fontFamily: "monospace" }}>{record.registrationNumber}</p>
-                </div>
-                <div>
-                  <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Date of Incorporation</span>
-                  <p style={{ fontSize: "15px", fontWeight: 600, color: "var(--p-navy)", margin: "4px 0 0" }}>{formatDate(record.dateOfIncorporation)}</p>
-                </div>
-                <div>
-                  <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Corporation Type</span>
-                  <p style={{ fontSize: "14px", fontWeight: 500, color: "var(--r-text-mid)", margin: "4px 0 0" }}>{record.exemptionCategory}</p>
-                </div>
-              </div>
-
-              {/* Right Column: Certificate Preview */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
-                <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px", alignSelf: "flex-start" }}>Certificate Document</span>
-                {record.imageUrl ? (
-                  <div style={{
-                    width: "100%",
-                    maxWidth: "260px",
-                    height: "320px",
-                    borderRadius: "10px",
-                    border: "1px solid var(--r-border-mid)",
-                    background: "#f8fafc",
-                    overflow: "hidden",
-                    boxShadow: "0 6px 16px rgba(0,0,0,0.04)",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "14px",
-                    position: "relative"
-                  }}>
-                    {isPdf(record.imageUrl) ? (
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
-                        <FileText size={52} style={{ color: "var(--p-rose)" }} />
-                        <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--p-navy)" }}>PDF Certificate</span>
-                        <a
-                          href={record.imageUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="about-btn about-btn--secondary"
-                          style={{ height: "36px", padding: "0 14px", fontSize: "12px" }}
-                        >
-                          View File
-                        </a>
-                      </div>
-                    ) : (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
-                        src={record.imageUrl}
-                        alt="SEC Certificate Document"
-                        style={{ width: "100%", height: "100%", objectFit: "contain" }}
-                      />
-                    )}
-                  </div>
-                ) : (
-                  <p style={{ color: "var(--r-text-muted)", fontStyle: "italic", fontSize: "14px" }}>No document uploaded.</p>
+            {/* Certificate Preview Display */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "14px", alignItems: "center", width: "100%" }}>
+              <div style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Official SEC Certificate Document</span>
+                {record.imageUrl && (
+                  <a
+                    href={record.imageUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="about-btn about-btn--secondary"
+                    style={{ height: "32px", padding: "0 12px", fontSize: "12px" }}
+                  >
+                    Open Full Document ↗
+                  </a>
                 )}
               </div>
+              {record.imageUrl ? (
+                <div style={{
+                  width: "100%",
+                  minHeight: "360px",
+                  maxHeight: "520px",
+                  borderRadius: "12px",
+                  border: "1.5px solid var(--r-border-mid)",
+                  background: "#f8fafc",
+                  overflow: "hidden",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.03)",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "16px",
+                  position: "relative"
+                }}>
+                  {isPdf(record.imageUrl) ? (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "14px" }}>
+                      <FileText size={64} style={{ color: "var(--p-rose)" }} />
+                      <span style={{ fontSize: "15px", fontWeight: 700, color: "var(--p-navy)" }}>SEC Certificate PDF Document</span>
+                      <a
+                        href={record.imageUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="about-btn about-btn--primary"
+                        style={{ height: "40px", padding: "0 18px", fontSize: "13px" }}
+                      >
+                        View & Download PDF
+                      </a>
+                    </div>
+                  ) : (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={record.imageUrl}
+                      alt="SEC Certificate Document"
+                      style={{ width: "100%", height: "100%", maxHeight: "480px", objectFit: "contain", borderRadius: "8px" }}
+                    />
+                  )}
+                </div>
+              ) : (
+                <p style={{ color: "var(--r-text-muted)", fontStyle: "italic", fontSize: "14px", padding: "30px 0" }}>No document uploaded.</p>
+              )}
             </div>
           </div>
         ) : (
@@ -365,10 +354,6 @@ export default function SecRegistrationsPage() {
       >
         <SecRegistrationForm
           initialValues={record && modalMode === "edit" ? {
-            registrationName: record.registrationName,
-            registrationNumber: record.registrationNumber,
-            dateOfIncorporation: record.dateOfIncorporation,
-            exemptionCategory: record.exemptionCategory,
             imageUrl: record.imageUrl || undefined,
           } : undefined}
           onSubmit={handleFormSubmit}

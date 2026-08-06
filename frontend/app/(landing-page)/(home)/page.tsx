@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { api } from "../../lib/api-client";
 import "./home-page.css";
 
 // ── Icons ─────────────────────────────────────────────────────────
@@ -409,6 +410,41 @@ function MembershipSection() {
 }
 
 function NewsEventsSection() {
+  const [posts, setPosts] = useState<any[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    async function loadData() {
+      try {
+        const [postsRes, eventsRes] = await Promise.allSettled([
+          api.get<{ success: boolean; posts: any[] }>("/public/posts"),
+          api.get<{ success: boolean; data?: any[]; activities?: any[] }>("/activities")
+        ]);
+
+        if (mounted) {
+          if (postsRes.status === "fulfilled" && postsRes.value?.success && Array.isArray(postsRes.value.posts)) {
+            setPosts(postsRes.value.posts.slice(0, 3));
+          }
+
+          if (eventsRes.status === "fulfilled" && eventsRes.value) {
+            const list = eventsRes.value.data || eventsRes.value.activities || [];
+            if (Array.isArray(list)) {
+              setEvents(list.slice(0, 3));
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error loading news/events for landing page:", err);
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    }
+    loadData();
+    return () => { mounted = false; };
+  }, []);
+
   return (
     <section className="news-events-section">
       <div className="news-events-container">
@@ -422,54 +458,38 @@ function NewsEventsSection() {
           </div>
 
           <div className="news-list">
-            <article className="news-item">
-              <div className="news-image">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/PAGE-favicon.png" alt="PAGE Conference" />
+            {isLoading ? (
+              <div style={{ padding: "20px 0", color: "var(--r-text-muted)", fontSize: "14px" }}>
+                Loading news & announcements...
               </div>
-              <div className="news-content">
-                <h4 className="news-title">PAGE National Annual Conference 2025</h4>
-                <p className="news-excerpt">
-                  Call for papers is now open! Join us this November 6–7, 2025 at De La Salle University, Manila.
-                </p>
-                <time className="news-date">May 20, 2025</time>
+            ) : posts.length > 0 ? (
+              posts.map((post) => {
+                const dateStr = post.published_at || post.created_at;
+                const formattedDate = dateStr
+                  ? new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                  : "";
+                const img = post.featured_image || post.attachments?.[0]?.file_url || "/PAGE-favicon.png";
+                return (
+                  <article key={post.id} className="news-item">
+                    <div className="news-image">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={img} alt={post.title} />
+                    </div>
+                    <div className="news-content">
+                      <h4 className="news-title">{post.title}</h4>
+                      <p className="news-excerpt">
+                        {post.summary || post.content?.replace(/<[^>]+>/g, "").slice(0, 120)}...
+                      </p>
+                      {formattedDate && <time className="news-date">{formattedDate}</time>}
+                    </div>
+                  </article>
+                );
+              })
+            ) : (
+              <div style={{ padding: "24px 0", color: "var(--r-text-muted)", fontSize: "14px", fontStyle: "italic" }}>
+                No news or announcements published at this time.
               </div>
-            </article>
-
-            <article className="news-item">
-              <div className="news-image news-image-placeholder">
-                <svg viewBox="0 0 100 80">
-                  <rect width="100" height="80" fill="#1b2a4a" />
-                  <rect x="20" y="45" width="60" height="15" fill="#3a4f7c" rx="3" />
-                  <circle cx="35" cy="35" r="8" fill="#627da9" />
-                  <circle cx="50" cy="30" r="8" fill="#627da9" />
-                  <circle cx="65" cy="35" r="8" fill="#627da9" />
-                </svg>
-              </div>
-              <div className="news-content">
-                <h4 className="news-title">CHED, PAGE Push for Stronger Graduate Education</h4>
-                <p className="news-excerpt">
-                  Highlights from the recent CHED-PAGE dialogue on policy reforms and graduate education.
-                </p>
-                <time className="news-date">April 30, 2025</time>
-              </div>
-            </article>
-
-            <article className="news-item">
-              <div className="news-image news-image-shield">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                  <path d="M9 12l2 2 4-4" />
-                </svg>
-              </div>
-              <div className="news-content">
-                <h4 className="news-title">PAGE Statement on Academic Integrity</h4>
-                <p className="news-excerpt">
-                  Upholding integrity and ethics in graduate education and research.
-                </p>
-                <time className="news-date">April 15, 2025</time>
-              </div>
-            </article>
+            )}
           </div>
         </div>
 
@@ -483,44 +503,38 @@ function NewsEventsSection() {
           </div>
 
           <div className="events-list">
-            <article className="event-item">
-              <div className="event-date">
-                <span className="event-month">JUN</span>
-                <span className="event-day">20</span>
-                <span className="event-year">2025</span>
+            {isLoading ? (
+              <div style={{ padding: "20px 0", color: "var(--r-text-muted)", fontSize: "14px" }}>
+                Loading upcoming events...
               </div>
-              <div className="event-content">
-                <h4 className="event-title">Webinar: Outcome-Based Education in Graduate Programs</h4>
-                <p className="event-meta">1:00 PM – 4:00 PM • Online</p>
+            ) : events.length > 0 ? (
+              events.map((evt) => {
+                const startDate = evt.start_date || evt.event_date ? new Date(evt.start_date || evt.event_date) : new Date();
+                const month = startDate.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
+                const day = startDate.getDate().toString().padStart(2, "0");
+                const year = startDate.getFullYear();
+                return (
+                  <article key={evt.id} className="event-item">
+                    <div className="event-date">
+                      <span className="event-month">{month}</span>
+                      <span className="event-day">{day}</span>
+                      <span className="event-year">{year}</span>
+                    </div>
+                    <div className="event-content">
+                      <h4 className="event-title">{evt.title}</h4>
+                      <p className="event-meta">
+                        {evt.venue || evt.location || "Online"}
+                      </p>
+                    </div>
+                    <CalendarIcon />
+                  </article>
+                );
+              })
+            ) : (
+              <div style={{ padding: "24px 0", color: "var(--r-text-muted)", fontSize: "14px", fontStyle: "italic" }}>
+                No upcoming events scheduled at this time.
               </div>
-              <CalendarIcon />
-            </article>
-
-            <article className="event-item">
-              <div className="event-date">
-                <span className="event-month">AUG</span>
-                <span className="event-day">15</span>
-                <span className="event-year">2025</span>
-              </div>
-              <div className="event-content">
-                <h4 className="event-title">PAGE Midyear General Assembly</h4>
-                <p className="event-meta">9:00 AM – 1:00 PM • Online</p>
-              </div>
-              <CalendarIcon />
-            </article>
-
-            <article className="event-item">
-              <div className="event-date">
-                <span className="event-month">NOV</span>
-                <span className="event-day">06</span>
-                <span className="event-year">2025</span>
-              </div>
-              <div className="event-content">
-                <h4 className="event-title">PAGE National Annual Conference 2025</h4>
-                <p className="event-meta">Nov 6 – 7, 2025 • De La Salle University, Manila</p>
-              </div>
-              <CalendarIcon />
-            </article>
+            )}
           </div>
         </div>
       </div>
