@@ -195,33 +195,25 @@ const SUBJECT_OPTIONS = [
 // ── Navbar ─────────────────────────────────────────────────────────────────
 
 
-// ── Contact Page Hero Banner ───────────────────────────────────────────────
+// ── Contact Page Hero Banner (CBL Hero Header Design) ─────────────────────
 function ContactHero() {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => { const t = setTimeout(() => setVisible(true), 80); return () => clearTimeout(t); }, []);
-
   return (
-    <section className="contact-hero">
-      <div className="contact-hero__bg-base" />
-      <div className="contact-hero__spiral-1" />
-      <div className="contact-hero__spiral-2" />
-      <div className="contact-hero__nucleus" />
-      <div className="contact-hero__rule-left" />
-      <div className="contact-hero__rule-right" />
-
-      <div className={`contact-hero__content${visible ? " contact-hero__content--visible" : ""}`}>
-        <div className="contact-hero__eyebrow">
-          <span className="contact-hero__eyebrow-dot" />
-          We're here to help
-          <span className="contact-hero__eyebrow-dot" />
+    <section className="cbl-hero">
+      <div className="cbl-hero-container">
+        <div className="cbl-breadcrumb">
+          <Link href="/" className="cbl-breadcrumb-link">Home</Link>
+          <span className="cbl-breadcrumb-sep">/</span>
+          <span className="cbl-breadcrumb-current">Contact Us</span>
         </div>
-        <h1 className="contact-hero__title">
-          Get in <em>Touch</em><br />with PAGE
-        </h1>
-        <p className="contact-hero__subtitle">
-          Have questions about our programs, membership, or research initiatives?
-          We'd love to hear from the graduate education community.
-        </p>
+
+        <div className="cbl-hero-left">
+          <h1 className="cbl-hero-title">Contact Us</h1>
+          <div className="cbl-gold-line" />
+          <p className="cbl-hero-subtitle">
+            Have questions about our programs, membership, or research initiatives?
+            We'd love to hear from the graduate education community.
+          </p>
+        </div>
       </div>
     </section>
   );
@@ -473,85 +465,7 @@ function ContactSection() {
   );
 }
 
-// ── Footer (reused from home page) ────────────────────────────────────────
-function Footer() {
-  return (
-    <footer className="footer">
-      <div className="footer__inner">
-        <div className="footer__columns">
-          <div>
-            <div className="footer__brand-logo">
-              <div className="navbar__logo-mark">
-            <Image src="/PAGE.jpg" width={50} height={50} alt="PAGE Logo"
-              onError={(e) => {
-                const t = e.currentTarget as HTMLImageElement;
-                t.style.display = "none";
-                const fb = t.nextElementSibling as HTMLElement;
-                if (fb) fb.style.display = "flex";
-              }}
-            />
-          </div>
-              <div>
-                <div className="footer__logo-name">PAGE</div>
-                <div className="footer__logo-sub">An academic towards to excellence</div>
-              </div>
-            </div>
-            <p className="footer__brand-desc">
-              Philippine Association for Graduate Education — advancing excellence
-              through collaboration and research.
-            </p>
-            <div className="footer__socials">
-              {[<FacebookIcon key="fb" />, <InstagramIcon key="ig" />, <MailIconSm key="mail" />].map((icon, i) => (
-                <button key={i} className="footer__social-btn">{icon}</button>
-              ))}
-            </div>
-          </div>
 
-          <div>
-            <h4 className="footer__col-title">Quick Links</h4>
-            <ul className="footer__links">
-              {FOOTER_QUICK_LINKS.map(l => (
-                <li key={l}><a href="#" className="footer__link">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="footer__col-title">Resources</h4>
-            <ul className="footer__links">
-              {FOOTER_RESOURCES.map(l => (
-                <li key={l}><a href="#" className="footer__link">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="footer__col-title">Contact</h4>
-            <div className="footer__contact-list">
-              {FOOTER_CONTACT_ITEMS.map(item => (
-                <div key={item.text} className="footer__contact-item">
-                  <span className="footer__contact-icon">{item.icon}</span>
-                  <span className="footer__contact-text">{item.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="footer__bottom">
-          <p className="footer__copyright">
-            © 2026 Philippine Association for Graduate Education. All rights reserved.
-          </p>
-          <div className="footer__legal">
-            {["Privacy Policy", "Terms of Use"].map(l => (
-              <a key={l} href="#" className="footer__legal-link">{l}</a>
-            ))}
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
 
 // ── Main Page ──────────────────────────────────────────────────────────────
 export default function ContactPage() {
@@ -570,7 +484,6 @@ export default function ContactPage() {
         <ContactHero />
         <ContactSection />
       </main>
-      <Footer />
     </>
   );
 }

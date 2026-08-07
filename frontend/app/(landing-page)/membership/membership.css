@@ -1,317 +1,423 @@
-/* =========================================
-   1. VARIABLES & ACADEMIC COLOR SYSTEM
-   ========================================= */
+/* =========================================================
+   PAGE Membership — Credentialing Design System
+   ---------------------------------------------------------
+   Concept: Academic dossier / degree-conferral experience
+   Signature motif: Wax Seal Medallion (3 controlled uses)
+   Palette: Navy · Gold · Parchment · Ivory · Seal-Crimson · Slate
+   ========================================================= */
+
+/* ─────────────────────────────────────────────────────────
+   1. DESIGN TOKENS (About PAGE Colorway)
+   ───────────────────────────────────────────────────────── */
 .membership-page {
-  --page-navy: var(--ink);
-  --page-blue: var(--accent);
-  --page-accent: #b8860b;
-  --page-bg: var(--parchment);
-  --page-surface: var(--white);
-  --page-border: var(--rule);
-  --page-text: var(--ink);
-  --page-text-muted: var(--ink-60);
-  --font-serif: var(--serif);
-  --font-sans: var(--sans);
-  --t-fast: 0.14s ease;
+  /* Core palette - matching About PAGE */
+  --mk-navy:        #081734;
+  --mk-navy-dark:   #051026;
+  --mk-navy-light:  #1b2a4a;
+  --mk-navy-accent: #0f275c;
+  --mk-gold:        #d4a053;
+  --mk-gold-dark:   #b8860b;
+  --mk-gold-subtle: rgba(212, 160, 83, 0.15);
+  
+  --mk-bg-light:    #f8fafc;
+  --mk-bg-white:    #ffffff;
+  --mk-text-primary: #081734;
+  --mk-text-secondary: #4a5568;
+  --mk-text-muted:  #718096;
+  --mk-border:      #e2e8f0;
 
-  background-color: var(--page-bg);
-  color: var(--page-text);
-  font-family: var(--font-sans);
-  min-height: 100vh;
+  /* Typography */
+  --mk-serif: var(--font-poppins), 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mk-sans:  var(--font-poppins), 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Motion */
+  --mk-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  background:  var(--mk-bg-white);
+  color:       var(--mk-text-secondary);
+  font-family: var(--mk-sans);
+  min-height:  100vh;
 }
 
-/* =========================================
-   2. HERO BANNER
-   ========================================= */
+/* ─────────────────────────────────────────────────────────
+   2. HERO BANNER (Matching About Page with Background Image)
+   ───────────────────────────────────────────────────────── */
 .membership-hero {
+  background: #ffffff;
+  padding: 125px 0 75px;
   position: relative;
-  padding: 120px 20px 80px;
-  text-align: center;
-  background: linear-gradient(135deg, #143152 0%, #1e538e 100%);
-  color: #ffffff;
   overflow: hidden;
-  border-bottom: 3px solid var(--page-accent);
+  border-bottom: 1px solid #cbd5e1;
+  box-shadow: 0 2px 10px rgba(8, 23, 52, 0.03);
 }
 
-.membership-hero__pattern {
+.membership-hero-bg-container {
   position: absolute;
   top: 0;
-  left: 0;
   right: 0;
   bottom: 0;
-  opacity: 0.04;
-  background-image: radial-gradient(circle, #ffffff 2px, transparent 2px);
-  background-size: 32px 32px;
+  width: 65%;
+  z-index: 1;
   pointer-events: none;
 }
 
-.membership-hero__breadcrumbs {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  font-size: 13px;
-  margin-bottom: 24px;
-  opacity: 0.8;
-  font-weight: 500;
+.membership-hero-bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center right;
+  filter: grayscale(100%) contrast(1.1) brightness(1.08);
+  opacity: 0.38;
 }
 
-.membership-hero__breadcrumb-link {
-  color: #ffffff;
-  text-decoration: none;
-  transition: opacity 0.2s;
+.membership-hero-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0.82) 20%, rgba(255, 255, 255, 0.15) 60%, rgba(255, 255, 255, 0.05) 100%);
 }
 
-.membership-hero__breadcrumb-link:hover {
-  text-decoration: underline;
-  opacity: 1;
+.membership-hero .membership-container {
+  position: relative;
+  z-index: 2;
 }
 
-.membership-hero__breadcrumb-sep {
-  opacity: 0.5;
+/* Decorative watermark - hidden when using background image */
+.membership-hero__watermark {
+  display: none;
 }
 
-.membership-hero__breadcrumb-current {
-  color: #ebd7b5;
-}
-
+/* H1 — Large and bold */
 .membership-hero h1 {
-  font-family: var(--font-serif);
-  font-size: clamp(2.5rem, 5vw, 4rem);
-  font-weight: 900;
-  line-height: 1.15;
-  margin-bottom: 20px;
-  letter-spacing: -0.5px;
+  font-family: var(--mk-serif);
+  font-size: clamp(36px, 4vw, 48px);
+  font-weight: 800;
+  line-height: 1.18;
+  margin-bottom: 0;
+  letter-spacing: -0.6px;
+  color: var(--mk-navy);
+}
+
+/* Gold underline */
+.membership-hero__gold-line {
+  width: 70px;
+  height: 3.5px;
+  background: var(--mk-gold);
+  margin: 22px 0 24px;
+  border-radius: 2px;
 }
 
 .membership-hero p {
-  max-width: 680px;
-  margin: 0 auto 36px;
-  font-size: clamp(1.1rem, 2vw, 1.25rem);
-  line-height: 1.6;
-  opacity: 0.9;
-  font-weight: 300;
+  max-width: 640px;
+  margin: 0 0 34px;
+  font-size: 17.5px;
+  line-height: 1.68;
+  color: var(--mk-text-secondary);
+  font-weight: 400;
 }
 
+/* Hero CTA — Well-proportioned CTA */
 .membership-hero__cta {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background-color: #ebd7b5;
-  color: var(--page-navy);
-  padding: 14px 32px;
-  border-radius: 8px;
-  font-size: 15px;
+  gap: 12px;
+  background: var(--mk-gold);
+  color: #fff;
+  padding: 17px 40px;
+  border-radius: 9px;
+  border: 2px solid var(--mk-gold);
+  font-size: 16.5px;
   font-weight: 700;
+  letter-spacing: 0.35px;
   text-decoration: none;
-  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.24s var(--mk-ease);
+  box-shadow: 0 5px 20px rgba(212, 160, 83, 0.35);
 }
-
 .membership-hero__cta:hover {
-  background-color: #f7e8cf;
+  background: var(--mk-gold-dark);
+  border-color: var(--mk-gold-dark);
+  color: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 26px rgba(212, 160, 83, 0.45);
+}
+.membership-hero__cta:focus-visible {
+  outline: 2px solid var(--mk-gold);
+  outline-offset: 3px;
 }
 
 .membership-hero__cta svg {
-  transition: transform 0.2s;
+  transition: transform 0.2s ease;
 }
 
 .membership-hero__cta:hover svg {
-  transform: translateX(4px);
+  transform: translateX(3px);
 }
 
-/* =========================================
+@media (max-width: 768px) {
+  .membership-hero {
+    text-align: center;
+    padding: 100px 0 60px;
+  }
+  
+  .membership-hero-bg-container {
+    width: 100%;
+  }
+  
+  .membership-hero__gold-line {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .membership-hero p {
+    margin: 0 auto 32px;
+    font-size: 16px;
+  }
+  .membership-hero__cta {
+    padding: 15px 32px;
+    font-size: 15.5px;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────
    3. LAYOUT & SECTIONS
-   ========================================= */
+   ───────────────────────────────────────────────────────── */
 .membership-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 28px;
 }
 
 .membership-section {
-  padding: 80px 0;
+  padding: 88px 0;
+  background-color: #ffffff;
+  position: relative;
+  z-index: 1;
 }
 
 .membership-section--alt {
-  background-color: #f8fafc;
-  border-top: 1px solid var(--page-border);
-  border-bottom: 1px solid var(--page-border);
+  background-color: var(--mk-bg-light);
+  border-top: 1px solid var(--mk-border);
+  border-bottom: 1px solid var(--mk-border);
 }
 
 .membership-section-header {
   text-align: center;
-  margin-bottom: 48px;
+  margin-bottom: 50px;
 }
 
-.membership-section-eyebrow {
-  color: var(--page-accent);
-  font-size: 13px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  display: block;
-  margin-bottom: 12px;
-}
-
+/* Section title */
 .membership-section-title {
-  font-family: var(--font-serif);
-  font-size: clamp(1.8rem, 3.5vw, 2.5rem);
-  color: var(--page-navy);
+  font-family: var(--mk-serif);
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  color: var(--mk-navy);
   font-weight: 700;
-  margin-bottom: 16px;
+  margin-bottom: 0;
+  letter-spacing: -0.3px;
+  text-transform: uppercase;
+  line-height: 1.2;
 }
 
-.membership-section-desc {
-  color: var(--page-text-muted);
-  max-width: 600px;
-  margin: 0 auto;
-  font-size: 15px;
-  line-height: 1.5;
-}
+/* ─────────────────────────────────────────────────────────
+   4. CATEGORY CARD GRID — Enhanced horizontal layout
+   ───────────────────────────────────────────────────────── */
 
-/* =========================================
-   4. CATEGORY CARDS
-   ========================================= */
 .membership-categories-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 24px;
+  margin-bottom: 24px;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 1100px) {
   .membership-categories-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
+@media (max-width: 640px) {
+  .membership-categories-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* ── Base card (clean static card layout, strictly no hover effects) ── */
 .membership-category-card {
-  background-color: var(--page-surface);
-  border: 1px solid var(--page-border);
-  border-top: 4px solid var(--page-border);
-  border-radius: 12px;
-  padding: 32px 24px;
+  background: #fff;
+  border: 1px solid var(--mk-border);
+  border-radius: 16px;
+  padding: 28px 24px;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  justify-content: space-between;
   height: 100%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(8, 23, 52, 0.04);
 }
 
-.membership-category-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px -8px rgba(20, 49, 82, 0.1);
+/* Top accent line - always visible */
+.membership-category-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--mk-navy) 0%, var(--mk-navy-light) 100%);
 }
 
-.membership-category-card--life {
-  border-top-color: #b8860b;
+/* Header layout inside card */
+.membership-category-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
 }
 
-.membership-category-card--institutional {
-  border-top-color: #1e538e;
+/* Category icons - static */
+.membership-category-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--mk-navy);
+  color: #fff;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(8, 23, 52, 0.12);
 }
 
-.membership-category-card--associate {
-  border-top-color: #0d8a57;
+.membership-category-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
 }
 
-.membership-category-card--regular {
-  border-top-color: #64748b;
-}
-
+/* Card title */
 .membership-category-card__name {
-  font-family: var(--font-serif);
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--page-navy);
-  margin-bottom: 12px;
+  font-family: var(--mk-serif);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--mk-navy);
+  margin-bottom: 0;
+  line-height: 1.25;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
+/* Card meta */
+.membership-category-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--mk-text-muted);
+  font-size: 12px;
+}
+
+.membership-category-card__meta svg {
+  color: var(--mk-navy);
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+/* Description text */
 .membership-category-card__description {
-  font-size: 14px;
-  color: var(--page-text-muted);
+  font-size: 13.5px;
+  color: var(--mk-text-secondary);
   line-height: 1.6;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   flex-grow: 1;
 }
 
-.membership-category-card__price-box {
-  border-top: 1px dashed var(--page-border);
-  border-bottom: 1px dashed var(--page-border);
-  padding: 16px 0;
-  margin-bottom: 24px;
+/* Price section at bottom of card */
+.membership-category-price {
+  flex-shrink: 0;
+  text-align: left;
+  padding-top: 16px;
+  border-top: 1px solid var(--mk-border);
+  margin-top: auto;
+  position: relative;
 }
 
 .membership-category-card__price-label {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
+  color: var(--mk-text-muted);
   text-transform: uppercase;
-  color: var(--page-text-muted);
-  display: block;
-  margin-bottom: 4px;
   letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  display: block;
 }
 
 .membership-category-card__price-value {
-  font-family: var(--font-serif);
-  font-size: 24px;
-  font-weight: 900;
-  color: var(--page-navy);
+  font-family: var(--mk-serif);
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--mk-navy);
+  line-height: 1.2;
+  letter-spacing: -0.3px;
+  display: block;
+  white-space: nowrap;
 }
 
-.membership-category-card__link {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--page-blue);
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: gap 0.2s;
-  cursor: pointer;
-  background: transparent;
-  border: none;
-  padding: 0;
-  text-align: left;
+/* Note below categories */
+.membership-note {
+  text-align: center;
+  font-size: 12px;
+  color: var(--mk-text-muted);
+  font-style: italic;
+  margin-top: 12px;
+  padding: 12px 20px;
+  background: rgba(8, 23, 52, 0.02);
+  border-radius: 8px;
+  border: 1px dashed var(--mk-border);
 }
 
-.membership-category-card__link:hover {
-  color: var(--page-accent);
-  gap: 10px;
-}
-
-/* =========================================
-   5. BENEFITS SECTION
-   ========================================= */
+/* ─────────────────────────────────────────────────────────
+   5. BENEFITS SECTION — 6-column grid
+   ───────────────────────────────────────────────────────── */
 .membership-benefits-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 32px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 20px;
 }
-
+@media (max-width: 1200px) {
+  .membership-benefits-grid { grid-template-columns: repeat(3, 1fr); }
+}
 @media (max-width: 768px) {
-  .membership-benefits-grid {
-    grid-template-columns: 1fr;
-  }
+  .membership-benefits-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .membership-benefits-grid { grid-template-columns: 1fr; }
 }
 
 .membership-benefit-item {
   display: flex;
-  gap: 20px;
-  background-color: var(--page-surface);
-  padding: 24px;
-  border-radius: 10px;
-  border: 1px solid #f1f5f9;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  background: #fff;
+  padding: 24px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--mk-border);
+  transition: box-shadow 0.22s var(--mk-ease), transform 0.22s var(--mk-ease);
+}
+.membership-benefit-item:hover {
+  box-shadow: 0 6px 16px -6px rgba(8, 23, 52, 0.1);
+  transform: translateY(-2px);
 }
 
 .membership-benefit-item__icon-wrap {
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
-  background-color: rgba(30, 83, 142, 0.08);
-  color: var(--page-blue);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: transparent;
+  border: 2px solid var(--mk-gold);
+  color: var(--mk-gold);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -319,156 +425,207 @@
 }
 
 .membership-benefit-item__title {
-  font-size: 16px;
+  font-family: var(--mk-serif);
+  font-size: 13px;
   font-weight: 700;
-  color: var(--page-navy);
-  margin-bottom: 6px;
+  color: var(--mk-navy);
+  margin-bottom: 4px;
+  line-height: 1.3;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .membership-benefit-item__desc {
-  font-size: 14px;
-  color: var(--page-text-muted);
+  font-size: 12px;
+  color: var(--mk-text-secondary);
   line-height: 1.5;
 }
 
-/* =========================================
+/* ─────────────────────────────────────────────────────────
    6. TABBED REQUIREMENTS
-   ========================================= */
+   ───────────────────────────────────────────────────────── */
 .membership-tabs {
   display: flex;
   justify-content: center;
-  border-bottom: 2px solid var(--page-border);
-  margin-bottom: 36px;
-  gap: 8px;
+  border-bottom: 1px solid var(--mk-border);
+  margin-bottom: 32px;
+  gap: 0;
   flex-wrap: wrap;
 }
 
 .membership-tab-btn {
   background: none;
   border: none;
-  padding: 12px 24px;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--page-text-muted);
+  border-bottom: 2px solid transparent;
+  padding: 10px 22px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mk-text-secondary);
   cursor: pointer;
   position: relative;
   transition: all 0.2s ease;
   outline: none;
+  margin-bottom: -1px;
+  letter-spacing: 0.2px;
+  font-family: var(--mk-sans);
 }
-
-.membership-tab-btn:hover {
-  color: var(--page-navy);
+.membership-tab-btn:hover { color: var(--mk-navy); }
+.membership-tab-btn:focus-visible {
+  outline: 2px solid var(--mk-gold);
+  outline-offset: 2px;
 }
-
 .membership-tab-btn--active {
-  color: var(--page-blue);
-}
-
-.membership-tab-btn--active::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background-color: var(--page-blue);
-  border-radius: 99px;
-}
-
-.membership-requirements-card {
-  background-color: var(--page-surface);
-  border: 1px solid var(--page-border);
-  border-radius: 16px;
-  padding: 40px;
-  box-shadow: 0 4px 20px rgba(20, 49, 82, 0.03);
-}
-
-.membership-requirements-card__header {
-  margin-bottom: 28px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--page-border);
-}
-
-.membership-requirements-card__title {
-  font-family: var(--font-serif);
-  font-size: 22px;
+  color: var(--mk-navy);
+  border-bottom-color: var(--mk-navy);
   font-weight: 700;
-  color: var(--page-navy);
-  margin-bottom: 6px;
 }
 
-.membership-requirements-card__subtitle {
-  font-size: 14px;
-  color: var(--page-text-muted);
+/* Requirements card — with icon on left and two-column list */
+.membership-requirements-card {
+  background: #fff;
+  border: 1px solid var(--mk-border);
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 4px 20px rgba(8, 23, 52, 0.04);
+}
+@media (max-width: 640px) {
+  .membership-requirements-card { padding: 28px 20px; }
 }
 
-.membership-requirements-list {
+/* Wrapper for icon + content layout */
+.membership-requirements-wrapper {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+}
+
+.membership-requirements-icon {
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mk-navy);
+}
+
+.membership-requirements-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.membership-requirements-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Two-column checklist */
+.membership-requirements-columns {
   display: grid;
-  gap: 16px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 32px;
+  margin-bottom: 24px;
 }
 
 .membership-requirement-item {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   align-items: flex-start;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--mk-border);
 }
 
 .membership-requirement-item svg {
-  color: var(--page-blue);
+  color: var(--mk-gold);
   flex-shrink: 0;
-  margin-top: 3px;
+  margin-top: 2px;
 }
 
 .membership-requirement-item span {
-  font-size: 15px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--mk-text-primary);
+}
+
+/* Note at bottom of requirements */
+.membership-requirements-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  background: rgba(8, 23, 52, 0.03);
+  border-left: 3px solid var(--mk-navy);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--mk-text-secondary);
   line-height: 1.5;
-  color: var(--page-text);
 }
 
-/* ============================================================
-   FOOTER — Light Theme
-   ============================================================ */
+.membership-requirements-note__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--mk-navy);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .membership-requirements-wrapper {
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  .membership-requirements-icon {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .membership-requirements-columns {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────
+   FOOTER — reproduced from landing zone (light theme)
+   ───────────────────────────────────────────────────────── */
 .footer {
-  background: var(--white);
+  background: var(--white, #fff);
   padding: 64px 0 0;
-  border-top: 1px solid var(--rule);
+  border-top: 1px solid var(--rule, rgba(12,26,46,0.12));
 }
-
 .footer__inner {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 48px;
 }
-
 .footer__columns {
   display: grid;
   grid-template-columns: 2.2fr 1fr 1fr 1.4fr;
   gap: 48px;
   padding-bottom: 48px;
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule, rgba(12,26,46,0.12));
 }
-
-/* Brand */
 .footer__brand-logo {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 18px;
 }
-
 .footer__logo-mark {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background-image: url('/PAGE.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
   overflow: hidden;
   flex-shrink: 0;
-  border: 1px solid var(--rule);
+  border: 1px solid var(--rule, rgba(12,26,46,0.12));
 }
-
 .footer__logo-mark img {
   width: 100%;
   height: 100%;
@@ -476,67 +633,35 @@
   border-radius: 50%;
   display: block;
 }
-
 .footer__logo-name {
-  font-family: var(--sans);
+  font-family: var(--mk-sans);
   font-weight: 700;
   font-size: 18px;
-  color: var(--ink);
+  color: var(--ink, #0C1A2E);
   letter-spacing: -0.2px;
 }
-
 .footer__logo-sub {
   font-size: 10.5px;
   font-weight: 400;
-  color: var(--ink-30);
+  color: var(--ink-30, rgba(12,26,46,0.30));
   letter-spacing: 1px;
   text-transform: uppercase;
 }
-
 .footer__brand-desc {
   font-size: 15px;
   font-weight: 300;
-  color: var(--ink-60);
+  color: var(--ink-60, rgba(12,26,46,0.60));
   line-height: 1.7;
   max-width: 300px;
 }
-
-.footer__socials {
-  display: flex;
-  gap: 8px;
-  margin-top: 24px;
-}
-
-.footer__social-btn {
-  width: 34px;
-  height: 34px;
-  background: transparent;
-  border: 1px solid var(--rule);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--ink-30);
-  cursor: pointer;
-  transition: background var(--t-fast), color var(--t-fast), transform var(--t-fast), border-color var(--t-fast);
-}
-
-.footer__social-btn:hover {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: var(--white);
-  transform: translateY(-2px);
-}
-
 .footer__col-title {
   font-size: 12px;
   font-weight: 600;
-  color: var(--ink-30);
+  color: var(--ink-30, rgba(12,26,46,0.30));
   letter-spacing: 2.5px;
   text-transform: uppercase;
   margin: 0 0 20px;
 }
-
 .footer__links {
   display: flex;
   flex-direction: column;
@@ -545,19 +670,14 @@
   padding: 0;
   margin: 0;
 }
-
 .footer__link {
   font-size: 15px;
   font-weight: 400;
-  color: var(--ink-60);
-  transition: color var(--t-fast);
+  color: var(--ink-60, rgba(12,26,46,0.60));
+  transition: color 0.14s ease;
   letter-spacing: 0.1px;
 }
-
-.footer__link:hover {
-  color: var(--ink);
-}
-
+.footer__link:hover { color: var(--ink, #0C1A2E); }
 .footer__contact-list {
   display: flex;
   flex-direction: column;
@@ -566,28 +686,23 @@
   padding: 0;
   margin: 0;
 }
-
 .footer__contact-item {
   display: flex;
   align-items: flex-start;
   gap: 10px;
 }
-
 .footer__contact-icon {
-  color: var(--accent);
+  color: var(--mk-gold);
   margin-top: 2px;
   flex-shrink: 0;
   opacity: 0.7;
 }
-
 .footer__contact-text {
   font-size: 15px;
   font-weight: 400;
-  color: var(--ink-60);
+  color: var(--ink-60, rgba(12,26,46,0.60));
   line-height: 1.5;
 }
-
-/* Bottom bar */
 .footer__bottom {
   padding: 18px 0;
   display: flex;
@@ -596,14 +711,12 @@
   flex-wrap: wrap;
   gap: 12px;
 }
-
 .footer__copyright {
   font-size: 13px;
   font-weight: 300;
-  color: var(--ink-30);
+  color: var(--ink-30, rgba(12,26,46,0.30));
   letter-spacing: 0.2px;
 }
-
 .footer__legal {
   display: flex;
   gap: 24px;
@@ -611,37 +724,22 @@
   padding: 0;
   margin: 0;
 }
-
 .footer__legal-link {
   font-size: 13px;
   font-weight: 400;
-  color: var(--ink-30);
-  transition: color var(--t-fast);
+  color: var(--ink-30, rgba(12,26,46,0.30));
+  transition: color 0.14s ease;
 }
+.footer__legal-link:hover { color: var(--ink, #0C1A2E); }
 
-.footer__legal-link:hover {
-  color: var(--ink);
-}
-
-/* ============================================================
+/* ─────────────────────────────────────────────────────────
    RESPONSIVE
-   ============================================================ */
+   ───────────────────────────────────────────────────────── */
 @media (max-width: 1024px) {
-  .footer__columns {
-    grid-template-columns: 1fr 1fr;
-    gap: 36px;
-  }
+  .footer__columns { grid-template-columns: 1fr 1fr; gap: 36px; }
 }
-
 @media (max-width: 768px) {
-  .footer {
-    padding: 48px 0 0;
-  }
-  .footer__inner {
-    padding: 0 24px;
-  }
-  .footer__columns {
-    grid-template-columns: 1fr;
-    gap: 32px;
-  }
+  .footer { padding: 48px 0 0; }
+  .footer__inner { padding: 0 24px; }
+  .footer__columns { grid-template-columns: 1fr; gap: 32px; }
 }

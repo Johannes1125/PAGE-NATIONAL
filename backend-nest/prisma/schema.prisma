@@ -283,27 +283,28 @@ model NationalOfficer {
 }
 
 model SecRegistration {
-  id                 String   @id @default(cuid())
-  registrationName   String
-  registrationNumber String
-  dateOfIncorporation DateTime
-  exemptionCategory  String
-  imageUrl           String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  id                  String    @id @default(cuid())
+  registrationName    String?
+  registrationNumber  String?
+  dateOfIncorporation DateTime?
+  exemptionCategory   String?
+  imageUrl            String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 }
 
 model BirCertification {
-  id                  String   @id @default(uuid())
-  registrationName    String
-  tinNumber           String
-  certificationNumber String
-  exemptionCategory   String
-  dateOfIssuance      DateTime
+  id                  String    @id @default(uuid())
+  registrationName    String?
+  tinNumber           String?
+  certificationNumber String?
+  exemptionCategory   String?
+  dateOfIssuance      DateTime?
   imageUrl            String?
+  receiptUrl          String?
   imagePublicId       String?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   @@map("bir_certifications")
 }

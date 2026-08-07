@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { CONVENTIONS_DATA } from "./mock-data";
+import { api } from "../../lib/api-client";
 import "./convention.css";
 
 // ── Icon Components ────────────────────────────────────────────────────────
@@ -83,20 +83,21 @@ const FOOTER_CONTACT = [
 // ── Convention Hero Component ───────────────────────────────────────────────
 function ConventionHero() {
   return (
-    <section className="convention-hero">
-      <div className="container">
-        <div className="convention-hero__breadcrumb">
-          <Link href="/" className="convention-hero__breadcrumb-link">Home</Link>
-          <span className="convention-hero__breadcrumb-sep">/</span>
-          <span className="convention-hero__breadcrumb-current">Convention Archives</span>
+    <section className="cbl-hero">
+      <div className="cbl-hero-container">
+        <div className="cbl-breadcrumb">
+          <Link href="/" className="cbl-breadcrumb-link">Home</Link>
+          <span className="cbl-breadcrumb-sep">/</span>
+          <span className="cbl-breadcrumb-current">Convention Archives</span>
         </div>
-        <h1 className="convention-hero__title">
-          National Conventions
-        </h1>
-        <div className="convention-hero__divider" />
-        <p className="convention-hero__subtitle">
-          Browse our archives of past PAGE National Conventions. Explore themes, program schedules, speakers, academic journals, and photo galleries of graduate education leadership.
-        </p>
+
+        <div className="cbl-hero-left">
+          <h1 className="cbl-hero-title">National Conventions</h1>
+          <div className="cbl-gold-line" />
+          <p className="cbl-hero-subtitle">
+            Browse our archives of past PAGE National Conventions. Explore themes, program schedules, speakers, academic journals, and photo galleries of graduate education leadership.
+          </p>
+        </div>
       </div>
     </section>
   );
@@ -122,82 +123,7 @@ function SkeletonGrid() {
   );
 }
 
-// ── Footer Component ────────────────────────────────────────────────────────
-function Footer() {
-  return (
-    <footer className="footer">
-      <div className="footer__inner">
-        <div className="footer__columns">
-          {/* Brand */}
-          <div>
-            <div className="footer__brand-logo">
-              <div className="footer__logo-mark">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/PAGE.jpg" alt="PAGE Logo" onError={(e) => { e.currentTarget.style.display="none"; }} />
-              </div>
-              <div>
-                <div className="footer__logo-name">PAGE</div>
-                <div className="footer__logo-sub">An academic towards to excellence</div>
-              </div>
-            </div>
-            <p className="footer__brand-desc">
-              Philippine Association for Graduate Education — advancing excellence through collaboration and research.
-            </p>
-            <div className="footer__socials">
-              {[<FacebookIcon key="fb" />, <InstagramIcon key="ig" />, <MailIconSm key="mail" />].map((icon, i) => (
-                <button key={i} className="footer__social-btn">{icon}</button>
-              ))}
-            </div>
-          </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="footer__col-title">Quick Links</h4>
-            <ul className="footer__links">
-              {FOOTER_QUICK_LINKS.map(l => (
-                <li key={l}><a href="#" className="footer__link">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Resources */}
-          <div>
-            <h4 className="footer__col-title">Resources</h4>
-            <ul className="footer__links">
-              {FOOTER_RESOURCES.map(l => (
-                <li key={l}><a href="#" className="footer__link">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h4 className="footer__col-title">Contact</h4>
-            <div className="footer__contact-list">
-              {FOOTER_CONTACT.map(item => (
-                <div key={item.text} className="footer__contact-item">
-                  <span className="footer__contact-icon">{item.icon}</span>
-                  <span className="footer__contact-text">{item.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="footer__bottom">
-          <p className="footer__copyright">
-            © 2026 Philippine Association for Graduate Education. All rights reserved.
-          </p>
-          <div className="footer__legal">
-            {["Privacy Policy", "Terms of Use"].map(l => (
-              <a key={l} href="#" className="footer__legal-link">{l}</a>
-            ))}
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
 
 // ── Framer Motion Stagger Variants ──────────────────────────────────────────
 const containerVariants: Variants = {
@@ -229,6 +155,7 @@ const cardVariants: Variants = {
 export default function ConventionArchivesPage() {
   const [scrolled, setScrolled] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [conventions, setConventions] = useState<any[]>([]);
 
   // Filter states
   const [selectedNum, setSelectedNum] = useState<string>("All");
@@ -237,36 +164,46 @@ export default function ConventionArchivesPage() {
     const onScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", onScroll);
 
-    // Simulated short API latency for skeletons
-    const timer = setTimeout(() => setLoading(false), 550);
+    async function loadConventions() {
+      try {
+        setLoading(true);
+        const res = await api.get<{ success: boolean; data?: any[] }>("/conventions/public");
+        if (res.success && Array.isArray(res.data)) {
+          setConventions(res.data);
+        } else {
+          setConventions([]);
+        }
+      } catch (err) {
+        console.error("Failed to load conventions:", err);
+        setConventions([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadConventions();
 
     return () => {
       window.removeEventListener("scroll", onScroll);
-      clearTimeout(timer);
     };
   }, []);
 
   // Compute unique values for filter controls
-  const conventionNumbers = ["All", ...Array.from(new Set(CONVENTIONS_DATA.map(c => c.convention_number)))];
+  const conventionNumbers = ["All", ...Array.from(new Set(conventions.map(c => c.convention_number || c.year || "Annual")))];
 
   const handleNumChange = (num: string) => {
     if (num === selectedNum) return;
     setSelectedNum(num);
-    setLoading(true);
-    const timer = setTimeout(() => setLoading(false), 300);
-    return () => clearTimeout(timer);
   };
 
   const resetFilters = () => {
     setSelectedNum("All");
-    setLoading(true);
-    const timer = setTimeout(() => setLoading(false), 300);
-    return () => clearTimeout(timer);
   };
 
   // Filter logic
-  const filteredConventions = CONVENTIONS_DATA.filter((c) => {
-    return selectedNum === "All" || c.convention_number === selectedNum;
+  const filteredConventions = conventions.filter((c) => {
+    const num = c.convention_number || c.year || "Annual";
+    return selectedNum === "All" || num === selectedNum;
   });
 
   const hasFiltersActive = selectedNum !== "All";
@@ -391,7 +328,6 @@ export default function ConventionArchivesPage() {
           </div>
         </section>
       </main>
-      <Footer />
     </>
   );
 }

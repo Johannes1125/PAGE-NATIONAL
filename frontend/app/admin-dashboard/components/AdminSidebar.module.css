@@ -29,13 +29,14 @@
   bottom: 0;
   width: var(--admin-sidebar-width);
   z-index: 200;
-  background: var(--p-navy);
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
-  transition: width 0.26s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(180deg, #0e2340 0%, var(--p-navy) 50%, #0e2340 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: 4px 0 24px rgba(14, 35, 64, 0.3);
 }
 
 .navbar::before {
@@ -288,41 +289,43 @@
   align-items: center;
   gap: 12px;
   min-height: 48px;
-  padding: 10px 14px;
-  border-radius: 12px;
+  padding: 11px 15px;
+  border-radius: 13px;
   border: 0;
   background: transparent;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.68);
   font-size: 13.5px;
   font-weight: 500;
   text-decoration: none;
   text-align: left;
   width: 100%;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
 }
 
 .navLink:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.06);
   color: #ffffff;
+  transform: translateX(2px);
 }
 
 .navLinkActive {
-  background: linear-gradient(135deg, rgba(82, 125, 189, 0.34), rgba(31, 70, 120, 0.62));
+  background: linear-gradient(135deg, rgba(91, 163, 232, 0.38) 0%, rgba(40, 92, 156, 0.68) 100%);
   color: #ffffff;
-  box-shadow: 0 12px 28px rgba(12, 28, 54, 0.24);
+  box-shadow: 0 4px 16px rgba(30, 83, 142, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform: translateX(2px);
 }
 
 .navLinkActive::before {
   content: "";
   position: absolute;
-  left: 2px;
-  top: 15%;
-  bottom: 15%;
+  left: 3px;
+  top: 18%;
+  bottom: 18%;
   width: 4px;
   border-radius: 4px;
-  background: #5ba3e8;
-  box-shadow: 0 0 8px rgba(91, 163, 232, 0.6);
+  background: linear-gradient(180deg, #7bb8f0 0%, #5ba3e8 100%);
+  box-shadow: 0 0 12px rgba(91, 163, 232, 0.7);
 }
 
 .groupTrigger {

@@ -533,25 +533,7 @@ async function main() {
     });
   }
 
-  // Preseed mock documents
-  await prisma.about_page_documents.create({
-    data: {
-      section_key: 'sec_registration',
-      file_name: 'SEC_Certificate_PAGE.pdf',
-      file_url: 'https://res.cloudinary.com/dsvxqj0wj/image/upload/v1700000002/sec_sample.pdf',
-      file_type: 'pdf'
-    }
-  });
-
-  await prisma.about_page_documents.create({
-    data: {
-      section_key: 'bir_certification',
-      file_name: 'BIR_Exemption_PAGE.pdf',
-      file_url: 'https://res.cloudinary.com/dsvxqj0wj/image/upload/v1700000003/bir_sample.pdf',
-      file_type: 'pdf'
-    }
-  });
-
+  // Preseed logo document
   await prisma.about_page_documents.create({
     data: {
       section_key: 'logo_description',

@@ -43,6 +43,17 @@ export class BirCertificationsController {
 
   @UseGuards(TokenAuthGuard, RolesGuard)
   @Roles('admin')
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('image'))
+  @HttpCode(HttpStatus.OK)
+  uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.service.uploadFile(file);
+  }
+
+  @UseGuards(TokenAuthGuard, RolesGuard)
+  @Roles('admin')
   @Post()
   @UseInterceptors(FileInterceptor('image'))
   @HttpCode(HttpStatus.CREATED)

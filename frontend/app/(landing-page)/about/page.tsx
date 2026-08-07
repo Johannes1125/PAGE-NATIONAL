@@ -1,36 +1,10 @@
 "use client";
-import Navbar from "../components/Navbar";
-
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { api } from "../../lib/api-client";
 import "./about-page.css";
 
 // ── Icon Components ────────────────────────────────────────────────────────
-
-const HamburgerIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-    <line x1="3" y1="6"  x2="21" y2="6" />
-    <line x1="3" y1="12" x2="21" y2="12" />
-    <line x1="3" y1="18" x2="21" y2="18" />
-  </svg>
-);
-
-const CloseIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-    <line x1="18" y1="6"  x2="6"  y2="18" />
-    <line x1="6"  y1="6"  x2="18" y2="18" />
-  </svg>
-);
-
-const ChevronDownIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="6 9 12 15 18 9" />
-  </svg>
-);
 
 const ArrowIcon = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -90,113 +64,46 @@ const HeartIcon = () => (
   </svg>
 );
 
-const FacebookIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+const LandmarkIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="2" y1="22" x2="22" y2="22" />
+    <polyline points="12 2 20 7 4 7 12 2" />
+    <rect x="5" y="11" width="3" height="11" />
+    <rect x="10" y="11" width="4" height="11" />
+    <rect x="15" y="11" width="3" height="11" />
+    <line x1="4" y1="11" x2="20" y2="11" />
   </svg>
 );
 
-const InstagramIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+const ShieldIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
   </svg>
 );
 
-const MailIconSm = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-    <polyline points="22,6 12,13 2,6" />
+const BookIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
   </svg>
 );
 
-const MailIconContact = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-    <polyline points="22,6 12,13 2,6" />
+const FileCheckIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+    <path d="m9 15 2 2 4-4" />
   </svg>
 );
 
-const MapPinIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-    <circle cx="12" cy="10" r="3" />
-  </svg>
-);
-
-const PhoneIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.86a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z" />
+const AwardIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="8" r="7" />
+    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
   </svg>
 );
 
 // ── Data ───────────────────────────────────────────────────────────────────
-
-type NavLink = "Home" | "About" | "News" | "Contact";
-
-const getPath = (link: NavLink): string => {
-  const map: Record<NavLink, string> = {
-    Home: "/", About: "/about", News: "/news", Contact: "/contact",
-  };
-  return map[link];
-};
-
-const NAV_LINKS = ["Home", "About", "News", "Contact"];
-
-const TIMELINE_EVENTS = [
-  {
-    year: "1962",
-    title: "Founding of PAGE",
-    desc: "Dr. Jesus E. Perpiñan and Atty. Pablo T. Mateo, Jr. gathered graduate school deans at the Old Selecta on Lepanto Street. On September 26, 1962, PAGE was born with nine founding higher education institutions.",
-  },
-  {
-    year: "1994",
-    title: "Antedating CHED",
-    desc: "PAGE's establishment pre-dates the Commission on Higher Education (CHED) by 32 years. Since then, the association has actively collaborated as a key consultant and constructive policy advocate.",
-  },
-  {
-    year: "2012",
-    title: "Golden Anniversary",
-    desc: "PAGE marked 50 years of excellence at its Annual Assembly in Manila Hotel. The official PAGE National Anthem was subsequently launched, and international plenary speakers were introduced.",
-  },
-  {
-    year: "2020",
-    title: "New Leadership",
-    desc: "Dr. Lino C. Reynoso of Emilio Aguinaldo College was elected PAGE President. Under his term, the organization guided graduate schools through COVID-19 and transition to hybrid learning.",
-  },
-  {
-    year: "2024",
-    title: "SEC Re-registration",
-    desc: "The association successfully renewed its corporate identity under its new official name: 'Philippine Association for Graduate Education Philippines, Inc. (PAGE)', reactivating chapters nationwide.",
-  },
-  {
-    year: "2025 & Beyond",
-    title: "Ongoing Legacy",
-    desc: "Entering its 63rd year, PAGE continues to lead discussions on graduate education reforms, collaborative research, and digital innovations to meet global higher education standards.",
-  },
-];
-
-const OFFICERS = [
-  // National Officers
-  { name: "Dr. Lino C. Reynoso", role: "President", category: "National Officers", bio: "Leading PAGE with a vision for excellence in graduate education and research administration." },
-  { name: "Dr. Alper V. Pineda", role: "Vice President for Luzon", category: "National Officers", bio: "Championing graduate education initiatives and regional collaborations across Luzon." },
-  { name: "Dr. Remedios C. Bacus", role: "Vice President for Visayas", category: "National Officers", bio: "Fostering research excellence and institutional partnerships throughout the Visayas region." },
-  { name: "Dr. Judith C. Chavez", role: "Vice President for Mindanao", category: "National Officers", bio: "Advancing graduate programs and academic networking across universities in Mindanao." },
-  { name: "Dr. Arnel D. Bravo", role: "Secretary", category: "National Officers", bio: "Overseeing organizational records, communications, and strategic administrative operations." },
-  { name: "Dr. Ma. Kathleen C. Tiglao", role: "Treasurer", category: "National Officers", bio: "Managing financial resources to sustain and grow PAGE’s national education programs." },
-  { name: "Dr. Rowena R. Abrea", role: "Auditor", category: "National Officers", bio: "Ensuring transparency, accountability, and integrity in all financial undertakings." },
-  { name: "Dr. Dolores T. Quambo", role: "Press Relations Officer", category: "National Officers", bio: "Building strong bridges between PAGE and the public through effective communication." },
-
-  // Board of Directors
-  { name: "Dr. Caridad Q. Abian", role: "Board of Director", category: "Board of Directors", bio: "Contributing strategic insights to shape national graduate education policies." },
-  { name: "Dr. Ramir Austria", role: "Board of Director", category: "Board of Directors", bio: "Guiding institutional collaborations and advanced research methodologies." },
-  { name: "Dr. Sonia A. Pajaron", role: "Board of Director", category: "Board of Directors", bio: "Advocating for curriculum innovation and global competitiveness in graduate studies." },
-  { name: "Dr. Joseph G. Recio", role: "Board of Director", category: "Board of Directors", bio: "Supporting the continuous professional development of graduate faculty." },
-  { name: "Dr. Ruy Reyes", role: "Board of Director", category: "Board of Directors", bio: "Driving interdisciplinary research and academic excellence across member institutions." },
-  { name: "Dr. Yolanda C. Sayson", role: "Board of Director", category: "Board of Directors", bio: "Ensuring graduate programs align with national development goals." },
-  { name: "Dr. Imelda P. Soriano", role: "Board of Director", category: "Board of Directors", bio: "Fostering inclusive and sustainable growth in higher education frameworks." },
-];
 
 const CORE_VALUES = [
   { icon: <StarIcon />,      num: "01", title: "Excellence",     desc: "Committed to the highest standards in graduate education, research, and professional development." },
@@ -207,40 +114,60 @@ const CORE_VALUES = [
   { icon: <CompassIcon />,   num: "06", title: "Service",        desc: "Dedicating our efforts to the advancement of graduate education and national development." },
 ];
 
-const FOOTER_QUICK_LINKS = ["About PAGE", "History", "Officers", "News & Announcements"];
-const FOOTER_RESOURCES    = ["Journals", "Articles", "Upcoming Activities", "Contact Us"];
-const FOOTER_CONTACT = [
-  { icon: <MapPinIcon />,      text: "Manila, Philippines" },
-  { icon: <MailIconContact />, text: "page.org.ph@gmail.com" },
-  { icon: <PhoneIcon />,       text: "+63 908 XXX XXXX"    },
+const ABOUT_SUBPAGES = [
+  {
+    title: "History of PAGE",
+    badge: "60+ Years Legacy",
+    href: "/about/history",
+    desc: "Tracing our journey from foundation in 1962 by graduate school deans to leading nationwide higher education reforms and digital transformation.",
+    cta: "Explore Timeline",
+    icon: <LandmarkIcon />,
+  },
+  {
+    title: "Set of Officers",
+    badge: "Leadership Directory",
+    href: "/about/officers",
+    desc: "Meet our dedicated National Officers, Regional Vice Presidents for Luzon, Visayas, & Mindanao, and Board of Directors.",
+    cta: "View Directory",
+    icon: <UsersIcon />,
+  },
+  {
+    title: "Logo Description",
+    badge: "Brand Symbolism",
+    href: "/about/logo",
+    desc: "Discover the heraldic symbolism, colors, and design elements of the official PAGE national emblem.",
+    cta: "Explore Emblem",
+    icon: <ShieldIcon />,
+  },
+  {
+    title: "Constitution & By-Laws",
+    badge: "Governance Framework",
+    href: "/about/cbl",
+    desc: "Read our official constitution, organizational bylaws, membership classifications, and institutional regulations.",
+    cta: "Read Constitution",
+    icon: <BookIcon />,
+  },
+  {
+    title: "SEC Registration",
+    badge: "Legal Standing",
+    href: "/about/sec",
+    desc: "Official Securities and Exchange Commission (SEC) registration status and corporate incorporation details.",
+    cta: "View SEC Info",
+    icon: <FileCheckIcon />,
+  },
+  {
+    title: "BIR Certification",
+    badge: "Tax Accreditation",
+    href: "/about/bir",
+    desc: "Bureau of Internal Revenue (BIR) tax accreditation, official TIN details, and tax-exempt certification.",
+    cta: "View BIR Info",
+    icon: <AwardIcon />,
+  },
 ];
-
-const ABOUT_DROPDOWN_ITEMS = [
-  { label: "About PAGE",        href: "/about" },
-  { label: "PAGE History",      href: "/about/history" },
-  { label: "Set of Officers",   href: "/about/officers" },
-  { label: "Logo Description",  href: "/about/logo" },
-  { label: "CBL Information",   href: "/about/cbl" },
-];
-
-const ACTIVITY_DROPDOWN_ITEMS = [
-  { label: "All Activities",  type: "all"        },
-  { label: "Conferences",     type: "conference" },
-  { label: "Seminars",        type: "seminar"    },
-  { label: "Workshops",       type: "workshop"   },
-  { label: "Other Events",    type: "other"      },
-];
-
-const dropdownVariants: Variants = {
-  hidden:  { opacity: 0, y: -8, scale: 0.96 },
-  visible: { opacity: 1, y: 0,  scale: 1,    transition: { duration: 0.18, ease: "easeOut" } },
-  exit:    { opacity: 0, y: -6, scale: 0.97, transition: { duration: 0.13 } },
-};
 
 const normalizeLogoDescription = (content: unknown): string => {
   if (typeof content === "string") {
     const trimmed = content.trim();
-
     if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
       try {
         const parsed = JSON.parse(trimmed) as { description?: string } | { content?: string };
@@ -248,7 +175,6 @@ const normalizeLogoDescription = (content: unknown): string => {
           if (typeof (parsed as { description?: string }).description === "string") {
             return (parsed as { description?: string }).description as string;
           }
-
           if (typeof (parsed as { content?: string }).content === "string") {
             return (parsed as { content?: string }).content as string;
           }
@@ -257,36 +183,28 @@ const normalizeLogoDescription = (content: unknown): string => {
         return content;
       }
     }
-
     return content;
   }
-
   if (content && typeof content === "object") {
     const record = content as { description?: unknown; content?: unknown; text?: unknown };
-
-    if (typeof record.description === "string") {
-      return record.description;
-    }
-
-    if (typeof record.content === "string") {
-      return record.content;
-    }
-
-    if (typeof record.text === "string") {
-      return record.text;
-    }
+    if (typeof record.description === "string") return record.description;
+    if (typeof record.content === "string") return record.content;
+    if (typeof record.text === "string") return record.text;
   }
-
   return "";
 };
 
-// ── Navbar ─────────────────────────────────────────────────────────────────
-
-
+// ── About Page Header ──────────────────────────────────────────────────────
 // ── About Page Header ──────────────────────────────────────────────────────
 function AboutHero() {
   return (
     <section className="about-hero">
+      <div className="about-hero-bg-container">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/about-bg.jpg" alt="About PAGE Facade" className="about-hero-bg-img" />
+        <div className="about-hero-bg-overlay" />
+      </div>
+
       <div className="container">
         <div className="about-hero__breadcrumb">
           <Link href="/" className="about-hero__breadcrumb-link">Home</Link>
@@ -311,7 +229,6 @@ function AboutOrganization({ description, logoUrl }: { description?: string; log
       <div className="container">
         <div className="about-org__inner">
           <div className="about-org__text">
-            <span className="section-label">Who We Are</span>
             <h2 className="section-title" style={{ textAlign: "left", margin: "0 0 24px" }}>
               About the Organization
             </h2>
@@ -334,29 +251,11 @@ function AboutOrganization({ description, logoUrl }: { description?: string; log
           <div className="about-org__visual">
             <div className="about-org__image-card">
               <div className="about-org__image-top">
-                <div className="about-org__image-icon" style={{ overflow: "hidden", background: logoUrl ? "transparent" : "var(--accent)" }}>
-                  {logoUrl ? (
-                    <img src={logoUrl} alt="PAGE Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  ) : (
-                    <CompassIcon />
-                  )}
+                <div className="about-org__image-icon">
+                  <img src="/PAGE-favicon.png" alt="PAGE Logo" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                 </div>
                 <p className="about-org__image-label">Philippine Association<br />for Graduate Education</p>
                 <p className="about-org__image-sub">Est. 1962 · SEC Registered</p>
-              </div>
-              <div className="about-org__image-stats">
-                <div className="about-org__image-stat">
-                  <span className="about-org__image-stat-val">120+</span>
-                  <span className="about-org__image-stat-lbl">Institutions</span>
-                </div>
-                <div className="about-org__image-stat">
-                  <span className="about-org__image-stat-val">340+</span>
-                  <span className="about-org__image-stat-lbl">Journals</span>
-                </div>
-                <div className="about-org__image-stat">
-                  <span className="about-org__image-stat-val">28</span>
-                  <span className="about-org__image-stat-lbl">Events/yr</span>
-                </div>
               </div>
             </div>
           </div>
@@ -372,7 +271,6 @@ function MissionVision() {
     <section className="mv">
       <div className="container">
         <div className="section-header">
-          <span className="section-label">Our Direction</span>
           <h2 className="section-title">Mission &amp; Vision Goals</h2>
           <p className="section-subtitle">
             The guiding principles that shape our approach to advancing graduate education
@@ -382,7 +280,6 @@ function MissionVision() {
 
         <div className="mv__cards">
           <div className="mv-card">
-            <div className="mv-card__num">01</div>
             <div className="mv-card__icon-wrap">
               <EyeIcon />
             </div>
@@ -393,13 +290,9 @@ function MissionVision() {
               globally recognized and administered by highly qualified and socially responsible graduate
               educators.
             </p>
-            <a href="#" className="mv-card__link">
-              Learn more <ArrowIcon />
-            </a>
           </div>
 
           <div className="mv-card">
-            <div className="mv-card__num">02</div>
             <div className="mv-card__icon-wrap">
               <CompassIcon />
             </div>
@@ -411,13 +304,9 @@ function MissionVision() {
               leaders as active participants in the attainment of national and international goals for sustained
               human development.
             </p>
-            <a href="#" className="mv-card__link">
-              Learn more <ArrowIcon />
-            </a>
           </div>
 
           <div className="mv-card">
-            <div className="mv-card__num">03</div>
             <div className="mv-card__icon-wrap">
               <StarIcon />
             </div>
@@ -436,9 +325,6 @@ function MissionVision() {
                 <span>🡆</span> <span>Make library and research resources reciprocally available via consortium arrangements.</span>
               </li>
             </ul>
-            <a href="#" className="mv-card__link" style={{ marginTop: "auto", paddingTop: "16px" }}>
-              Learn more <ArrowIcon />
-            </a>
           </div>
         </div>
       </div>
@@ -446,104 +332,71 @@ function MissionVision() {
   );
 }
 
-// ── Our History Timeline ──────────────────────────────────────────────────
-function OurHistory({ historicalRecords }: { historicalRecords?: Array<{ id: string; title: string; yearStart: number; programType: string; description: string }> }) {
-  const displayEvents = historicalRecords && historicalRecords.length > 0
-    ? historicalRecords.map(r => ({ year: String(r.yearStart), title: r.title, desc: r.description }))
-    : TIMELINE_EVENTS;
+// ── History Preview ───────────────────────────────────────────────────────
+function HistoryPreviewSection() {
+  const MILESTONES_PREVIEW = [
+    { year: "1962", title: "Pioneer Founding", desc: "Established by graduate deans to unify academic standards and foster inter-university cooperation." },
+    { year: "1988", title: "Nationwide Chapters", desc: "Expanded into 17 regional chapters spanning Luzon, Visayas, and Mindanao." },
+    { year: "2018", title: "Digital Research Era", desc: "Launched indexed open-access digital journal repositories for thesis & dissertation publication." },
+    { year: "2024", title: "Global AI & Leadership", desc: "Pioneering AI research ethics and international academic consortiums across ASEAN." },
+  ];
 
   return (
-    <section className="history">
+    <section className="about-history-preview">
       <div className="container">
         <div className="section-header">
-          <span className="section-label">Timeline</span>
-          <h2 className="section-title">Our History</h2>
+          <h2 className="section-title">Over 60 Years of Academic Excellence</h2>
           <p className="section-subtitle">
-            A journey of excellence and continuous growth in advancing graduate education
-            across the Philippines.
+            From humble beginnings in 1962 to a nationwide network driving higher education reforms and research leadership.
           </p>
         </div>
 
-        <div className="history__timeline">
-          <div className="history__line" />
-          {displayEvents.map((event, i) => (
-            <div
-              key={event.year + i}
-              className={`history__item${i % 2 === 0 ? " history__item--left" : " history__item--right"}`}
-            >
-              <div className="history__card">
-                <span className="history__year">{event.year}</span>
-                <h3 className="history__event-title">{event.title}</h3>
-                <p className="history__event-desc">{event.desc}</p>
-              </div>
-              <div className="history__dot">
-                <div className="history__dot-inner" />
-              </div>
+        <div className="history-preview-grid">
+          {MILESTONES_PREVIEW.map((item) => (
+            <div key={item.year} className="history-preview-card">
+              <div className="history-preview-year">{item.year}</div>
+              <h3 className="history-preview-title">{item.title}</h3>
+              <p className="history-preview-desc">{item.desc}</p>
             </div>
           ))}
+        </div>
+
+        <div className="history-preview-cta">
+          <Link href="/about/history" className="history-preview-btn">
+            <span>Explore Full Interactive History Timeline</span>
+            <ArrowIcon />
+          </Link>
         </div>
       </div>
     </section>
   );
 }
 
-// ── Our Officers ──────────────────────────────────────────────────────────
-// ── Our Officers ──────────────────────────────────────────────────────────
-function OurOfficers({ officersList = [] }: { officersList?: any[] }) {
-  const [activeFilter, setActiveFilter] = useState("All");
-  const filters = ["All", "National Officers", "Board of Directors"];
-
-  const displayOfficers = officersList.length > 0 ? officersList : OFFICERS;
-
-  // Filter logic based on the selected category
-  const filteredOfficers = displayOfficers.filter(officer =>
-    activeFilter === "All" ? true : officer.category === activeFilter
-  );
-
+// ── Subpages Hub ──────────────────────────────────────────────────────────
+function SubpagesHub() {
   return (
-    <section className="officers">
+    <section className="subpages-hub">
       <div className="container">
         <div className="section-header">
-          <span className="section-label">Leadership</span>
-          <h2 className="section-title">Our Officers</h2>
+          <h2 className="section-title">Explore PAGE Sub-pages</h2>
           <p className="section-subtitle">
-            Meet the dedicated leaders guiding PAGE towards excellence in graduate education.
+            Access detailed pages covering our rich history, leadership directory, logo symbolism, governance bylaws, and compliance documentation.
           </p>
         </div>
 
-        {/* Filter Controls */}
-        <div className="officers__filters">
-          {filters.map(filter => (
-            <button
-              key={filter}
-              className={`officers__filter-btn ${activeFilter === filter ? "officers__filter-btn--active" : ""}`}
-              onClick={() => setActiveFilter(filter)}
-            >
-              {filter}
-            </button>
-          ))}
-        </div>
-
-        <div className="officers__grid">
-          {filteredOfficers.map((officer, index) => (
-            <div key={officer.name} className="officer-card">
-              <div className="officer-card__image">
-                <div className="officer-card__avatar" style={{ overflow: "hidden", background: officer.photo_url ? "transparent" : "rgba(255,255,255,0.1)" }}>
-                  {officer.photo_url ? (
-                    <img src={officer.photo_url} alt={officer.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  ) : (
-                    officer.name.split(" ").slice(-1)[0][0]
-                  )}
-                </div>
+        <div className="subpages-hub__grid">
+          {ABOUT_SUBPAGES.map((sub) => (
+            <div key={sub.href} className="subpage-card">
+              <div className="subpage-card__header">
+                <div className="subpage-card__icon">{sub.icon}</div>
+                <span className="subpage-card__badge">{sub.badge}</span>
               </div>
-              <div className="officer-card__body">
-                <div className="officer-card__num">
-                  {String(index + 1).padStart(2, "0")}
-                </div>
-                <h4 className="officer-card__name">{officer.name}</h4>
-                <span className="officer-card__role">{officer.role || officer.position}</span>
-                <p className="officer-card__bio">{officer.bio}</p>
-              </div>
+              <h3 className="subpage-card__title">{sub.title}</h3>
+              <p className="subpage-card__desc">{sub.desc}</p>
+              <Link href={sub.href} className="subpage-card__link">
+                <span>{sub.cta}</span>
+                <ArrowIcon />
+              </Link>
             </div>
           ))}
         </div>
@@ -558,7 +411,6 @@ function CoreValues() {
     <section className="values">
       <div className="container">
         <div className="section-header">
-          <span className="section-label">What Drives Us</span>
           <h2 className="section-title">Our Core Values</h2>
           <p className="section-subtitle">
             The principles that guide our work and define our commitment to excellence
@@ -569,13 +421,9 @@ function CoreValues() {
         <div className="values__grid">
           {CORE_VALUES.map(v => (
             <div key={v.title} className="value-card">
-              <div className="value-card__num">{v.num}</div>
               <div className="value-card__icon">{v.icon}</div>
               <h3 className="value-card__title">{v.title}</h3>
               <p className="value-card__desc">{v.desc}</p>
-              <a href="#" className="value-card__link">
-                Explore <ArrowIcon />
-              </a>
             </div>
           ))}
         </div>
@@ -584,100 +432,12 @@ function CoreValues() {
   );
 }
 
-// ── Footer ─────────────────────────────────────────────────────────────────
-function Footer() {
-  return (
-    <footer className="footer">
-      <div className="footer__inner">
-        <div className="footer__columns">
-          <div>
-            <div className="footer__brand-logo">
-              <div className="footer__logo-mark">
-                <img
-                  src="/PAGE.jpg"
-                  alt="PAGE Logo"
-                  onError={(e) => {
-                    const target = e.currentTarget as HTMLImageElement;
-                    target.style.display = "none";
-                    const fallback = target.nextElementSibling as HTMLElement;
-                    if (fallback) fallback.style.display = "flex";
-                  }}
-                />
-              </div>
-              <div>
-                <div className="footer__logo-name">PAGE</div>
-                <div className="footer__logo-sub">An academic towards to excellence</div>
-              </div>
-            </div>
-            <p className="footer__brand-desc">
-              Philippine Association for Graduate Education — advancing excellence
-              through collaboration and research.
-            </p>
-            <div className="footer__socials">
-              {[<FacebookIcon />, <InstagramIcon />, <MailIconSm />].map((icon, i) => (
-                <button key={i} className="footer__social-btn">{icon}</button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h4 className="footer__col-title">Quick Links</h4>
-            <ul className="footer__links">
-              {FOOTER_QUICK_LINKS.map(l => (
-                <li key={l}><a href="#" className="footer__link">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="footer__col-title">Resources</h4>
-            <ul className="footer__links">
-              {FOOTER_RESOURCES.map(l => (
-                <li key={l}><a href="#" className="footer__link">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="footer__col-title">Contact</h4>
-            <div className="footer__contact-list">
-              {FOOTER_CONTACT.map(item => (
-                <div key={item.text} className="footer__contact-item">
-                  <span className="footer__contact-icon">{item.icon}</span>
-                  <span className="footer__contact-text">{item.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="footer__bottom">
-          <p className="footer__copyright">
-            © 2026 Philippine Association for Graduate Education. All rights reserved.
-          </p>
-          <div className="footer__legal">
-            {["Privacy Policy", "Terms of Use"].map(l => (
-              <a key={l} href="#" className="footer__legal-link">{l}</a>
-            ))}
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
 // ── Main Page ──────────────────────────────────────────────────────────────
 export default function AboutPage() {
-  const [scrolled, setScrolled] = useState(false);
   const [logoDescription, setLogoDescription] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
-  const [officersList, setOfficersList] = useState<any[]>([]);
-  const [historicalRecords, setHistoricalRecords] = useState<any[]>([]);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener("scroll", onScroll);
-
     const fetchData = async () => {
       try {
         // Fetch logo & description section
@@ -696,50 +456,23 @@ export default function AboutPage() {
             setLogoUrl(docRes.data[0].file_url);
           }
         }
-
-        // Fetch dynamic officers
-        const officersRes = await api.get("/public/about-page/officers");
-        if (officersRes.success && officersRes.data) {
-          const mapped = officersRes.data.map((off: any) => {
-            const isBoard = off.position.toLowerCase().includes("board of director") || off.position.toLowerCase().includes("board member");
-            return {
-              name: off.name,
-              role: off.position,
-              category: isBoard ? "Board of Directors" : "National Officers",
-              bio: off.chapter ? `Representing ${off.chapter} chapter.` : "PAGE National Officer.",
-              photo_url: off.photo_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(off.name)}&backgroundColor=1e5390&textColor=ffffff`,
-            };
-          });
-          setOfficersList(mapped);
-        }
-
-        // Fetch historical records
-        const histRes = await api.get<{ success: boolean; data: any[] }>("/public/historical-records");
-        if (histRes.success && histRes.data && histRes.data.length > 0) {
-          setHistoricalRecords(histRes.data);
-        }
       } catch (err) {
         console.error("Error loading dynamic about page content:", err);
       }
     };
 
     fetchData();
-
-    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
-    <>
-      <Navbar scrolled={scrolled} />
-      <main>
-        <AboutHero />
-        <AboutOrganization description={logoDescription} logoUrl={logoUrl} />
-        <MissionVision />
-        <OurHistory historicalRecords={historicalRecords} />
-        <OurOfficers officersList={officersList} />
-        <CoreValues />
-      </main>
-      <Footer />
-    </>
+    <div className="about-main">
+      <AboutHero />
+      <AboutOrganization description={logoDescription} logoUrl={logoUrl} />
+      <MissionVision />
+      <HistoryPreviewSection />
+      <SubpagesHub />
+      <CoreValues />
+    </div>
   );
 }
+

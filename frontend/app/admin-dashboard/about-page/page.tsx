@@ -303,7 +303,7 @@ export default function AboutPageManagement() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 + idx * 0.05, duration: 0.4 }}
-                  whileHover={{ y: -6, boxShadow: "0 12px 30px rgba(30, 83, 142, 0.06)", borderColor: "#1E4F91" }}
+                  whileHover={{ y: -3, boxShadow: "0 8px 24px rgba(30, 83, 142, 0.06)", borderColor: "#1E4F91" }}
                 >
                   <div className="about-card-top">
                     <div className="about-card-header">
@@ -319,7 +319,11 @@ export default function AboutPageManagement() {
                       )}
                     </div>
 
-                    <h3 className="about-card-title">{section.title}</h3>
+                    <h3 className="about-card-title">
+                      {section.section_key === "cbl_information" && (!section.title || section.title.trim().toLowerCase() === "csa")
+                        ? "Constitution and By-Laws"
+                        : section.title}
+                    </h3>
                   </div>
 
                   <div className="about-card-middle">

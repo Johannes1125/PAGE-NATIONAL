@@ -8,6 +8,14 @@ import {
   EyeOff,
   Globe,
   Trash2,
+  Building2,
+  MapPin,
+  ShieldCheck,
+  Calendar,
+  SlidersHorizontal,
+  Compass,
+  Users,
+  Eye,
 } from "lucide-react";
 import { Chapter } from "../types";
 import StatusBadge from "./StatusBadge";
@@ -18,13 +26,29 @@ type ChapterTableProps = {
   onEdit?: (chapter: Chapter) => void;
   onTogglePublish?: (chapter: Chapter) => void;
   onDelete?: (chapter: Chapter) => void;
+  onViewOfficers?: (chapter: Chapter) => void;
 };
+
+
+function getIslandChipClass(islandGroup: string) {
+  switch (islandGroup) {
+    case "Luzon":
+      return "chapters-chip chapters-chip--luzon";
+    case "Visayas":
+      return "chapters-chip chapters-chip--visayas";
+    case "Mindanao":
+      return "chapters-chip chapters-chip--mindanao";
+    default:
+      return "chapters-chip";
+  }
+}
 
 export default function ChapterTable({
   chapters,
   onEdit,
   onTogglePublish,
   onDelete,
+  onViewOfficers,
 }: ChapterTableProps) {
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
@@ -116,36 +140,76 @@ export default function ChapterTable({
         <table className="chapters-table">
           <thead>
             <tr>
-              <th scope="col">Chapter</th>
-              <th scope="col">Island Group</th>
-              <th scope="col">Region</th>
-              <th scope="col">Status</th>
-              <th scope="col">Last Updated</th>
-              <th scope="col" className="text-right whitespace-nowrap">Actions</th>
+              <th scope="col">
+                <span className="flex items-center gap-2">
+                  <Building2 size={16} strokeWidth={2.2} className="text-slate-400" />
+                  Chapter
+                </span>
+              </th>
+              <th scope="col">
+                <span className="flex items-center gap-2">
+                  <Compass size={16} strokeWidth={2.2} className="text-slate-400" />
+                  Island Group
+                </span>
+              </th>
+              <th scope="col">
+                <span className="flex items-center gap-2">
+                  <MapPin size={16} strokeWidth={2.2} className="text-slate-400" />
+                  Region
+                </span>
+              </th>
+              <th scope="col">
+                <span className="flex items-center gap-2">
+                  <ShieldCheck size={16} strokeWidth={2.2} className="text-slate-400" />
+                  Status
+                </span>
+              </th>
+              <th scope="col">
+                <span className="flex items-center gap-2">
+                  <Calendar size={16} strokeWidth={2.2} className="text-slate-400" />
+                  Last Updated
+                </span>
+              </th>
+              <th scope="col" className="text-right whitespace-nowrap">
+                <span className="inline-flex items-center gap-2 justify-end">
+                  <SlidersHorizontal size={16} strokeWidth={2.2} className="text-slate-400" />
+                  Actions
+                </span>
+              </th>
             </tr>
           </thead>
           <tbody>
             {chapters.map((chapter) => {
               return (
-                <tr key={chapter.id}>
-                  {/* ── Chapter name ── */}
+                <tr key={chapter.id} className="chapters-table__row">
+                  {/* ── Chapter name & Avatar icon ── */}
                   <td>
-                    <div className="min-w-[220px]">
-                      <div className="chapters-table__chapter-name">{chapter.name}</div>
-                      {chapter.description && (
-                        <div className="chapters-table__chapter-desc">{chapter.description}</div>
-                      )}
+                    <div className="flex items-center gap-3.5 min-w-[240px]">
+                      <div className="chapters-table__chapter-avatar" aria-hidden="true">
+                        <Building2 size={20} strokeWidth={2.2} />
+                      </div>
+                      <div>
+                        <div className="chapters-table__chapter-name">{chapter.name}</div>
+                        {chapter.description && (
+                          <div className="chapters-table__chapter-desc">{chapter.description}</div>
+                        )}
+                      </div>
                     </div>
                   </td>
 
                   {/* ── Island Group ── */}
                   <td>
-                    <span className="chapters-chip">{chapter.islandGroup}</span>
+                    <span className={getIslandChipClass(chapter.islandGroup)}>
+                      {chapter.islandGroup}
+                    </span>
                   </td>
 
                   {/* ── Region ── */}
                   <td>
-                    <span className="chapters-chip chapters-chip--region">{chapter.region}</span>
+                    <span className="chapters-chip chapters-chip--region">
+                      <MapPin size={13} strokeWidth={2.2} aria-hidden="true" />
+                      <span>{chapter.region}</span>
+                    </span>
                   </td>
 
                   {/* ── Status badge ── */}
@@ -154,7 +218,7 @@ export default function ChapterTable({
                   </td>
 
                   {/* ── Last Updated ── */}
-                  <td className="text-[15px] font-semibold text-slate-500 whitespace-nowrap">
+                  <td className="text-[15px] font-semibold text-slate-600 whitespace-nowrap">
                     {new Date(chapter.updatedAt).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
@@ -173,7 +237,7 @@ export default function ChapterTable({
                             e.stopPropagation();
                             onEdit(chapter);
                           }}
-                          icon={<Edit2 size={16} strokeWidth={2.2} aria-hidden="true" />}
+                          icon={<Edit2 size={15} strokeWidth={2.2} aria-hidden="true" />}
                           aria-label={`Manage ${chapter.name}`}
                         >
                           Manage
@@ -208,7 +272,7 @@ export default function ChapterTable({
         </table>
       </div>
 
-      {/* ── Fixed Portal Dropdown Menu (Overlaps table container without clipping) ── */}
+      {/* ── Fixed Portal Dropdown Menu ── */}
       {mounted && activeMenuId && menuPos && activeChapter && typeof window !== "undefined" && createPortal(
         <div
           ref={menuRef}
@@ -227,7 +291,25 @@ export default function ChapterTable({
           role="menu"
           aria-label={`Actions for ${activeChapter.name}`}
         >
+          {onViewOfficers && (
+            <button
+              type="button"
+              role="menuitem"
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewOfficers(activeChapter);
+                setActiveMenuId(null);
+                setMenuPos(null);
+              }}
+              className="chapters-card__dropdown-item"
+              aria-label={`View Officers for ${activeChapter.name}`}
+            >
+              <Eye size={16} aria-hidden="true" />
+              View Officers
+            </button>
+          )}
           {onTogglePublish && (
+
             <button
               type="button"
               role="menuitem"
@@ -280,3 +362,4 @@ export default function ChapterTable({
     </div>
   );
 }
+

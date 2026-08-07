@@ -40,22 +40,22 @@
 .officers-container {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 24px;
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 32px 40px 48px;
+  padding: 32px;
 }
 
 @media (max-width: 640px) {
   .officers-container {
     padding: 24px 16px 32px;
-    gap: 24px;
+    gap: 20px;
   }
 }
 
 .back-btn-wrapper {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 /* ─── Layout Grid (Now Full Width Block) ─── */
@@ -68,27 +68,27 @@
 .officers-card {
   background: var(--r-surface, #ffffff);
   border: 1.5px solid var(--r-border-mid, #cbd5e1);
-  border-radius: 16px;
-  padding: 32px;
+  border-radius: 14px;
+  padding: 24px;
   box-shadow: 0 4px 16px rgba(20, 49, 82, 0.03);
 }
 
 @media (max-width: 640px) {
   .officers-card {
-    padding: 24px;
+    padding: 18px;
   }
 }
 
 .card-title-lg {
-  font-size: var(--accessible-font-section);
+  font-size: 20px;
   font-weight: 700;
   color: var(--p-navy, #102a43);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   font-family: var(--font-body);
 }
 
 .registry-subtitle {
-  font-size: 16px;
+  font-size: 14px;
   color: #64748b;
   font-weight: 500;
 }
@@ -184,19 +184,19 @@
 
 .name-cell-text {
   font-weight: 700;
-  font-size: 18px;
+  font-size: 15px;
   color: var(--p-navy, #143152);
 }
 
 .member-role-text {
   font-weight: 700;
-  font-size: 18px;
+  font-size: 15px;
   color: var(--p-navy, #143152);
 }
 
 .description-text {
   color: var(--r-text-muted, #6b87a4);
-  font-size: 16px;
+  font-size: 13px;
   line-height: 1.5;
   margin: 0;
   max-width: 400px;
@@ -217,9 +217,9 @@
 .role-badge {
   display: inline-flex;
   align-items: center;
-  padding: 6px 14px;
+  padding: 5px 12px;
   border-radius: 9999px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.4px;
@@ -257,14 +257,14 @@
 
 .officers-table th,
 .officers-table td {
-  padding: 18px 24px; /* Generous padding */
+  padding: 12px 18px;
   border-bottom: 1.5px solid #f1f5f9;
   font-size: var(--accessible-font-body);
   line-height: 1.5;
 }
 
 .officers-table tr {
-  min-height: 56px;
+  min-height: 48px;
 }
 
 .officers-table th {
@@ -272,7 +272,7 @@
   font-weight: 700;
   color: var(--p-navy, #102a43);
   text-transform: uppercase;
-  font-size: 15px;
+  font-size: 13px;
   letter-spacing: 0.8px;
   border-bottom: 2px solid var(--r-border-mid, #cbd5e1);
 }

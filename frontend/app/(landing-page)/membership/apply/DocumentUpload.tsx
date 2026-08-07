@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
-import { Upload, CheckCircle, FileCheck, Trash2 } from "lucide-react";
+import { FileText, CheckCircle, Trash2 } from "lucide-react";
+import { PageSeal } from "../../components/PageSeal";
 
 interface DocumentUploadProps {
   draftId: string;
@@ -12,8 +15,17 @@ interface DocumentUploadProps {
   required?: boolean;
 }
 
+const formatBytes = (bytes?: number): string => {
+  if (!bytes) return "";
+  const k = 1024;
+  const sizes = ["B", "KB", "MB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+};
+
+const isImageFile = (name: string) => /\.(jpg|jpeg|png|webp)$/i.test(name);
+
 export function DocumentUpload({
-  draftId,
   slotName,
   label,
   file,
@@ -23,30 +35,20 @@ export function DocumentUpload({
   required = false,
 }: DocumentUploadProps) {
   const fileInputId = `file-${slotName}`;
+  const hasFile = Boolean(file);
+  const hasImagePreview = file?.url && isImageFile(file.name);
 
-  const formatBytes = (bytes?: number) => {
-    if (!bytes) return "";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
+  const handleDragOver = (e: React.DragEvent) => e.preventDefault();
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     if (isUploading) return;
-    const droppedFile = e.dataTransfer.files?.[0];
-    if (droppedFile) {
-      onFileChange(slotName, droppedFile);
-    }
+    const dropped = e.dataTransfer.files?.[0];
+    if (dropped) onFileChange(slotName, dropped);
   };
 
-  const isImageFile = (filename: string) => {
-    return /\.(jpg|jpeg|png|webp)$/i.test(filename);
+  const handleClick = () => {
+    if (!isUploading) document.getElementById(fileInputId)?.click();
   };
 
   return (
@@ -54,37 +56,34 @@ export function DocumentUpload({
       {label && (
         <label
           className="af-label"
-          style={{
-            fontSize: "18px",
-            fontWeight: 600,
-            marginBottom: "8px",
-            display: "block",
-            color: "var(--af-navy)",
-          }}
+          style={{ fontSize: "15px", fontWeight: 600, marginBottom: "8px", display: "block" }}
         >
-          {label} {required && <span className="af-req" style={{ color: "var(--af-error)" }}>*</span>}
+          {label}{" "}
+          {required && <span className="af-req">*</span>}
         </label>
       )}
 
+      {/* Upload zone */}
       <div
-        className={`af-upload ${file ? "af-upload--success" : ""} ${
-          error ? "af-upload--error" : ""
-        }`}
-        onClick={() => !isUploading && document.getElementById(fileInputId)?.click()}
+        className={[
+          "af-upload",
+          hasFile ? "af-upload--success" : "",
+          error ? "af-upload--error" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+        onClick={handleClick}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
-        style={{
-          minHeight: "140px",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          cursor: isUploading ? "not-allowed" : "pointer",
-          border: error ? "2px dashed var(--af-error)" : "2px dashed var(--af-border)",
-          borderRadius: "12px",
-          padding: "20px",
-          background: "var(--af-surface)",
-          transition: "all 0.2s ease",
+        style={{ cursor: isUploading ? "not-allowed" : "pointer" }}
+        role="button"
+        tabIndex={0}
+        aria-label={`${hasFile ? "Replace" : "Upload"} ${label}`}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleClick();
+          }
         }}
       >
         <input
@@ -94,103 +93,97 @@ export function DocumentUpload({
           style={{ display: "none" }}
           disabled={isUploading}
           onChange={(e) => {
-            const selectedFile = e.target.files?.[0] || null;
-            onFileChange(slotName, selectedFile);
+            const f = e.target.files?.[0] ?? null;
+            onFileChange(slotName, f);
           }}
         />
 
         {isUploading ? (
+          /* ── Uploading state ── */
           <div style={{ textAlign: "center" }}>
-            <div className="af-spinner" style={{ width: "28px", height: "28px", margin: "0 auto 12px auto" }} />
-            <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--af-navy)" }}>
-              Uploading file to server...
+            <div className="af-spinner" style={{ width: "24px", height: "24px", margin: "0 auto 10px" }} />
+            <span style={{ fontSize: "13.5px", fontWeight: 600, color: "var(--af-navy)", fontStyle: "italic" }}>
+              Depositing document…
             </span>
           </div>
+        ) : hasFile ? (
+          /* ── Success state: seal motif ── */
+          hasImagePreview ? (
+            <div style={{ textAlign: "center" }}>
+              <img
+                src={file!.url}
+                alt={`${label} preview`}
+                style={{
+                  width: "88px",
+                  height: "88px",
+                  objectFit: "cover",
+                  borderRadius: "4px",
+                  border: "2px solid rgba(26,92,59,0.4)",
+                  boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
+                  marginBottom: "10px",
+                  display: "block",
+                  margin: "0 auto 10px",
+                }}
+              />
+              <span className="af-upload__text" style={{ fontSize: "13px", color: "var(--af-success)" }}>
+                Portrait lodged — click to replace
+              </span>
+            </div>
+          ) : (
+            <div className="af-upload__seal-confirm">
+              <PageSeal size={36} variant="full" />
+              <span className="af-upload__seal-confirm-label">Document lodged</span>
+              <span className="af-upload__text" style={{ fontSize: "12px", color: "var(--af-ink-60, rgba(12,26,46,0.6))" }}>
+                Click to replace
+              </span>
+            </div>
+          )
         ) : (
-          <>
-            {file && file.url && isImageFile(file.name) ? (
-              <div style={{ marginBottom: "12px" }}>
-                <img
-                  src={file.url}
-                  alt={`${label} Preview`}
-                  style={{
-                    width: "96px",
-                    height: "96px",
-                    objectFit: "cover",
-                    borderRadius: "8px",
-                    border: "2px solid #27ae60",
-                    boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-                  }}
-                />
-              </div>
-            ) : (
-              <div className="af-upload__icon-wrap" style={{ marginBottom: "8px", color: file ? "#27ae60" : "var(--af-text-muted)" }}>
-                {file ? <CheckCircle size={28} /> : <Upload size={28} />}
-              </div>
-            )}
-
-            <span className="af-upload__text" style={{ fontSize: "16px", fontWeight: 600, color: "var(--af-navy)", textAlign: "center" }}>
-              {file ? "File uploaded - Click to replace" : `Upload ${label}`}
+          /* ── Empty state: document-register feel ── */
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
+            <div className="af-upload__icon-wrap">
+              <FileText size={26} />
+            </div>
+            <span className="af-upload__text">
+              Attach {label}
             </span>
-            <span className="af-upload__hint" style={{ fontSize: "13px", color: "var(--af-text-muted)", marginTop: "4px" }}>
-              {slotName === "photo_1x1" ? "JPG, PNG - Max 5MB" : "PDF, JPG, PNG - Max 5MB"}
+            <span className="af-upload__hint">
+              {slotName === "photo_1x1"
+                ? "JPG · PNG — max 5 MB"
+                : "PDF · JPG · PNG — max 5 MB"}
             </span>
-          </>
+            <span style={{ fontSize: "11px", color: "var(--af-ink-30, rgba(12,26,46,0.3))", marginTop: "2px" }}>
+              drag and drop or click to browse
+            </span>
+          </div>
         )}
 
-        {file && !isUploading && (
+        {/* File confirmation chip (shown after upload, doesn't block click-to-replace) */}
+        {hasFile && !isUploading && (
           <div
             className="af-upload__file"
             onClick={(e) => e.stopPropagation()}
-            style={{
-              marginTop: "12px",
-              background: "rgba(39, 174, 96, 0.08)",
-              border: "1px solid #27ae60",
-              padding: "8px 16px",
-              borderRadius: "8px",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
+            style={{ marginTop: "14px" }}
           >
-            <FileCheck size={16} style={{ color: "#27ae60" }} />
+            <CheckCircle size={14} style={{ color: "var(--af-success)", flexShrink: 0 }} />
             <span
               className="af-upload__file-name"
-              title={file.name}
-              style={{
-                fontSize: "14px",
-                fontWeight: 600,
-                color: "var(--af-navy)",
-                maxWidth: "200px",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                cursor: "default",
-              }}
+              title={file!.name}
             >
-              {file.name}
+              {file!.name}
             </span>
-            {file.size && (
-              <span style={{ fontSize: "12px", color: "var(--af-text-muted)" }}>
-                ({formatBytes(file.size)})
+            {file!.size && (
+              <span style={{ fontSize: "11px", color: "var(--af-ink-60, rgba(12,26,46,0.55))", flexShrink: 0 }}>
+                {formatBytes(file!.size)}
               </span>
             )}
             <button
               type="button"
               className="af-upload__file-clear"
               onClick={() => onFileChange(slotName, null)}
-              style={{
-                border: "none",
-                background: "none",
-                color: "var(--af-error)",
-                cursor: "pointer",
-                padding: "2px",
-                display: "flex",
-                alignItems: "center",
-                marginLeft: "8px",
-              }}
+              aria-label={`Remove ${label}`}
             >
-              <Trash2 size={16} />
+              <Trash2 size={14} />
             </button>
           </div>
         )}
@@ -200,7 +193,7 @@ export function DocumentUpload({
         <span
           style={{
             color: "var(--af-error)",
-            fontSize: "14px",
+            fontSize: "13px",
             marginTop: "6px",
             display: "block",
             fontWeight: 500,

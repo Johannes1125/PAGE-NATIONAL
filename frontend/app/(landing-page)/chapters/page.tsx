@@ -1,108 +1,31 @@
 "use client";
-import Navbar from "../components/Navbar";
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
 
+import Navbar from "../components/Navbar";
+import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { CHAPTERS_DATA } from "./mock-data";
-import { Chapter } from "./types";
+import { MapPin, Search, Calendar, GraduationCap, ArrowRight, FileText, Globe2 } from "lucide-react";
 import "./chapters.css";
 
-// ── Icon Components ────────────────────────────────────────────────────────
-
-const CalendarIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-    <line x1="16" y1="2" x2="16" y2="6" />
-    <line x1="8" y1="2" x2="8" y2="6" />
-    <line x1="3" y1="10" x2="21" y2="10" />
-  </svg>
-);
-
-const SchoolIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-    <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" />
-  </svg>
-);
-
-const ArrowRightIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="5" y1="12" x2="19" y2="12" />
-    <polyline points="12 5 19 12 12 19" />
-  </svg>
-);
-
-const FacebookIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-  </svg>
-);
-
-const InstagramIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-  </svg>
-);
-
-const MailIconSm = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-    <polyline points="22,6 12,13 2,6" />
-  </svg>
-);
-
-const MapPinIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-    <circle cx="12" cy="10" r="3" />
-  </svg>
-);
-
-const MailIconContact = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-    <polyline points="22,6 12,13 2,6" />
-  </svg>
-);
-
-const PhoneIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.86a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z" />
-  </svg>
-);
-
-// ── Shared Data ────────────────────────────────────────────────────────────
-
-const FOOTER_QUICK_LINKS = ["About PAGE", "History", "Officers", "News & Announcements"];
-const FOOTER_RESOURCES    = ["Journals", "Articles", "Upcoming Activities", "Contact Us"];
-const FOOTER_CONTACT = [
-  { icon: <MapPinIcon />,      text: "Manila, Philippines" },
-  { icon: <MailIconContact />, text: "page@gmail.edu.ph"   },
-  { icon: <PhoneIcon />,       text: "+63 908 XXX XXXX"    },
-];
-
-
-// ── Chapters Hero Component ─────────────────────────────────────────────────
+// ── Hero Section (CBL Dark Navy Gradient, NO top pill label) ─────────────────
 function ChaptersHero() {
   return (
-    <section className="chapters-hero">
-      <div className="container">
-        <div className="chapters-hero__breadcrumb">
-          <Link href="/" className="chapters-hero__breadcrumb-link">Home</Link>
-          <span className="chapters-hero__breadcrumb-sep">/</span>
-          <span className="chapters-hero__breadcrumb-current">Chapters</span>
+    <section className="cbl-hero">
+      <div className="cbl-hero-container">
+        <div className="cbl-breadcrumb">
+          <Link href="/" className="cbl-breadcrumb-link">Home</Link>
+          <span className="cbl-breadcrumb-sep">/</span>
+          <span className="cbl-breadcrumb-current">Chapters</span>
         </div>
-        <h1 className="chapters-hero__title">
-          Regional Chapters
-        </h1>
-        <div className="chapters-hero__divider" />
-        <p className="chapters-hero__subtitle">
-          Discover PAGE's 18 regional chapters across the Philippines. Explore their local leadership, academic initiatives, and research collaborations.
-        </p>
+        
+        <div className="cbl-hero-left">
+          <h1 className="cbl-hero-title">Regional Chapters</h1>
+          <div className="cbl-gold-line" />
+          <p className="cbl-hero-subtitle">
+            Discover PAGE&apos;s 18 regional chapters across the Philippines. Explore their local leadership, academic initiatives, and research collaborations.
+          </p>
+        </div>
       </div>
     </section>
   );
@@ -128,84 +51,12 @@ function SkeletonGrid() {
   );
 }
 
-// ── Footer Component ────────────────────────────────────────────────────────
-function Footer() {
-  return (
-    <footer className="footer">
-      <div className="footer__inner">
-        <div className="footer__columns">
-          <div>
-            <div className="footer__brand-logo">
-              <div className="footer__logo-mark">
-                <img src="/PAGE.jpg" alt="PAGE Logo" onError={(e) => { e.currentTarget.style.display="none"; }} />
-              </div>
-              <div>
-                <div className="footer__logo-name">PAGE</div>
-                <div className="footer__logo-sub">An academic towards to excellence</div>
-              </div>
-            </div>
-            <p className="footer__brand-desc">
-              Philippine Association for Graduate Education — advancing excellence through collaboration and research.
-            </p>
-            <div className="footer__socials">
-              {[<FacebookIcon key="fb" />, <InstagramIcon key="ig" />, <MailIconSm key="mail" />].map((icon, i) => (
-                <button key={i} className="footer__social-btn">{icon}</button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h4 className="footer__col-title">Quick Links</h4>
-            <ul className="footer__links">
-              {FOOTER_QUICK_LINKS.map(l => (
-                <li key={l}><a href="#" className="footer__link">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="footer__col-title">Resources</h4>
-            <ul className="footer__links">
-              {FOOTER_RESOURCES.map(l => (
-                <li key={l}><a href="#" className="footer__link">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="footer__col-title">Contact</h4>
-            <div className="footer__contact-list">
-              {FOOTER_CONTACT.map(item => (
-                <div key={item.text} className="footer__contact-item">
-                  <span className="footer__contact-icon">{item.icon}</span>
-                  <span className="footer__contact-text">{item.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="footer__bottom">
-          <p className="footer__copyright">
-            © 2026 Philippine Association for Graduate Education. All rights reserved.
-          </p>
-          <div className="footer__legal">
-            {["Privacy Policy", "Terms of Use"].map(l => (
-              <a key={l} href="#" className="footer__legal-link">{l}</a>
-            ))}
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
 // ── Framer Motion Stagger Variants ──────────────────────────────────────────
 const containerVariants: Variants = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.04,
+      staggerChildren: 0.05,
     },
   },
 };
@@ -213,7 +64,7 @@ const containerVariants: Variants = {
 const cardVariants: Variants = {
   hidden: {
     opacity: 0,
-    y: 24,
+    y: 20,
     scale: 0.98,
   },
   visible: {
@@ -227,18 +78,18 @@ const cardVariants: Variants = {
   },
 };
 
-// ── Main Directory Page Component ────────────────────────────────────────────
+// ── Main Chapters Page Component ────────────────────────────────────────────
 export default function ChaptersPage() {
   const [scrolled, setScrolled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<"All" | "Luzon" | "Visayas" | "Mindanao">("All");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", onScroll);
     
-    // Simulate loading for loading state presentation
-    const timer = setTimeout(() => setLoading(false), 550);
+    const timer = setTimeout(() => setLoading(false), 400);
 
     return () => {
       window.removeEventListener("scroll", onScroll);
@@ -250,53 +101,99 @@ export default function ChaptersPage() {
     if (filter === activeFilter) return;
     setActiveFilter(filter);
     
-    // Brief loading animation toggle to recreate stagger layout transition nicely
     setLoading(true);
-    const timer = setTimeout(() => setLoading(false), 300);
+    const timer = setTimeout(() => setLoading(false), 250);
     return () => clearTimeout(timer);
   };
 
-  const filteredChapters = CHAPTERS_DATA.filter((chapter) =>
-    activeFilter === "All" ? true : chapter.region === activeFilter
-  );
+  const filteredChapters = useMemo(() => {
+    return CHAPTERS_DATA.filter((chapter) => {
+      const matchesRegion = activeFilter === "All" ? true : chapter.region === activeFilter;
+      const q = searchQuery.trim().toLowerCase();
+      if (!q) return matchesRegion;
 
-  const filterOptions: Array<"All" | "Luzon" | "Visayas" | "Mindanao"> = ["All", "Luzon", "Visayas", "Mindanao"];
+      const matchesSearch =
+        chapter.chapter_name.toLowerCase().includes(q) ||
+        chapter.region.toLowerCase().includes(q) ||
+        chapter.tagline.toLowerCase().includes(q) ||
+        (chapter.description && chapter.description.toLowerCase().includes(q));
+      return matchesRegion && matchesSearch;
+    });
+  }, [activeFilter, searchQuery]);
+
+  const filterOptions: Array<{ id: "All" | "Luzon" | "Visayas" | "Mindanao"; label: string }> = [
+    { id: "All", label: "All Regions" },
+    { id: "Luzon", label: "Luzon Chapters" },
+    { id: "Visayas", label: "Visayas Chapters" },
+    { id: "Mindanao", label: "Mindanao Chapters" },
+  ];
 
   return (
-    <>
+    <main className="chapters-main">
       <Navbar scrolled={scrolled} />
-      <main>
-        <ChaptersHero />
-        
-        <section className="chapters-section">
-          <div className="container">
-            {/* Filter pills */}
-            <div className="chapters-filters" role="tablist" aria-label="Filter chapters by region">
-              {filterOptions.map((filter) => {
-                const isActive = activeFilter === filter;
+      <ChaptersHero />
+
+      <section className="cbl-content-section">
+        <div className="cbl-container">
+          <div className="chapters-body-wrapper">
+            
+            {/* Filter Pills Bar */}
+            <div className="chapters-tabs-bar" role="tablist" aria-label="Filter chapters by region">
+              {filterOptions.map((opt) => {
+                const isActive = activeFilter === opt.id;
+                const count = CHAPTERS_DATA.filter(c => opt.id === "All" ? true : c.region === opt.id).length;
                 return (
                   <button
-                    key={filter}
+                    key={opt.id}
                     role="tab"
                     aria-selected={isActive}
-                    className={`chapters-filter-btn${isActive ? " chapters-filter-btn--active" : ""}`}
-                    onClick={() => handleFilterChange(filter)}
+                    className={`chapters-tab-btn ${isActive ? "chapters-tab-btn--active" : ""}`}
+                    onClick={() => handleFilterChange(opt.id)}
                   >
-                    {filter}
-                    {isActive && (
-                      <motion.div
-                        layoutId="active-region-pill"
-                        className="chapters-filter-active-indicator"
-                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                      />
-                    )}
+                    <span>{opt.label}</span>
+                    <span className="chapters-tab-count">{count}</span>
                   </button>
                 );
               })}
             </div>
 
+            {/* Section Header Card with Search Input */}
+            <div className="cbl-section-header chapters-section-header">
+              <div className="chapters-header-left">
+                <Globe2 size={32} />
+                <div>
+                  <h2 className="cbl-section-title">
+                    {activeFilter === "All"
+                      ? "Nationwide Regional Network"
+                      : `${activeFilter} Regional Chapters`}
+                  </h2>
+                  <p className="cbl-section-subtitle">
+                    Showing {filteredChapters.length} {filteredChapters.length === 1 ? "chapter" : "chapters"} across the Philippines
+                  </p>
+                </div>
+              </div>
+
+              <div className="chapters-search-box">
+                <Search size={16} className="chapters-search-icon" />
+                <input
+                  type="text"
+                  placeholder="Search chapter name, region..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  aria-label="Search regional chapters"
+                />
+              </div>
+            </div>
+
+            {/* Chapter Cards Grid */}
             {loading ? (
               <SkeletonGrid />
+            ) : filteredChapters.length === 0 ? (
+              <div className="cbl-empty-state">
+                <FileText size={48} />
+                <h3>No Chapters Found</h3>
+                <p>No regional chapters match your search criteria. Try clearing the search query.</p>
+              </div>
             ) : (
               <AnimatePresence mode="wait">
                 <motion.div
@@ -307,13 +204,14 @@ export default function ChaptersPage() {
                   animate="visible"
                 >
                   {filteredChapters.map((chapter) => (
-                    <motion.div
+                    <motion.article
                       key={chapter.slug}
                       className="chapters-card"
                       variants={cardVariants}
                     >
-                      {/* Cover Photo */}
+                      {/* Cover Photo & Badge */}
                       <div className="chapters-card__cover">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={chapter.cover_image_url}
                           alt={`${chapter.chapter_name} Cover`}
@@ -325,35 +223,36 @@ export default function ChaptersPage() {
                       {/* Content Body */}
                       <div className="chapters-card__body">
                         <h3 className="chapters-card__title">{chapter.chapter_name}</h3>
-                        
+
                         <div className="chapters-card__meta">
                           <div className="chapters-card__meta-item">
-                            <CalendarIcon />
+                            <Calendar size={13} />
                             <span>Est. {chapter.established_year}</span>
                           </div>
                           <div className="chapters-card__meta-item">
-                            <SchoolIcon />
+                            <GraduationCap size={13} />
                             <span>{chapter.member_institutions_count} Institutions</span>
                           </div>
                         </div>
 
                         <p className="chapters-card__tagline">{chapter.tagline}</p>
-                        
+
                         <div className="chapters-card__footer">
                           <Link href={`/chapters/${chapter.slug}`} className="chapters-card__cta">
-                            View Chapter <ArrowRightIcon />
+                            <span>View Chapter</span>
+                            <ArrowRight size={14} />
                           </Link>
                         </div>
                       </div>
-                    </motion.div>
+                    </motion.article>
                   ))}
                 </motion.div>
               </AnimatePresence>
             )}
           </div>
-        </section>
-      </main>
-      <Footer />
-    </>
+        </div>
+      </section>
+    </main>
   );
 }
+

@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { api } from "../../lib/api-client";
 import "./news.css";
 
 // ── Icon Components ────────────────────────────────────────────────────────
@@ -361,8 +362,41 @@ function NewsSection() {
   const [category, setCategory] = useState<string>("All");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [newsItems, setNewsItems] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const filtered = ALL_NEWS.filter(item => {
+  useEffect(() => {
+    async function loadNews() {
+      try {
+        setIsLoading(true);
+        const res = await api.get<{ success: boolean; posts: any[] }>("/public/posts");
+        if (res.success && Array.isArray(res.posts)) {
+          const fetched = res.posts;
+          const mapped = fetched.map((p: any) => ({
+            id: p.id,
+            category: p.category || "News",
+            date: p.published_at || p.created_at
+              ? new Date(p.published_at || p.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+              : "Recent",
+            author: p.author?.name || "PAGE National",
+            title: p.title,
+            excerpt: p.summary || p.content?.replace(/<[^>]+>/g, "").slice(0, 150) || "",
+          }));
+          setNewsItems(mapped);
+        } else {
+          setNewsItems([]);
+        }
+      } catch (err) {
+        console.error("Failed to load news posts:", err);
+        setNewsItems([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadNews();
+  }, []);
+
+  const filtered = newsItems.filter(item => {
     const matchCat  = category === "All" || item.category === category;
     const matchSearch = !search ||
       item.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -379,18 +413,6 @@ function NewsSection() {
   return (
     <section className="news-section">
       <div className="container">
-        {/* Section heading */}
-        <div className="section-header" style={{ textAlign: "left", marginBottom: "32px" }}>
-          <span className="section-label">Latest Updates</span>
-          <h2 className="section-title" style={{ textAlign: "left", margin: "0 0 8px" }}>
-            News &amp; Announcements
-          </h2>
-          <p className="section-subtitle" style={{ textAlign: "left", margin: 0, maxWidth: "600px" }}>
-            Stay informed with the latest news, research breakthroughs, and upcoming events
-            from the Philippine Association for Graduate Education.
-          </p>
-        </div>
-
         {/* Filters */}
         <div className="news-filters">
           <select
@@ -419,7 +441,11 @@ function NewsSection() {
         </div>
 
         {/* Grid */}
-        {paginated.length > 0 ? (
+        {isLoading ? (
+          <div style={{ textAlign: "center", padding: "60px 0", color: "var(--ink-30)" }}>
+            <p style={{ fontSize: "15px" }}>Loading news articles...</p>
+          </div>
+        ) : paginated.length > 0 ? (
           <div className="news-grid">
             {paginated.map(item => (
               <div key={item.id} className="news-card">
@@ -439,7 +465,6 @@ function NewsSection() {
                   <h3 className="news-card__title">{item.title}</h3>
                   <p className="news-card__excerpt">{item.excerpt}</p>
                   <div className="news-card__footer">
-                    {/* CHANGED: Replaced <button> with <Link> to navigate to the slug */}
                     <Link href={`/news/${item.id}`} className="news-card__read-more">
                       Read More <ArrowIcon />
                     </Link>
@@ -450,8 +475,8 @@ function NewsSection() {
           </div>
         ) : (
           <div style={{ textAlign: "center", padding: "80px 0", color: "var(--ink-30)" }}>
-            <p style={{ fontFamily: "var(--serif)", fontSize: "18px", marginBottom: "8px" }}>No results found</p>
-            <p style={{ fontSize: "13px" }}>Try adjusting your filters or search terms.</p>
+            <p style={{ fontFamily: "var(--serif)", fontSize: "18px", marginBottom: "8px" }}>No news or announcements found</p>
+            <p style={{ fontSize: "13px" }}>Check back later for updates from PAGE National.</p>
           </div>
         )}
 
@@ -669,84 +694,28 @@ function JournalsSection() {
   );
 }
 
-// ── Footer ─────────────────────────────────────────────────────────────────
-function Footer() {
+
+
+// ── News Hero (Matching CBL Hero Design, NO Top Label Badge) ─────────────────
+function NewsHero() {
   return (
-    <footer className="footer">
-      <div className="footer__inner">
-        <div className="footer__columns">
-          <div>
-            <div className="footer__brand-logo">
-              <div className="footer__logo-mark">
-                <img
-                  src="/PAGE.jpg"
-                  onError={(e) => {
-                    const target = e.currentTarget as HTMLImageElement;
-                    target.style.display = "none";
-                    const fallback = target.nextElementSibling as HTMLElement;
-                    if (fallback) fallback.style.display = "flex";
-                  }}
-                />
-              </div>
-              <div>
-                <div className="footer__logo-name">PAGE</div>
-                <div className="footer__logo-sub">An academic towards to excellence</div>
-              </div>
-            </div>
-            <p className="footer__brand-desc">
-              Philippine Association for Graduate Education — advancing excellence
-              through collaboration and research.
-            </p>
-            <div className="footer__socials">
-              {[<FacebookIcon />, <InstagramIcon />, <MailIconSm />].map((icon, i) => (
-                <button key={i} className="footer__social-btn">{icon}</button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h4 className="footer__col-title">Quick Links</h4>
-            <ul className="footer__links">
-              {FOOTER_QUICK_LINKS.map(l => (
-                <li key={l}><a href="#" className="footer__link">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="footer__col-title">Resources</h4>
-            <ul className="footer__links">
-              {FOOTER_RESOURCES.map(l => (
-                <li key={l}><a href="#" className="footer__link">{l}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="footer__col-title">Contact</h4>
-            <div className="footer__contact-list">
-              {FOOTER_CONTACT.map(item => (
-                <div key={item.text} className="footer__contact-item">
-                  <span className="footer__contact-icon">{item.icon}</span>
-                  <span className="footer__contact-text">{item.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+    <section className="cbl-hero">
+      <div className="cbl-hero-container">
+        <div className="cbl-breadcrumb">
+          <Link href="/" className="cbl-breadcrumb-link">Home</Link>
+          <span className="cbl-breadcrumb-sep">/</span>
+          <span className="cbl-breadcrumb-current">News &amp; Announcements</span>
         </div>
-
-        <div className="footer__bottom">
-          <p className="footer__copyright">
-            © 2026 Philippine Association for Graduate Education. All rights reserved.
+        
+        <div className="cbl-hero-left">
+          <h1 className="cbl-hero-title">News &amp; Announcements</h1>
+          <div className="cbl-gold-line" />
+          <p className="cbl-hero-subtitle">
+            Stay informed with official announcements, research breakthroughs, publication releases, and upcoming academic events from the Philippine Association for Graduate Education.
           </p>
-          <div className="footer__legal">
-            {["Privacy Policy", "Terms of Use"].map(l => (
-              <a key={l} href="#" className="footer__legal-link">{l}</a>
-            ))}
-          </div>
         </div>
       </div>
-    </footer>
+    </section>
   );
 }
 
@@ -761,13 +730,11 @@ export default function NewsPage() {
   }, []);
 
   return (
-    <>
+    <main className="news-main">
       <Navbar scrolled={scrolled} />
-      <main>
-        <NewsSection />
-        <JournalsSection />
-      </main>
-      <Footer />
-    </>
+      <NewsHero />
+      <NewsSection />
+      <JournalsSection />
+    </main>
   );
 }

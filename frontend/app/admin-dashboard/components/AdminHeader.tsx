@@ -144,7 +144,7 @@ export default function AdminHeader({
 
           <div className={styles.brand}>
             <div className={styles.brandMark} aria-hidden="true">
-              <img src="/PAGE-logo.jpg" alt="PAGE" className={styles.brandMarkImg} />
+              <img src="/PAGE-favicon.png" alt="PAGE" className={styles.brandMarkImg} />
             </div>
             <div className={styles.brandCopy}>
               <span className={styles.brandName}>PAGE</span>
@@ -224,7 +224,6 @@ export default function AdminHeader({
       >
         <div className={styles.introContent}>
           <div className={styles.introLeft}>
-            <p className={joinClasses(styles.eyebrow, seniorFriendlyHeader && styles.eyebrowSeniorFriendly)}>{eyebrow}</p>
             <h1
               className={joinClasses(
                 styles.title,
