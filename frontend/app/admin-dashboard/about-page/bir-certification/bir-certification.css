@@ -120,3 +120,80 @@ input[type="date"].bir-date-input:focus {
   align-items: center;
   gap: 6px;
 }
+
+/* ─── BIR Certification — Mobile-First Responsiveness ────────────────────── */
+/* Same colors, borders, shadows, and tokens as above — this section only   */
+/* adjusts layout so the page works down to 375px. Inline styles in         */
+/* page.tsx take precedence over plain classes, so overrides below use      */
+/* !important on the same properties the inline styles set.                 */
+
+@media (max-width: 900px) {
+  /* Certificate + receipt panels stack instead of sitting side by side */
+  .bir-doc-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .bir-certification-container {
+    gap: 20px;
+  }
+
+  /* Title + Edit/Delete buttons stack, buttons go full width and wrap */
+  .bir-record-header {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 16px;
+  }
+
+  .bir-record-title {
+    align-items: flex-start !important;
+  }
+
+  .bir-record-actions {
+    width: 100%;
+  }
+
+  .bir-record-actions .about-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 44px !important;
+  }
+
+  /* Document preview frames don't need to reserve as much height on phones */
+  .bir-doc-frame {
+    min-height: 220px !important;
+    max-height: 320px !important;
+  }
+
+  .bir-doc-frame--empty {
+    min-height: 140px !important;
+  }
+
+  .bir-modal-overlay {
+    padding: 16px !important;
+  }
+
+  .bir-modal-card {
+    max-height: calc(100dvh - 32px) !important;
+    border-radius: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bir-nav-row .about-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Keep Edit/Delete side-by-side, each taking half the row */
+  .bir-record-actions .about-btn {
+    flex: 1 1 0;
+    padding: 0 10px !important;
+  }
+
+  .bir-modal-actions {
+    grid-template-columns: 1fr !important;
+  }
+}

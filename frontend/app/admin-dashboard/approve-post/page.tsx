@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   CalendarDays,
   ChevronLeft,
@@ -48,6 +48,8 @@ export default function ApprovePostPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 4; // 4 items per page
+
+  const detailRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const fetchPending = async () => {
@@ -155,6 +157,15 @@ export default function ApprovePostPage() {
     setSelectedPostId(postId);
     setFeedbackInput(postStateById[postId]?.feedback ?? "");
     setFeedbackError("");
+
+    // On mobile/tablet the detail panel stacks below the list, so bring
+    // it into view once the user picks a post instead of leaving them
+    // to scroll down and guess whether the selection worked.
+    if (typeof window !== "undefined" && window.innerWidth <= 1080) {
+      requestAnimationFrame(() => {
+        detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
   };
 
   const handleApprove = async () => {
@@ -363,7 +374,7 @@ export default function ApprovePostPage() {
           </section>
 
           {/* Detail Panel (Manuscript Review Style) */}
-          <aside className="approve-detail">
+          <aside className="approve-detail" ref={detailRef}>
             <div className="approve-detail__inner">
               <div className="approve-detail__header">
                 <h3>Manuscript Details</h3>

@@ -26,7 +26,7 @@ interface SecRegistration {
 
 export default function SecRegistrationsPage() {
   const router = useRouter();
-  
+
   // Data State
   const [record, setRecord] = useState<SecRegistration | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -205,9 +205,9 @@ export default function SecRegistrationsPage() {
       seniorFriendlyHeader={true}
     >
       <div className="admin-shell admin-shell--main" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-        
+
         {/* Back and Action Bar */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
           <button
             type="button"
             className="about-btn about-btn--secondary"
@@ -225,8 +225,8 @@ export default function SecRegistrationsPage() {
         ) : record ? (
           /* Active Record Card Display */
           <div className="about-editor-card" style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "20px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--r-border-mid)", paddingBottom: "16px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div className="sec-record-header">
+              <div className="sec-record-header-info">
                 <div style={{ background: "rgba(30, 83, 142, 0.08)", padding: "8px", borderRadius: "10px", color: "var(--p-blue)" }}>
                   <Shield size={22} />
                 </div>
@@ -235,7 +235,7 @@ export default function SecRegistrationsPage() {
                   <p style={{ fontSize: "13px", color: "var(--r-text-muted)", margin: "2px 0 0" }}>Currently synced with the website landing page.</p>
                 </div>
               </div>
-              <div style={{ display: "flex", gap: "10px" }}>
+              <div className="sec-record-header-actions">
                 <button
                   type="button"
                   onClick={() => setModalMode("edit")}
@@ -257,7 +257,7 @@ export default function SecRegistrationsPage() {
 
             {/* Certificate Preview Display */}
             <div style={{ display: "flex", flexDirection: "column", gap: "14px", alignItems: "center", width: "100%" }}>
-              <div style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div className="sec-doc-header-row">
                 <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px" }}>Official SEC Certificate Document</span>
                 {record.imageUrl && (
                   <a
@@ -272,22 +272,7 @@ export default function SecRegistrationsPage() {
                 )}
               </div>
               {record.imageUrl ? (
-                <div style={{
-                  width: "100%",
-                  minHeight: "360px",
-                  maxHeight: "520px",
-                  borderRadius: "12px",
-                  border: "1.5px solid var(--r-border-mid)",
-                  background: "#f8fafc",
-                  overflow: "hidden",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.03)",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: "16px",
-                  position: "relative"
-                }}>
+                <div className="sec-cert-preview">
                   {isPdf(record.imageUrl) ? (
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "14px" }}>
                       <FileText size={64} style={{ color: "var(--p-rose)" }} />
@@ -345,8 +330,8 @@ export default function SecRegistrationsPage() {
           setModalMode(null);
         }}
         title={modalMode === "create" ? "Add SEC Registration Record" : "Edit SEC Registration Record"}
-        subtitle={modalMode === "create" 
-          ? "Fill in the details below to configure the SEC registration record." 
+        subtitle={modalMode === "create"
+          ? "Fill in the details below to configure the SEC registration record."
           : "Fill in the details below to update the SEC registration record."
         }
         contentPadding="0px"
@@ -373,13 +358,13 @@ export default function SecRegistrationsPage() {
         scrollable={false}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          <div style={{ 
-            background: "var(--p-rose-pale)", 
-            border: "1px solid rgba(244,63,94,0.2)", 
-            borderRadius: "10px", 
+          <div style={{
+            background: "var(--p-rose-pale)",
+            border: "1px solid rgba(244,63,94,0.2)",
+            borderRadius: "10px",
             padding: "14px 18px",
-            display: "flex", 
-            alignItems: "flex-start", 
+            display: "flex",
+            alignItems: "flex-start",
             gap: "10px",
           }}>
             <AlertTriangle size={20} style={{ color: "var(--p-rose)", flexShrink: 0, marginTop: "2px" }} />

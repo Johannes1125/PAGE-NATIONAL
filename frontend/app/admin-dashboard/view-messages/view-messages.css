@@ -113,9 +113,11 @@
 }
 
 .messages-tag--active {
-  color: #ffffff;
-  background: var(--messages-navy);
-  border-color: var(--messages-navy);
+  /* Use a subtle pale-blue background with a strong navy border and navy text
+     for better contrast and to match the admin dashboard visual language. */
+  color: var(--messages-blue-strong);
+  background: rgba(30, 83, 142, 0.08);
+  border-color: var(--messages-blue-strong);
 }
 
 .messages-tag__count {
@@ -133,6 +135,28 @@
 .messages-tag:not(.messages-tag--active) .messages-tag__count {
   background: var(--messages-blue);
   color: #fff;
+}
+
+/* Active tag count should be high-contrast on the pale active background */
+.messages-tag--active .messages-tag__count {
+  background: var(--messages-blue-strong);
+  color: #fff;
+}
+
+/* Small responsive tweaks: allow tags to wrap and reduce padding on narrow viewports */
+@media (max-width: 760px) {
+  .messages-tag-row {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .messages-tag {
+    padding: 6px 10px;
+    font-size: 11px;
+    min-width: 0;
+  }
+
+  .messages-tag__count { min-width: 14px; height: 14px; font-size: 9px; }
 }
 
 .messages-conversation-list {
@@ -630,11 +654,21 @@
 
   .messages-thread {
     padding: 14px 12px;
+    /* limit thread height so composer remains visible without scrolling */
+    max-height: calc(100vh - 140px);
+    overflow-y: auto;
   }
 
   .messages-composer {
     padding: 8px 10px;
     grid-template-columns: 28px 1fr 28px 36px;
+    /* sticky composer keeps the input visible on small screens */
+    position: sticky;
+    bottom: 0;
+    z-index: 30;
+    background: #ffffff;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+    border-top: 1px solid #e5ecf4;
   }
 
   .messages-send-btn {

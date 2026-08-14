@@ -136,6 +136,10 @@ html, body {
   background: rgba(30, 83, 142, 0.02);
 }
 
+.approve-card:active {
+  transform: scale(0.995);
+}
+
 .approve-card--active {
   border-left-color: var(--approve-blue);
   box-shadow: 0 0 0 2px rgba(30, 83, 142, 0.15);
@@ -146,6 +150,7 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
 }
 
 .approve-card__category {
@@ -188,6 +193,7 @@ html, body {
   font-size: 12px;
   font-weight: 500;
   color: var(--approve-muted);
+  flex-wrap: wrap;
 }
 
 .approve-card__divider {
@@ -201,6 +207,8 @@ html, body {
   padding: 4px 8px;
   border-radius: 6px;
   letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .approve-status-dot--pending { background: #fff4d8; color: #9a6400; }
@@ -215,6 +223,8 @@ html, body {
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .approve-status-badge--pending { background: #fff4d8; color: #9a6400; }
@@ -247,6 +257,7 @@ html, body {
 .approve-detail {
   position: sticky;
   top: 100px;
+  scroll-margin-top: 88px; /* keeps the panel clear of a fixed header when scrolled into view on mobile */
 }
 
 .approve-detail__inner {
@@ -266,6 +277,7 @@ html, body {
   margin-bottom: 24px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--approve-border);
+  gap: 12px;
 }
 
 .approve-detail__header h3 {
@@ -298,6 +310,7 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0; /* lets long author/institution names wrap instead of overflowing */
 }
 
 .approve-detail__label {
@@ -314,6 +327,7 @@ html, body {
   color: var(--approve-navy);
   font-size: 14px;
   font-weight: 500;
+  word-break: break-word;
 }
 
 .approve-detail__title-value {
@@ -322,6 +336,7 @@ html, body {
   font-size: 16px;
   font-weight: 700;
   line-height: 1.4;
+  word-break: break-word;
 }
 
 .approve-detail__abstract {
@@ -354,8 +369,8 @@ html, body {
 
 .approve-feedback:focus {
   outline: none;
-  border-color: #ef4444;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+  border-color: var(--approve-blue);
+  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.15);
 }
 
 .approve-saved-feedback {
@@ -374,24 +389,6 @@ html, body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-}
-
-.approve-feedback {
-  width: 100%;
-  border: 1px solid var(--approve-border);
-  border-radius: 8px;
-  padding: 0.625rem 0.875rem;
-  font-size: 0.875rem;
-  color: var(--approve-navy);
-  background: var(--approve-surface);
-  transition: all 0.2s ease;
-  resize: vertical;
-}
-
-.approve-feedback:focus {
-  outline: none;
-  border-color: var(--approve-blue);
-  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.15);
 }
 
 .approve-btn {
@@ -489,36 +486,130 @@ html, body {
 /* =========================================
    7. RESPONSIVE
    ========================================= */
+
+/* Tablet: single column, panel un-stickies and sits below the list */
 @media (max-width: 1080px) {
   .approve-page {
     padding-left: 0;
-    padding-top: 88px;
+    padding-top: 12px;
   }
   .approve-layout {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
   .approve-detail {
     position: static;
   }
+  .approve-detail__inner {
+    padding: 28px;
+  }
 }
 
+/* Small tablet / large phone */
 @media (max-width: 768px) {
   .approve-content {
-    padding: 24px 16px;
+    padding: 20px 16px;
+    gap: 16px;
   }
   .approve-toolbar {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 12px;
+    padding-bottom: 12px;
   }
   .approve-toolbar__filters {
     width: 100%;
     display: grid;
     grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .approve-select {
+    min-width: 0;
+    width: 100%;
+    padding: 0.7rem 0.75rem;
+    /* 44px+ touch target */
+    min-height: 44px;
+  }
+  .approve-card {
+    padding: 14px 16px;
+  }
+  .approve-card h2 {
+    font-size: 14.5px;
+  }
+  .approve-detail__inner {
+    padding: 20px;
+    border-radius: 14px;
+  }
+  .approve-detail__header {
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+  }
+  .approve-detail__header h3 {
+    font-size: 16px;
   }
   .approve-detail__row {
     grid-template-columns: 1fr;
+    gap: 14px;
   }
   .approve-detail__actions {
     grid-template-columns: 1fr;
+  }
+  .approve-btn {
+    min-height: 46px; /* comfortable tap target once buttons stack full-width */
+    font-size: 0.9rem;
+  }
+  .approve-detail__abstract {
+    padding: 14px;
+    font-size: 13.5px;
+  }
+}
+
+/* Phones */
+@media (max-width: 480px) {
+  .approve-content {
+    padding: 16px 12px;
+  }
+  .approve-toolbar__filters {
+    /* two selects side by side get cramped under ~360px, so stack them */
+    grid-template-columns: 1fr;
+  }
+  .approve-toolbar__count {
+    font-size: 13px;
+  }
+  .approve-card {
+    padding: 12px 14px;
+    border-radius: 9px;
+    gap: 6px;
+  }
+  .approve-card__header {
+    flex-wrap: wrap;
+  }
+  .approve-card__summary {
+    font-size: 12.5px;
+  }
+  .approve-card__meta {
+    font-size: 11.5px;
+  }
+  .approve-detail__inner {
+    padding: 16px;
+    border-radius: 12px;
+  }
+  .approve-detail__title-value {
+    font-size: 15px;
+  }
+  .approve-feedback {
+    font-size: 16px; /* avoids iOS Safari auto-zoom on focus */
+  }
+  .approve-empty-state {
+    padding: 28px 16px;
+  }
+  .approve-pagination {
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .approve-pagination__nav,
+  .approve-pagination__page {
+    min-width: 38px;
+    height: 38px;
   }
 }

@@ -254,121 +254,202 @@ export default function NationalOfficersManagement() {
           </button>
         </div>
 
-        <section style={{ display: "grid", gridTemplateColumns: "1.3fr 0.7fr", gap: "24px", alignItems: "start" }}>
+        <section className="officers-layout">
           {/* Officers Table List */}
           <div className="about-editor-card">
             <h3 style={{ fontSize: "16px", color: "var(--p-navy)", marginBottom: "16px", fontWeight: 600 }}>
               Officers & Directors Directory
             </h3>
 
-            <table className="about-doc-table">
-              <thead>
-                <tr>
-                  <th>Photo</th>
-                  <th>Name / Role</th>
-                  <th>Chapter</th>
-                  <th>Status</th>
-                  <th>Order</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {officers.map((off, index) => (
-                  <tr key={off.id}>
-                    <td style={{ width: "60px" }}>
-                      <div
-                        style={{
-                          width: "40px",
-                          height: "40px",
-                          borderRadius: "50%",
-                          background: "#e5e7eb",
-                          display: "grid",
-                          placeItems: "center",
-                          overflow: "hidden",
-                        }}
-                      >
-                        {off.photo_url ? (
-                          <img
-                            src={off.photo_url}
-                            alt={off.name}
-                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                          />
-                        ) : (
-                          <User size={18} color="#9ca3af" />
+            {/* Table view — 768px and up */}
+            <div className="officers-table-view">
+              <table className="about-doc-table">
+                <thead>
+                  <tr>
+                    <th>Photo</th>
+                    <th>Name / Role</th>
+                    <th>Chapter</th>
+                    <th>Status</th>
+                    <th>Order</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {officers.map((off, index) => (
+                    <tr key={off.id}>
+                      <td style={{ width: "60px" }}>
+                        <div
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            borderRadius: "50%",
+                            background: "#e5e7eb",
+                            display: "grid",
+                            placeItems: "center",
+                            overflow: "hidden",
+                          }}
+                        >
+                          {off.photo_url ? (
+                            <img
+                              src={off.photo_url}
+                              alt={off.name}
+                              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            />
+                          ) : (
+                            <User size={18} color="#9ca3af" />
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ fontWeight: 600, color: "var(--p-navy)" }}>{off.name}</div>
+                        <div style={{ fontSize: "11.5px", color: "var(--r-text-muted)" }}>{off.position}</div>
+                        {off.term_start && (
+                          <div style={{ fontSize: "10px", color: "var(--p-blue)", marginTop: "2px" }}>
+                            Term: {off.term_start} - {off.term_end || "Present"}
+                          </div>
                         )}
-                      </div>
-                    </td>
-                    <td>
-                      <div style={{ fontWeight: 600, color: "var(--p-navy)" }}>{off.name}</div>
-                      <div style={{ fontSize: "11.5px", color: "var(--r-text-muted)" }}>{off.position}</div>
+                      </td>
+                      <td style={{ fontSize: "13px" }}>{off.chapter || "National"}</td>
+                      <td>
+                        <span
+                          className={`about-status-badge about-status-badge--${off.status === "active" ? "active" : "draft"}`}
+                          style={{ fontSize: "10px" }}
+                        >
+                          {off.status}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ display: "flex", gap: "2px" }}>
+                          <button
+                            type="button"
+                            className="about-btn about-btn--secondary"
+                            style={{ height: "26px", width: "26px", padding: 0 }}
+                            disabled={index === 0}
+                            onClick={() => moveOfficer(index, "up")}
+                          >
+                            <ArrowUp size={12} />
+                          </button>
+                          <button
+                            type="button"
+                            className="about-btn about-btn--secondary"
+                            style={{ height: "26px", width: "26px", padding: 0 }}
+                            disabled={index === officers.length - 1}
+                            onClick={() => moveOfficer(index, "down")}
+                          >
+                            <ArrowDown size={12} />
+                          </button>
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ display: "flex", gap: "4px" }}>
+                          <button
+                            type="button"
+                            className="about-btn about-btn--secondary"
+                            style={{ height: "28px", width: "28px", padding: 0 }}
+                            onClick={() => handleEditClick(off)}
+                          >
+                            <Edit size={12} />
+                          </button>
+                          <button
+                            type="button"
+                            className="about-btn about-btn--danger"
+                            style={{ height: "28px", width: "28px", padding: 0 }}
+                            onClick={() => handleDeleteClick(off.id)}
+                          >
+                            <Trash size={12} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {officers.length === 0 && (
+                    <tr>
+                      <td colSpan={6} style={{ textAlign: "center", color: "#6b7280", padding: "30px" }}>
+                        No officers registered in database.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Card view — below 768px, no sideways scroll */}
+            <div className="officers-card-view">
+              {officers.map((off, index) => (
+                <div key={off.id} className="officers-record-card">
+                  <div className="officers-record-card__top">
+                    <div className="officers-record-card__avatar">
+                      {off.photo_url ? (
+                        <img src={off.photo_url} alt={off.name} />
+                      ) : (
+                        <User size={20} color="#9ca3af" />
+                      )}
+                    </div>
+                    <div className="officers-record-card__info">
+                      <div className="officers-record-card__name">{off.name}</div>
+                      <div className="officers-record-card__position">{off.position}</div>
                       {off.term_start && (
-                        <div style={{ fontSize: "10px", color: "var(--p-blue)", marginTop: "2px" }}>
+                        <div className="officers-record-card__term">
                           Term: {off.term_start} - {off.term_end || "Present"}
                         </div>
                       )}
-                    </td>
-                    <td style={{ fontSize: "13px" }}>{off.chapter || "National"}</td>
-                    <td>
-                      <span
-                        className={`about-status-badge about-status-badge--${off.status === "active" ? "active" : "draft"}`}
-                        style={{ fontSize: "10px" }}
+                    </div>
+                  </div>
+
+                  <div className="officers-record-card__meta">
+                    <span>{off.chapter || "National"}</span>
+                    <span
+                      className={`about-status-badge about-status-badge--${off.status === "active" ? "active" : "draft"}`}
+                      style={{ fontSize: "10px" }}
+                    >
+                      {off.status}
+                    </span>
+                  </div>
+
+                  <div className="officers-record-card__footer">
+                    <div className="officers-record-card__reorder">
+                      <button
+                        type="button"
+                        className="officers-record-card__reorder-btn"
+                        disabled={index === 0}
+                        onClick={() => moveOfficer(index, "up")}
+                        aria-label="Move up"
                       >
-                        {off.status}
-                      </span>
-                    </td>
-                    <td>
-                      <div style={{ display: "flex", gap: "2px" }}>
-                        <button
-                          type="button"
-                          className="about-btn about-btn--secondary"
-                          style={{ height: "26px", width: "26px", padding: 0 }}
-                          disabled={index === 0}
-                          onClick={() => moveOfficer(index, "up")}
-                        >
-                          <ArrowUp size={12} />
-                        </button>
-                        <button
-                          type="button"
-                          className="about-btn about-btn--secondary"
-                          style={{ height: "26px", width: "26px", padding: 0 }}
-                          disabled={index === officers.length - 1}
-                          onClick={() => moveOfficer(index, "down")}
-                        >
-                          <ArrowDown size={12} />
-                        </button>
-                      </div>
-                    </td>
-                    <td>
-                      <div style={{ display: "flex", gap: "4px" }}>
-                        <button
-                          type="button"
-                          className="about-btn about-btn--secondary"
-                          style={{ height: "28px", width: "28px", padding: 0 }}
-                          onClick={() => handleEditClick(off)}
-                        >
-                          <Edit size={12} />
-                        </button>
-                        <button
-                          type="button"
-                          className="about-btn about-btn--danger"
-                          style={{ height: "28px", width: "28px", padding: 0 }}
-                          onClick={() => handleDeleteClick(off.id)}
-                        >
-                          <Trash size={12} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {officers.length === 0 && (
-                  <tr>
-                    <td colSpan={6} style={{ textAlign: "center", color: "#6b7280", padding: "30px" }}>
-                      No officers registered in database.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                        <ArrowUp size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        className="officers-record-card__reorder-btn"
+                        disabled={index === officers.length - 1}
+                        onClick={() => moveOfficer(index, "down")}
+                        aria-label="Move down"
+                      >
+                        <ArrowDown size={16} />
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      className="about-btn about-btn--secondary"
+                      onClick={() => handleEditClick(off)}
+                    >
+                      <Edit size={14} /> Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="about-btn about-btn--danger"
+                      onClick={() => handleDeleteClick(off.id)}
+                    >
+                      <Trash size={14} /> Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {officers.length === 0 && (
+                <p style={{ textAlign: "center", color: "#6b7280", padding: "30px 0" }}>
+                  No officers registered in database.
+                </p>
+              )}
+            </div>
 
             <Pagination
               currentPage={currentPage}
@@ -425,7 +506,7 @@ export default function NationalOfficersManagement() {
 
               <div className="about-form-group">
                 <label className="about-form-label">Term Duration</label>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                <div className="officers-term-grid">
                   <input
                     type="text"
                     placeholder="Start Year"
@@ -457,7 +538,7 @@ export default function NationalOfficersManagement() {
 
               <div className="about-form-group">
                 <label className="about-form-label">Photo Upload</label>
-                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
                   <label
                     className="about-btn about-btn--secondary"
                     style={{ height: "38px", cursor: "pointer", display: "inline-flex", gap: "6px" }}
@@ -484,7 +565,7 @@ export default function NationalOfficersManagement() {
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: "8px", marginTop: "24px" }}>
+              <div className="officers-form-actions">
                 {editingId && (
                   <button
                     type="button"
