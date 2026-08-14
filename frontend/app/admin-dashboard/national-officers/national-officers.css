@@ -36,6 +36,15 @@
   padding-bottom: 24px !important;
 }
 
+@media (max-width: 640px) {
+  [class*="AdminHeader_title"] {
+    font-size: 26px !important;
+  }
+  [class*="AdminHeader_eyebrow"] {
+    font-size: 13px !important;
+  }
+}
+
 /* ─── Page Container ─── */
 .officers-container {
   display: flex;
@@ -47,10 +56,16 @@
   padding: 32px;
 }
 
+@media (max-width: 1024px) {
+  .officers-container {
+    padding: 24px;
+  }
+}
+
 @media (max-width: 640px) {
   .officers-container {
-    padding: 24px 16px 32px;
-    gap: 20px;
+    padding: 16px 12px 24px;
+    gap: 16px;
   }
 }
 
@@ -75,7 +90,8 @@
 
 @media (max-width: 640px) {
   .officers-card {
-    padding: 18px;
+    padding: 16px;
+    border-radius: 12px;
   }
 }
 
@@ -85,6 +101,12 @@
   color: var(--p-navy, #102a43);
   margin-bottom: 6px;
   font-family: var(--font-body);
+}
+
+@media (max-width: 480px) {
+  .card-title-lg {
+    font-size: 18px;
+  }
 }
 
 .registry-subtitle {
@@ -113,6 +135,12 @@
   gap: 16px;
 }
 
+@media (max-width: 640px) {
+  .registry-header-row {
+    margin-bottom: 20px;
+  }
+}
+
 .registry-actions-header {
   display: flex;
   align-items: center;
@@ -123,7 +151,9 @@
 @media (max-width: 640px) {
   .registry-actions-header {
     width: 100%;
+    flex-direction: column;
     align-items: stretch;
+    gap: 12px;
   }
 }
 
@@ -131,6 +161,12 @@
 .search-bar-wrapper {
   position: relative;
   width: 320px;
+}
+
+@media (max-width: 1024px) {
+  .search-bar-wrapper {
+    width: 260px;
+  }
 }
 
 @media (max-width: 640px) {
@@ -167,6 +203,25 @@
   box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.1);
 }
 
+/* Add Officer button */
+.add-officer-btn {
+  height: 48px;
+}
+
+@media (max-width: 640px) {
+  .add-officer-btn {
+    width: 100%;
+    height: 44px;
+  }
+}
+
+/* Name cell inner wrapper (was inline style) */
+.name-cell-inner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
 /* Avatar Circle */
 .avatar-circle {
   width: 44px;
@@ -180,6 +235,14 @@
   font-weight: 700;
   font-size: 16px;
   flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .avatar-circle {
+    width: 38px;
+    height: 38px;
+    font-size: 14px;
+  }
 }
 
 .name-cell-text {
@@ -324,11 +387,135 @@
   font-weight: 500;
 }
 
+/* ─── Responsive Table → Stacked Cards ─── */
+/* Below 860px the table becomes unreadable with 6 columns, so it
+   converts into a list of labeled cards, one per officer. */
+@media (max-width: 860px) {
+  .table-responsive-wrapper {
+    overflow-x: visible;
+    border: none;
+    border-radius: 0;
+    margin-top: 12px;
+  }
+
+  .officers-table,
+  .officers-table tbody,
+  .officers-table tr,
+  .officers-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .officers-table thead {
+    display: none;
+  }
+
+  .officers-table tr {
+    background: #ffffff;
+    border: 1.5px solid var(--r-border-mid, #cbd5e1);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+
+  .officers-table tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .officers-table tr:hover td {
+    background: transparent;
+  }
+
+  .officers-table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: 1px solid #f1f5f9;
+    text-align: right;
+  }
+
+  .officers-table td:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .officers-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #94a3b8;
+    flex-shrink: 0;
+    text-align: left;
+  }
+
+  /* Name cell gets its own full-width layout instead of a label row */
+  .officers-table td[data-label="Member Name"] {
+    justify-content: flex-start;
+    text-align: left;
+    padding-top: 0;
+  }
+
+  .officers-table td[data-label="Member Name"]::before {
+    display: none;
+  }
+
+  .description-text {
+    max-width: 220px;
+    margin-left: auto;
+    text-align: right;
+  }
+
+  .member-actions-col {
+    justify-content: flex-end;
+    width: 100%;
+  }
+
+  .empty-row td.empty-state-cell {
+    display: block;
+    text-align: center;
+    padding: 48px 16px;
+  }
+
+  .empty-row td.empty-state-cell::before {
+    content: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .description-text {
+    max-width: 160px;
+  }
+
+  .officers-table td {
+    font-size: 13px;
+  }
+}
+
 /* ─── Form Elements & Layout ─── */
 .officers-form {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  margin-top: 8px;
+}
+
+/* Position Category + Role sit side by side on wide screens,
+   stack on narrow ones */
+.form-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 520px) {
+  .form-row-2col {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
 }
 
 .form-group-accessible {
@@ -430,6 +617,29 @@
   margin-top: 4px;
 }
 
+@media (max-width: 480px) {
+  .validation-error-text {
+    font-size: 13px;
+  }
+}
+
+/* Form action buttons row (Cancel / Save) */
+.form-actions-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  justify-content: flex-end;
+}
+
+@media (max-width: 480px) {
+  .form-actions-row {
+    flex-direction: column-reverse;
+  }
+  .form-actions-row .btn-accessible {
+    width: 100%;
+  }
+}
+
 /* Button overrides */
 .btn-accessible {
   display: inline-flex;
@@ -502,12 +712,46 @@
   overflow-y: auto;
 }
 
+@media (max-width: 640px) {
+  .form-modal-dialog {
+    width: 92%;
+    padding: 22px;
+    border-radius: 16px;
+    max-height: 88vh;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 400px) {
+  .form-modal-dialog {
+    width: 96%;
+    padding: 18px;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: none;
+    max-height: 92vh;
+    border-radius: 16px 16px 0 0;
+  }
+}
+
 .form-modal-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 12px;
   border-bottom: 1.5px solid #f1f5f9;
   padding-bottom: 16px;
+}
+
+@media (max-width: 480px) {
+  .form-modal-header {
+    padding-bottom: 12px;
+  }
+  .modal-title-accessible {
+    font-size: 18px !important;
+  }
 }
 
 .form-modal-close-btn {
@@ -521,6 +765,7 @@
   padding: 4px;
   border-radius: 6px;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .form-modal-close-btn:hover {
@@ -556,6 +801,15 @@
   gap: 24px;
 }
 
+@media (max-width: 640px) {
+  .modal-dialog-accessible {
+    width: 92%;
+    padding: 24px 20px;
+    border-radius: 16px;
+    gap: 18px;
+  }
+}
+
 .modal-header-container {
   display: flex;
   flex-direction: column;
@@ -573,6 +827,14 @@
   align-items: center;
   justify-content: center;
   color: var(--p-rose, #e11d48);
+  flex-shrink: 0;
+}
+
+@media (max-width: 400px) {
+  .modal-icon-danger {
+    width: 52px;
+    height: 52px;
+  }
 }
 
 .modal-title-accessible {

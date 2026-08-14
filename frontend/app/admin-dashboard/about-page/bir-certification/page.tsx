@@ -233,9 +233,9 @@ export default function BirCertificationPage() {
       seniorFriendlyHeader={true}
     >
       <div className="admin-shell admin-shell--main bir-certification-container">
-        
+
         {/* Navigation Bar */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="bir-nav-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <button
             type="button"
             className="about-btn about-btn--secondary"
@@ -253,8 +253,8 @@ export default function BirCertificationPage() {
         ) : record ? (
           /* Active Record Card Display */
           <div className="about-editor-card" style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "20px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--r-border-mid)", paddingBottom: "16px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div className="bir-record-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--r-border-mid)", paddingBottom: "16px" }}>
+              <div className="bir-record-title" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 <div style={{ background: "rgba(30, 83, 142, 0.08)", padding: "8px", borderRadius: "10px", color: "var(--p-blue)" }}>
                   <Shield size={22} />
                 </div>
@@ -263,7 +263,7 @@ export default function BirCertificationPage() {
                   <p style={{ fontSize: "13px", color: "var(--r-text-muted)", margin: "2px 0 0" }}>Official BIR tax compliance files (PDF or Photo).</p>
                 </div>
               </div>
-              <div style={{ display: "flex", gap: "10px" }}>
+              <div className="bir-record-actions" style={{ display: "flex", gap: "10px" }}>
                 <button
                   type="button"
                   onClick={() => setModalMode("edit")}
@@ -284,15 +284,15 @@ export default function BirCertificationPage() {
             </div>
 
             {/* Two-Column Document Grid layout */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", alignItems: "start" }}>
-              
+            <div className="bir-doc-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", alignItems: "start" }}>
+
               {/* Left Column: BIR Certificate Document */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
+              <div className="bir-doc-col" style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
                 <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px", alignSelf: "flex-start" }}>
                   BIR Certification Document
                 </span>
                 {record.imageUrl ? (
-                  <div style={{
+                  <div className="bir-doc-frame" style={{
                     width: "100%",
                     minHeight: "320px",
                     maxHeight: "440px",
@@ -332,19 +332,19 @@ export default function BirCertificationPage() {
                     )}
                   </div>
                 ) : (
-                  <div style={{ width: "100%", minHeight: "160px", border: "1.5px dashed var(--r-border-mid)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div className="bir-doc-frame bir-doc-frame--empty" style={{ width: "100%", minHeight: "160px", border: "1.5px dashed var(--r-border-mid)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <p style={{ color: "var(--r-text-muted)", fontStyle: "italic", fontSize: "14px", margin: 0 }}>No BIR Certificate uploaded.</p>
                   </div>
                 )}
               </div>
 
               {/* Right Column: BIR Receipt Document */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
+              <div className="bir-doc-col" style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
                 <span style={{ fontSize: "12px", color: "var(--r-text-muted)", textTransform: "uppercase", fontWeight: 600, letterSpacing: "0.5px", alignSelf: "flex-start" }}>
                   BIR Official Receipt Document
                 </span>
                 {record.receiptUrl ? (
-                  <div style={{
+                  <div className="bir-doc-frame" style={{
                     width: "100%",
                     minHeight: "320px",
                     maxHeight: "440px",
@@ -384,7 +384,7 @@ export default function BirCertificationPage() {
                     )}
                   </div>
                 ) : (
-                  <div style={{ width: "100%", minHeight: "160px", border: "1.5px dashed var(--r-border-mid)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div className="bir-doc-frame bir-doc-frame--empty" style={{ width: "100%", minHeight: "160px", border: "1.5px dashed var(--r-border-mid)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <p style={{ color: "var(--r-text-muted)", fontStyle: "italic", fontSize: "14px", margin: 0 }}>No BIR Receipt uploaded.</p>
                   </div>
                 )}
@@ -482,7 +482,7 @@ export default function BirCertificationPage() {
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+          <div className="bir-modal-actions" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
             <button
               type="button"
               onClick={() => setShowDeleteModal(false)}

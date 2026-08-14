@@ -39,11 +39,11 @@
 }
 
 /* =========================================
-   2. INFOGRAPHIC STATS BAR
+   2. INFOGRAPHIC STATS BAR (updated to match admin dashboard)
    ========================================= */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 20px;
 }
@@ -51,48 +51,67 @@
 .stat-card {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   background: var(--admin-surface);
   border: 1px solid var(--admin-border);
-  border-left: 3px solid var(--admin-navy);
-  border-radius: 10px;
-  padding: 12px 14px;
-  box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s, transform 0.15s;
+  border-left-width: 4px;
+  border-left-style: solid;
+  border-left-color: var(--admin-navy);
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: 0 4px 18px rgba(20, 49, 82, 0.04);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.22s ease,
+              border-color 0.22s ease;
+  cursor: default;
+}
+
+.stat-card--animated {
+  animation: fadeSlideUp 0.36s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .stat-card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(20, 49, 82, 0.08);
+  border-color: rgba(20, 49, 82, 0.12);
+  z-index: 1;
 }
 
 .stat-card__icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  background: rgba(20, 49, 82, 0.08);
+  background: rgba(20, 49, 82, 0.06);
   color: var(--admin-navy);
+  transition: transform 0.22s ease;
 }
+
+.stat-card:hover .stat-card__icon { transform: scale(1.06) rotate(-3deg); }
 
 .stat-card__info {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
   min-width: 0;
 }
 
 .stat-card__info strong {
-  font-size: 20px;
+  font-size: clamp(18px, 3.8vw, 26px);
   font-weight: 800;
   color: var(--admin-text);
-  line-height: 1.1;
+  line-height: 1.05;
 }
 
 .stat-card__info span {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -803,4 +822,40 @@
   .stats-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Mobile: horizontal metric strip (keeps cards inside page gutter) */
+@media (max-width: 640px) {
+  .stats-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 10px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+    margin: 0;
+    padding: 6px 0 12px;
+    scrollbar-width: none;
+    mask-image: linear-gradient(to right, #000 0%, #000 86%, rgba(0,0,0,0.7) 92%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, #000 0%, #000 86%, rgba(0,0,0,0.7) 92%, transparent 100%);
+  }
+
+  .stats-grid::-webkit-scrollbar { display: none; }
+
+  .stat-card {
+    flex: 0 0 clamp(150px, 40%, 180px);
+    width: clamp(150px, 40%, 180px);
+    min-width: clamp(150px, 40%, 180px);
+    padding: 12px;
+    border-radius: 12px;
+    border-left-width: 3px;
+    scroll-snap-align: start;
+  }
+
+  .stat-card__icon { width: 36px; height: 36px; border-radius: 10px; }
+  .stat-card__info strong { font-size: 20px; }
 }
