@@ -57,6 +57,31 @@ export default function AdminHeader({
 }: AdminHeaderProps) {
   const pathname = usePathname();
 
+  const [userName, setUserName] = useState("Admin User");
+  const [userRole, setUserRole] = useState("Administrator");
+  const [userInitials, setUserInitials] = useState("AD");
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("page_user_payload");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.name) {
+          setUserName(parsed.name);
+          const parts = parsed.name.trim().split(/\s+/);
+          if (parts.length >= 2) {
+            setUserInitials((parts[0][0] + parts[parts.length - 1][0]).toUpperCase());
+          } else if (parts.length === 1 && parts[0].length > 0) {
+            setUserInitials(parts[0].slice(0, 2).toUpperCase());
+          }
+        }
+        if (parsed.role) {
+          setUserRole(parsed.role === "admin" ? "System Administrator" : parsed.role.charAt(0).toUpperCase() + parsed.role.slice(1));
+        }
+      }
+    } catch {}
+  }, []);
+
   const handleSignOut = () => {
     localStorage.removeItem("page_user_token");
     localStorage.removeItem("page_user_payload");
@@ -177,11 +202,11 @@ export default function AdminHeader({
                 aria-expanded={isProfileMenuOpen}
               >
                 <div className={styles.profileAvatar} aria-hidden="true">
-                  JD
+                  {userInitials}
                 </div>
                 <div className={styles.profileCopy}>
-                  <span className={styles.profileName}>Dr. Juan Dela Cruz</span>
-                  <span className={styles.profileRole}>Admin Panel</span>
+                  <span className={styles.profileName}>{userName}</span>
+                  <span className={styles.profileRole}>{userRole}</span>
                 </div>
               </button>
 

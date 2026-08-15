@@ -97,50 +97,6 @@ const ROLE_COLORS: Record<string, string> = {
   member: "#1E538E",
 };
 
-/* ── Default Fallback Data ─────────────────────────────────────────────────── */
-
-const defaultContentTrend: ContentPoint[] = [
-  { month: "Jan", posts: 30 },
-  { month: "Feb", posts: 38 },
-  { month: "Mar", posts: 52 },
-  { month: "Apr", posts: 46 },
-  { month: "May", posts: 62 },
-  { month: "Jun", posts: 71 },
-];
-
-const defaultUserGrowth: UserPoint[] = [
-  { month: "Jan", users: 720 },
-  { month: "Feb", users: 760 },
-  { month: "Mar", users: 812 },
-  { month: "Apr", users: 880 },
-  { month: "May", users: 943 },
-  { month: "Jun", users: 1104 },
-];
-
-const defaultActivities: Activity_[] = [
-  {
-    title: "New organization account approved",
-    actor: "Admin Team",
-    time: "2 minutes ago",
-    state: "success",
-    stateLabel: "Completed",
-  },
-  {
-    title: "Article submitted for review",
-    actor: "Dr. Angela Reyes",
-    time: "9 minutes ago",
-    state: "warning",
-    stateLabel: "Pending",
-  },
-  {
-    title: "Member registration verified",
-    actor: "System",
-    time: "24 minutes ago",
-    state: "success",
-    stateLabel: "Completed",
-  },
-];
-
 const defaultHeatMap = Array.from({ length: 7 }, () => Array(24).fill(0));
 
 /* ── Component ─────────────────────────────────────────────────────────────── */
@@ -150,13 +106,26 @@ export default function AdminDashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Core metrics
-  const [totalUsers, setTotalUsers] = useState(1104);
-  const [totalOrgs, setTotalOrgs] = useState(124);
-  const [pendingPostsCount, setPendingPostsCount] = useState(26);
-  const [publishedPostsCount, setPublishedPostsCount] = useState(412);
-  const [activities, setActivities] = useState<Activity_[]>(defaultActivities);
-  const [contentTrend, setContentTrend] = useState<ContentPoint[]>(defaultContentTrend);
-  const [userGrowth, setUserGrowth] = useState<UserPoint[]>(defaultUserGrowth);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalOrgs, setTotalOrgs] = useState(0);
+  const [totalAdmins, setTotalAdmins] = useState(0);
+  const [totalMembers, setTotalMembers] = useState(0);
+  const [pendingPostsCount, setPendingPostsCount] = useState(0);
+  const [publishedPostsCount, setPublishedPostsCount] = useState(0);
+  const [activities, setActivities] = useState<Activity_[]>([]);
+
+  // Period trends from backend
+  const [contentTrendsData, setContentTrendsData] = useState<{
+    daily: { day: string; count: number }[];
+    monthly: { month: string; year: number; count: number }[];
+    yearly: { year: string; count: number }[];
+  }>({ daily: [], monthly: [], yearly: [] });
+
+  const [userGrowthData, setUserGrowthData] = useState<{
+    daily: { day: string; count: number }[];
+    monthly: { month: string; year: number; count: number }[];
+    yearly: { year: string; count: number }[];
+  }>({ daily: [], monthly: [], yearly: [] });
 
   // Content analytics
   const [categoryBreakdown, setCategoryBreakdown] = useState<CategoryItem[]>([]);
@@ -180,21 +149,21 @@ export default function AdminDashboardPage() {
   const [newUsersLast30Days, setNewUsersLast30Days] = useState(0);
 
   // System & Security
-  const [securityScore, setSecurityScore] = useState(85);
+  const [securityScore, setSecurityScore] = useState(95);
   const [failedLogins, setFailedLogins] = useState(0);
   const [uniqueIPs, setUniqueIPs] = useState(0);
   const [securityEvents, setSecurityEvents] = useState<SecurityEvent[]>([]);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchDashboardMetrics = async () => {
       try {
         const response = await api.get("/admin/metrics");
-        if (response.success) {
+        if (response && response.success && isMounted) {
           const {
             metrics,
             recentActivities,
-            trends,
-            growth,
             contentAnalytics,
             userActivityAnalytics,
             userGrowthAnalytics,
@@ -202,12 +171,16 @@ export default function AdminDashboardPage() {
           } = response;
 
           // Core metrics
-          setTotalUsers(metrics.totalUsers ?? 0);
-          setTotalOrgs(metrics.totalOrgs ?? 0);
-          setPendingPostsCount(metrics.pendingPosts ?? 0);
-          setPublishedPostsCount(metrics.publishedPosts ?? 0);
+          if (metrics) {
+            setTotalUsers(metrics.totalUsers ?? 0);
+            setTotalOrgs(metrics.totalOrgs ?? 0);
+            setTotalAdmins(metrics.totalAdmins ?? 0);
+            setTotalMembers(metrics.totalMembers ?? 0);
+            setPendingPostsCount(metrics.pendingPosts ?? 0);
+            setPublishedPostsCount(metrics.publishedPosts ?? 0);
+          }
 
-          if (recentActivities && recentActivities.length > 0) {
+          if (Array.isArray(recentActivities)) {
             setActivities(
               recentActivities.map((act: any) => ({
                 title: act.action,
@@ -225,40 +198,29 @@ export default function AdminDashboardPage() {
             );
           }
 
-          if (trends && trends.length > 0) {
-            setContentTrend(
-              trends.map((t: any) => ({
-                month: t.month,
-                posts: t.submissions ?? 0,
-              })),
-            );
-          }
-
-          if (growth && growth.length > 0) {
-            setUserGrowth(
-              growth.map((g: any) => ({
-                month: g.month,
-                users: g.users ?? 0,
-              })),
-            );
-          }
-
           // Content analytics
           if (contentAnalytics) {
-            if (contentAnalytics.categoryBreakdown)
+            if (Array.isArray(contentAnalytics.categoryBreakdown)) {
               setCategoryBreakdown(contentAnalytics.categoryBreakdown);
-            if (contentAnalytics.statusBreakdown)
+            }
+            if (Array.isArray(contentAnalytics.statusBreakdown)) {
               setStatusBreakdown(contentAnalytics.statusBreakdown);
+            }
+            if (contentAnalytics.periodTrends) {
+              setContentTrendsData(contentAnalytics.periodTrends);
+            }
           }
 
           // User activity analytics
           if (userActivityAnalytics) {
             setActiveSessions(userActivityAnalytics.activeSessions ?? 0);
             setTotalSessions(userActivityAnalytics.totalSessions ?? 0);
-            if (userActivityAnalytics.heatMapData)
+            if (userActivityAnalytics.heatMapData) {
               setHeatMapData(userActivityAnalytics.heatMapData);
-            if (userActivityAnalytics.topActiveUsers)
+            }
+            if (Array.isArray(userActivityAnalytics.topActiveUsers)) {
               setTopActiveUsers(userActivityAnalytics.topActiveUsers);
+            }
             setTotalActivitiesLast7Days(
               userActivityAnalytics.totalActivitiesLast7Days ?? 0,
             );
@@ -266,31 +228,44 @@ export default function AdminDashboardPage() {
 
           // User growth analytics
           if (userGrowthAnalytics) {
-            if (userGrowthAnalytics.roleDistribution)
+            if (Array.isArray(userGrowthAnalytics.roleDistribution)) {
               setRoleDistribution(userGrowthAnalytics.roleDistribution);
-            if (userGrowthAnalytics.membershipStats)
+            }
+            if (userGrowthAnalytics.membershipStats) {
               setMembershipStats(userGrowthAnalytics.membershipStats);
+            }
             setNewUsersLast30Days(
               userGrowthAnalytics.totalNewUsersLast30Days ?? 0,
             );
+            if (userGrowthAnalytics.periodTrends) {
+              setUserGrowthData(userGrowthAnalytics.periodTrends);
+            }
           }
 
           // System & Security
           if (systemAnalytics) {
-            setSecurityScore(systemAnalytics.securityScore ?? 85);
+            setSecurityScore(systemAnalytics.securityScore ?? 95);
             setFailedLogins(systemAnalytics.failedLoginsLast7Days ?? 0);
             setUniqueIPs(systemAnalytics.uniqueIPsLast7Days ?? 0);
-            if (systemAnalytics.recentSecurityEvents)
+            if (Array.isArray(systemAnalytics.recentSecurityEvents)) {
               setSecurityEvents(systemAnalytics.recentSecurityEvents);
+            }
           }
         }
       } catch (err) {
         console.error("Failed to load live dashboard statistics", err);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
+
     fetchDashboardMetrics();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   /* ── Derived Metric Cards ────────────────────────────────────────────────── */
@@ -300,14 +275,14 @@ export default function AdminDashboardPage() {
       {
         label: "Total Users",
         value: totalUsers,
-        meta: `${totalUsers - totalOrgs} members + ${totalOrgs} org accounts`,
+        meta: `${totalMembers} members · ${totalOrgs} orgs · ${totalAdmins} admins`,
         tone: "blue" as const,
         icon: Users,
       },
       {
         label: "Organizations",
         value: totalOrgs,
-        meta: "Verified organization profiles",
+        meta: "Verified institutional accounts",
         tone: "green" as const,
         icon: Building2,
       },
@@ -328,7 +303,7 @@ export default function AdminDashboardPage() {
       {
         label: "Active Sessions",
         value: activeSessions,
-        meta: `${totalSessions} total sessions tracked`,
+        meta: `${totalSessions} total user logins / sessions`,
         tone: "cyan" as const,
         icon: Wifi,
       },
@@ -348,6 +323,8 @@ export default function AdminDashboardPage() {
     [
       totalUsers,
       totalOrgs,
+      totalAdmins,
+      totalMembers,
       pendingPostsCount,
       publishedPostsCount,
       activeSessions,
@@ -368,41 +345,62 @@ export default function AdminDashboardPage() {
     }
   }, [periodFilter]);
 
-  /* ── Filtered Chart Data ─────────────────────────────────────────────────── */
+  /* ── Filtered Chart Data (Real Multi-Period Trends) ───────────────────────── */
 
-  const filteredContentTrend = useMemo(() => {
+  const filteredContentTrend: ContentPoint[] = useMemo(() => {
     if (periodFilter === "day") {
-      return contentTrend.map((point) => ({
-        ...point,
-        posts: Math.round(point.posts / 30),
-      }));
+      if (contentTrendsData.daily.length > 0) {
+        return contentTrendsData.daily.map((d) => ({
+          month: d.day,
+          posts: d.count,
+        }));
+      }
+    } else if (periodFilter === "year") {
+      if (contentTrendsData.yearly.length > 0) {
+        return contentTrendsData.yearly.map((y) => ({
+          month: y.year,
+          posts: y.count,
+        }));
+      }
+    } else {
+      if (contentTrendsData.monthly.length > 0) {
+        return contentTrendsData.monthly.map((m) => ({
+          month: m.month,
+          posts: m.count,
+        }));
+      }
     }
-    if (periodFilter === "year") {
-      return contentTrend.map((point) => ({
-        ...point,
-        posts: point.posts * 12,
-      }));
-    }
-    return contentTrend;
-  }, [contentTrend, periodFilter]);
+    return [];
+  }, [contentTrendsData, periodFilter]);
 
-  const filteredUserGrowth = useMemo(() => {
+  const filteredUserGrowth: UserPoint[] = useMemo(() => {
     if (periodFilter === "day") {
-      return userGrowth.map((point) => ({
-        ...point,
-        users: Math.round(point.users / 30),
-      }));
+      if (userGrowthData.daily.length > 0) {
+        return userGrowthData.daily.map((d) => ({
+          month: d.day,
+          users: d.count,
+        }));
+      }
+    } else if (periodFilter === "year") {
+      if (userGrowthData.yearly.length > 0) {
+        return userGrowthData.yearly.map((y) => ({
+          month: y.year,
+          users: y.count,
+        }));
+      }
+    } else {
+      if (userGrowthData.monthly.length > 0) {
+        return userGrowthData.monthly.map((m) => ({
+          month: m.month,
+          users: m.count,
+        }));
+      }
     }
-    if (periodFilter === "year") {
-      return userGrowth.map((point) => ({
-        ...point,
-        users: point.users * 10,
-      }));
-    }
-    return userGrowth;
-  }, [userGrowth, periodFilter]);
+    return [];
+  }, [userGrowthData, periodFilter]);
 
   const contentMax = useMemo(() => {
+    if (filteredContentTrend.length === 0) return 1;
     return filteredContentTrend.reduce(
       (max, point) => (point.posts > max ? point.posts : max),
       1,
@@ -542,21 +540,27 @@ export default function AdminDashboardPage() {
               </div>
               <div className="trend-chart">
                 <div className="trend-bars">
-                  {filteredContentTrend.map((point) => {
-                    const heightPercent = Math.max(
-                      18,
-                      Math.round((point.posts / contentMax) * 100),
-                    );
-                    return (
-                      <div
-                        key={point.month}
-                        className="trend-bar"
-                        data-label={point.month}
-                        style={{ height: `${heightPercent}%` }}
-                        title={`${point.posts} posts`}
-                      />
-                    );
-                  })}
+                  {filteredContentTrend.length === 0 ? (
+                    <div className="analytics-empty-state" style={{ width: "100%", padding: "20px 0" }}>
+                      <p>No trend data available for this period</p>
+                    </div>
+                  ) : (
+                    filteredContentTrend.map((point) => {
+                      const heightPercent =
+                        point.posts === 0
+                          ? 8
+                          : Math.max(18, Math.round((point.posts / contentMax) * 100));
+                      return (
+                        <div
+                          key={point.month}
+                          className="trend-bar"
+                          data-label={point.month}
+                          style={{ height: `${heightPercent}%` }}
+                          title={`${point.posts} posts`}
+                        />
+                      );
+                    })
+                  )}
                 </div>
               </div>
             </div>
