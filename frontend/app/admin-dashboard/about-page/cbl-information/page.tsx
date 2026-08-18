@@ -211,15 +211,15 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = "140px" }: R
           <span style={{ fontSize: "12px", color: "#94a3b8", fontFamily: "var(--font-body)", fontWeight: 500 }}>
             {wordCount} {wordCount === 1 ? "word" : "words"}
           </span>
-          <span style={{ fontSize: "12px", color: charCount > 2000 ? "var(--p-rose)" : "#94a3b8", fontFamily: "var(--font-body)", fontWeight: charCount > 2000 ? 700 : 500 }}>
-            {charCount} / 2000 characters {charCount > 2000 && "(Exceeds limit)"}
+          <span style={{ fontSize: "12px", color: charCount > 5000 ? "var(--p-rose)" : "#94a3b8", fontFamily: "var(--font-body)", fontWeight: charCount > 5000 ? 700 : 500 }}>
+            {charCount} / 5000 characters {charCount > 5000 && "(Exceeds limit)"}
           </span>
         </div>
         <div style={{ width: "100%", background: "#e2e8f0", height: 3, borderRadius: 2, overflow: "hidden" }}>
           <div
             style={{
-              width: `${Math.min((charCount / 2000) * 100, 100)}%`,
-              background: charCount > 2000 ? "var(--p-rose)" : "#1e3a5f",
+              width: `${Math.min((charCount / 5000) * 100, 100)}%`,
+              background: charCount > 5000 ? "var(--p-rose)" : "#1e3a5f",
               height: "100%",
               borderRadius: 2,
               transition: "width 0.2s ease, background-color 0.2s ease",
