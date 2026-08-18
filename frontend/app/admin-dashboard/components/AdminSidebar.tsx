@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Activity,
   BadgeCheck,
   Building2,
   ChevronDown,
@@ -60,7 +61,10 @@ const adminSections: AdminSidebarSection[] = [
   },
   {
     title: "Communication",
-    items: [{ href: "/admin-dashboard/view-messages", label: "Messages", icon: MessageSquareText }],
+    items: [
+      { href: "/admin-dashboard/view-messages", label: "Messages", icon: MessageSquareText },
+      { href: "/admin-dashboard/recent-activity", label: "Recent Activity", icon: Activity },
+    ],
   },
   {
     title: "System",
