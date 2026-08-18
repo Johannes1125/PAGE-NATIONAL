@@ -138,6 +138,17 @@
   box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.25);
 }
 
+/* 🆕 style the dropdown list items (Android renders <option> using these) */
+.manage-role-filter option {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 10px;
+  background: var(--manage-navy);
+  color: #fff;
+}
+
 /* Table styling - Enhanced Responsive */
 .manage-table-wrap {
   width: 100%;
@@ -1156,7 +1167,24 @@
     min-height: 44px;
   }
 
-  /* 🆕 edit modal fits comfortably on small phones */
+  /* 🆕 smaller, tighter role filter on mobile */
+  .manage-role-filter {
+    width: auto;
+    max-width: 160px;
+    min-height: 40px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  /* 🆕 shrink the dropdown option rows to match on small screens */
+  .manage-role-filter option {
+    font-size: 11px;
+    padding: 5px 8px;
+    width: 100%;
+  }
+
+  /* edit modal fits comfortably on small phones */
   .manage-edit-modal-backdrop {
     padding: 14px;
   }

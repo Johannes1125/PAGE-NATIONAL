@@ -45,7 +45,7 @@ export default function PillButton({
   let sizeClass = "";
   if (size === "sm") {
     sizeClass = children
-      ? "min-h-[40px] px-6 py-2 rounded-xl text-[14.5px] min-w-[92px]"
+      ? "min-h-[40px] px-5 py-2 rounded-xl text-[12.5px] leading-none min-w-[84px]"
       : "w-[40px] h-[40px] rounded-xl flex items-center justify-center flex-shrink-0";
   } else if (size === "md") {
     sizeClass = children

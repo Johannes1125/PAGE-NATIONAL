@@ -27,6 +27,7 @@ body {
   background: var(--parchment);
   font-family: var(--sans);
   color: var(--ink);
+  overflow-x: hidden;
 }
 
 .container {
@@ -102,7 +103,11 @@ body {
   background: #fef08a; /* Amber-100 */
   border-bottom: 1px solid #fef08a;
   padding: 10px 0;
-  margin-top: 68px; /* Navbar height offset */
+  margin-top: 0; /* Remove gap between navbar and banner */
+  display: block;
+  width: 100%;
+  position: relative;
+  z-index: 40;
 }
 
 .guest-banner__inner {
@@ -115,6 +120,7 @@ body {
   color: #a16207; /* Amber-700 */
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .guest-banner__text {
@@ -144,6 +150,8 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .chapter-detail-hero-bar__link {
@@ -152,6 +160,7 @@ body {
   color: var(--accent);
   text-decoration: none;
   transition: color var(--t-fast);
+  white-space: nowrap;
 }
 
 .chapter-detail-hero-bar__link:hover {
@@ -167,6 +176,10 @@ body {
   font-size: 11px;
   color: var(--ink-60);
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 160px;
 }
 
 .chapter-detail-hero-bar__back {
@@ -179,6 +192,8 @@ body {
   border-radius: 6px;
   padding: 6px 14px;
   transition: all var(--t-fast);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .chapter-detail-hero-bar__back:hover {
@@ -242,19 +257,21 @@ body {
 
 .ch-hero__content {
   color: var(--ink);
+  min-width: 0;
 }
 
 .ch-hero__title {
   font-family: var(--serif);
-  font-size: clamp(32px, 4vw, 48px);
+  font-size: clamp(28px, 4vw, 48px);
   font-weight: 400;
-  line-height: 1.1;
+  line-height: 1.15;
   margin-bottom: 16px;
   letter-spacing: -0.5px;
+  word-break: break-word;
 }
 
 .ch-hero__tagline {
-  font-size: 16px;
+  font-size: clamp(13.5px, 1.6vw, 16px);
   font-weight: 300;
   color: var(--ink-60);
   line-height: 1.6;
@@ -279,10 +296,12 @@ body {
   font-size: 12px;
   font-weight: 500;
   color: var(--accent);
+  white-space: nowrap;
 }
 
 .ch-hero__stat-pill svg {
   color: var(--accent-mid);
+  flex-shrink: 0;
 }
 
 /* ============================================================
@@ -306,7 +325,7 @@ body {
 
 .ch-section__title {
   font-family: var(--serif);
-  font-size: clamp(24px, 2.5vw, 30px);
+  font-size: clamp(22px, 2.5vw, 30px);
   font-weight: 400;
   color: var(--ink);
   margin-bottom: 20px;
@@ -376,6 +395,14 @@ body {
   padding: 4px;
   border-radius: 30px;
   position: relative;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.term-selector::-webkit-scrollbar {
+  display: none;
 }
 
 .term-selector__btn {
@@ -391,6 +418,8 @@ body {
   position: relative;
   z-index: 1;
   outline: none;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .term-selector__btn--active {
@@ -500,12 +529,15 @@ body {
   align-items: center;
   cursor: pointer;
   user-select: none;
+  gap: 12px;
 }
 
 .ch-activity-item__title-col {
   display: flex;
   align-items: center;
   gap: 16px;
+  min-width: 0;
+  flex-wrap: wrap;
 }
 
 .ch-activity-badge {
@@ -534,6 +566,7 @@ body {
 .ch-activity-item__trigger {
   color: var(--ink-30);
   transition: color var(--t-fast);
+  flex-shrink: 0;
 }
 
 .ch-activity-item__header:hover .ch-activity-item__trigger {
@@ -572,6 +605,7 @@ body {
 
 .ch-activity-meta-p svg {
   color: var(--accent);
+  flex-shrink: 0;
 }
 
 .ch-activity-item__desc {
@@ -609,6 +643,7 @@ body {
   align-items: center;
   cursor: pointer;
   user-select: none;
+  gap: 12px;
 }
 
 .ch-ann-item__title {
@@ -628,6 +663,7 @@ body {
 .ch-ann-item__trigger {
   color: var(--ink-30);
   transition: color var(--t-fast);
+  flex-shrink: 0;
 }
 
 .ch-ann-item__header:hover .ch-ann-item__trigger {
@@ -800,6 +836,7 @@ body {
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(8px);
+  padding: 16px;
 }
 
 .act-lightbox-content {
@@ -937,11 +974,14 @@ body {
   .act-lightbox-nav {
     display: none; /* Hide nav arrows on touch devices */
   }
+  .chapter-layout {
+    margin-top: 40px;
+  }
 }
 
 @media (max-width: 768px) {
   .container {
-    padding: 0 24px;
+    padding: 0 20px;
   }
   .ch-officers-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -949,14 +989,133 @@ body {
   .ch-mv-grid {
     grid-template-columns: 1fr;
   }
-  .guest-banner {
-    margin-top: 56px; /* Adjusted offset for mobile navbar */
+  .guest-banner__text {
+    font-size: 11px;
+  }
+  .card-container {
+    padding: 22px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+  }
+  .ch-sidebar-section {
+    padding: 18px !important;
+  }
+  .ch-hero {
+    padding: 28px 0 36px;
+  }
+  .ch-hero__visual {
+    height: 170px;
+    border-radius: 12px;
+  }
+  .ch-hero__stats {
+    gap: 8px;
+  }
+  .ch-hero__stat-pill {
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+  .chapter-detail-hero-bar {
+    padding: 14px 0;
+  }
+  .chapter-detail-hero-bar__inner {
+    gap: 8px;
+  }
+  .chapter-detail-hero-bar__current {
+    max-width: 110px;
+  }
+  .ch-section__header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .term-selector {
+    width: 100%;
+  }
+  .ch-activity-item__header,
+  .ch-ann-item__header {
+    padding: 14px 16px;
+  }
+  .ch-activity-item__body,
+  .ch-ann-item__body {
+    padding: 0 16px 18px 16px;
+  }
+  .ch-activity-item__title-col {
+    gap: 10px;
+  }
+  .ch-activity-item__title,
+  .ch-ann-item__title {
+    font-size: 13.5px;
+  }
+  .ch-activity-meta-p {
+    font-size: 11px;
+  }
+  .act-lightbox-close {
+    top: -42px;
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .ch-hero__title {
+    font-size: 26px;
+  }
+  .chapter-detail-hero-bar__inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .chapter-detail-hero-bar__back {
+    align-self: flex-start;
+  }
+  .chapter-detail-hero-bar__current {
+    max-width: 100%;
+    white-space: normal;
+  }
+  .ch-doc-row {
+    padding: 10px;
+  }
+  .ch-doc-filename {
+    font-size: 11.5px;
+    max-width: 140px;
+  }
+  .ch-gallery-item {
+    height: 84px;
   }
 }
 
 @media (max-width: 480px) {
+  .container {
+    padding: 0 16px;
+  }
   .ch-officers-grid {
     grid-template-columns: 1fr;
+  }
+  .ch-officer-card {
+    padding: 16px;
+  }
+  .card-container {
+    padding: 16px;
+  }
+  .ch-hero__badge {
+    font-size: 8px;
+    padding: 3px 8px;
+  }
+  .ch-hero__tagline {
+    margin-bottom: 20px;
+  }
+  .ch-mv-block {
+    padding: 18px;
+  }
+  .ch-gallery-grid {
+    gap: 8px;
+  }
+  .ch-activity-badge {
+    font-size: 7px;
+    padding: 2px 6px;
+  }
+  .term-selector__btn {
+    padding: 6px 12px;
+    font-size: 11px;
   }
 }
 
