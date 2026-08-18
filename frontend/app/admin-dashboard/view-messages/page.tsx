@@ -5,12 +5,9 @@ import {
   Check,
   CheckCheck,
   Paperclip,
-  Phone,
   Search,
   SendHorizontal,
   Smile,
-  Video,
-  type LucideIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../../lib/api-client";
@@ -148,14 +145,6 @@ const conversations: Conversation[] = [
     ],
   },
 ];
-
-function HeaderIcon({ icon: Icon }: { icon: LucideIcon }) {
-  return (
-    <button type="button" className="messages-icon-btn" aria-label="Chat action">
-      <Icon size={14} />
-    </button>
-  );
-}
 
 /** Compact status indicator: icon-only instead of long status sentences. */
 function StatusIndicator({ role, status }: { role: MessageRole; status: ChatMessage["status"] }) {
@@ -445,11 +434,6 @@ export default function ViewMessagesPage() {
                         {activeConversation.online ? "Online" : "Last seen recently"}
                       </p>
                     </div>
-                  </div>
-
-                  <div className="messages-chat-header__actions">
-                    <HeaderIcon icon={Phone} />
-                    <HeaderIcon icon={Video} />
                   </div>
                 </header>
 

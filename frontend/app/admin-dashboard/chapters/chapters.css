@@ -1028,6 +1028,7 @@
 .chapters-table-scroll {
   overflow-x: auto;
   max-height: 70vh;
+  -webkit-overflow-scrolling: touch;
 }
 
 .chapters-table {
@@ -1379,6 +1380,49 @@
   }
 }
 
+/* 🆕 Header actions (Export / Create Chapter) — these carry inline styles
+   in the page component, so !important is required to override them
+   on smaller screens. */
+@media (max-width: 640px) {
+  .chapters-management-page .chapters-btn {
+    min-height: 44px !important;
+    font-size: 14px !important;
+    padding: 0 16px !important;
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .chapters-management-page .chapters-btn {
+    width: 100%;
+  }
+}
+
+/* 🆕 "All Chapters" list header — title, count chip, and the
+   Card/List view toggle were crowding into one row on mobile.
+   Stack them so each gets its own full-width row. */
+@media (max-width: 640px) {
+  .chapters-section > div.flex.items-center.justify-between {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .chapters-section > div.flex.items-center.justify-between > div.flex.items-center.gap-3 {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chapters-section__label {
+    font-size: 18px;
+  }
+
+  .chapters-count-chip {
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+}
+
 @media (max-width: 767px) {
   :root {
     --chapters-page-padding: 20px;
@@ -1395,6 +1439,37 @@
   .chapters-stats-grid {
     grid-template-columns: 1fr;
     gap: 16px;
+  }
+
+  /* 🆕 tighten stat cards on mobile */
+  .chapters-stat-card {
+    padding: 20px;
+    min-height: auto;
+    gap: 16px;
+  }
+
+  .chapters-stat-card__head {
+    gap: 14px;
+  }
+
+  .chapters-stat-card__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+  }
+
+  .chapters-stat-card__label {
+    font-size: 12px;
+  }
+
+  .chapters-stat-card__value {
+    font-size: 32px;
+    margin-top: 10px;
+  }
+
+  .chapters-stat-card__footer {
+    margin-top: 16px;
+    font-size: 13px;
   }
 
   .chapters-grid {
@@ -1423,26 +1498,403 @@
     flex: 1;
   }
 
+  /* 🔧 FIX: this used to collapse to grid-template-columns: 1fr, which
+     turned every meta block (Island Group / Region / Status / Updated)
+     into its own full-width row — that's the "one field per line"
+     look. Chips/values are short, so let them wrap in a compact row
+     instead of eating a whole line each. */
   .chapters-card__meta {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
   }
 
+  .chapters-card__meta-block {
+    flex: 0 1 auto;
+  }
+
+  .chapters-card__meta-value {
+    padding-left: 0;
+  }
+
+  .chapters-card__meta-heading {
+    font-size: 13px;
+  }
+
+  /* 🆕 shrink card v2 padding on mobile */
+  .chapters-card-v2__body {
+    padding: 18px;
+    gap: 14px;
+  }
+
+  .chapters-card-v2__footer {
+    padding: 14px 16px;
+  }
+
+  .chapters-card-v2__icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+  }
+
+  .chapters-card-v2__title {
+    font-size: 16px;
+  }
+
+  .chapters-card-v2__desc-box {
+    padding: 12px 14px;
+    font-size: 13px;
+    min-height: 0;
+  }
+
+  /* 🔧 Card-view (ChapterCard.tsx) refinements, informed by the real
+     JSX: icon-box + title-block on the left, StatusBadge on the
+     right, in one space-between row. */
+  .chapters-card-v2__header {
+    gap: 10px;
+  }
+
+  .chapters-card-v2__title {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+
+  .chapters-card-v2__date {
+    font-size: 12px;
+  }
+
+  /* The kebab button is a PillButton sized only by inline padding —
+     give it a real touch target on mobile. */
+  .chapters-card-v2__footer .relative > button,
+  .chapters-card-v2__footer button[aria-haspopup="true"] {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .chapters-card-v2__officers-row {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  /* 🔧 MOBILE TABLE-AS-CARDS — rebuilt.
+     Previously every <td> became its own full-width flex row with a
+     divider (name, then Luzon, then NCR, then Published, then the
+     date — five stacked rows each with a border-bottom). That's the
+     "one field per line" look in the screenshot.
+
+     New approach: the row becomes a wrapping flex container. The
+     name cell (first child) and the actions cell (last child) each
+     force themselves onto their own full-width line via
+     flex-basis: 100%. Every cell in between (island group, region,
+     status, updated date) is a normal inline flex item, so they
+     pack into one compact row and wrap only if they don't fit —
+     matching how the chips already behave on the card view.
+
+     Also: content: attr(data-label) is dropped. If ChapterTable.tsx
+     doesn't set data-label on every <td>, that pseudo-element renders
+     as blank space (which is what created the empty gap before each
+     chip in the screenshot) while still reserving no room — so it's
+     safe to remove outright. If you *do* want inline labels, re-add
+     the label as a small span inside the badge/chip cells instead of
+     relying on ::before. */
+  .chapters-table-scroll {
+    overflow-x: visible;
+    max-height: none;
+  }
+
+  .chapters-table,
+  .chapters-table thead,
+  .chapters-table tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .chapters-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .chapters-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .chapters-table tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    background: #ffffff;
+    border: 1.5px solid var(--chapters-border-light);
+    border-radius: var(--chapters-radius-sm);
+    box-shadow: var(--chapters-shadow-card);
+    padding: 16px;
+    height: auto;
+    min-height: 0;
+  }
+
+  .chapters-table tbody tr.chapters-table__row--selected {
+    border-color: var(--chapters-accent-blue);
+  }
+
+  .chapters-table tbody td {
+    display: inline-flex;
+    align-items: center;
+    width: auto;
+    padding: 0;
+    border-bottom: none;
+    font-size: 14px;
+    position: static;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .chapters-table tbody td::before {
+    content: none;
+  }
+
+  /* Name + description: own full-width row up top */
+  .chapters-table tbody td:first-child {
+    flex: 1 1 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eef2f7;
+  }
+
+  .chapters-table__chapter-desc {
+    white-space: normal;
+    max-width: 100%;
+  }
+
+  /* Island group / region / status / updated: packed into one
+     wrapping row between the name and the actions */
+  .chapters-table tbody td:not(:first-child):not(:last-child) {
+    flex: 0 0 auto;
+  }
+
+  /* Push the date (last badge-ish cell before Actions) to the right
+     edge of that row, the way "Jul 24, 2026" reads in the original
+     design — remove this rule if that cell isn't actually a date. */
+  .chapters-table tbody td:nth-last-child(2) {
+    margin-left: auto;
+  }
+
+  /* Actions: own full-width row at the bottom */
+  .chapters-table tbody td:last-child {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid #eef2f7;
+  }
+
+  .chapters-table__actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .chapters-table__manage-btn,
+  .chapters-table__actions-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  /* 🔧 PAGINATION — rebuilt against the real ChapterPagination.tsx.
+     getPageNumbers() can return up to 7 items (1,2,3,4,5,…,last or
+     similar), so with prev/next that's up to 9 buttons — nowrap
+     alone would push that off-screen on a phone. This version keeps
+     the row centered and tight for the common case (few pages) but
+     scrolls horizontally as a last resort instead of wrapping into a
+     messy multi-row grid or overflowing the viewport. */
   .chapters-pagination {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    text-align: center;
-    gap: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
   }
 
-  .chapters-pagination__info,
-  .chapters-pagination__controls,
+  .chapters-pagination__info {
+    order: 2;
+    text-align: center;
+    font-size: 13px;
+  }
+
+  .chapters-pagination__info p {
+    white-space: normal;
+    line-height: 1.5;
+  }
+
+  .chapters-pagination__controls {
+    order: 1;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 2px;
+    padding: 4px;
+  }
+
+  .chapters-pagination__controls::-webkit-scrollbar {
+    display: none;
+  }
+
+  .chapters-pagination__controls > * {
+    flex: 0 0 auto;
+  }
+
+  .chapters-pagination__btn {
+    min-width: 40px;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+  }
+
+  .chapters-pagination__ellipsis {
+    min-width: 28px;
+    height: 40px;
+  }
+
   .chapters-pagination__per-page {
-    justify-self: center;
+    order: 3;
+    width: 100%;
+    max-width: 220px;
+  }
+
+  .chapters-pagination__per-page select {
+    width: 100%;
+    height: 40px;
+    font-size: 13.5px;
   }
   
   .chapters-section__label::before {
     width: 3px;
     height: 20px;
+  }
+}
+
+/* 🆕 Extra-small phones: chapters-card-v2 header fallback — if a long
+   name + StatusBadge still can't share a row at this width, drop the
+   badge to its own line under the title instead of clipping it. */
+@media (max-width: 400px) {
+  .chapters-card-v2__header {
+    flex-wrap: wrap;
+  }
+
+  .chapters-card-v2__header > .flex-shrink-0 {
+    flex-basis: 100%;
+    display: flex;
+    justify-content: flex-start;
+    margin-left: 60px;
+  }
+}
+
+/* 🆕 Extra-small phones */
+@media (max-width: 480px) {
+  :root {
+    --chapters-page-padding: 14px;
+    --chapters-section-gap: 20px;
+  }
+
+  .chapters-management-page h1 {
+    font-size: 22px !important;
+  }
+
+  .chapters-section__label {
+    font-size: 18px;
+  }
+
+  .chapters-count-chip {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  .chapters-badge,
+  .chapters-chip {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  .chapters-stat-card {
+    padding: 16px;
+  }
+
+  .chapters-stat-card__value {
+    font-size: 26px;
+  }
+
+  .chapters-toolbar-panel {
+    padding: 14px;
+  }
+
+  .chapters-toolbar__search-input,
+  .chapters-toolbar__control {
+    font-size: 14px;
+    padding-left: 40px;
+  }
+
+  .chapters-card-v2__body {
+    padding: 14px;
+  }
+
+  .chapters-card-v2__desc-text {
+    -webkit-line-clamp: 3;
+  }
+
+  .chapters-pagination__btn {
+    min-width: 36px;
+    width: 36px;
+    height: 36px;
+    font-size: 13px;
+  }
+
+  .chapters-pagination__ellipsis {
+    min-width: 24px;
+    height: 36px;
+  }
+
+  .chapters-empty {
+    padding: 40px 20px;
+  }
+
+  .chapters-empty__illustration {
+    width: 88px;
+    height: 88px;
+    margin-bottom: 20px;
+  }
+
+  .chapters-empty__title {
+    font-size: 19px;
+  }
+
+  .chapters-empty__subtitle {
+    font-size: 14px;
+  }
+
+  .chapters-empty__actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .chapters-empty__actions .chapters-btn {
+    width: 100%;
   }
 }
 
