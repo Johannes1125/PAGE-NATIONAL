@@ -4,8 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Loader2, ArrowLeft, AlertTriangle, FileText, Hash, Shield, Calendar, Edit, Trash2 } from "lucide-react";
 import AdminSidebarLayout from "../../components/AdminSidebarLayout";
-import { api, PaginatedResponse, PaginationMeta } from "../../../lib/api-client";
-import Pagination from "../components/Pagination";
+import { api } from "../../../lib/api-client";
 import { gooeyToast } from "goey-toast";
 import "goey-toast/styles.css";
 
@@ -38,11 +37,6 @@ export default function BirCertificationPage() {
   const [recordsList, setRecordsList] = useState<BirCertification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [meta, setMeta] = useState<PaginationMeta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
-
   // Modals state
   const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -62,14 +56,13 @@ export default function BirCertificationPage() {
   }, [router]);
 
   // Fetch Records
-  const fetchRecord = useCallback(async (page = currentPage, limit = itemsPerPage) => {
+  const fetchRecord = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await api.get<PaginatedResponse<BirCertification>>(`/bir-certifications?page=${page}&limit=${limit}`);
+      const response = await api.get<{ success: boolean; data: BirCertification[] }>("/bir-certifications");
       if (response.success && response.data) {
         setRecordsList(response.data);
         setRecord(response.data.length > 0 ? response.data[0] : null);
-        if (response.meta) setMeta(response.meta);
       } else {
         setRecord(null);
         setRecordsList([]);
@@ -80,24 +73,13 @@ export default function BirCertificationPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, itemsPerPage]);
-
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
-    fetchRecord(newPage, itemsPerPage);
-  };
-
-  const handleLimitChange = (newLimit: number) => {
-    setItemsPerPage(newLimit);
-    setCurrentPage(1);
-    fetchRecord(1, newLimit);
-  };
+  }, []);
 
   // Check auth and fetch on mount
   useEffect(() => {
     const init = async () => {
       await verifySession();
-      await fetchRecord(currentPage, itemsPerPage);
+      await fetchRecord();
     };
     init();
   }, [verifySession, fetchRecord]);
@@ -412,17 +394,6 @@ export default function BirCertificationPage() {
           </div>
         )}
 
-        {meta.totalItems > 0 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={meta.totalPages}
-            totalItems={meta.totalItems}
-            itemsPerPage={itemsPerPage}
-            onPageChange={handlePageChange}
-            onItemsPerPageChange={handleLimitChange}
-            isLoading={isLoading}
-          />
-        )}
       </div>
 
       {/* Create / Edit Form Modal */}

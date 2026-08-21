@@ -743,7 +743,7 @@ export default function MembershipApplicationsPage() {
                         onClick={handleRejectInit}
                         disabled={selectedApp.status === "rejected"}
                       >
-                        <XCircle size={16} /> Reject Application
+                        <XCircle size={16} /> Decline Application
                       </button>
                     </motion.div>
                   ) : (
@@ -778,7 +778,7 @@ export default function MembershipApplicationsPage() {
                           className="decision-btn decision-btn--confirm-reject"
                           onClick={handleConfirmReject}
                         >
-                          Confirm Rejection
+                          Confirm Decline
                         </button>
                         <button
                           type="button"

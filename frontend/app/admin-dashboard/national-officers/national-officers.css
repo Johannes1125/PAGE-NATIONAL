@@ -203,6 +203,25 @@
   box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.1);
 }
 
+.category-filter-select {
+  height: 40px;
+  min-width: 170px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0 32px 0 12px;
+  background: #ffffff;
+  color: var(--r-text, #102a43);
+  font-size: 0.875rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+.category-filter-select:focus {
+  outline: none;
+  border-color: var(--p-blue);
+  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.1);
+}
+
 /* Add Officer button */
 .add-officer-btn {
   height: 48px;

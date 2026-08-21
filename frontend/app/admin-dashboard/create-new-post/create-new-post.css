@@ -406,11 +406,20 @@
   background: #fdfefe;
 }
 
+.cnp-upload--featured .cnp-upload__box {
+  aspect-ratio: 1;
+  min-height: 0;
+}
+
 @media (max-width: 640px) {
   .cnp-upload__box {
     min-height: 120px;
     font-size: 14px;
     padding: 20px;
+  }
+
+  .cnp-upload--featured .cnp-upload__box {
+    min-height: 0;
   }
 }
 

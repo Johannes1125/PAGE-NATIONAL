@@ -51,6 +51,7 @@ export default function NationalOfficersManagement() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
   // Modal State
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -229,12 +230,14 @@ export default function NationalOfficersManagement() {
   // Search Filter
   const filteredOfficers = officers.filter((off) => {
     const q = searchQuery.toLowerCase();
-    return (
+    const matchesSearch = (
       off.memberName.toLowerCase().includes(q) ||
       off.role.toLowerCase().includes(q) ||
       off.positionCategory.toLowerCase().includes(q) ||
       (off.description && off.description.toLowerCase().includes(q))
     );
+    const matchesCategory = categoryFilter === "all" || off.positionCategory === categoryFilter;
+    return matchesSearch && matchesCategory;
   });
 
   if (isLoading) {
@@ -298,6 +301,16 @@ export default function NationalOfficersManagement() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
+                <select
+                  aria-label="Filter officers by category"
+                  className="category-filter-select"
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                >
+                  <option value="all">All Categories</option>
+                  <option value="National Officers">National Officers</option>
+                  <option value="Board of Directors">Board of Directors</option>
+                </select>
                 <button
                   type="button"
                   className="btn-accessible btn-accessible-primary add-officer-btn"

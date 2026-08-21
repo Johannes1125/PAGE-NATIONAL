@@ -1,0 +1,569 @@
+/* =========================================
+   TOKENS — mirrors manage-users.css so both
+   admin pages share one visual language.
+   Safe to keep even if manage-users.css is
+   also loaded elsewhere; the values match.
+   ========================================= */
+:root {
+  --manage-navy: #143152;
+  --manage-navy-soft: #1c3f66;
+  --manage-blue: #1e538e;
+  --manage-blue-soft: rgba(30, 83, 142, 0.08);
+  --manage-text: #112c49;
+  --manage-muted: #5f738b;
+  --manage-border: #d7e1eb;
+  --manage-bg: #eef3f9;
+  --manage-radius-sm: 8px;
+  --manage-radius-md: 10px;
+  --manage-radius-lg: 16px;
+  --manage-shadow-sm: 0 1px 3px rgba(20, 49, 82, 0.06);
+  --manage-shadow-md: 0 10px 26px rgba(16, 36, 61, 0.08);
+  --manage-shadow-lg: 0 20px 50px rgba(20, 49, 82, 0.22);
+  --manage-ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* =========================================
+   SHELL — identical to manage-page / manage-main /
+   manage-content in manage-users.css, so both admin
+   pages line up to the same width and padding.
+   ========================================= */
+.manage-page {
+  min-height: 100vh;
+  background: var(--manage-bg);
+}
+
+.manage-main {
+  min-height: 100vh;
+}
+
+.manage-content {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 10px 12px 20px;
+}
+
+@media (min-width: 481px) {
+  .manage-content {
+    padding: 14px 16px 24px;
+  }
+}
+
+@media (min-width: 769px) {
+  .manage-content {
+    padding: 18px 24px 32px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .manage-content {
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .manage-content {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+/* =========================================
+   PAGE / LAYOUT
+   ========================================= */
+.recent-activity-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+@media (min-width: 769px) {
+  .recent-activity-page {
+    gap: 20px;
+  }
+}
+
+/* =========================================
+   HEADER SHELL — plain wrapper (no card box),
+   just spacing between title / filters / metrics
+   ========================================= */
+.recent-activity-header-shell {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 769px) {
+  .recent-activity-header-shell {
+    gap: 18px;
+  }
+}
+
+/* =========================================
+   METRIC CARDS — matches the .admin-hero-card
+   pattern from admin-dashboard.css (left accent
+   border, icon chip, big value, meta line) so the
+   Recent Activity metrics read like the dashboard's.
+   ========================================= */
+.recent-activity-metrics {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  padding-top: 4px;
+}
+
+.admin-hero-card {
+  background: #fff;
+  border: 1px solid rgba(20, 49, 82, 0.09);
+  border-left-width: 4px;
+  border-radius: 18px;
+  padding: 18px 20px 20px;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(20, 49, 82, 0.06), 0 1px 2px rgba(20, 49, 82, 0.04);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.25s ease;
+}
+
+.admin-hero-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(20, 49, 82, 0.1), 0 4px 8px rgba(20, 49, 82, 0.06);
+}
+
+.admin-hero-card--navy { border-left-color: var(--manage-navy); }
+.admin-hero-card--green { border-left-color: #10b981; }
+.admin-hero-card--gold { border-left-color: #f59e0b; }
+.admin-hero-card--violet { border-left-color: #7c3aed; }
+.admin-hero-card--blue { border-left-color: var(--manage-blue); }
+.admin-hero-card--cyan { border-left-color: #0ea5c9; }
+
+.admin-hero-card__top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.admin-hero-card__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-hero-card:hover .admin-hero-card__icon {
+  transform: scale(1.06) rotate(-2deg);
+}
+
+.admin-hero-card--navy .admin-hero-card__icon { background: rgba(20, 49, 82, 0.08); color: var(--manage-navy); }
+.admin-hero-card--green .admin-hero-card__icon { background: #d1fae5; color: #10b981; }
+.admin-hero-card--gold .admin-hero-card__icon { background: #fef3cd; color: #f59e0b; }
+.admin-hero-card--violet .admin-hero-card__icon { background: #ede9fe; color: #7c3aed; }
+.admin-hero-card--blue .admin-hero-card__icon { background: var(--manage-blue-soft); color: var(--manage-blue); }
+.admin-hero-card--cyan .admin-hero-card__icon { background: #e4f7fc; color: #0ea5c9; }
+
+.admin-hero-card__title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--manage-muted);
+}
+
+.admin-hero-card__value {
+  font-size: clamp(22px, 5vw, 30px);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--manage-navy);
+  letter-spacing: -0.5px;
+}
+
+.admin-hero-card__meta {
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--manage-muted);
+  line-height: 1.4;
+}
+
+/* =========================================
+   FILTER BAR — pill buttons match the
+   pagination__link / manage-role-filter language
+   ========================================= */
+.recent-activity-filter-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.recent-activity-filter-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.recent-activity-filter-list button {
+  appearance: none;
+  min-height: 36px;
+  border-radius: 999px;
+  border: 2px solid var(--manage-border);
+  background: #fff;
+  color: var(--manage-text);
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s var(--manage-ease);
+}
+
+.recent-activity-filter-list button:hover {
+  background: #f4f8fd;
+  border-color: #c8d9ea;
+}
+
+.recent-activity-filter-list button.active {
+  background: var(--manage-navy);
+  border-color: var(--manage-navy);
+  color: #fff;
+}
+
+.recent-activity-filter-list button.active:hover {
+  background: var(--manage-navy-soft);
+  border-color: var(--manage-navy-soft);
+}
+
+/* =========================================
+   FEED — cards styled like .manage-table
+   tbody tr (mobile-card treatment)
+   ========================================= */
+.recent-activity-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.recent-activity-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid var(--manage-border);
+  border-radius: var(--manage-radius-md);
+  box-shadow: var(--manage-shadow-sm);
+  padding: 14px;
+  transition: box-shadow 0.15s var(--manage-ease), border-color 0.15s var(--manage-ease);
+}
+
+.recent-activity-item:hover {
+  box-shadow: var(--manage-shadow-md);
+}
+
+.recent-activity-item__main {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.recent-activity-item__dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.recent-activity-item__dot--system {
+  background: #0d935f;
+  box-shadow: 0 0 0 4px #e4f8ef;
+}
+
+.recent-activity-item__dot--activity {
+  background: #b45309;
+  box-shadow: 0 0 0 4px #fff4e0;
+}
+
+.recent-activity-item__text-wrap {
+  min-width: 0;
+}
+
+.recent-activity-item__text-wrap h3 {
+  margin: 0 0 3px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--manage-text);
+  line-height: 1.4;
+}
+
+.recent-activity-item__text-wrap p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--manage-muted);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.recent-activity-item__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Pill — same construction as .manage-status (colored dot + tinted pill) */
+.recent-activity-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.recent-activity-pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  border-radius: 999px;
+  margin-right: 5px;
+  background: currentColor;
+}
+
+.recent-activity-pill--system {
+  color: #0d935f;
+  background: #e4f8ef;
+  border: 1px solid #68c7a1;
+}
+
+.recent-activity-pill--activity {
+  color: #b45309;
+  background: #fff4e0;
+  border: 1px solid #f0c36d;
+}
+
+.recent-activity-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--manage-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Empty / loading state — same treatment as .manage-empty-cell */
+.recent-activity-state {
+  text-align: center;
+  color: var(--manage-muted);
+  background: #fff;
+  border: 1px solid var(--manage-border);
+  border-radius: var(--manage-radius-md);
+  padding: 32px 16px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* =========================================
+   RESPONSIVE — same breakpoints as manage-users.css
+   ========================================= */
+@media (min-width: 481px) {
+  .recent-activity-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .recent-activity-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .recent-activity-item__meta {
+    flex-shrink: 0;
+  }
+}
+
+@media (min-width: 769px) {
+  .recent-activity-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .recent-activity-filter-list {
+    justify-content: flex-end;
+  }
+
+  .recent-activity-item {
+    padding: 14px 18px;
+  }
+
+  .recent-activity-item__text-wrap p {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .recent-activity-pill {
+    min-width: 78px;
+    justify-content: center;
+  }
+}
+
+@media (min-width: 1280px) {
+  .recent-activity-metrics {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+/* =========================================
+   PAGINATION — same construction as
+   manage-users.css's pagination component
+   ========================================= */
+.pagination {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+.pagination__summary {
+  margin-right: auto;
+  color: #274768;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.pagination__summary strong {
+  color: var(--manage-navy);
+}
+
+.pagination__limit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 12px;
+  color: #274768;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.pagination__limit select {
+  height: 36px;
+  padding: 0 28px 0 10px;
+  border: 1px solid #cbd9ea;
+  border-radius: 8px;
+  background: #fff;
+  color: #274768;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pagination__list {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-wrap: wrap;
+}
+
+.pagination__item {
+  display: inline-flex;
+}
+
+.pagination__item--dots {
+  color: #6d7f92;
+  font-weight: 700;
+  padding: 0 3px;
+  font-size: 14px;
+}
+
+.pagination__nav,
+.pagination__link {
+  min-width: 40px;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 2px solid var(--manage-border);
+  background: #fff;
+  color: #274768;
+  font-size: 14px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s var(--manage-ease);
+  flex-shrink: 0;
+}
+
+.pagination__nav:hover:not(:disabled),
+.pagination__link:hover:not(:disabled):not(.pagination__link--active) {
+  background: #f4f8fd;
+  border-color: #c8d9ea;
+}
+
+.pagination__link--active {
+  background: var(--manage-navy);
+  border-color: var(--manage-navy);
+  color: #fff;
+}
+
+.pagination__link--active:hover {
+  background: var(--manage-navy-soft);
+  border-color: var(--manage-navy-soft);
+}
+
+.pagination__nav:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (min-width: 769px) {
+  .pagination {
+    justify-content: flex-end;
+  }
+
+  .pagination__nav,
+  .pagination__link {
+    min-width: 36px;
+    height: 36px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pagination {
+    justify-content: center;
+  }
+
+  .pagination__summary {
+    width: 100%;
+    margin-right: 0;
+    text-align: center;
+  }
+
+  .pagination__limit {
+    margin-left: 0;
+  }
+}

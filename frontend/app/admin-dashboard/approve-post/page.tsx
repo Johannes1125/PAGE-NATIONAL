@@ -453,7 +453,7 @@ export default function ApprovePostPage() {
                       <Check size={16} /> {isSubmitting ? "Approving..." : "Approve Manuscript"}
                     </button>
                     <button type="button" className="approve-btn approve-btn--reject" disabled={isSubmitting} onClick={handleReject}>
-                      {isSubmitting ? "Rejecting..." : "Request Revisions (Reject)"}
+                      {isSubmitting ? "Declining..." : "Request Revisions (Decline)"}
                     </button>
                   </div>
                 </div>

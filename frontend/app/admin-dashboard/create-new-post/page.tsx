@@ -408,7 +408,7 @@ export default function CreateNewPostPage() {
             </div>
 
             <div className="cnp-upload-grid">
-              <div className="cnp-upload">
+              <div className="cnp-upload cnp-upload--featured">
                 <span>Featured Image <span className="cnp-required">*</span></span>
                 <label htmlFor="featured-image-input" className="cnp-upload__box">
                   <ImageIcon size={18} />

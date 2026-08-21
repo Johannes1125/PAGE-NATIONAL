@@ -181,8 +181,16 @@ export default function AdminDashboardPage() {
           }
 
           if (Array.isArray(recentActivities)) {
+            const newestActivities = [...recentActivities]
+              .sort((a: any, b: any) => {
+                const aTime = a?.timestamp ? new Date(a.timestamp).getTime() : 0;
+                const bTime = b?.timestamp ? new Date(b.timestamp).getTime() : 0;
+                return bTime - aTime;
+              })
+              .slice(0, 5);
+
             setActivities(
-              recentActivities.map((act: any) => ({
+              newestActivities.map((act: any) => ({
                 title: act.action,
                 actor: `${act.userName} (${act.role})`,
                 time: act.timestamp,

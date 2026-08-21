@@ -582,6 +582,7 @@ export default function HistoryManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [meta, setMeta] = useState<PaginationMeta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
+  const [programTypeFilter, setProgramTypeFilter] = useState("all");
 
   // Drag and Drop state
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -589,10 +590,11 @@ export default function HistoryManagement() {
   const [isReordering, setIsReordering] = useState(false);
 
   // ── Fetch ────────────────────────────────────────────────────────────────
-  const fetchRecords = useCallback(async (page = currentPage, limit = itemsPerPage) => {
+  const fetchRecords = useCallback(async (page = currentPage, limit = itemsPerPage, programType = programTypeFilter) => {
     try {
       setIsLoading(true);
-      const res = await api.get<PaginatedResponse<HistoricalRecord>>(`/historical-records?page=${page}&limit=${limit}`);
+      const programTypeQuery = programType !== "all" ? `&programType=${encodeURIComponent(programType)}` : "";
+      const res = await api.get<PaginatedResponse<HistoricalRecord>>(`/historical-records?page=${page}&limit=${limit}${programTypeQuery}`);
       if (res.success) {
         setRecords(res.data ?? []);
         if (res.meta) setMeta(res.meta);
@@ -602,7 +604,7 @@ export default function HistoryManagement() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, itemsPerPage]);
+  }, [currentPage, itemsPerPage, programTypeFilter]);
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
@@ -613,6 +615,12 @@ export default function HistoryManagement() {
     setItemsPerPage(newLimit);
     setCurrentPage(1);
     fetchRecords(1, newLimit);
+  };
+
+  const handleProgramTypeChange = (programType: string) => {
+    setProgramTypeFilter(programType);
+    setCurrentPage(1);
+    fetchRecords(1, itemsPerPage, programType);
   };
 
   useEffect(() => { fetchRecords(currentPage, itemsPerPage); }, [fetchRecords]);
@@ -826,8 +834,24 @@ export default function HistoryManagement() {
               onChange={e => setSearchQuery(e.target.value)}
             />
           </div>
-          <div style={{ fontSize: 15, color: "var(--r-text-muted)", whiteSpace: "nowrap", fontWeight: 500 }}>
-            {filtered.length} record{filtered.length !== 1 ? "s" : ""}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <select
+              aria-label="Filter history by program type"
+              className="about-input"
+              value={programTypeFilter}
+              onChange={e => handleProgramTypeChange(e.target.value)}
+              style={{ width: "auto", minWidth: 160, height: 40 }}
+            >
+              <option value="all">All Program Types</option>
+              <option value="Initiative">Initiative</option>
+              <option value="Conference">Conference</option>
+              <option value="Seminar">Seminar</option>
+              <option value="Convention">Convention</option>
+              <option value="Other">Other</option>
+            </select>
+            <div style={{ fontSize: 15, color: "var(--r-text-muted)", whiteSpace: "nowrap", fontWeight: 500 }}>
+              {meta.totalItems} record{meta.totalItems !== 1 ? "s" : ""}
+            </div>
           </div>
         </div>
 

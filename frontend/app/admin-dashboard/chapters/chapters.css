@@ -2,12 +2,12 @@
 /* PAGE Senior-Friendly UI design tokens */
 
 :root {
-  --chapters-section-gap: 40px;
+  --chapters-section-gap: 24px;
   --chapters-card-gap: 24px;
   --chapters-card-padding: 28px;
   --chapters-toolbar-gap: 20px;
   --chapters-max-width: 1600px;
-  --chapters-page-padding: 48px;
+  --chapters-page-padding: 32px;
   --chapters-radius: 16px;
   --chapters-radius-sm: 12px;
   --chapters-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
@@ -83,6 +83,7 @@
 .chapters-management-page .admin-main-content {
   min-width: 0;
   overflow-x: clip;
+  background: #eef3f9;
 }
 
 .chapters-management-page [class*="introSeniorFriendly"] [class*="introContent"] {
@@ -1112,23 +1113,28 @@
 
 /* ─── Pagination ─── */
 .chapters-pagination {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
   align-items: center;
-  gap: 28px;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
   width: 100%;
-  padding: 24px 32px;
-  background: var(--chapters-card-bg);
-  border: 2px solid var(--chapters-border-light);
-  border-radius: var(--chapters-radius);
-  box-shadow: var(--chapters-shadow-card);
+  padding: 4px 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .chapters-pagination__info {
-  justify-self: start;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--r-text-muted, #6b87a4);
+  margin-right: auto;
+  font-size: 14px;
+  font-weight: 500;
+  color: #274768;
+}
+
+.chapters-pagination__info strong {
+  color: var(--p-navy);
 }
 
 .chapters-pagination__count-badge {
@@ -1158,14 +1164,13 @@
 }
 
 .chapters-pagination__controls {
-  justify-self: center;
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 4px;
-  background: var(--r-surface-2, #f8fafc);
-  border: 1.5px solid var(--r-border-mid, #cbd5e1);
-  border-radius: var(--chapters-radius-sm);
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
 }
 
 .chapters-pagination__ellipsis {
@@ -1180,15 +1185,33 @@
 }
 
 .chapters-pagination__per-page {
-
-  justify-self: end;
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 12px;
+  color: #274768;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.chapters-pagination__per-page > span {
+  white-space: nowrap;
+}
+
+.chapters-pagination__per-page .chapters-toolbar__select-wrap {
+  width: auto;
+  flex-shrink: 0;
 }
 
 .chapters-pagination__per-page select {
-  height: var(--chapters-control-height);
-  padding: 0 40px 0 16px;
-  font-size: 15px;
+  height: 36px;
+  min-width: 70px;
+  width: 70px;
+  padding: 0 40px 0 10px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--r-text-mid, #334e6e);
   background: var(--r-surface, #ffffff);
@@ -1217,15 +1240,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: var(--chapters-control-height);
-  height: var(--chapters-control-height);
+  min-width: 36px;
+  height: 36px;
   padding: 0 12px;
-  border: none;
-  border-radius: 10px;
-  font-size: var(--chapters-font-body);
+  border: 1px solid var(--chapters-border-medium);
+  border-radius: 999px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--r-text-mid, #334e6e);
-  background: transparent;
+  background: #ffffff;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
@@ -1248,10 +1271,20 @@
 .chapters-pagination__btn--active,
 .chapters-pagination__btn--active:hover,
 .chapters-pagination__btn--active:focus {
-  background: linear-gradient(135deg, #2563eb 0%, #1e538e 100%) !important;
+  background: #143152 !important;
   color: #ffffff !important;
   cursor: default !important;
   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+.chapters-pagination__nav-label {
+  display: inline;
+}
+
+.chapters-pagination__controls > .chapters-pagination__btn:first-child,
+.chapters-pagination__controls > .chapters-pagination__btn:last-child {
+  gap: 4px;
+  padding: 0 12px;
 }
 
 
@@ -1725,11 +1758,13 @@
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    padding: 16px;
+    padding: 4px 0;
   }
 
   .chapters-pagination__info {
-    order: 2;
+    order: 1;
+    width: 100%;
+    margin-right: 0;
     text-align: center;
     font-size: 13px;
   }
@@ -1740,7 +1775,7 @@
   }
 
   .chapters-pagination__controls {
-    order: 1;
+    order: 2;
     display: flex;
     justify-content: center;
     width: 100%;
@@ -1767,6 +1802,10 @@
     padding: 0;
   }
 
+  .chapters-pagination__nav-label {
+    display: none;
+  }
+
   .chapters-pagination__ellipsis {
     min-width: 28px;
     height: 40px;
@@ -1774,12 +1813,13 @@
 
   .chapters-pagination__per-page {
     order: 3;
-    width: 100%;
-    max-width: 220px;
+    width: auto;
+    max-width: none;
+    justify-content: center;
   }
 
   .chapters-pagination__per-page select {
-    width: 100%;
+    width: 70px;
     height: 40px;
     font-size: 13.5px;
   }
