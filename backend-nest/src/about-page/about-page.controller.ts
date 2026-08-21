@@ -46,8 +46,9 @@ export class AboutPageController {
   getPublicOfficers(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('chapter') chapter?: string,
   ) {
-    return this.aboutPageService.getOfficers(true, page, limit);
+    return this.aboutPageService.getOfficers(true, page, limit, chapter);
   }
 
   @Get('public/about-page/documents/:key')
@@ -115,8 +116,9 @@ export class AboutPageController {
   getOfficers(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('chapter') chapter?: string,
   ) {
-    return this.aboutPageService.getOfficers(false, page, limit);
+    return this.aboutPageService.getOfficers(false, page, limit, chapter);
   }
 
   @UseGuards(TokenAuthGuard, RolesGuard)

@@ -51,7 +51,7 @@ export default function OfficerModal({ open, chapter, onClose }: OfficerModalPro
       style={{
         position: "fixed",
         inset: 0,
-        backgroundColor: "rgba(15, 23, 42, 0.65)",
+        backgroundColor: "rgba(71, 85, 105, 0.48)",
         backdropFilter: "blur(4px)",
         WebkitBackdropFilter: "blur(4px)",
         zIndex: 9999,

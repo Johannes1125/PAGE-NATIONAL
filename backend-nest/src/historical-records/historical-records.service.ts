@@ -9,7 +9,8 @@ export class HistoricalRecordsService {
 
   // ── PUBLIC ────────────────────────────────────────────────────────────────
 
-  async findAll(pageStr?: string, limitStr?: string) {
+  async findAll(pageStr?: string, limitStr?: string, programType?: string) {
+    const where = programType && programType !== 'all' ? { programType } : undefined;
     if (pageStr || limitStr) {
       const page = parseInt(pageStr || '1', 10);
       const limit = parseInt(limitStr || '10', 10);
@@ -17,6 +18,7 @@ export class HistoricalRecordsService {
 
       const [records, totalItems] = await Promise.all([
         this.prisma.historical_records.findMany({
+          where,
           orderBy: [
             { yearStart: 'asc' },
             { sortOrder: 'asc' },
@@ -24,7 +26,7 @@ export class HistoricalRecordsService {
           skip,
           take: limit,
         }),
-        this.prisma.historical_records.count(),
+        this.prisma.historical_records.count({ where }),
       ]);
 
       return {
@@ -41,6 +43,7 @@ export class HistoricalRecordsService {
     }
 
     const records = await this.prisma.historical_records.findMany({
+      where,
       orderBy: [
         { yearStart: 'asc' },
         { sortOrder: 'asc' },

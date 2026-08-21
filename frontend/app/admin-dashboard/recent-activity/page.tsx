@@ -109,12 +109,12 @@ export default function RecentActivityPage() {
     return activities.filter((item) => item.role.toLowerCase() === selectedFilter.toLowerCase());
   }, [activities, selectedFilter]);
 
-  const pageSize = 6;
+  const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedFilter, activities]);
+  }, [selectedFilter, activities, pageSize]);
 
   const totalItems = filteredActivities.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
@@ -321,6 +321,12 @@ export default function RecentActivityPage() {
 
           {!isLoading && totalItems > 0 && (
             <nav className="pagination" role="navigation" aria-label="Recent activity pagination">
+              <span className="pagination__summary">
+                Showing <strong>{(currentPage - 1) * pageSize + 1}</strong>-
+                <strong>{Math.min(currentPage * pageSize, totalItems)}</strong> of <strong>{totalItems}</strong> records
+                (Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>)
+              </span>
+
               <button
                 type="button"
                 className="pagination__nav"
@@ -328,7 +334,7 @@ export default function RecentActivityPage() {
                 disabled={currentPage === 1}
                 aria-label="Previous page"
               >
-                ‹
+                ‹ Prev
               </button>
 
               <ul className="pagination__list">
@@ -363,8 +369,18 @@ export default function RecentActivityPage() {
                 disabled={currentPage === totalPages}
                 aria-label="Next page"
               >
-                ›
+                Next ›
               </button>
+
+              <label className="pagination__limit">
+                Per page:
+                <select value={pageSize} onChange={(event) => setPageSize(Number(event.target.value))}>
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                </select>
+              </label>
             </nav>
           )}
         </div>

@@ -45,6 +45,7 @@ export default function NationalOfficersManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [meta, setMeta] = useState<PaginationMeta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
   // Form states (Add / Edit)
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -60,10 +61,11 @@ export default function NationalOfficersManagement() {
     fetchOfficers(currentPage, itemsPerPage);
   }, []);
 
-  const fetchOfficers = async (page = currentPage, limit = itemsPerPage) => {
+  const fetchOfficers = async (page = currentPage, limit = itemsPerPage, category = categoryFilter) => {
     try {
       setIsLoading(true);
-      const res = await api.get<PaginatedResponse<Officer>>(`/about-page/officers?page=${page}&limit=${limit}`);
+      const chapterQuery = category !== "all" ? `&chapter=${encodeURIComponent(category)}` : "";
+      const res = await api.get<PaginatedResponse<Officer>>(`/about-page/officers?page=${page}&limit=${limit}${chapterQuery}`);
       if (res.success) {
         setOfficers(res.data);
         if (res.meta) setMeta(res.meta);
@@ -85,6 +87,12 @@ export default function NationalOfficersManagement() {
     setItemsPerPage(newLimit);
     setCurrentPage(1);
     fetchOfficers(1, newLimit);
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setCategoryFilter(category);
+    setCurrentPage(1);
+    fetchOfficers(1, itemsPerPage, category);
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -257,9 +265,24 @@ export default function NationalOfficersManagement() {
         <section className="officers-layout">
           {/* Officers Table List */}
           <div className="about-editor-card">
-            <h3 style={{ fontSize: "16px", color: "var(--p-navy)", marginBottom: "16px", fontWeight: 600 }}>
-              Officers & Directors Directory
-            </h3>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", flexWrap: "wrap", marginBottom: "16px" }}>
+              <h3 style={{ fontSize: "16px", color: "var(--p-navy)", margin: 0, fontWeight: 600 }}>
+                Officers & Directors Directory
+              </h3>
+              <select
+                aria-label="Filter officers by category"
+                className="about-input"
+                value={categoryFilter}
+                onChange={(event) => handleCategoryChange(event.target.value)}
+                style={{ width: "auto", minWidth: "150px", height: "38px" }}
+              >
+                <option value="all">All Categories</option>
+                <option value="National">National</option>
+                <option value="Luzon">Luzon</option>
+                <option value="Visayas">Visayas</option>
+                <option value="Mindanao">Mindanao</option>
+              </select>
+            </div>
 
             {/* Table view — 768px and up */}
             <div className="officers-table-view">

@@ -505,8 +505,8 @@
     height: 40px;
   }
   .navbar__logo-name {
-    font-size: 11px;
-    max-width: 160px;
+    font-size: 12px;
+    max-width: 190px;
   }
   .navbar__logo-badge {
     font-size: 10px;
@@ -530,11 +530,8 @@
     height: 34px;
   }
   .navbar__logo-name {
-    font-size: 9.5px;
-    max-width: 118px;
-  }
-  .navbar__logo-badge {
-    font-size: 8.5px;
+    font-size: 11px;
+    max-width: 190px;
   }
   .navbar__hamburger {
     width: 36px;

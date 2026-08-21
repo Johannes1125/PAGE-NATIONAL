@@ -731,12 +731,13 @@ function Step1Info({
         />
         <button
           type="button"
-          className="wizard-add-btn"
+          className="wizard-add-btn conv-upload-dropzone"
           onClick={() => imageInputRef.current?.click()}
           disabled={isSaving}
         >
           <Upload size={20} strokeWidth={2.5} aria-hidden="true" />
-          Upload Images
+          <span>Upload Images</span>
+          <small>JPG, PNG, or WEBP</small>
         </button>
 
         {(savedImages.length > 0 || data.pendingImages.length > 0) && (
@@ -793,12 +794,13 @@ function Step1Info({
         />
         <button
           type="button"
-          className="wizard-add-btn"
+          className="wizard-add-btn conv-upload-dropzone"
           onClick={() => pdfInputRef.current?.click()}
           disabled={isSaving}
         >
           <FileText size={20} strokeWidth={2.5} aria-hidden="true" />
-          Upload PDFs
+          <span>Upload PDFs</span>
+          <small>PDF files only</small>
         </button>
 
         {(savedPdfs.length > 0 || data.pendingPdfs.length > 0) && (

@@ -31,7 +31,6 @@ import {
 import { motion } from "framer-motion";
 import AdminSidebarLayout from "../../components/AdminSidebarLayout";
 import { api, PaginatedResponse, PaginationMeta } from "../../../lib/api-client";
-import Pagination from "../components/Pagination";
 import { gooeyToast } from "goey-toast";
 import "goey-toast/styles.css";
 import "../about-page.css";
@@ -1058,15 +1057,29 @@ export default function CblInformationManagement() {
                 </table>
               </div>
 
-              <Pagination
-                currentPage={articlePage}
-                totalPages={articleMeta.totalPages}
-                totalItems={articleMeta.totalItems}
-                itemsPerPage={articleLimit}
-                onPageChange={handleArticlePageChange}
-                onItemsPerPageChange={handleArticleLimitChange}
-                isLoading={isLoading}
-              />
+              <div className="cbl-articles-pagination pagination" role="navigation" aria-label="News article pagination">
+                <span className="cbl-articles-pagination__summary">
+                  Showing <strong>{(articlePage - 1) * articleLimit + 1}</strong>-<strong>{Math.min(articlePage * articleLimit, articleMeta.totalItems)}</strong> of <strong>{articleMeta.totalItems}</strong> records
+                </span>
+                <button type="button" className="pagination__nav" onClick={() => handleArticlePageChange(articlePage - 1)} disabled={articlePage <= 1 || isLoading} aria-label="Previous page">Prev</button>
+                <ul className="pagination__list">
+                  {Array.from({ length: articleMeta.totalPages }, (_, index) => index + 1).map((page) => (
+                    <li key={page} className="pagination__item">
+                      <button type="button" className={`pagination__link ${page === articlePage ? "pagination__link--active" : ""}`} onClick={() => handleArticlePageChange(page)} disabled={isLoading} aria-current={page === articlePage ? "page" : undefined}>{page}</button>
+                    </li>
+                  ))}
+                </ul>
+                <button type="button" className="pagination__nav" onClick={() => handleArticlePageChange(articlePage + 1)} disabled={articlePage >= articleMeta.totalPages || isLoading} aria-label="Next page">Next</button>
+                <label className="cbl-articles-pagination__limit">
+                  Per page:
+                  <select value={articleLimit} onChange={(event) => handleArticleLimitChange(Number(event.target.value))} disabled={isLoading}>
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </select>
+                </label>
+              </div>
             </div>
           </motion.div>
         )}

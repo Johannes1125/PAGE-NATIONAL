@@ -148,8 +148,11 @@ export class AboutPageService implements OnModuleInit {
   }
 
   // Officer Methods
-  async getOfficers(activeOnly: boolean = false, pageStr?: string, limitStr?: string) {
-    const where = activeOnly ? { status: 'active' } : {};
+  async getOfficers(activeOnly: boolean = false, pageStr?: string, limitStr?: string, chapter?: string) {
+    const where = {
+      ...(activeOnly ? { status: 'active' } : {}),
+      ...(chapter && chapter !== 'all' ? { chapter } : {}),
+    };
     if (pageStr || limitStr) {
       const page = parseInt(pageStr || '1', 10);
       const limit = parseInt(limitStr || '10', 10);
