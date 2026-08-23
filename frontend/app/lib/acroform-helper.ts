@@ -63,15 +63,50 @@ export async function generateAcroform(app: any): Promise<void> {
       const field = form.getTextField(fieldName);
       if (field) {
         const textVal = String(value ?? '');
-        if (textVal.length > 30) {
+        if (textVal.length > 35) {
+          field.setFontSize(7.5);
+        } else if (textVal.length > 22) {
           field.setFontSize(8);
-        } else if (textVal.length > 20) {
-          field.setFontSize(10);
+        } else if (textVal.length > 15) {
+          field.setFontSize(9.5);
         }
         field.setText(textVal);
       }
     } catch (e) {
       console.warn(`Field "${fieldName}" not set:`, e);
+    }
+  };
+
+  // Helper to draw text on PDFSignature fields since they do not support field.setText()
+  const drawSignatureText = async (fieldName: string, text: string) => {
+    try {
+      const field = form.getField(fieldName);
+      if (!field) return;
+      
+      const widgets = field.acroField.getWidgets();
+      if (widgets.length === 0) return;
+      
+      const widget = widgets[0];
+      const rect = widget.getRectangle();
+      
+      const page = pdfDoc.getPages()[0];
+      
+      const { rgb, StandardFonts } = await import('pdf-lib');
+      const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+      
+      const fontSize = 10;
+      const textWidth = font.widthOfTextAtSize(text, fontSize);
+      const textHeight = font.heightAtSize(fontSize);
+      
+      page.drawText(text, {
+        x: rect.x + (rect.width - textWidth) / 2,
+        y: rect.y + (rect.height - textHeight) / 2 + 2,
+        size: fontSize,
+        font: font,
+        color: rgb(0, 0, 0),
+      });
+    } catch (e) {
+      console.warn(`Could not draw text on signature field "${fieldName}":`, e);
     }
   };
 
@@ -169,7 +204,7 @@ export async function generateAcroform(app: any): Promise<void> {
     }
 
     safeSet('Date Signed', todayStr);
-    safeSet('Printed Name of Applicant', profile.name || profile.fullName || '');
+    await drawSignatureText('Printed Name of Applicant', derivedName);
 
   } else if (membershipType === 'institutional') {
     safeSet('College/University Name', profile.collegeUniversityName || '');
@@ -211,7 +246,7 @@ export async function generateAcroform(app: any): Promise<void> {
     safeSet('2nd Reference Address', refs.characterReferences?.[1]?.address || '');
 
     safeSet('Date Signed', todayStr);
-    safeSet('Printed Name of Applicant', profile.presidentName || profile.deanHeadGraduateSchool || '');
+    await drawSignatureText('Printed Name of Applicant', profile.presidentName || profile.deanHeadGraduateSchool || '');
   }
 
   // 4. Handle 1x1 Photo embedding in PDF (applicable for LIFE / REGULAR / ASSOCIATE)
