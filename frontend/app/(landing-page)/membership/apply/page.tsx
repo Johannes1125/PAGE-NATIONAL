@@ -144,10 +144,10 @@ type Action =
   | { type: "RESET_FORM" }
   | { type: "ADD_TEACHING_EXP" }
   | { type: "REMOVE_TEACHING_EXP"; index: number }
-  | { type: "UPDATE_TEACHING_EXP"; index: number; field: "institution" | "fromYear" | "toYear"; value: string }
+  | { type: "UPDATE_TEACHING_EXP"; index: number; field: "role" | "institution" | "fromYear" | "toYear"; value: string }
   | { type: "ADD_ADMIN_EXP" }
   | { type: "REMOVE_ADMIN_EXP"; index: number }
-  | { type: "UPDATE_ADMIN_EXP"; index: number; field: "institution" | "fromYear" | "toYear"; value: string }
+  | { type: "UPDATE_ADMIN_EXP"; index: number; field: "role" | "institution" | "fromYear" | "toYear"; value: string }
   | { type: "ADD_PUBLICATION" }
   | { type: "REMOVE_PUBLICATION"; index: number }
   | { type: "UPDATE_PUBLICATION"; index: number; value: string }
@@ -181,7 +181,7 @@ function formReducer(state: ApplicationFormState, action: Action): ApplicationFo
     case "ADD_TEACHING_EXP":
       return {
         ...state,
-        teachingExperience: [...(state.teachingExperience || []), { institution: "", fromYear: "", toYear: "" }],
+        teachingExperience: [...(state.teachingExperience || []), { role: "", institution: "", fromYear: "", toYear: "" }],
       };
     case "REMOVE_TEACHING_EXP":
       return {
@@ -198,7 +198,7 @@ function formReducer(state: ApplicationFormState, action: Action): ApplicationFo
     case "ADD_ADMIN_EXP":
       return {
         ...state,
-        administrativeExperience: [...(state.administrativeExperience || []), { institution: "", fromYear: "", toYear: "" }],
+        administrativeExperience: [...(state.administrativeExperience || []), { role: "", institution: "", fromYear: "", toYear: "" }],
       };
     case "REMOVE_ADMIN_EXP":
       return {
@@ -1791,7 +1791,17 @@ function ApplyContent() {
                               <p style={{ fontSize: "14px", color: "var(--af-text-muted)", margin: 0, padding: "8px" }}>No teaching experience rows added yet.</p>
                             ) : (
                               state.teachingExperience.map((row, idx) => (
-                                <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 110px 110px 40px", gap: "12px", alignItems: "center" }}>
+                                <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 110px 110px 40px", gap: "12px", alignItems: "center" }}>
+                                  <div>
+                                    <input
+                                      type="text"
+                                      placeholder="Role / Position (e.g. Professor)"
+                                      value={row.role || ""}
+                                      onChange={(e) => dispatch({ type: "UPDATE_TEACHING_EXP", index: idx, field: "role", value: e.target.value })}
+                                      className="af-input"
+                                      style={{ minHeight: "40px", fontSize: "15px", padding: "8px 12px" }}
+                                    />
+                                  </div>
                                   <div>
                                     <input
                                       type="text"
@@ -1860,7 +1870,17 @@ function ApplyContent() {
                               <p style={{ fontSize: "14px", color: "var(--af-text-muted)", margin: 0, padding: "8px" }}>No administrative experience rows added yet.</p>
                             ) : (
                               state.administrativeExperience.map((row, idx) => (
-                                <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 110px 110px 40px", gap: "12px", alignItems: "center" }}>
+                                <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 110px 110px 40px", gap: "12px", alignItems: "center" }}>
+                                  <div>
+                                    <input
+                                      type="text"
+                                      placeholder="Role / Position (e.g. Dean)"
+                                      value={row.role || ""}
+                                      onChange={(e) => dispatch({ type: "UPDATE_ADMIN_EXP", index: idx, field: "role", value: e.target.value })}
+                                      className="af-input"
+                                      style={{ minHeight: "40px", fontSize: "15px", padding: "8px 12px" }}
+                                    />
+                                  </div>
                                   <div>
                                     <input
                                       type="text"
@@ -2379,7 +2399,7 @@ function ApplyContent() {
                                 <strong>Teaching Experience:</strong>
                                 <ul style={{ margin: "4px 0 0 20px", padding: 0 }}>
                                   {state.teachingExperience.map((t: any, idx: number) => (
-                                    <li key={idx}>{t.institution} ({t.fromYear} - {t.toYear})</li>
+                                    <li key={idx}>{t.role ? `${t.role} at ` : ''}{t.institution} ({t.fromYear} - {t.toYear})</li>
                                   ))}
                                 </ul>
                               </div>
@@ -2390,7 +2410,7 @@ function ApplyContent() {
                                 <strong>Administrative Experience:</strong>
                                 <ul style={{ margin: "4px 0 0 20px", padding: 0 }}>
                                   {state.administrativeExperience.map((a: any, idx: number) => (
-                                    <li key={idx}>{a.institution} ({a.fromYear} - {a.toYear})</li>
+                                    <li key={idx}>{a.role ? `${a.role} at ` : ''}{a.institution} ({a.fromYear} - {a.toYear})</li>
                                   ))}
                                 </ul>
                               </div>

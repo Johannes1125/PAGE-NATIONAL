@@ -57,12 +57,18 @@ export async function generateAcroform(app: any): Promise<void> {
   const pdfDoc = await PDFDocument.load(pdfBytes);
   const form = pdfDoc.getForm();
 
-  // Helper to safely set text fields
+  // Helper to safely set text fields with font size adjustment to prevent overlap
   const safeSet = (fieldName: string, value: any) => {
     try {
       const field = form.getTextField(fieldName);
       if (field) {
-        field.setText(String(value ?? ''));
+        const textVal = String(value ?? '');
+        if (textVal.length > 30) {
+          field.setFontSize(8);
+        } else if (textVal.length > 20) {
+          field.setFontSize(10);
+        }
+        field.setText(textVal);
       }
     } catch (e) {
       console.warn(`Field "${fieldName}" not set:`, e);
@@ -77,7 +83,8 @@ export async function generateAcroform(app: any): Promise<void> {
   });
 
   if (membershipType === 'life' || membershipType === 'regular' || membershipType === 'associate') {
-    safeSet('Name', profile.name || profile.fullName || '');
+    const derivedName = profile.name || profile.fullName || [profile.firstName, profile.lastName].filter(Boolean).join(' ') || '';
+    safeSet('Name', derivedName);
     safeSet('Email Address', profile.emailAddress || profile.email || '');
     safeSet('Region', profile.region || '');
     safeSet('Home Address', profile.homeAddress || '');
@@ -94,11 +101,14 @@ export async function generateAcroform(app: any): Promise<void> {
       safeSet('Year Obtained', eduJob.yearObtained !== undefined ? String(eduJob.yearObtained) : '');
 
       // Experience mapping (safely extract first records)
-      safeSet('Teaching Experience', exp.teachingExperience?.[0]?.institution || '');
+      safeSet('Teaching Experience', exp.teachingExperience?.[0]?.role || '');
+      safeSet('Teaching Institution', exp.teachingExperience?.[0]?.institution || '');
       safeSet('Teaching Start Date', exp.teachingExperience?.[0]?.fromYear || '');
       safeSet('Teaching End Date', exp.teachingExperience?.[0]?.toYear || '');
-      safeSet('Administrative Experience', exp.administrativeExperience?.[0]?.institution || '');
+      safeSet('Administrative Experience', exp.administrativeExperience?.[0]?.role || '');
+      safeSet('Administrative Institution', exp.administrativeExperience?.[0]?.institution || '');
       safeSet('Administrative Start Date', exp.administrativeExperience?.[0]?.fromYear || '');
+      safeSet('Administrative End Date', exp.administrativeExperience?.[0]?.toYear || '');
 
       // Publications
       safeSet('Recent Articles, Researches, Books Written', exp.recentPublications?.[0] || '');

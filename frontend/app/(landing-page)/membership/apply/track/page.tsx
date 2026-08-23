@@ -39,7 +39,7 @@ function PrintableForm({ state }: { state: ApplicationFormState }) {
   if (isLifeOrRegular) {
     const tExp = state.teachingExperience?.[0];
     if (tExp) {
-      teachingRole = "Teaching Faculty";
+      teachingRole = tExp.role || "Teaching Faculty";
       teachingInst = tExp.institution;
       teachingFrom = tExp.fromYear;
       teachingTo = tExp.toYear;
@@ -59,7 +59,7 @@ function PrintableForm({ state }: { state: ApplicationFormState }) {
   if (isLifeOrRegular) {
     const aExp = state.administrativeExperience?.[0];
     if (aExp) {
-      adminRole = "Administrative Officer";
+      adminRole = aExp.role || "Administrative Officer";
       adminInst = aExp.institution;
       adminFrom = aExp.fromYear;
       adminTo = aExp.toYear;

@@ -86,8 +86,8 @@ export interface ApplicationFormState {
   
   // Life
   yearsActiveInPAGE?: string;
-  teachingExperience?: { institution: string; fromYear: string; toYear: string }[];
-  administrativeExperience?: { institution: string; fromYear: string; toYear: string }[];
+  teachingExperience?: { role: string; institution: string; fromYear: string; toYear: string }[];
+  administrativeExperience?: { role: string; institution: string; fromYear: string; toYear: string }[];
   recentPublications?: string[];
   professionalMemberships?: string[];
   characterReferences?: { name: string; position: string; address: string }[];
