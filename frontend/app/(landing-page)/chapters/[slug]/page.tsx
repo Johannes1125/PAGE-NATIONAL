@@ -158,14 +158,14 @@ export default function ChapterDetailPage({
       <Navbar scrolled={scrolled} />
 
       {/* Access Control Placeholder Guest Banner */}
-      <div className="guest-banner">
+     {/*  <div className="guest-banner">
         <div className="container guest-banner__inner">
           <span className="guest-banner__icon"><Info size={14} /></span>
           <p className="guest-banner__text">
             <strong>Viewing as Guest</strong>. You are currently viewing public information. Editing capabilities are reserved for Chapter PIOs.
           </p>
         </div>
-      </div>
+      </div> */}
 
       {/* Hero Breadcrumb and Action Section */}
       <section className="chapter-detail-hero-bar">
