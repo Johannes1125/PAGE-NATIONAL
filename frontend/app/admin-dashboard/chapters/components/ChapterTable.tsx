@@ -60,22 +60,21 @@ export default function ChapterTable({
     setMounted(true);
   }, []);
 
-  const computeMenuPos = (el: HTMLDivElement) => {
-    const rect = el.getBoundingClientRect();
-    const dropdownHeight = 110;
-    const spaceBelow = window.innerHeight - rect.bottom;
+  const computeMenuPos = (el: HTMLDivElement, dropdownHeight = 110) => { // 🆕 parametrized
+  const rect = el.getBoundingClientRect();
+  const spaceBelow = window.innerHeight - rect.bottom;
 
-    if (spaceBelow < dropdownHeight && rect.top > dropdownHeight) {
-      return {
-        top: Math.max(10, rect.top - dropdownHeight - 6),
-        right: Math.max(10, window.innerWidth - rect.right),
-      };
-    }
+  if (spaceBelow < dropdownHeight && rect.top > dropdownHeight) {
     return {
-      top: rect.bottom + 6,
+      top: Math.max(10, rect.top - dropdownHeight - 6),
       right: Math.max(10, window.innerWidth - rect.right),
     };
+  }
+  return {
+    top: rect.bottom + 6,
+    right: Math.max(10, window.innerWidth - rect.right),
   };
+};
 
   const handleToggleMenu = (chapterId: string) => {
     if (activeMenuId === chapterId) {
@@ -113,7 +112,8 @@ export default function ChapterTable({
 
     function handleScrollOrResize() {
       if (activeMenuId && buttonRefs.current[activeMenuId]) {
-        setMenuPos(computeMenuPos(buttonRefs.current[activeMenuId]!));
+        const actualHeight = menuRef.current?.offsetHeight ?? 110; // 🆕
+        setMenuPos(computeMenuPos(buttonRefs.current[activeMenuId]!, actualHeight)); // 🆕
       }
     }
 
@@ -123,7 +123,16 @@ export default function ChapterTable({
       window.addEventListener("scroll", handleScrollOrResize, true);
       window.addEventListener("resize", handleScrollOrResize);
     }
-
+    
+    if (activeMenuId && menuRef.current && buttonRefs.current[activeMenuId]) {
+    const actualHeight = menuRef.current.offsetHeight;
+    const corrected = computeMenuPos(buttonRefs.current[activeMenuId]!, actualHeight);
+    setMenuPos((prev) =>
+      prev && prev.top === corrected.top && prev.right === corrected.right
+        ? prev
+        : corrected
+    );
+  }
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
@@ -183,19 +192,21 @@ export default function ChapterTable({
               return (
                 <tr key={chapter.id} className="chapters-table__row">
                   {/* ── Chapter name & Avatar icon ── */}
-                  <td>
-                    <div className="flex items-center gap-3.5 min-w-[240px]">
-                      <div className="chapters-table__chapter-avatar" aria-hidden="true">
-                        <Building2 size={20} strokeWidth={2.2} />
-                      </div>
-                      <div>
-                        <div className="chapters-table__chapter-name">{chapter.name}</div>
-                        {chapter.description && (
-                          <div className="chapters-table__chapter-desc">{chapter.description}</div>
-                        )}
-                      </div>
-                    </div>
-                  </td>
+                  {/* ── Chapter name & Avatar icon ── */}
+                {/* ── Chapter name & Avatar icon ── */}
+<td>
+  <div className="flex items-center gap-3.5 min-w-0 sm:min-w-[240px]">
+    <div className="chapters-table__chapter-avatar" aria-hidden="true">
+      <Building2 size={20} strokeWidth={2.2} />
+    </div>
+    <div className="min-w-0">
+      <div className="chapters-table__chapter-name">{chapter.name}</div>
+      {chapter.description && (
+        <div className="chapters-table__chapter-desc">{chapter.description}</div>
+      )}
+    </div>
+  </div>
+</td>
 
                   {/* ── Island Group ── */}
                   <td>
@@ -227,44 +238,48 @@ export default function ChapterTable({
                   </td>
 
                   {/* ── Actions: Manage (primary) + ⋯ Actions dropdown ── */}
-                  <td className="text-right whitespace-nowrap">
-                    <div className="chapters-table__actions">
-                      {onEdit && (
-                        <PillButton
-                          variant="primary"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onEdit(chapter);
-                          }}
-                          icon={<Edit2 size={15} strokeWidth={2.2} aria-hidden="true" />}
-                          aria-label={`Manage ${chapter.name}`}
-                        >
-                          Manage
-                        </PillButton>
-                      )}
+                  {/* ── Actions: Manage (primary) + ⋯ Actions dropdown ── */}
+{/* ── Actions: Manage (primary) + ⋯ Actions dropdown ── */}
+<td className="text-right whitespace-nowrap">
+  <div className="chapters-table__actions">
+    {onEdit && (
+      <PillButton
+        variant="primary"
+        size="sm"
+        className="chapters-table__manage-btn"
+        onClick={(e) => {
+          e.stopPropagation();
+          onEdit(chapter);
+        }}
+        icon={<Edit2 size={15} strokeWidth={2.2} aria-hidden="true" />}
+        aria-label={`Manage ${chapter.name}`}
+      >
+        Manage
+      </PillButton>
+    )}
 
-                      <div
-                        className="inline-block relative"
-                        ref={(el) => {
-                          buttonRefs.current[chapter.id] = el;
-                        }}
-                      >
-                        <PillButton
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleToggleMenu(chapter.id);
-                          }}
-                          icon={<MoreVertical size={16} strokeWidth={2.2} aria-hidden="true" />}
-                          aria-label={`Actions for ${chapter.name}`}
-                          aria-expanded={activeMenuId === chapter.id}
-                          aria-haspopup="true"
-                        />
-                      </div>
-                    </div>
-                  </td>
+    <div
+      className="relative flex-shrink-0"
+      ref={(el) => {
+        buttonRefs.current[chapter.id] = el;
+      }}
+    >
+      <PillButton
+        variant="outline"
+        size="sm"
+        className="chapters-table__actions-btn"
+        onClick={(e) => {
+          e.stopPropagation();
+          handleToggleMenu(chapter.id);
+        }}
+        icon={<MoreVertical size={16} strokeWidth={2.2} aria-hidden="true" />}
+        aria-label={`Actions for ${chapter.name}`}
+        aria-expanded={activeMenuId === chapter.id}
+        aria-haspopup="true"
+      />
+    </div>
+  </div>
+</td>
                 </tr>
               );
             })}

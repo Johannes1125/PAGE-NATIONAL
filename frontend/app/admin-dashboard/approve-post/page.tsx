@@ -332,45 +332,6 @@ export default function ApprovePostPage() {
                 <p>No submissions found in this queue.</p>
               </div>
             )}
-
-            {filteredPosts.length > 0 && (
-              <nav className="approve-pagination" aria-label="Approve post pagination">
-                <button
-                  type="button"
-                  className="approve-pagination__nav"
-                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                  disabled={currentPage === 1 || isSubmitting}
-                  aria-label="Previous page"
-                >
-                  <ChevronLeft size={16} />
-                </button>
-
-                <div className="approve-pagination__pages">
-                  {visiblePages.map((page) => (
-                    <button
-                      key={page}
-                      type="button"
-                      className={`approve-pagination__page ${page === currentPage ? "approve-pagination__page--active" : ""}`}
-                      onClick={() => setCurrentPage(page)}
-                      disabled={isSubmitting}
-                      aria-current={page === currentPage ? "page" : undefined}
-                    >
-                      {page}
-                    </button>
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  className="approve-pagination__nav"
-                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-                  disabled={currentPage === totalPages || isSubmitting}
-                  aria-label="Next page"
-                >
-                  <ChevronRight size={16} />
-                </button>
-              </nav>
-            )}
           </section>
 
           {/* Detail Panel (Manuscript Review Style) */}
@@ -460,6 +421,45 @@ export default function ApprovePostPage() {
               )}
             </div>
           </aside>
+           {/* Pagination — now a sibling, renders AFTER the detail panel in mobile stack */}
+  {filteredPosts.length > 0 && (
+    <nav className="approve-pagination" aria-label="Approve post pagination">
+      <button
+        type="button"
+        className="approve-pagination__nav"
+        onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+        disabled={currentPage === 1 || isSubmitting}
+        aria-label="Previous page"
+      >
+        <ChevronLeft size={16} />
+      </button>
+
+      <div className="approve-pagination__pages">
+        {visiblePages.map((page) => (
+          <button
+            key={page}
+            type="button"
+            className={`approve-pagination__page ${page === currentPage ? "approve-pagination__page--active" : ""}`}
+            onClick={() => setCurrentPage(page)}
+            disabled={isSubmitting}
+            aria-current={page === currentPage ? "page" : undefined}
+          >
+            {page}
+          </button>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        className="approve-pagination__nav"
+        onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+        disabled={currentPage === totalPages || isSubmitting}
+        aria-label="Next page"
+      >
+        <ChevronRight size={16} />
+      </button>
+    </nav>
+  )}
         </section>
       </section>
     </AdminSidebarLayout>
