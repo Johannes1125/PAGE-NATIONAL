@@ -267,6 +267,8 @@ function TrackContent() {
   const searchParams = useSearchParams();
   const [scrolled, setScrolled] = useState(false);
   const [formData, setFormData] = useState<ApplicationFormState | null>(null);
+  const [rawApp, setRawApp] = useState<any | null>(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   
   const applicationId = searchParams.get("id") || "";
   const [status, setStatus] = useState<ApplicationStatus | null>(null);
@@ -282,6 +284,7 @@ function TrackContent() {
       if (applicationId) {
         try {
           const app = await getMembershipApplication(applicationId);
+          setRawApp(app);
           const formattedToday = new Date(app.submittedAt || app.createdAt).toLocaleDateString("en-US", {
             month: "long",
             day: "numeric",
@@ -405,6 +408,20 @@ function TrackContent() {
     fetchApp();
   }, [applicationId]);
 
+  const handlePrintAcroform = async () => {
+    if (!rawApp) return;
+    try {
+      setIsGeneratingPdf(true);
+      const { generateAcroform } = await import("../../../../lib/acroform-helper");
+      await generateAcroform(rawApp);
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Failed to generate official PDF form.");
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
   if (!status) return null;
 
   return (
@@ -499,13 +516,14 @@ function TrackContent() {
 
           {/* Bottom actions CTA */}
           <div className="track-btn-wrap">
-            {formData && (
+            {rawApp && (
               <button
                 type="button"
-                onClick={() => window.print()}
+                onClick={handlePrintAcroform}
                 className="track-download-btn"
+                disabled={isGeneratingPdf}
               >
-                <Download size={16} /> Download PDF Form
+                <Download size={16} /> {isGeneratingPdf ? "Generating..." : "Download PDF Form"}
               </button>
             )}
             <Link href="/" className="track-home-btn">

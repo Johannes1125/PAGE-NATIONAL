@@ -19,7 +19,8 @@ import {
   ClipboardList,
   Download,
   AlertTriangle,
-  FolderOpen
+  FolderOpen,
+  Printer
 } from "lucide-react";
 import AdminSidebarLayout from "../components/AdminSidebarLayout";
 import { MembershipApplication } from "../../lib/membership-types";
@@ -85,6 +86,7 @@ export default function MembershipApplicationsPage() {
   const [showRejectPanel, setShowRejectPanel] = useState(false);
   const [rejectionReasonInput, setRejectionReasonInput] = useState("");
   const [rejectionError, setRejectionError] = useState("");
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   // Load applications from API
   useEffect(() => {
@@ -136,6 +138,20 @@ export default function MembershipApplicationsPage() {
     setShowRejectPanel(false);
     setRejectionReasonInput("");
     setRejectionError("");
+  };
+
+  const handlePrintAcroform = async (app: any) => {
+    try {
+      setIsGeneratingPdf(true);
+      const { generateAcroform } = await import("../../lib/acroform-helper");
+      await generateAcroform(app);
+      gooeyToast.success("Official PDF form generated and downloaded successfully!");
+    } catch (err: any) {
+      console.error(err);
+      gooeyToast.error(err.message || "Failed to generate official PDF form.");
+    } finally {
+      setIsGeneratingPdf(false);
+    }
   };
 
   // ── Approval Decision Logic ────────────────────────────────────────────────
@@ -752,6 +768,14 @@ export default function MembershipApplicationsPage() {
                         disabled={selectedApp.status === "approved"}
                       >
                         <CheckCircle size={16} /> Approve Application
+                      </button>
+                      <button
+                        type="button"
+                        className="decision-btn decision-btn--print"
+                        onClick={() => handlePrintAcroform(selectedApp)}
+                        disabled={isGeneratingPdf}
+                      >
+                        <Printer size={16} /> {isGeneratingPdf ? "Generating..." : "Download Official Form"}
                       </button>
                       <button
                         type="button"

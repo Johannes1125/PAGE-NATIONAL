@@ -653,6 +653,15 @@
   background-color: #b91c1c;
 }
 
+.decision-btn--print {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+.decision-btn--print:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
 .decision-btn--confirm-reject {
   background-color: #dc2626;
   color: #ffffff;
