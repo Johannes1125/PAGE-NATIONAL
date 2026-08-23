@@ -63,12 +63,16 @@ export async function generateAcroform(app: any): Promise<void> {
       const field = form.getTextField(fieldName);
       if (field) {
         const textVal = String(value ?? '');
-        if (textVal.length > 35) {
-          field.setFontSize(6.8);
-        } else if (textVal.length > 22) {
-          field.setFontSize(7.5);
-        } else if (textVal.length > 15) {
-          field.setFontSize(9.0);
+        try {
+          if (textVal.length > 35) {
+            field.setFontSize(6.8);
+          } else if (textVal.length > 22) {
+            field.setFontSize(7.5);
+          } else if (textVal.length > 15) {
+            field.setFontSize(9.0);
+          }
+        } catch (fontErr) {
+          console.warn(`Could not set font size for "${fieldName}":`, fontErr);
         }
         field.setText(textVal);
       }
