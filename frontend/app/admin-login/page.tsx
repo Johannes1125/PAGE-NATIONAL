@@ -157,7 +157,7 @@ export default function AdminLogin() {
                   type="email"
                   id="adminEmail"
                   className="al-input"
-                  placeholder="izyoboitoshi@gmail.com"
+                  placeholder="admin@domain.edu.ph"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isSubmitting}

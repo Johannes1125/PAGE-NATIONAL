@@ -1,22 +1,30 @@
 /* =========================================
-   1. BRAND PALETTE & THEME TOKENS 
+   1. BRAND PALETTE & THEME TOKENS
+   (kept consistent with the Create New Post
+   admin surface — same navy/gold system, Poppins)
    ========================================= */
 :root {
-  --manage-navy: #143152;
-  --manage-navy-soft: #1c3f66; /* 🆕 */
+  --manage-navy: #0f2740;
+  --manage-navy-soft: #163350;
   --manage-blue: #1e538e;
-  --manage-blue-soft: rgba(30, 83, 142, 0.08); /* 🆕 */
+  --manage-blue-soft: rgba(30, 83, 142, 0.08);
+  --manage-gold: #93702c;
+  --manage-gold-bg: #f7f1e4;
   --manage-text: #112c49;
   --manage-muted: #5f738b;
   --manage-border: #d7e1eb;
-  --manage-bg: #eef3f9;
-  --manage-radius-sm: 8px; /* 🆕 */
-  --manage-radius-md: 10px; /* 🆕 */
-  --manage-radius-lg: 16px; /* 🆕 */
-  --manage-shadow-sm: 0 1px 3px rgba(20, 49, 82, 0.06); /* 🆕 */
-  --manage-shadow-md: 0 10px 26px rgba(16, 36, 61, 0.08); /* 🆕 */
-  --manage-shadow-lg: 0 20px 50px rgba(20, 49, 82, 0.22); /* 🆕 */
-  --manage-ease: cubic-bezier(0.4, 0, 0.2, 1); /* 🆕 */
+  --manage-bg: #eef2f7;
+
+  --manage-radius-sm: 8px;
+  --manage-radius-md: 12px;
+  --manage-radius-lg: 18px;
+
+  --manage-shadow-sm: 0 1px 2px rgba(16, 36, 61, 0.05);
+  --manage-shadow-md: 0 6px 20px rgba(16, 36, 61, 0.07);
+  --manage-shadow-lg: 0 24px 60px rgba(15, 39, 64, 0.28);
+
+  --manage-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --manage-sans: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 * {
@@ -25,52 +33,133 @@
 
 .manage-page {
   min-height: 100vh;
+  width: 100%;
   background: var(--manage-bg);
+  font-family: var(--manage-sans);
 }
 
 .manage-main {
   min-height: 100vh;
+  width: 100%;
 }
 
 .manage-content {
   width: 100%;
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 10px 12px 20px;
+  min-width: 0;        /* bagong dagdag — parang messages-list-panel, para di mag-overflow-shrink sa grid parent */
+  margin: 0;
+  padding: 20px 16px 40px;
+}
+
+@media (min-width: 769px) {
+  .manage-content {
+    padding: 24px 24px 36px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .manage-content {
+    padding: 24px 28px 40px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .manage-content {
+    padding: 24px 32px 44px;
+  }
+}
+
+/* Eyebrow label — small-caps, letter-spaced, gold — the recurring
+   editorial device shared across the admin surfaces */
+.manage-eyebrow {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--manage-gold);
+  margin-bottom: 6px;
 }
 
 /* =========================================
-   2. LAYOUT — Responsive flex layout
+   2. LAYOUT
    ========================================= */
 .manage-layout {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);   /* dating "1fr" lang — minmax(0, 1fr) para hindi ito lumaki lampas sa parent kapag naka-collapse ang sidebar */
+  gap: 20px;
   width: 100%;
+  min-width: 0;
+  align-items: start;
+}
+
+@media (min-width: 1025px) {
+  .manage-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
 }
 
 .manage-card {
   width: 100%;
   min-width: 0;
-  padding: 16px;
+  padding: 20px;
   background: #fff;
   border: 1px solid var(--manage-border);
-  border-radius: var(--manage-radius-md);
-  box-shadow: var(--manage-shadow-md);
+  border-radius: var(--manage-radius-lg);
+  box-shadow: inset 0 3px 0 0 var(--manage-navy), var(--manage-shadow-md);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
+}
+
+@media (min-width: 769px) {
+  .manage-card {
+    padding: 26px;
+    gap: 22px;
+  }
+}
+
+.manage-card__section-title {
+  padding-bottom: 4px;
+}
+
+.manage-card__section-title h2 {
+  margin: 0;
+  color: var(--manage-navy);
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.manage-card__section-title p {
+  margin: 6px 0 0;
+  color: var(--manage-muted);
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .manage-side {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
   width: 100%;
   min-width: 0;
 }
 
-/* Toolbar - Enhanced Responsive */
+@media (min-width: 769px) {
+  .manage-side {
+    grid-template-columns: repeat(3, minmax(0, 1fr));   /* minmax(0, 1fr) instead of plain 1fr */
+  }
+
+  /* History view = iisang block lang, i-full width */
+  .manage-side--history {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* =========================================
+   3. TOOLBAR
+   ========================================= */
 .manage-toolbar {
   display: flex;
   flex-direction: column;
@@ -80,27 +169,40 @@
   width: 100%;
 }
 
+@media (min-width: 769px) {
+  .manage-toolbar {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+}
+
 .manage-search {
   width: 100%;
-  max-width: none;
   min-width: 0;
-  min-height: 48px;
+  min-height: 46px;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 14px;
-  background: #fff;
-  border: 2px solid var(--manage-border);
+  padding: 10px 14px;
+  background: #fcfdfe;
+  border: 1px solid var(--manage-border);
   border-radius: var(--manage-radius-sm);
   color: #4d6681;
-  transition:
-    border-color 0.2s var(--manage-ease),
-    box-shadow 0.2s var(--manage-ease);
+  transition: border-color 0.2s var(--manage-ease), box-shadow 0.2s var(--manage-ease), background 0.2s var(--manage-ease);
+}
+
+@media (min-width: 769px) {
+  .manage-search {
+    max-width: 420px;
+    min-width: 240px;
+  }
 }
 
 .manage-search:focus-within {
-  border-color: var(--manage-blue);
-  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.12);
+  border-color: var(--manage-navy);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(15, 39, 64, 0.1);
 }
 
 .manage-search input {
@@ -111,22 +213,38 @@
   font-size: 16px;
   color: var(--manage-text);
   background: transparent;
+  font-family: inherit;
+}
+
+@media (min-width: 769px) {
+  .manage-search input {
+    font-size: 14px;
+  }
 }
 
 .manage-role-filter {
   width: 100%;
   min-width: 0;
-  min-height: 48px;
-  padding: 12px 16px;
-  border: 2px solid var(--manage-navy);
+  min-height: 46px;
+  padding: 10px 16px;
+  border: 1px solid var(--manage-navy);
   border-radius: var(--manage-radius-sm);
   background: var(--manage-navy);
   color: #fff;
-  font-size: 16px;
+  font-family: inherit;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   outline: none;
   transition: all 0.2s var(--manage-ease);
+}
+
+@media (min-width: 769px) {
+  .manage-role-filter {
+    width: auto;
+    min-width: 150px;
+    font-size: 13.5px;
+  }
 }
 
 .manage-role-filter:hover {
@@ -135,27 +253,30 @@
 }
 
 .manage-role-filter:focus {
-  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.25);
+  box-shadow: 0 0 0 3px rgba(15, 39, 64, 0.22);
 }
 
-/* 🆕 style the dropdown list items (Android renders <option> using these) */
 .manage-role-filter option {
-  width: 100%;
-  box-sizing: border-box;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   padding: 6px 10px;
   background: var(--manage-navy);
   color: #fff;
 }
 
-/* Table styling - Enhanced Responsive */
+/* =========================================
+   4. TABLE
+   A plain hairline-bordered table, in the
+   editorial spirit of the rest of the admin —
+   no gradient scroll-shadow overlays (the
+   previous double gradient definition was the
+   source of the clipped/cut-off gray edge).
+   ========================================= */
 .manage-table-wrap {
   width: 100%;
-  border: none;
-  border-radius: var(--manage-radius-sm);
-  overflow: visible;
-  position: relative;
+  border: 1px solid var(--manage-border);
+  border-radius: var(--manage-radius-md);
+  overflow: hidden;
 }
 
 .manage-table {
@@ -169,7 +290,7 @@
 .manage-table td {
   text-align: left;
   padding: 10px 0;
-  font-size: 12px;
+  font-size: 13px;
   vertical-align: middle;
   white-space: normal;
   line-height: 1.4;
@@ -183,6 +304,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding: 12px;
 }
 
 .manage-table tbody tr {
@@ -190,19 +312,15 @@
   width: 100%;
   min-width: 0;
   padding: 4px 14px;
-  background: #fff;
+  background: #fcfdfe;
   border: 1px solid var(--manage-border);
-  border-radius: var(--manage-radius-md);
-  box-shadow: var(--manage-shadow-sm);
-  transition:
-    background 0.15s var(--manage-ease),
-    border-color 0.15s var(--manage-ease),
-    box-shadow 0.15s var(--manage-ease);
+  border-radius: var(--manage-radius-sm);
+  transition: background 0.15s var(--manage-ease), border-color 0.15s var(--manage-ease);
 }
 
 .manage-table tbody tr:hover {
   background: #fff;
-  box-shadow: var(--manage-shadow-md);
+  border-color: #c3d5e8;
 }
 
 .manage-table tbody td {
@@ -231,7 +349,7 @@
 
 .manage-table tbody td:last-child {
   border-bottom: none;
-  padding-right: 0;
+  padding-right: 10px;
 }
 
 .manage-table tbody td.manage-actions-cell {
@@ -261,26 +379,14 @@
   display: none;
 }
 
-/* Fixed width per column for desktop */
 @media (min-width: 769px) {
   .manage-table-wrap {
-    border: 1px solid var(--manage-border);
     overflow-x: auto;
-    overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
-    background:
-      linear-gradient(90deg, #fff 30%, rgba(255, 255, 255, 0)),
-      linear-gradient(90deg, rgba(255, 255, 255, 0), #fff 70%) 100% 0,
-      linear-gradient(90deg, rgba(16, 36, 61, 0.08), rgba(255, 255, 255, 0)),
-      linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(16, 36, 61, 0.08)) 100% 0;
-    background-repeat: no-repeat;
-    background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
-    background-attachment: local, local, scroll, scroll;
   }
 
   .manage-table {
     min-width: 820px;
-    table-layout: fixed;
   }
 
   .manage-table thead {
@@ -289,6 +395,8 @@
 
   .manage-table tbody {
     display: table-row-group;
+    padding: 0;
+    gap: 0;
   }
 
   .manage-table tbody tr {
@@ -296,12 +404,11 @@
     padding: 0;
     border: none;
     border-radius: 0;
-    box-shadow: none;
   }
 
   .manage-table tbody tr:hover {
-    background: #fafcff;
-    box-shadow: none;
+    background: #f8fbff;
+    border-color: transparent;
   }
 
   .manage-table th,
@@ -328,9 +435,8 @@
   .manage-table td:nth-child(6) { width: 10%; white-space: nowrap; }
 
   .manage-table th:nth-child(7),
-  .manage-table td:nth-child(7) { width: 12%; white-space: nowrap; }
+  .manage-table td:nth-child(7) { width: 16%; white-space: nowrap; }
 
-  /* User / University / Position can wrap */
   .manage-table td:nth-child(1),
   .manage-table td:nth-child(3),
   .manage-table td:nth-child(4) {
@@ -345,7 +451,7 @@
 
   .manage-table tbody td {
     display: table-cell;
-    border-bottom: 1px solid #e8eef5;
+    border-bottom: 1px solid #eef2f7;
     text-align: left;
   }
 
@@ -362,56 +468,39 @@
     display: table-cell;
     border-bottom: none;
   }
+
+  .manage-table tbody tr:last-child td {
+    border-bottom: none;
+  }
 }
 
 .manage-table thead th {
-  color: #587089;
-  font-weight: 800;
-  background: linear-gradient(180deg, #f8fbff 0%, #f2f7fc 100%);
-  border-bottom: 2px solid #deebf7;
+  color: var(--manage-navy);
+  font-weight: 700;
+  background: #f7fafd;
+  border-bottom: 1px solid var(--manage-border);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 11px;
-  position: sticky;
-  top: 0;
-  z-index: 1;
+  font-size: 11.5px;
 }
 
 .manage-table tbody td {
   color: var(--manage-text);
 }
 
-@media (min-width: 769px) {
-  .manage-table tbody tr:last-child td {
-    border-bottom: none;
-  }
-}
-
-/* Scroll shadows for horizontal overflow */
-@media (min-width: 769px) {
-  .manage-table-wrap {
-    background:
-      linear-gradient(90deg, #fff 30%, rgba(255, 255, 255, 0)),
-      linear-gradient(90deg, rgba(255, 255, 255, 0), #fff 70%) 100% 0,
-      linear-gradient(90deg, rgba(16, 36, 61, 0.08), rgba(255, 255, 255, 0)),
-      linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(16, 36, 61, 0.08)) 100% 0;
-    background-repeat: no-repeat;
-    background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
-    background-attachment: local, local, scroll, scroll;
-  }
-}
-
-/* Chips and Statuses */
+/* =========================================
+   5. CHIPS AND STATUSES
+   ========================================= */
 .manage-chip {
   display: inline-flex;
   align-items: center;
   max-width: 100%;
   border-radius: 999px;
-  border: 1px solid #6ca2f2;
-  color: #2f67b7;
-  background: #edf4ff;
-  padding: 3px 9px; /* 🆕 */
-  font-size: 10px;
+  border: 1px solid #a8c5e8;
+  color: #2f5f9e;
+  background: #eef4fc;
+  padding: 3px 10px;
+  font-size: 11px;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -420,8 +509,8 @@
   display: inline-flex;
   align-items: center;
   border-radius: 999px;
-  padding: 3px 9px; /* 🆕 */
-  font-size: 10px;
+  padding: 3px 10px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: capitalize;
   white-space: nowrap;
@@ -440,33 +529,35 @@
 .manage-status--active {
   color: #0d935f;
   background: #e4f8ef;
-  border: 1px solid #68c7a1;
+  border: 1px solid #a4dcc1;
 }
 
 .manage-status--inactive {
-  color: #cc3b3b;
-  background: #ffecec;
-  border: 1px solid #ef8b8b;
+  color: #a13d3d;
+  background: #fbeeee;
+  border: 1px solid #e3b3b3;
 }
 
-/* Actions and Buttons - Enhanced Touch Targets */
+/* =========================================
+   6. ACTIONS
+   ========================================= */
 .manage-actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .manage-icon-btn {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   display: grid;
   place-items: center;
   border-radius: var(--manage-radius-sm);
-  border: 1px solid #7eb0f4;
+  border: 1px solid #b9cfe6;
   background: #f4f9ff;
-  color: #2f67b7;
+  color: #2f5f9e;
   cursor: pointer;
   transition: all 0.2s var(--manage-ease);
   flex-shrink: 0;
@@ -489,43 +580,54 @@
 }
 
 .manage-icon-btn--danger {
-  border-color: #ef8b8b;
-  background: #fff1f1;
-  color: #d54444;
+  border-color: #e3b3b3;
+  background: #fbeeee;
+  color: #a13d3d;
 }
 
 .manage-icon-btn--danger:hover {
-  background: #ffd9d9;
-  border-color: #d54444;
+  background: #f6d9d9;
+  border-color: #a13d3d;
 }
 
 .manage-icon-btn--history {
-  border-color: #85a9d5;
-  background: #f2f7fe;
-  color: #476c9a;
+  border-color: #cdb98a;
+  background: var(--manage-gold-bg);
+  color: var(--manage-gold);
 }
 
 .manage-icon-btn--history:hover {
-  background: #e2eeff;
-  border-color: #476c9a;
+  background: #f0e4c9;
+  border-color: var(--manage-gold);
 }
 
-.manage-empty-cell {
-  text-align: center !important;
-  color: var(--manage-muted) !important;
-  padding: 32px 16px !important;
-  font-size: 13px !important;
+@media (min-width: 769px) {
+  .manage-icon-btn {
+    width: 34px;
+    height: 34px;
+  }
 }
 
-/* Footer and Pagination - Enhanced Responsive */
+/* =========================================
+   7. FOOTER + PAGINATION
+   ========================================= */
 .manage-table-footer {
   display: flex;
   flex-direction: column;
   align-items: stretch;
   justify-content: space-between;
-  gap: 12px;
-  padding: 8px 0 0;
-  border-top: none;
+  gap: 14px;
+  padding: 16px;
+  border-top: 1px solid var(--manage-border);
+  background: #fcfdfe;
+}
+
+@media (min-width: 769px) {
+  .manage-table-footer {
+    flex-direction: row;
+    align-items: center;
+    padding: 16px 20px;
+  }
 }
 
 .manage-table-footer__meta {
@@ -538,10 +640,19 @@
   flex-wrap: wrap;
 }
 
+@media (min-width: 769px) {
+  .manage-table-footer__meta {
+    width: auto;
+    min-width: 280px;
+    justify-content: flex-start;
+    gap: 16px;
+  }
+}
+
 .manage-table-footer__summary {
   margin: 0;
-  color: #5f738b;
-  font-size: 12px;
+  color: var(--manage-muted);
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -550,28 +661,29 @@
   align-items: center;
   gap: 8px;
   color: #425b73;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
 }
 
 .manage-page-size__select {
-  min-width: 76px;
-  min-height: 40px;
-  border: 2px solid #d5e0eb;
+  min-width: 70px;
+  min-height: 38px;
+  border: 1px solid var(--manage-border);
   border-radius: 6px;
   padding: 8px 10px;
   background: #fff;
   color: var(--manage-text);
   font-weight: 700;
-  font-size: 16px;
+  font-size: 13px;
   cursor: pointer;
+  font-family: inherit;
   transition: all 0.2s ease;
 }
 
 .manage-page-size__select:focus {
   outline: none;
-  border-color: var(--manage-blue);
-  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.12);
+  border-color: var(--manage-navy);
+  box-shadow: 0 0 0 3px rgba(15, 39, 64, 0.1);
 }
 
 .pagination {
@@ -580,8 +692,14 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-left: 0;
   flex-wrap: wrap;
+}
+
+@media (min-width: 769px) {
+  .pagination {
+    width: auto;
+    margin-left: auto;
+  }
 }
 
 .pagination__list {
@@ -600,7 +718,7 @@
 }
 
 .pagination__item--dots {
-  color: #6d7f92;
+  color: var(--manage-muted);
   font-weight: 700;
   padding: 0 3px;
   font-size: 14px;
@@ -608,15 +726,16 @@
 
 .pagination__nav,
 .pagination__link {
-  min-width: 40px;
-  height: 40px;
+  min-width: 36px;
+  height: 36px;
   padding: 0 10px;
   border-radius: 999px;
-  border: 2px solid #d8e2ed;
+  border: 1px solid var(--manage-border);
   background: #fff;
-  color: #274768;
-  font-size: 14px;
+  color: var(--manage-navy);
+  font-size: 13px;
   font-weight: 700;
+  font-family: inherit;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -648,18 +767,18 @@
 }
 
 /* =========================================
-   3. SIDE PANELS (Overview / Roles / Guide / History)
+   8. SIDE PANELS (Overview / Roles / Guide / History)
    ========================================= */
 .manage-side-block {
   width: 100%;
   background: #fff;
   border: 1px solid var(--manage-border);
   border-radius: var(--manage-radius-md);
-  padding: 14px;
+  padding: 18px;
   box-shadow: var(--manage-shadow-sm);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   animation: manage-fade-in 0.15s ease;
 }
 
@@ -676,10 +795,9 @@
 
 .manage-side-block h3 {
   margin: 0;
-  color: #17395f;
-  font-size: 13px;
+  color: var(--manage-navy);
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.1px;
 }
 
 .manage-side-block p {
@@ -690,13 +808,33 @@
 }
 
 .manage-side-block--info {
-  background: var(--manage-blue-soft);
-  border-color: #d2e4f7;
+  background: var(--manage-gold-bg);
+  border-color: #e5d5b3;
+}
+
+.manage-side-block--info h3 {
+  color: #7a5a20;
+}
+
+.manage-side-block__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--manage-border);
+  padding-bottom: 12px;
+  margin-bottom: 2px;
+}
+
+.manage-side-block__subject {
+  font-size: 12px;
+  color: var(--manage-muted);
+  font-weight: 700;
 }
 
 .manage-close-btn {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -716,7 +854,7 @@
 /* Stats */
 .manage-stats-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
 
@@ -745,66 +883,96 @@
   letter-spacing: -0.02em;
 }
 
+.manage-stat-box__value--positive {
+  color: #0d935f;
+}
+
 /* Roles breakdown rows */
+.manage-records {
+  display: flex;
+  flex-direction: column;
+}
+
 .manage-record-item {
-  padding: 12px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 0;
   border-bottom: 1px solid #eef2f7;
-  font-size: 14px;
 }
 
 .manage-record-item:last-child {
   border-bottom: none;
+  padding-bottom: 0;
 }
 
-/* Form and Fields (reused by both the edit modal and any future sidebar forms) */
+.manage-record-item p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--manage-text);
+}
+
+.manage-record-item__value {
+  font-weight: 700;
+  color: var(--manage-navy);
+  font-size: 13px;
+}
+
+/* =========================================
+   9. FORM AND FIELDS (edit modal)
+   ========================================= */
 .manage-form {
   display: flex;
   flex-direction: column;
-  gap: 12px; /* 🆕 */
+  gap: 14px;
 }
 
 .manage-field {
   display: grid;
-  gap: 6px; /* 🆕 */
+  gap: 6px;
 }
 
 .manage-field span {
-  font-size: 11.5px; /* 🆕 */
+  font-size: 11.5px;
   font-weight: 700;
   color: #2c4766;
 }
 
 .manage-field select {
-  width: 100%; /* 🆕 guards against overflow inside the modal */
+  width: 100%;
   min-height: 44px;
-  border: 1px solid #d5e0eb;
-  border-radius: var(--manage-radius-sm); /* 🆕 */
+  border: 1px solid var(--manage-border);
+  border-radius: var(--manage-radius-sm);
   padding: 0.625rem 0.875rem;
-  font-size: 16px;
+  font-size: 15px;
+  font-family: inherit;
   color: var(--manage-navy);
-  background: #fff;
+  background: #fcfdfe;
   outline: none;
-  transition: border-color 0.15s var(--manage-ease), box-shadow 0.15s var(--manage-ease); /* 🆕 */
+  transition: border-color 0.15s var(--manage-ease), box-shadow 0.15s var(--manage-ease), background 0.15s var(--manage-ease);
 }
 
 .manage-field select:focus {
-  border-color: var(--manage-blue); /* 🆕 */
-  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.12);
+  border-color: var(--manage-navy);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(15, 39, 64, 0.1);
 }
 
 .manage-btn {
   width: 100%;
-  min-height: 44px; /* 🆕 slightly taller — easier to tap on mobile */
+  min-height: 46px;
   border: none;
-  border-radius: 999px; /* 🆕 pill shape */
-  padding: 0.625rem 1.1rem; /* 🆕 */
-  font-size: 0.875rem;
+  border-radius: 999px;
+  padding: 0.625rem 1.25rem;
+  font-size: 14px;
   font-weight: 600;
+  font-family: inherit;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s var(--manage-ease), transform 0.1s var(--manage-ease); /* 🆕 */
+  transition: background 0.2s var(--manage-ease), transform 0.1s var(--manage-ease);
 }
 
 .manage-btn:active {
@@ -812,12 +980,13 @@
 }
 
 .manage-btn--primary {
-  background: var(--manage-navy); /* 🆕 */
+  background: var(--manage-navy);
   color: #fff;
+  box-shadow: 0 2px 8px rgba(15, 39, 64, 0.22);
 }
 
 .manage-btn--primary:hover {
-  background: var(--manage-navy-soft); /* 🆕 */
+  background: var(--manage-navy-soft);
 }
 
 .manage-btn--secondary {
@@ -830,9 +999,15 @@
   background: #f8fbff;
 }
 
+@media (min-width: 481px) {
+  .manage-btn {
+    width: auto;
+  }
+}
+
 /* History block styling */
 .manage-history {
-  max-height: 250px;
+  max-height: 260px;
   overflow-y: auto;
   list-style: none;
   padding: 0;
@@ -844,15 +1019,15 @@
 
 .manage-history li {
   border: 1px solid #e4edf7;
-  border-radius: var(--manage-radius-sm); /* 🆕 */
+  border-radius: var(--manage-radius-sm);
   background: #f9fbfe;
-  padding: 9px 11px; /* 🆕 */
+  padding: 10px 12px;
 }
 
 .manage-history li p {
   margin: 0;
   color: #173351;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -860,24 +1035,34 @@
   display: block;
   margin-top: 4px;
   color: #6a7d95;
-  font-size: 10px;
+  font-size: 10.5px;
+}
+
+.manage-history-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 0;
+  color: var(--manage-muted);
 }
 
 .manage-panel__empty {
   color: var(--manage-muted);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 /* =========================================
-   4. EDIT PROFILE MODAL
-   🆕 entire section is new — replaces the old inline sidebar edit panel
+   10. EDIT PROFILE MODAL
    ========================================= */
 .manage-edit-modal-backdrop {
   position: fixed;
   inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100vh;
   z-index: 2000;
-  padding: 14px;
-  background: rgba(20, 49, 82, 0.6);
+  padding: 16px;
+  background: rgba(15, 39, 64, 0.55);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   display: grid;
@@ -888,12 +1073,12 @@
 .manage-edit-modal {
   width: 100%;
   max-width: 420px;
-  max-height: calc(100vh - 28px);
+  max-height: calc(100vh - 32px);
   overflow-y: auto;
   background: #fff;
-  border-radius: var(--manage-radius-md);
-  box-shadow: var(--manage-shadow-lg);
-  padding: 18px;
+  border-radius: var(--manage-radius-lg);
+  box-shadow: inset 0 3px 0 0 var(--manage-navy), var(--manage-shadow-lg);
+  padding: 22px;
   animation: manage-modal-in 0.18s ease-out;
 }
 
@@ -908,15 +1093,15 @@
   justify-content: space-between;
   gap: 12px;
   border-bottom: 1px solid var(--manage-border);
-  padding-bottom: 12px;
-  margin-bottom: 16px;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
 }
 
 .manage-edit-modal__header h3 {
   margin: 0;
   color: var(--manage-navy);
-  font-size: 16px;
-  font-weight: 800;
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .manage-edit-modal__subtitle {
@@ -933,273 +1118,12 @@
   margin-top: 6px;
 }
 
-.manage-edit-modal__actions .manage-btn--primary {
-  flex: 1;
-}
-
-/* =========================================
-   5. RESPONSIVE
-   ========================================= */
 @media (min-width: 481px) {
-  .manage-content {
-    padding: 14px 16px 24px;
-  }
-
-  .manage-card {
-    padding: 18px;
-  }
-
-  .manage-side {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-  }
-
-  .manage-side-block {
-    padding: 16px;
-  }
-
-  .manage-stats-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .manage-btn {
-    width: auto;
-  }
-
-  .manage-edit-modal {
-    padding: 20px;
-    border-radius: var(--manage-radius-lg);
-  }
-
   .manage-edit-modal__actions {
     flex-direction: row;
   }
 
   .manage-edit-modal__actions .manage-btn {
-    width: auto;
-  }
-}
-
-@media (min-width: 769px) {
-  .manage-content {
-    padding: 18px 24px 32px;
-  }
-
-  .manage-layout {
-    gap: 20px;
-  }
-
-  .manage-card {
-    padding: 20px;
-    gap: 18px;
-  }
-
-  .manage-toolbar {
-    flex-direction: row;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .manage-search {
-    max-width: 480px;
-    min-width: 240px;
-  }
-
-  .manage-search input {
-    font-size: 14px;
-  }
-
-  .manage-role-filter {
-    width: auto;
-    min-width: 140px;
-    font-size: 14px;
-  }
-
-  .manage-side {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 16px;
-  }
-
-  .manage-side-block {
-    padding: 18px;
-  }
-
-  .manage-side-block h3 {
-    font-size: 14px;
-  }
-
-  .manage-side-block p {
-    font-size: 12px;
-  }
-
-  .manage-table th,
-  .manage-table td {
-    padding: 14px 16px;
-    font-size: 13px;
-  }
-
-  .manage-actions {
-    gap: 8px;
-  }
-
-  .manage-icon-btn {
-    width: 36px;
-    height: 36px;
-  }
-
-  .manage-table-footer {
-    flex-direction: row;
-    align-items: center;
-    padding: 16px 20px;
-    border-top: 1px solid #e8eef5;
-  }
-
-  .manage-table-footer__meta {
-    width: auto;
-    min-width: 280px;
-    justify-content: flex-start;
-    gap: 16px;
-  }
-
-  .manage-table-footer__summary {
-    font-size: 13px;
-  }
-
-  .manage-page-size {
-    font-size: 13px;
-  }
-
-  .manage-page-size__select {
-    min-width: 70px;
-    min-height: 0;
-    font-size: 13px;
-    padding: 8px 10px;
-  }
-
-  .pagination {
-    width: auto;
-    margin-left: auto;
-    justify-content: center;
-  }
-
-  .pagination__nav,
-  .pagination__link {
-    min-width: 36px;
-    height: 36px;
-    font-size: 13px;
-  }
-
-  .manage-edit-modal-backdrop {
-    padding: 20px;
-  }
-
-  .manage-edit-modal {
-    max-height: 90vh;
-    padding: 22px;
-  }
-
-  .manage-edit-modal__actions {
-    flex-direction: row;
-  }
-
-  .manage-edit-modal__actions .manage-btn {
-    width: auto;
-  }
-}
-
-@media (min-width: 1025px) {
-  .manage-content {
-    padding-left: 28px;
-    padding-right: 28px;
-  }
-
-  .manage-layout {
-    gap: 24px;
-  }
-
-  .manage-card {
-    padding: 24px;
-  }
-
-  .manage-side {
-    gap: 20px;
-  }
-
-  .manage-table th,
-  .manage-table td {
-    padding: 14px 16px;
-  }
-
-  .manage-table thead th {
-    font-size: 11px;
-  }
-
-  .manage-table-footer {
-    padding: 16px 20px;
-  }
-}
-
-@media (min-width: 1440px) {
-  .manage-content {
-    padding-left: 32px;
-    padding-right: 32px;
-  }
-
-  .manage-card {
-    padding: 26px;
-  }
-}
-
-@media (max-width: 480px) {
-  .manage-stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .manage-table tbody td {
-    font-size: 11.5px;
-  }
-
-  .manage-table tbody td::before {
-    font-size: 9.5px;
-  }
-
-  .manage-form .manage-btn {
-    min-height: 44px;
-  }
-
-  /* 🆕 smaller, tighter role filter on mobile */
-  .manage-role-filter {
-    width: auto;
-    max-width: 160px;
-    min-height: 40px;
-    padding: 10px 12px;
-    font-size: 13px;
-    font-weight: 700;
-  }
-
-  /* 🆕 shrink the dropdown option rows to match on small screens */
-  .manage-role-filter option {
-    font-size: 11px;
-    padding: 5px 8px;
-    width: 100%;
-  }
-
-  /* edit modal fits comfortably on small phones */
-  .manage-edit-modal-backdrop {
-    padding: 14px;
-  }
-
-  .manage-edit-modal {
-    width: 100%;
-    padding: 18px;
-    border-radius: var(--manage-radius-md);
-  }
-
-  .manage-edit-modal__actions {
-    flex-direction: column-reverse;
-  }
-
-  .manage-edit-modal__actions .manage-btn {
-    width: 100%;
+    flex: 1;
   }
 }

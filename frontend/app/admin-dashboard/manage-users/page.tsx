@@ -29,7 +29,10 @@ type UserActivity = {
   action: string;
 };
 
-type ActivePanel = "stats" | "edit" | "history";
+// Sidebar now only ever shows "stats" or "history" — the edit modal
+// has its own independent state (editingUser) so it can never blank
+// out the Overview / Composition / Guide panels.
+type ActivePanel = "stats" | "history";
 
 export default function ManageUsersPage() {
   const [usersState, setUsersState] = useState<ManagedUser[]>([]);
@@ -37,12 +40,15 @@ export default function ManageUsersPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
 
-  // Right sidebar / edit-modal details state
+  // Right sidebar (stats / history) state
   const [activePanel, setActivePanel] = useState<ActivePanel>("stats");
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [isSidebarLoading, setIsSidebarLoading] = useState(false);
+
+  // Edit modal state — fully independent from the sidebar above
+  const [editingUser, setEditingUser] = useState<ManagedUser | null>(null);
   const [editRole, setEditRole] = useState("Organization");
   const [editStatus, setEditStatus] = useState<UserStatus>("active");
-  const [isSidebarLoading, setIsSidebarLoading] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -151,39 +157,38 @@ export default function ManageUsersPage() {
     }
   };
 
+  // Opening Edit no longer touches activePanel/selectedUserId at all —
+  // the Overview/Composition/Guide (or History) panel stays exactly as
+  // it was underneath the modal.
   const handleOpenEdit = (user: ManagedUser) => {
-    setSelectedUserId(user.id);
-    setActivePanel("edit");
+    setEditingUser(user);
     setEditRole(user.role);
     setEditStatus(user.status);
   };
 
-  // 🆕 shared close handler for the edit modal (used by X button, Cancel, and backdrop click)
+  // shared close handler for the edit modal (used by X button, Cancel, and backdrop click)
   const closeEditPanel = () => {
-    setSelectedUserId(null);
-    setActivePanel("stats");
+    setEditingUser(null);
   };
 
   const handleSaveChanges = async () => {
-    if (!selectedUser) return;
+    if (!editingUser) return;
 
     try {
       setIsLoading(true);
-      await api.patch(`/admin/users/${selectedUser.id}`, {
+      await api.patch(`/admin/users/${editingUser.id}`, {
         role: editRole.toLowerCase(),
         status: editStatus,
       });
 
       setUsersState((current) =>
         current.map((u) =>
-          u.id === selectedUser.id ? { ...u, role: editRole, status: editStatus } : u
+          u.id === editingUser.id ? { ...u, role: editRole, status: editStatus } : u
         )
       );
-      gooeyToast.success(`Successfully updated ${selectedUser.name}'s profile.`);
+      gooeyToast.success(`Successfully updated ${editingUser.name}'s profile.`);
 
-      // Return to stats panel
-      setSelectedUserId(null);
-      setActivePanel("stats");
+      setEditingUser(null);
     } catch (err) {
       console.error("Failed to save user role update", err);
       gooeyToast.error("Failed to update user profile.");
@@ -205,8 +210,8 @@ export default function ManageUsersPage() {
       );
       gooeyToast.success(`Deactivated ${user.name} successfully.`);
 
-      // If we are currently editing/viewing this deactivated user, update stats panel
-      if (selectedUserId === user.id) {
+      // If we are currently editing this deactivated user, reflect it in the modal
+      if (editingUser?.id === user.id) {
         setEditStatus("inactive");
       }
     } catch (err) {
@@ -250,12 +255,18 @@ export default function ManageUsersPage() {
       title="User Management"
       subtitle="Manage general users and organization members"
     >
-      {/* 🆕 wrapped in a fragment so the edit modal can render as a sibling, outside the normal layout flow */}
+      {/* wrapped in a fragment so the edit modal can render as a sibling, outside the normal layout flow */}
       <>
         <section className="manage-content">
           <section className="manage-layout">
             {/* Table Card — now always full width */}
             <article className="manage-card">
+              <div className="manage-card__section-title">
+                <span className="manage-eyebrow">User Management</span>
+                <h2>Member Directory</h2>
+                <p>Search, filter, and manage every registered account on the platform.</p>
+              </div>
+
               <div className="manage-toolbar">
                 <label className="manage-search" aria-label="Search users">
                   <Search size={14} />
@@ -311,7 +322,7 @@ export default function ManageUsersPage() {
                           <div className="manage-actions">
                             <button
                               type="button"
-                              className={`manage-icon-btn ${selectedUserId === user.id && activePanel === "edit" ? "manage-icon-btn--active" : ""}`}
+                              className={`manage-icon-btn ${editingUser?.id === user.id ? "manage-icon-btn--active" : ""}`}
                               aria-label={`Edit ${user.name}`}
                               onClick={() => handleOpenEdit(user)}
                             >
@@ -423,11 +434,13 @@ export default function ManageUsersPage() {
               </div>
             </article>
 
-            {/* Sidebar — stats + history only now; edit moved to a modal below */}
-            <aside className="manage-side">
+            {/* Sidebar — stats + history only; edit lives entirely in its own modal below
+                and can never blank this section out. */}
+            <aside className={`manage-side ${activePanel === "history" ? "manage-side--history" : ""}`}>
               {activePanel === "stats" && (
                 <>
                   <section className="manage-side-block">
+                    <span className="manage-eyebrow">Overview</span>
                     <h3>Overview Statistics</h3>
                     <div className="manage-stats-grid">
                       <div className="manage-stat-box">
@@ -436,34 +449,36 @@ export default function ManageUsersPage() {
                       </div>
                       <div className="manage-stat-box">
                         <span>Active Members</span>
-                        <strong className="text-emerald-600">{stats.active}</strong>
+                        <strong className="manage-stat-box__value--positive">{stats.active}</strong>
                       </div>
                     </div>
                   </section>
 
                   <section className="manage-side-block">
+                    <span className="manage-eyebrow">Composition</span>
                     <h3>Roles Breakdown</h3>
                     <div className="manage-records">
-                      <div className="manage-record-item flex justify-between items-center">
+                      <div className="manage-record-item">
                         <p>Administrators</p>
-                        <span className="font-bold text-slate-800 text-[13px]">{stats.admins}</span>
+                        <span className="manage-record-item__value">{stats.admins}</span>
                       </div>
-                      <div className="manage-record-item flex justify-between items-center">
+                      <div className="manage-record-item">
                         <p>Reviewer Committee</p>
-                        <span className="font-bold text-slate-800 text-[13px]">{stats.reviewers}</span>
+                        <span className="manage-record-item__value">{stats.reviewers}</span>
                       </div>
-                      <div className="manage-record-item flex justify-between items-center">
+                      <div className="manage-record-item">
                         <p>Institutional Orgs</p>
-                        <span className="font-bold text-slate-800 text-[13px]">{stats.orgs}</span>
+                        <span className="manage-record-item__value">{stats.orgs}</span>
                       </div>
-                      <div className="manage-record-item flex justify-between items-center">
+                      <div className="manage-record-item">
                         <p>General Members</p>
-                        <span className="font-bold text-slate-800 text-[13px]">{stats.members}</span>
+                        <span className="manage-record-item__value">{stats.members}</span>
                       </div>
                     </div>
                   </section>
 
                   <section className="manage-side-block manage-side-block--info">
+                    <span className="manage-eyebrow">Guide</span>
                     <h3>Quick Admin Guide</h3>
                     <p>1. Roles update takes effect instantly on the user session.</p>
                     <p>2. Deactivating a user revokes login privileges from the system.</p>
@@ -474,8 +489,11 @@ export default function ManageUsersPage() {
 
               {activePanel === "history" && selectedUser && (
                 <section className="manage-side-block">
-                  <div className="flex justify-between items-center border-b pb-2 mb-3">
-                    <h3>User History</h3>
+                  <div className="manage-side-block__head">
+                    <div>
+                      <span className="manage-eyebrow">Audit Trail</span>
+                      <h3>User History</h3>
+                    </div>
                     <button
                       type="button"
                       className="manage-close-btn"
@@ -488,11 +506,11 @@ export default function ManageUsersPage() {
                       <X size={14} />
                     </button>
                   </div>
-                  <p className="text-xs text-slate-500 font-bold mb-4">{selectedUser.name}</p>
+                  <p className="manage-side-block__subject">{selectedUser.name}</p>
 
                   {isSidebarLoading ? (
-                    <div className="flex justify-center items-center py-8">
-                      <Loader2 className="animate-spin text-slate-400" size={24} />
+                    <div className="manage-history-loading">
+                      <Loader2 className="animate-spin" size={22} />
                     </div>
                   ) : historyActivities.length > 0 ? (
                     <ul className="manage-history">
@@ -512,24 +530,24 @@ export default function ManageUsersPage() {
           </section>
         </section>
 
-        {/* 🆕 Edit Profile — now a centered modal on every screen size instead of an inline sidebar panel */}
         {/* Edit Profile — rendered via portal into document.body so the fixed 
             backdrop always covers the full viewport and stays above the sidebar/header, 
             regardless of any transform/filter on the admin shell ancestors */}
-        {activePanel === "edit" && selectedUser && typeof document !== "undefined" &&
+        {editingUser && typeof document !== "undefined" &&
           createPortal(
             <div
               className="manage-edit-modal-backdrop"
               role="dialog"
               aria-modal="true"
-              aria-label={`Edit ${selectedUser.name}`}
+              aria-label={`Edit ${editingUser.name}`}
               onClick={closeEditPanel}
             >
               <div className="manage-edit-modal" onClick={(event) => event.stopPropagation()}>
                 <div className="manage-edit-modal__header">
                   <div>
+                    <span className="manage-eyebrow">Record Update</span>
                     <h3>Edit Profile</h3>
-                    <p className="manage-edit-modal__subtitle">{selectedUser.name}</p>
+                    <p className="manage-edit-modal__subtitle">{editingUser.name}</p>
                   </div>
                   <button
                     type="button"
@@ -563,17 +581,17 @@ export default function ManageUsersPage() {
                   <div className="manage-edit-modal__actions">
                     <button
                       type="button"
-                      className="manage-btn manage-btn--primary flex-1"
-                      onClick={handleSaveChanges}
-                    >
-                      Save Changes
-                    </button>
-                    <button
-                      type="button"
                       className="manage-btn manage-btn--secondary"
                       onClick={closeEditPanel}
                     >
                       Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="manage-btn manage-btn--primary"
+                      onClick={handleSaveChanges}
+                    >
+                      Save Changes
                     </button>
                   </div>
                 </div>

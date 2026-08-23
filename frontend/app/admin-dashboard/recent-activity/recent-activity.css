@@ -107,12 +107,60 @@
    pattern from admin-dashboard.css (left accent
    border, icon chip, big value, meta line) so the
    Recent Activity metrics read like the dashboard's.
+
+   Responsive plan:
+   - < 769px  : 1 column, full width (Total, System, Activity, Admin,
+                Organization, Member each get their own full-width row —
+                this is the range where 2-up got too cramped and clipped
+                long titles like "ORGANIZATION")
+   - >= 769px : 3 columns
+   - >= 1280px: 6 columns (all metrics in a single row on wide screens)
    ========================================= */
 .recent-activity-metrics {
   display: grid;
   grid-template-columns: 1fr;
+  width: 100%;
+  min-width: 0;
   gap: 14px;
   padding-top: 4px;
+}
+
+.recent-activity-metrics .admin-hero-card {
+  width: 100%;
+}
+
+@media (min-width: 481px) {
+  .recent-activity-metrics {
+    gap: 16px;
+  }
+}
+
+@media (min-width: 769px) {
+  .recent-activity-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .recent-activity-metrics {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+/* HARD OVERRIDE: force single full-width column below 769px no matter what,
+   in case any earlier/higher-specificity rule (or a stale cached style) is
+   still applying a multi-column grid at this range. This block is intentionally
+   loaded last and uses !important so it always wins below the breakpoint. */
+@media (max-width: 768px) {
+  .recent-activity-metrics {
+    grid-template-columns: 1fr !important;
+  }
+
+  .recent-activity-metrics .admin-hero-card {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+  }
 }
 
 .admin-hero-card {
@@ -148,6 +196,7 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 10px;
+  min-width: 0;
 }
 
 .admin-hero-card__icon {
@@ -177,6 +226,11 @@
   text-transform: uppercase;
   letter-spacing: 0.8px;
   color: var(--manage-muted);
+  min-width: 0;
+  overflow-wrap: normal;
+  word-break: keep-all;
+  white-space: normal;
+  line-height: 1.3;
 }
 
 .admin-hero-card__value {
@@ -193,6 +247,27 @@
   font-weight: 600;
   color: var(--manage-muted);
   line-height: 1.4;
+  overflow-wrap: break-word;
+}
+
+/* Very small phones — tighten card padding/icon so nothing feels oversized */
+@media (max-width: 380px) {
+  .admin-hero-card {
+    padding: 14px 16px 16px;
+    min-height: 100px;
+    border-radius: 14px;
+  }
+
+  .admin-hero-card__icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+  }
+
+  .admin-hero-card__top {
+    gap: 8px;
+    margin-bottom: 6px;
+  }
 }
 
 /* =========================================
@@ -240,6 +315,20 @@
 .recent-activity-filter-list button.active:hover {
   background: var(--manage-navy-soft);
   border-color: var(--manage-navy-soft);
+}
+
+@media (max-width: 420px) {
+  .recent-activity-filter-list button {
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 11.5px;
+  }
+}
+
+@media (min-width: 769px) {
+  .recent-activity-filter-list {
+    justify-content: flex-end;
+  }
 }
 
 /* =========================================
@@ -321,6 +410,35 @@
   flex-wrap: wrap;
 }
 
+@media (min-width: 481px) {
+  .recent-activity-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .recent-activity-item__meta {
+    flex-shrink: 0;
+  }
+}
+
+@media (min-width: 769px) {
+  .recent-activity-item {
+    padding: 14px 18px;
+  }
+
+  .recent-activity-item__text-wrap p {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .recent-activity-pill {
+    min-width: 78px;
+    justify-content: center;
+  }
+}
+
 /* Pill — same construction as .manage-status (colored dot + tinted pill) */
 .recent-activity-pill {
   display: inline-flex;
@@ -376,57 +494,6 @@
   padding: 32px 16px;
   font-size: 13px;
   font-weight: 600;
-}
-
-/* =========================================
-   RESPONSIVE — same breakpoints as manage-users.css
-   ========================================= */
-@media (min-width: 481px) {
-  .recent-activity-metrics {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-  }
-
-  .recent-activity-item {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .recent-activity-item__meta {
-    flex-shrink: 0;
-  }
-}
-
-@media (min-width: 769px) {
-  .recent-activity-metrics {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .recent-activity-filter-list {
-    justify-content: flex-end;
-  }
-
-  .recent-activity-item {
-    padding: 14px 18px;
-  }
-
-  .recent-activity-item__text-wrap p {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .recent-activity-pill {
-    min-width: 78px;
-    justify-content: center;
-  }
-}
-
-@media (min-width: 1280px) {
-  .recent-activity-metrics {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
 }
 
 /* =========================================
@@ -565,5 +632,23 @@
 
   .pagination__limit {
     margin-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .pagination__summary {
+    font-size: 12.5px;
+  }
+
+  .pagination__list {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .pagination__limit {
+    width: 100%;
+    justify-content: center;
+    margin-top: 6px;
   }
 }
