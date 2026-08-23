@@ -64,11 +64,11 @@ export async function generateAcroform(app: any): Promise<void> {
       if (field) {
         const textVal = String(value ?? '');
         if (textVal.length > 35) {
-          field.setFontSize(7.5);
+          field.setFontSize(6.8);
         } else if (textVal.length > 22) {
-          field.setFontSize(8);
+          field.setFontSize(7.5);
         } else if (textVal.length > 15) {
-          field.setFontSize(9.5);
+          field.setFontSize(9.0);
         }
         field.setText(textVal);
       }
