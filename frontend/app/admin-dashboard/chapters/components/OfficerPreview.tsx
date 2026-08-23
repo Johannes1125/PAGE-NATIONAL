@@ -49,7 +49,7 @@ export default function OfficerPreview({ officers, onViewMoreClick }: OfficerPre
       ) : (
         <div className="space-y-3">
           {displayedOfficers.map((officer) => {
-            const photoUrl = getOfficerAvatar(officer.name);
+            const photoUrl = officer.avatarUrl || "/images/officer-placeholder.png";
             return (
               <div 
                 key={officer.id} 

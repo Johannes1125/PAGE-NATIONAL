@@ -115,6 +115,7 @@ function chapterToWizardData(ch: ChapterFull): WizardFormData {
         category_type: o.category_type,
         year_joined: o.year_joined,
         sort_order: o.sort_order,
+        image_url: o.image_url,
       })),
     },
     step4: {
@@ -161,6 +162,7 @@ function wizardToPayload(data: WizardFormData, targetStatus: "draft" | "publishe
       category_type: o.category_type,
       year_joined: Number(o.year_joined),
       sort_order: idx,
+      image_url: o.image_url || null,
     })),
     activities: data.step4.activities.map((a) => ({
       title: a.title,
@@ -767,6 +769,8 @@ function Step3({
   errors: Record<string, string>;
   onChange: (d: WizardStep3) => void;
 }) {
+  const [uploadingAvatars, setUploadingAvatars] = useState<Record<number, boolean>>({});
+
   const addOfficer = () => {
     const entry: WizardOfficerEntry = {
       _key: uniqueKey(),
@@ -787,6 +791,23 @@ function Step3({
     onChange({ officers: data.officers.filter((_, i) => i !== idx) });
   };
 
+  const handleOfficerAvatarUpload = async (idx: number, files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    try {
+      setUploadingAvatars((prev) => ({ ...prev, [idx]: true }));
+      const result = await chaptersApi.uploadImage(file);
+      if (result?.success && result.data?.url) {
+        updateOfficer(idx, { image_url: result.data.url });
+        gooeyToast.success(`Avatar for "${data.officers[idx].name || "officer"}" uploaded.`);
+      }
+    } catch (err: any) {
+      gooeyToast.error(err.message || "Avatar upload failed.");
+    } finally {
+      setUploadingAvatars((prev) => ({ ...prev, [idx]: false }));
+    }
+  };
+
   return (
     <div className="wizard-panel">
       <div>
@@ -800,40 +821,55 @@ function Step3({
         )}
         {data.officers.map((officer, idx) => (
           <div key={officer._key} className="wizard-row" style={{alignItems:"center"}}>
-            {/* Mock avatar — deterministic from name */}
-            <div style={{flexShrink:0}}>
-              {officer.name.trim() ? (
-                <img
-                  src={getOfficerAvatar(officer.name)}
-                  alt={officer.name}
-                  style={{
-                    width: 52,
-                    height: 52,
-                    borderRadius: "50%",
-                    objectFit: "cover",
-                    border: "2px solid #e2e8f0",
-                    display: "block",
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: 52,
-                    height: 52,
-                    borderRadius: "50%",
-                    background: "#e2e8f0",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 22,
-                    color: "#94a3b8",
-                    fontWeight: 700,
-                  }}
-                  aria-hidden="true"
-                >
-                  ?
-                </div>
-              )}
+            {/* Real avatar upload button */}
+            <div style={{flexShrink:0, position:"relative"}}>
+              <input
+                id={`off-avatar-file-${idx}`}
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={(e) => handleOfficerAvatarUpload(idx, e.target.files)}
+              />
+              <button
+                type="button"
+                onClick={() => document.getElementById(`off-avatar-file-${idx}`)?.click()}
+                disabled={uploadingAvatars[idx]}
+                style={{
+                  width: 52,
+                  height: 52,
+                  borderRadius: "50%",
+                  padding: 0,
+                  border: officer.image_url ? "2px solid #e2e8f0" : "2px dashed #cbd5e1",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  overflow: "hidden",
+                  cursor: "pointer",
+                  background: "#f8fafc",
+                  position: "relative",
+                  transition: "all 0.2s ease"
+                }}
+                className="officer-avatar-upload-btn"
+                title="Click to upload profile picture"
+              >
+                {uploadingAvatars[idx] ? (
+                  <Loader2 className="animate-spin" size={16} style={{ color: "#94a3b8" }} />
+                ) : officer.image_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={officer.image_url}
+                    alt={officer.name || "Officer avatar"}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      display: "block"
+                    }}
+                  />
+                ) : (
+                  <Upload size={16} style={{ color: "#94a3b8" }} />
+                )}
+              </button>
             </div>
             <div className="wizard-row__field">
               <label className="wizard-row__label" htmlFor={`off-name-${idx}`}>Name <span style={{color:"#dc2626"}}>*</span></label>
@@ -1198,7 +1234,7 @@ function Step5({
                 {data.step3.officers.map((o, i) => (
                   <div key={i} className="wizard-review__officer-item" style={{display:"flex",alignItems:"center",gap:12}}>
                     <img
-                      src={getOfficerAvatar(o.name || "Officer")}
+                      src={o.image_url || "/images/officer-placeholder.png"}
                       alt={o.name}
                       style={{
                         width: 44,

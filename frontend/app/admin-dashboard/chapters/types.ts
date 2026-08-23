@@ -44,6 +44,7 @@ export interface ChapterOfficerRecord {
   category_type: string;
   year_joined: number;
   sort_order: number;
+  image_url?: string;
   created_at: string;
   updated_at: string;
 }
@@ -121,6 +122,7 @@ export interface WizardOfficerEntry {
   category_type: string;
   year_joined: number | "";
   sort_order: number;
+  image_url?: string;
 }
 
 export interface WizardActivityEntry {

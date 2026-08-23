@@ -118,7 +118,7 @@ export default function ChapterCard({
               {displayedOfficers.map((officer, idx) => (
                 <img
                   key={officer.id}
-                  src={getOfficerAvatar(officer.name)}
+                  src={officer.avatarUrl || "/images/officer-placeholder.png"}
                   alt={officer.name}
                   title={`${officer.name} — ${officer.role}`}
                   className="w-7 h-7 rounded-full border-2 border-white object-cover bg-slate-100 shadow-xs"

@@ -297,11 +297,11 @@ export default function ChapterDetailPage({
                           <div key={officer.id} className="ch-officer-card">
                             <div className="ch-officer-card__avatar">
                               <img
-                                src="/images/officer-placeholder.png"
+                                src={officer.image_url || "/images/officer-placeholder.png"}
                                 width={80}
                                 height={80}
                                 alt={`${officer.name} profile photo`}
-                                style={{ objectFit: "cover", borderRadius: "50%" }}
+                                style={{ objectFit: "cover", borderRadius: "50%", width: "100%", height: "100%" }}
                               />
                             </div>
                             <div className="ch-officer-card__info">

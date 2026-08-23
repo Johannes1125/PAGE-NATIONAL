@@ -69,6 +69,11 @@ export class ChapterOfficerDto {
   @IsInt()
   @Min(0)
   sort_order?: number;
+
+  @IsOptional()
+  @IsString()
+  @IsUrl()
+  image_url?: string;
 }
 
 export class ChapterActivityDto {

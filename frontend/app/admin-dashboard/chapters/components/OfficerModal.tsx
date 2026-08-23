@@ -317,7 +317,7 @@ export default function OfficerModal({ open, chapter, onClose }: OfficerModalPro
               >
                 <div className="flex items-center gap-3.5 min-w-0">
                   <img
-                    src={getOfficerAvatar(officer.name)}
+                    src={officer.avatarUrl || "/images/officer-placeholder.png"}
                     alt={officer.name}
                     className="officer-modal-avatar rounded-full border-2 border-white object-cover bg-white shrink-0" /* 🆕 added officer-modal-avatar */
                     style={{ width: "44px", height: "44px", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}
