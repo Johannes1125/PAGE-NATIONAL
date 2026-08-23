@@ -161,8 +161,8 @@ export default function ChapterDetailPage({
   const establishedYear = chapter ? new Date(chapter.created_at).getFullYear() : 2010;
   const taglineText = chapter?.short_description || "Empowering graduate education and research.";
   const overviewText = chapter?.overview || "";
-  const missionText = chapter?.mission || "To promote graduate academic excellence, faculty growth, and research development.";
-  const visionText = chapter?.vision || "To be a leading regional consortium representing graduate programs throughout the nation.";
+  const missionText = chapter?.mission || "";
+  const visionText = chapter?.vision || "";
 
   return (
     <>
@@ -235,16 +235,22 @@ export default function ChapterDetailPage({
                   <h2 className="ch-section__title">About the Chapter</h2>
                   <p className="ch-section__desc">{overviewText}</p>
                   
-                  <div className="ch-mv-grid">
-                    <div className="ch-mv-block">
-                      <h3 className="ch-mv-block__title">Our Mission</h3>
-                      <p className="ch-mv-block__text">{missionText}</p>
+                  {(missionText || visionText) && (
+                    <div className="ch-mv-grid">
+                      {missionText && (
+                        <div className="ch-mv-block">
+                          <h3 className="ch-mv-block__title">Our Mission</h3>
+                          <p className="ch-mv-block__text">{missionText}</p>
+                        </div>
+                      )}
+                      {visionText && (
+                        <div className="ch-mv-block">
+                          <h3 className="ch-mv-block__title">Our Vision</h3>
+                          <p className="ch-mv-block__text">{visionText}</p>
+                        </div>
+                      )}
                     </div>
-                    <div className="ch-mv-block">
-                      <h3 className="ch-mv-block__title">Our Vision</h3>
-                      <p className="ch-mv-block__text">{visionText}</p>
-                    </div>
-                  </div>
+                  )}
                 </motion.section>
 
                 {/* ── SECTION 3: Chapter Officers ── */}
