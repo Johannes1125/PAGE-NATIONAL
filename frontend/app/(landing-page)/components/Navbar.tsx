@@ -227,7 +227,8 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
             <div className="navbar__logo-text">
               <span className="navbar__logo-name">PHILIPPINE ASSOCIATION</span>
               <span className="navbar__logo-name">FOR GRADUATE EDUCATION</span>
-              <span className="navbar__logo-badge">PAGE National</span>
+              <span className="navbar__logo-badge">National</span>
+              {/* <span className="navbar__logo-badge">PAGE National</span> */}
             </div>
           </Link>
 

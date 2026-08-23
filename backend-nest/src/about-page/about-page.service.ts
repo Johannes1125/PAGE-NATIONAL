@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreateSectionDto } from './dto/create-section.dto';
@@ -7,17 +7,47 @@ import { CreateOfficerDto } from './dto/create-officer.dto';
 import { UpdateOfficerDto } from './dto/update-officer.dto';
 
 @Injectable()
-export class AboutPageService {
+export class AboutPageService implements OnModuleInit {
   constructor(
     private prisma: PrismaService,
     private cloudinary: CloudinaryService,
   ) {}
 
+  async onModuleInit() {
+    try {
+      await this.prisma.about_page_sections.updateMany({
+        where: {
+          section_key: 'cbl_information',
+          title: { equals: 'csa', mode: 'insensitive' },
+        },
+        data: {
+          title: 'Constitution and By-Laws',
+        },
+      });
+      await this.prisma.cbl_governance_documents.updateMany({
+        where: {
+          title: { equals: 'csa', mode: 'insensitive' },
+        },
+        data: {
+          title: 'Constitution and By-Laws',
+        },
+      });
+    } catch (e) {
+      // Ignore if database is not seeded/migrated yet
+    }
+  }
+
   // Section Methods
   async getSections(publicOnly: boolean = false) {
     const where = publicOnly ? { status: 'published' } : {};
     const sections = await this.prisma.about_page_sections.findMany({ where });
-    return { success: true, data: sections, message: 'Sections retrieved successfully.' };
+    const formattedSections = sections.map((s) => {
+      if (s.section_key === 'cbl_information' && (!s.title || s.title.trim().toLowerCase() === 'csa')) {
+        return { ...s, title: 'Constitution and By-Laws' };
+      }
+      return s;
+    });
+    return { success: true, data: formattedSections, message: 'Sections retrieved successfully.' };
   }
 
   async getSectionByKey(section_key: string, publicOnly: boolean = false) {
@@ -28,6 +58,9 @@ export class AboutPageService {
     const section = await this.prisma.about_page_sections.findFirst({ where });
     if (!section) {
       throw new NotFoundException(`Section with key ${section_key} not found.`);
+    }
+    if (section.section_key === 'cbl_information' && (!section.title || section.title.trim().toLowerCase() === 'csa')) {
+      section.title = 'Constitution and By-Laws';
     }
     return { success: true, data: section, message: 'Section retrieved successfully.' };
   }
@@ -115,8 +148,11 @@ export class AboutPageService {
   }
 
   // Officer Methods
-  async getOfficers(activeOnly: boolean = false, pageStr?: string, limitStr?: string) {
-    const where = activeOnly ? { status: 'active' } : {};
+  async getOfficers(activeOnly: boolean = false, pageStr?: string, limitStr?: string, chapter?: string) {
+    const where = {
+      ...(activeOnly ? { status: 'active' } : {}),
+      ...(chapter && chapter !== 'all' ? { chapter } : {}),
+    };
     if (pageStr || limitStr) {
       const page = parseInt(pageStr || '1', 10);
       const limit = parseInt(limitStr || '10', 10);

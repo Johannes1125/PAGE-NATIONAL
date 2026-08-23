@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { api } from "../../lib/api-client";
 import "./news.css";
 
 // ── Icon Components ────────────────────────────────────────────────────────
@@ -361,8 +362,41 @@ function NewsSection() {
   const [category, setCategory] = useState<string>("All");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [newsItems, setNewsItems] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const filtered = ALL_NEWS.filter(item => {
+  useEffect(() => {
+    async function loadNews() {
+      try {
+        setIsLoading(true);
+        const res = await api.get<{ success: boolean; posts: any[] }>("/public/posts");
+        if (res.success && Array.isArray(res.posts)) {
+          const fetched = res.posts;
+          const mapped = fetched.map((p: any) => ({
+            id: p.id,
+            category: p.category || "News",
+            date: p.published_at || p.created_at
+              ? new Date(p.published_at || p.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+              : "Recent",
+            author: p.author?.name || "PAGE National",
+            title: p.title,
+            excerpt: p.summary || p.content?.replace(/<[^>]+>/g, "").slice(0, 150) || "",
+          }));
+          setNewsItems(mapped);
+        } else {
+          setNewsItems([]);
+        }
+      } catch (err) {
+        console.error("Failed to load news posts:", err);
+        setNewsItems([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadNews();
+  }, []);
+
+  const filtered = newsItems.filter(item => {
     const matchCat  = category === "All" || item.category === category;
     const matchSearch = !search ||
       item.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -407,7 +441,11 @@ function NewsSection() {
         </div>
 
         {/* Grid */}
-        {paginated.length > 0 ? (
+        {isLoading ? (
+          <div style={{ textAlign: "center", padding: "60px 0", color: "var(--ink-30)" }}>
+            <p style={{ fontSize: "15px" }}>Loading news articles...</p>
+          </div>
+        ) : paginated.length > 0 ? (
           <div className="news-grid">
             {paginated.map(item => (
               <div key={item.id} className="news-card">
@@ -427,7 +465,6 @@ function NewsSection() {
                   <h3 className="news-card__title">{item.title}</h3>
                   <p className="news-card__excerpt">{item.excerpt}</p>
                   <div className="news-card__footer">
-                    {/* CHANGED: Replaced <button> with <Link> to navigate to the slug */}
                     <Link href={`/news/${item.id}`} className="news-card__read-more">
                       Read More <ArrowIcon />
                     </Link>
@@ -438,8 +475,8 @@ function NewsSection() {
           </div>
         ) : (
           <div style={{ textAlign: "center", padding: "80px 0", color: "var(--ink-30)" }}>
-            <p style={{ fontFamily: "var(--serif)", fontSize: "18px", marginBottom: "8px" }}>No results found</p>
-            <p style={{ fontSize: "13px" }}>Try adjusting your filters or search terms.</p>
+            <p style={{ fontFamily: "var(--serif)", fontSize: "18px", marginBottom: "8px" }}>No news or announcements found</p>
+            <p style={{ fontSize: "13px" }}>Check back later for updates from PAGE National.</p>
           </div>
         )}
 

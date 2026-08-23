@@ -31,7 +31,6 @@ import {
 import { motion } from "framer-motion";
 import AdminSidebarLayout from "../../components/AdminSidebarLayout";
 import { api, PaginatedResponse, PaginationMeta } from "../../../lib/api-client";
-import Pagination from "../components/Pagination";
 import { gooeyToast } from "goey-toast";
 import "goey-toast/styles.css";
 import "../about-page.css";
@@ -211,15 +210,15 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = "140px" }: R
           <span style={{ fontSize: "12px", color: "#94a3b8", fontFamily: "var(--font-body)", fontWeight: 500 }}>
             {wordCount} {wordCount === 1 ? "word" : "words"}
           </span>
-          <span style={{ fontSize: "12px", color: charCount > 2000 ? "var(--p-rose)" : "#94a3b8", fontFamily: "var(--font-body)", fontWeight: charCount > 2000 ? 700 : 500 }}>
-            {charCount} / 2000 characters {charCount > 2000 && "(Exceeds limit)"}
+          <span style={{ fontSize: "12px", color: charCount > 5000 ? "var(--p-rose)" : "#94a3b8", fontFamily: "var(--font-body)", fontWeight: charCount > 5000 ? 700 : 500 }}>
+            {charCount} / 5000 characters {charCount > 5000 && "(Exceeds limit)"}
           </span>
         </div>
         <div style={{ width: "100%", background: "#e2e8f0", height: 3, borderRadius: 2, overflow: "hidden" }}>
           <div
             style={{
-              width: `${Math.min((charCount / 2000) * 100, 100)}%`,
-              background: charCount > 2000 ? "var(--p-rose)" : "#1e3a5f",
+              width: `${Math.min((charCount / 5000) * 100, 100)}%`,
+              background: charCount > 5000 ? "var(--p-rose)" : "#1e3a5f",
               height: "100%",
               borderRadius: 2,
               transition: "width 0.2s ease, background-color 0.2s ease",
@@ -323,7 +322,7 @@ export default function CblInformationManagement() {
       if (govRes.success && govRes.data) {
         const doc = govRes.data as GovernanceDoc;
         setGovernanceDoc(doc);
-        setTitle(doc.title);
+        setTitle(doc.title && doc.title.trim().toLowerCase() !== "csa" ? doc.title : "Constitution and By-Laws");
         setGeneralDescription(doc.general_description);
       }
       if (artRes.success && artRes.data) {
@@ -807,7 +806,7 @@ export default function CblInformationManagement() {
           >
             {/* SECTION 1 — General Information */}
             <div className="cbl-section-card" style={cardStyle}>
-              <div style={cardHeaderStyle}>
+              <div className="cbl-card-header-row" style={cardHeaderStyle}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <div className="w-9 h-9 bg-[#1e3a5f]/10 text-[#1e3a5f] rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
                     <FileText size={18} style={{ color: "#1e3a5f" }} />
@@ -861,7 +860,7 @@ export default function CblInformationManagement() {
             {/* SECTION 2 — Articles Registry */}
             <div className="cbl-section-card" style={cardStyle}>
               {/* Card Title Header */}
-              <div style={cardHeaderStyle}>
+              <div className="cbl-card-header-row" style={cardHeaderStyle}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <div className="w-9 h-9 bg-[#1e3a5f]/10 text-[#1e3a5f] rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
                     <FileText size={18} style={{ color: "#1e3a5f" }} />
@@ -874,13 +873,12 @@ export default function CblInformationManagement() {
                   </div>
                 </div>
                 {/* Search + Sort + Filter + New Article */}
-                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                <div className="cbl-articles-toolbar" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                   {/* Search input */}
                   <div
-                    className="flex items-center gap-2 px-3 border border-slate-300 rounded-lg bg-white transition-all focus-within:ring-2 focus-within:ring-[#1e3a5f] focus-within:border-[#1e3a5f]"
+                    className="cbl-search-box flex items-center gap-2 px-3 border border-slate-300 rounded-lg bg-white transition-all focus-within:ring-2 focus-within:ring-[#1e3a5f] focus-within:border-[#1e3a5f]"
                     style={{
                       height: 40,
-                      width: 240,
                       boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
                     }}
                   >
@@ -909,7 +907,7 @@ export default function CblInformationManagement() {
                   <button
                     type="button"
                     onClick={handleOpenCreateDrawer}
-                    className="bg-[#1e3a5f] hover:bg-[#152943] text-white font-semibold px-4 rounded-lg flex items-center justify-center gap-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1e3a5f] focus-visible:ring-offset-2 cursor-pointer text-[14px]"
+                    className="cbl-new-article-btn bg-[#1e3a5f] hover:bg-[#152943] text-white font-semibold px-4 rounded-lg flex items-center justify-center gap-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1e3a5f] focus-visible:ring-offset-2 cursor-pointer text-[14px]"
                     style={{ height: 40 }}
                   >
                     <Plus size={16} /> New Article
@@ -919,7 +917,7 @@ export default function CblInformationManagement() {
 
               {/* Article Table */}
               <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <table className="cbl-articles-table" style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
                     <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
                       {[
@@ -1059,15 +1057,29 @@ export default function CblInformationManagement() {
                 </table>
               </div>
 
-              <Pagination
-                currentPage={articlePage}
-                totalPages={articleMeta.totalPages}
-                totalItems={articleMeta.totalItems}
-                itemsPerPage={articleLimit}
-                onPageChange={handleArticlePageChange}
-                onItemsPerPageChange={handleArticleLimitChange}
-                isLoading={isLoading}
-              />
+              <div className="cbl-articles-pagination pagination" role="navigation" aria-label="News article pagination">
+                <span className="cbl-articles-pagination__summary">
+                  Showing <strong>{(articlePage - 1) * articleLimit + 1}</strong>-<strong>{Math.min(articlePage * articleLimit, articleMeta.totalItems)}</strong> of <strong>{articleMeta.totalItems}</strong> records
+                </span>
+                <button type="button" className="pagination__nav" onClick={() => handleArticlePageChange(articlePage - 1)} disabled={articlePage <= 1 || isLoading} aria-label="Previous page">Prev</button>
+                <ul className="pagination__list">
+                  {Array.from({ length: articleMeta.totalPages }, (_, index) => index + 1).map((page) => (
+                    <li key={page} className="pagination__item">
+                      <button type="button" className={`pagination__link ${page === articlePage ? "pagination__link--active" : ""}`} onClick={() => handleArticlePageChange(page)} disabled={isLoading} aria-current={page === articlePage ? "page" : undefined}>{page}</button>
+                    </li>
+                  ))}
+                </ul>
+                <button type="button" className="pagination__nav" onClick={() => handleArticlePageChange(articlePage + 1)} disabled={articlePage >= articleMeta.totalPages || isLoading} aria-label="Next page">Next</button>
+                <label className="cbl-articles-pagination__limit">
+                  Per page:
+                  <select value={articleLimit} onChange={(event) => handleArticleLimitChange(Number(event.target.value))} disabled={isLoading}>
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </select>
+                </label>
+              </div>
             </div>
           </motion.div>
         )}
@@ -1082,7 +1094,7 @@ export default function CblInformationManagement() {
           >
             {/* Preamble Preview */}
             <div className="cbl-section-card" style={{ ...cardStyle, background: "#f8fafc" }}>
-              <div style={cardHeaderStyle}>
+              <div className="cbl-card-header-row" style={cardHeaderStyle}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <div className="w-11 h-11 bg-[#1e3a5f]/10 text-[#1e3a5f] rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
                     <FileText size={22} style={{ color: "#1e3a5f" }} />
@@ -1122,7 +1134,7 @@ export default function CblInformationManagement() {
 
             {/* Governance PDF */}
             <div className="cbl-section-card" style={cardStyle}>
-              <div style={cardHeaderStyle}>
+              <div className="cbl-card-header-row" style={cardHeaderStyle}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <div className="w-9 h-9 bg-[#1e3a5f]/10 text-[#1e3a5f] rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
                     <FileText size={18} style={{ color: "#1e3a5f" }} />
@@ -1221,7 +1233,7 @@ export default function CblInformationManagement() {
                       </div>
                     </div>
 
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 14, marginTop: 18, paddingTop: 18, borderTop: "1px solid #e2e8f0" }}>
+                    <div className="cbl-meta-grid" style={{ marginTop: 18, paddingTop: 18, borderTop: "1px solid #e2e8f0" }}>
                       {[
                         { label: "Uploaded By", value: governanceDoc.uploaded_by || "—" },
                         { label: "Upload Date", value: formatDate(governanceDoc.created_at) },
@@ -1262,9 +1274,12 @@ export default function CblInformationManagement() {
       )}
 
       <div
+        role="dialog"
+        aria-modal="true"
+        className="cbl-drawer-panel"
         style={{
           position: "fixed", top: 0, right: 0, bottom: 0,
-          width: "100%", maxWidth: 600,
+          width: "100%",
           background: T.white,
           boxShadow: "-6px 0 40px rgba(0,0,0,0.14)",
           zIndex: 50,
@@ -1437,6 +1452,8 @@ export default function CblInformationManagement() {
             }}
           />
           <div
+            role="dialog"
+            aria-modal="true"
             style={{
               position: "fixed", top: "50%", left: "50%",
               transform: "translate(-50%,-50%)",
@@ -1456,9 +1473,11 @@ export default function CblInformationManagement() {
                 padding: "18px 24px",
                 borderBottom: `1px solid ${T.slate100}`,
                 background: T.slate50,
+                gap: 12,
+                flexWrap: "wrap",
               }}
             >
-              <div>
+              <div style={{ minWidth: 0 }}>
                 <span
                   style={{
                     fontSize: T.fs_xs, fontWeight: 600, color: T.slate500,
@@ -1469,7 +1488,7 @@ export default function CblInformationManagement() {
                 >
                   Article Preview
                 </span>
-                <h3 style={{ fontSize: T.fs_lg, fontWeight: 600, color: T.blue, margin: 0 }}>
+                <h3 style={{ fontSize: T.fs_lg, fontWeight: 600, color: T.blue, margin: 0, overflowWrap: "break-word" }}>
                   {previewArticle.article_number}: {previewArticle.article_name}
                 </h3>
               </div>
@@ -1481,6 +1500,7 @@ export default function CblInformationManagement() {
                   border: `1.5px solid ${T.slate200}`,
                   background: T.white, cursor: "pointer",
                   display: "flex", alignItems: "center", justifyContent: "center", color: T.slate500,
+                  flexShrink: 0,
                 }}
               >
                 <X size={17} />
@@ -1495,7 +1515,7 @@ export default function CblInformationManagement() {
                 padding: "14px 24px",
                 borderTop: `1px solid ${T.slate100}`,
                 background: T.slate50,
-                display: "flex", justifyContent: "flex-end", gap: 10,
+                display: "flex", justifyContent: "flex-end", gap: 10, flexWrap: "wrap",
               }}
             >
               <button
@@ -1527,6 +1547,8 @@ export default function CblInformationManagement() {
             }}
           />
           <div
+            role="dialog"
+            aria-modal="true"
             style={{
               position: "fixed",
               top: "50%",
@@ -1600,11 +1622,9 @@ export default function CblInformationManagement() {
             })()}
 
             <div
+              className="cbl-modal-actions"
               style={{
                 padding: "24px 28px 28px",
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 12,
               }}
             >
               <button
@@ -1659,6 +1679,8 @@ export default function CblInformationManagement() {
             }}
           />
           <div
+            role="dialog"
+            aria-modal="true"
             style={{
               position: "fixed",
               top: "50%",
@@ -1735,11 +1757,9 @@ export default function CblInformationManagement() {
             )}
 
             <div
+              className="cbl-modal-actions"
               style={{
                 padding: "24px 28px 28px",
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 12,
               }}
             >
               <button
@@ -1781,11 +1801,8 @@ export default function CblInformationManagement() {
       {/* ── FLOATING BULK ACTIONS TOOLBAR ─────────────────────────────────── */}
       {selectedArticleIds.length > 0 && (
         <div
+          className="cbl-bulk-toolbar"
           style={{
-            position: "fixed",
-            bottom: 24,
-            left: "50%",
-            transform: "translateX(-50%)",
             background: "var(--p-navy)",
             color: "#ffffff",
             padding: "16px 28px",
@@ -1808,7 +1825,7 @@ export default function CblInformationManagement() {
           <span style={{ fontSize: T.fs_sm, fontWeight: 700, color: "#ffffff", whiteSpace: "nowrap" }}>
             {selectedArticleIds.length} Article{selectedArticleIds.length > 1 ? "s" : ""} Selected
           </span>
-          <div style={{ display: "flex", gap: 10 }}>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <button
               type="button"
               onClick={() => setShowBulkDeleteModal(true)}
@@ -1856,6 +1873,8 @@ export default function CblInformationManagement() {
             }}
           />
           <div
+            role="dialog"
+            aria-modal="true"
             style={{
               position: "fixed", top: "50%", left: "50%",
               transform: "translate(-50%,-50%)",
@@ -1878,7 +1897,7 @@ export default function CblInformationManagement() {
               </p>
             </div>
 
-            <div style={{ padding: "24px 28px 28px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="cbl-modal-actions" style={{ padding: "24px 28px 28px" }}>
               <button
                 type="button"
                 onClick={() => setShowBulkDeleteModal(false)}
@@ -1930,6 +1949,8 @@ export default function CblInformationManagement() {
             }}
           />
           <div
+            role="dialog"
+            aria-modal="true"
             style={{
               position: "fixed", top: "50%", left: "50%",
               transform: "translate(-50%,-50%)",
@@ -1942,10 +1963,10 @@ export default function CblInformationManagement() {
           >
             <div style={{ padding: "28px 28px 16px", display: "flex", flexDirection: "column", gap: 16 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ width: 44, height: 44, borderRadius: "50%", background: T.accentBg, display: "flex", alignItems: "center", justifyContent: "center", color: T.accent }}>
+                <div style={{ width: 44, height: 44, borderRadius: "50%", background: T.accentBg, display: "flex", alignItems: "center", justifyContent: "center", color: T.accent, flexShrink: 0 }}>
                   <Globe size={22} />
                 </div>
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <h3 style={{ fontSize: T.fs_lg, fontWeight: 700, color: "var(--p-navy)", margin: 0, fontFamily: "var(--font-body)" }}>
                     Publish CBL Changes
                   </h3>
@@ -1967,7 +1988,7 @@ export default function CblInformationManagement() {
                   gap: 12,
                 }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: T.fs_sm }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: T.fs_sm, flexWrap: "wrap", gap: 6 }}>
                   <span style={{ color: "var(--r-text-mid)", fontWeight: 600 }}>CBL Title:</span>
                   {title !== (governanceDoc?.title || "") ? (
                     <span style={{ color: "var(--p-blue)", fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
@@ -1977,7 +1998,7 @@ export default function CblInformationManagement() {
                     <span style={{ color: "var(--r-text-muted)" }}>No changes</span>
                   )}
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: T.fs_sm }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: T.fs_sm, flexWrap: "wrap", gap: 6 }}>
                   <span style={{ color: "var(--r-text-mid)", fontWeight: 600 }}>Preamble Narrative:</span>
                   {generalDescription !== (governanceDoc?.general_description || "") ? (
                     <span style={{ color: "var(--p-blue)", fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
@@ -1987,16 +2008,16 @@ export default function CblInformationManagement() {
                     <span style={{ color: "var(--r-text-muted)" }}>No changes</span>
                   )}
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: T.fs_sm }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: T.fs_sm, flexWrap: "wrap", gap: 6 }}>
                   <span style={{ color: "var(--r-text-mid)", fontWeight: 600 }}>Total Articles Count:</span>
                   <span style={{ color: "var(--p-navy)", fontWeight: 700 }}>
                     {articles.length} article(s)
                   </span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: T.fs_sm }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: T.fs_sm, flexWrap: "wrap", gap: 6 }}>
                   <span style={{ color: "var(--r-text-mid)", fontWeight: 600 }}>Linked PDF Document:</span>
                   {governanceDoc?.file_name ? (
-                    <span style={{ color: "var(--p-emerald)", fontWeight: 700 }}>
+                    <span style={{ color: "var(--p-emerald)", fontWeight: 700, overflowWrap: "anywhere", textAlign: "right" }}>
                       {governanceDoc.file_name} ({formatFileSize(governanceDoc.file_size)})
                     </span>
                   ) : (
@@ -2012,7 +2033,7 @@ export default function CblInformationManagement() {
               </p>
             </div>
 
-            <div style={{ padding: "20px 28px 28px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, background: T.slate50 }}>
+            <div className="cbl-modal-actions" style={{ padding: "20px 28px 28px", background: T.slate50 }}>
               <button
                 type="button"
                 onClick={() => setShowPublishModal(false)}
@@ -2074,10 +2095,8 @@ export default function CblInformationManagement() {
       {/* ── FLOATING UNSAVED CHANGES BANNER ────────────────────────────────── */}
       {hasUnsavedGeneralInfoChanges && !selectedArticleIds.length && (
         <div
+          className="cbl-unsaved-banner"
           style={{
-            position: "fixed",
-            bottom: 24,
-            right: 24,
             background: "var(--p-blue-pale)",
             border: "2px solid var(--p-blue)",
             color: "var(--p-navy)",
@@ -2101,7 +2120,7 @@ export default function CblInformationManagement() {
             <span style={{ fontSize: T.fs_base, fontWeight: 700, color: "var(--p-navy)" }}>Unsaved Preamble Changes</span>
             <span style={{ fontSize: T.fs_xs, color: "var(--r-text-mid)" }}>General Description or Title has been modified.</span>
           </div>
-          <div style={{ display: "flex", gap: 10 }}>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <button
               type="button"
               onClick={handleSaveGeneralInfo}

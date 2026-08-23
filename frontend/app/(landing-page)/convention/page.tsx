@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { CONVENTIONS_DATA } from "./mock-data";
+import { api } from "../../lib/api-client";
 import "./convention.css";
 
 // ── Icon Components ────────────────────────────────────────────────────────
@@ -155,6 +155,7 @@ const cardVariants: Variants = {
 export default function ConventionArchivesPage() {
   const [scrolled, setScrolled] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [conventions, setConventions] = useState<any[]>([]);
 
   // Filter states
   const [selectedNum, setSelectedNum] = useState<string>("All");
@@ -163,36 +164,46 @@ export default function ConventionArchivesPage() {
     const onScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", onScroll);
 
-    // Simulated short API latency for skeletons
-    const timer = setTimeout(() => setLoading(false), 550);
+    async function loadConventions() {
+      try {
+        setLoading(true);
+        const res = await api.get<{ success: boolean; data?: any[] }>("/conventions/public");
+        if (res.success && Array.isArray(res.data)) {
+          setConventions(res.data);
+        } else {
+          setConventions([]);
+        }
+      } catch (err) {
+        console.error("Failed to load conventions:", err);
+        setConventions([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadConventions();
 
     return () => {
       window.removeEventListener("scroll", onScroll);
-      clearTimeout(timer);
     };
   }, []);
 
   // Compute unique values for filter controls
-  const conventionNumbers = ["All", ...Array.from(new Set(CONVENTIONS_DATA.map(c => c.convention_number)))];
+  const conventionNumbers = ["All", ...Array.from(new Set(conventions.map(c => c.convention_number || c.year || "Annual")))];
 
   const handleNumChange = (num: string) => {
     if (num === selectedNum) return;
     setSelectedNum(num);
-    setLoading(true);
-    const timer = setTimeout(() => setLoading(false), 300);
-    return () => clearTimeout(timer);
   };
 
   const resetFilters = () => {
     setSelectedNum("All");
-    setLoading(true);
-    const timer = setTimeout(() => setLoading(false), 300);
-    return () => clearTimeout(timer);
   };
 
   // Filter logic
-  const filteredConventions = CONVENTIONS_DATA.filter((c) => {
-    return selectedNum === "All" || c.convention_number === selectedNum;
+  const filteredConventions = conventions.filter((c) => {
+    const num = c.convention_number || c.year || "Annual";
+    return selectedNum === "All" || num === selectedNum;
   });
 
   const hasFiltersActive = selectedNum !== "All";

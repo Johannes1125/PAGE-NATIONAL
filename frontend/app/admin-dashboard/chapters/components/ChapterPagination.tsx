@@ -48,15 +48,9 @@ export default function ChapterPagination({
     >
       <div className="chapters-pagination__info">
         <p className="text-[14px] text-slate-600 font-medium">
-          {totalItems === 0 ? (
-            "No chapters"
-          ) : totalPages === 1 ? (
+          {totalItems === 0 ? "No chapters" : (
             <>
-              Showing <strong>{totalItems}</strong> {totalItems === 1 ? "chapter" : "chapters"}
-            </>
-          ) : (
-            <>
-              Showing <strong>{start}</strong>–<strong>{end}</strong> of <strong>{totalItems}</strong> chapters
+              Showing <strong>{start}</strong>-<strong>{end}</strong> of <strong>{totalItems}</strong> records
               <span className="ml-2 text-slate-400 font-normal">(Page {currentPage} of {totalPages})</span>
             </>
           )}
@@ -74,6 +68,7 @@ export default function ChapterPagination({
           title="Previous page"
         >
           <ChevronLeft size={18} strokeWidth={2.5} />
+          <span className="chapters-pagination__nav-label">Prev</span>
         </button>
 
         {pages.map((page, idx) => {
@@ -108,11 +103,13 @@ export default function ChapterPagination({
           aria-label="Next page"
           title="Next page"
         >
+          <span className="chapters-pagination__nav-label">Next</span>
           <ChevronRight size={18} strokeWidth={2.5} />
         </button>
       </div>
 
       <div className="chapters-pagination__per-page">
+        <span aria-hidden="true">Per page:</span>
         <label htmlFor="rows-per-page-global" className="sr-only">
           Rows per page
         </label>
@@ -123,10 +120,10 @@ export default function ChapterPagination({
             onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
             title="Select items per page"
           >
-            <option value={5}>5 per page</option>
-            <option value={10}>10 per page</option>
-            <option value={20}>20 per page</option>
-            <option value={50}>50 per page</option>
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
           </select>
           <ChevronDown size={16} strokeWidth={2.5} className="chapters-toolbar__chevron" aria-hidden="true" />
         </div>

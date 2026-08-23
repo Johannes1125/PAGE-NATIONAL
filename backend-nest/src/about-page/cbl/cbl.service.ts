@@ -333,9 +333,12 @@ export class CblService {
         .filter((s) => s.length > 0);
     };
 
+    const sanitizedGovTitle = govDoc?.title && govDoc.title.trim().toLowerCase() !== 'csa' ? govDoc.title : null;
+    const sanitizedCurrentTitle = currentContent.title && currentContent.title.trim().toLowerCase() !== 'csa' ? currentContent.title : null;
+
     const updatedContent = {
       ...currentContent,
-      title: govDoc?.title || currentContent.title || 'Constitution and By-Laws',
+      title: sanitizedGovTitle || sanitizedCurrentTitle || 'Constitution and By-Laws',
       introduction: govDoc?.general_description || currentContent.introduction || '',
       pdfUrl: govDoc?.file_url || currentContent.pdfUrl || '',
       articles: articleRecords.map((art) => ({
@@ -350,12 +353,12 @@ export class CblService {
       where: { section_key: 'cbl_information' },
       create: {
         section_key: 'cbl_information',
-        title: updatedContent.title,
+        title: 'Constitution and By-Laws',
         content: JSON.stringify(updatedContent),
         status: 'draft',
       },
       update: {
-        title: updatedContent.title,
+        title: 'Constitution and By-Laws',
         content: JSON.stringify(updatedContent),
       },
     });

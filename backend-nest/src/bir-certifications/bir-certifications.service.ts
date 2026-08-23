@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { SupabaseService } from '../supabase/supabase.service';
 import { CreateBirCertificationDto } from './dto/create-bir-certification.dto';
 import { UpdateBirCertificationDto } from './dto/update-bir-certification.dto';
 
@@ -9,34 +10,67 @@ export class BirCertificationsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly supabaseService: SupabaseService,
   ) {}
+
+  // Helper file validator
+  validateFile(file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('File is required.');
+    }
+
+    const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf'];
+    if (!allowedMimes.includes(file.mimetype)) {
+      throw new BadRequestException('Invalid file format. Only JPG, JPEG, PNG, WEBP, and PDF are allowed.');
+    }
+
+    // 5MB limit
+    if (file.size > 5 * 1024 * 1024) {
+      throw new BadRequestException('File exceeds 5 MB.');
+    }
+  }
+
+  // Upload certification or receipt file to Supabase
+  async uploadFile(file: Express.Multer.File) {
+    this.validateFile(file);
+    const url = await this.supabaseService.upload(file, 'governance', 'bir-certifications');
+    if (!url) {
+      throw new BadRequestException('Upload failed');
+    }
+    return {
+      success: true,
+      imageUrl: url,
+      message: 'File uploaded successfully.',
+    };
+  }
 
   async create(
     dto: CreateBirCertificationDto,
-    file: Express.Multer.File,
+    file: Express.Multer.File | undefined,
     user: any,
     ipAddress: string,
   ) {
-    let imageUrl: string | null = null;
+    let imageUrl: string | null = dto.imageUrl || null;
     let imagePublicId: string | null = null;
+    let receiptUrl: string | null = dto.receiptUrl || null;
 
     if (file) {
-      const uploadResult = await this.cloudinaryService.uploadWithPublicId(file, 'bir_certifications');
-      if (!uploadResult) {
-        throw new BadRequestException('Failed to upload image to Cloudinary');
+      this.validateFile(file);
+      const url = await this.supabaseService.upload(file, 'governance', 'bir-certifications');
+      if (url) {
+        imageUrl = url;
       }
-      imageUrl = uploadResult.imageUrl;
-      imagePublicId = uploadResult.imagePublicId;
     }
 
     const record = await this.prisma.birCertification.create({
       data: {
-        registrationName: dto.registrationName,
-        tinNumber: dto.tinNumber,
-        certificationNumber: dto.certificationNumber,
-        exemptionCategory: dto.exemptionCategory,
-        dateOfIssuance: new Date(dto.dateOfIssuance),
+        registrationName: dto.registrationName || 'Philippine Association for Graduate Education, Inc.',
+        tinNumber: dto.tinNumber || 'BIR Tax Certificate',
+        certificationNumber: dto.certificationNumber || 'BIR-CERT',
+        exemptionCategory: dto.exemptionCategory || 'Tax Exempt',
+        dateOfIssuance: dto.dateOfIssuance ? new Date(dto.dateOfIssuance) : new Date(),
         imageUrl,
+        receiptUrl,
         imagePublicId,
       },
     });
@@ -58,7 +92,7 @@ export class BirCertificationsService {
 
       const [records, totalItems] = await Promise.all([
         this.prisma.birCertification.findMany({
-          orderBy: { dateOfIssuance: 'desc' },
+          orderBy: { createdAt: 'desc' },
           skip,
           take: limit,
         }),
@@ -79,7 +113,7 @@ export class BirCertificationsService {
     }
 
     const records = await this.prisma.birCertification.findMany({
-      orderBy: { dateOfIssuance: 'desc' },
+      orderBy: { createdAt: 'desc' },
     });
     return {
       success: true,
@@ -111,7 +145,7 @@ export class BirCertificationsService {
   async update(
     id: string,
     dto: UpdateBirCertificationDto,
-    file: Express.Multer.File,
+    file: Express.Multer.File | undefined,
     user: any,
     ipAddress: string,
   ) {
@@ -122,19 +156,16 @@ export class BirCertificationsService {
       throw new NotFoundException(`BIR certification record with id ${id} not found.`);
     }
 
-    let imageUrl = existing.imageUrl;
+    let imageUrl = dto.imageUrl !== undefined ? dto.imageUrl : existing.imageUrl;
+    let receiptUrl = dto.receiptUrl !== undefined ? dto.receiptUrl : existing.receiptUrl;
     let imagePublicId = existing.imagePublicId;
 
     if (file) {
-      if (existing.imagePublicId) {
-        await this.cloudinaryService.delete(existing.imagePublicId);
+      this.validateFile(file);
+      const url = await this.supabaseService.upload(file, 'governance', 'bir-certifications');
+      if (url) {
+        imageUrl = url;
       }
-      const uploadResult = await this.cloudinaryService.uploadWithPublicId(file, 'bir_certifications');
-      if (!uploadResult) {
-        throw new BadRequestException('Failed to upload image to Cloudinary');
-      }
-      imageUrl = uploadResult.imageUrl;
-      imagePublicId = uploadResult.imagePublicId;
     }
 
     const record = await this.prisma.birCertification.update({
@@ -146,6 +177,7 @@ export class BirCertificationsService {
         exemptionCategory: dto.exemptionCategory ?? existing.exemptionCategory,
         dateOfIssuance: dto.dateOfIssuance ? new Date(dto.dateOfIssuance) : existing.dateOfIssuance,
         imageUrl,
+        receiptUrl,
         imagePublicId,
       },
     });

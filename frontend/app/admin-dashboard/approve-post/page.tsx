@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   CalendarDays,
   ChevronLeft,
@@ -48,6 +48,8 @@ export default function ApprovePostPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 4; // 4 items per page
+
+  const detailRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const fetchPending = async () => {
@@ -155,6 +157,15 @@ export default function ApprovePostPage() {
     setSelectedPostId(postId);
     setFeedbackInput(postStateById[postId]?.feedback ?? "");
     setFeedbackError("");
+
+    // On mobile/tablet the detail panel stacks below the list, so bring
+    // it into view once the user picks a post instead of leaving them
+    // to scroll down and guess whether the selection worked.
+    if (typeof window !== "undefined" && window.innerWidth <= 1080) {
+      requestAnimationFrame(() => {
+        detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
   };
 
   const handleApprove = async () => {
@@ -321,49 +332,10 @@ export default function ApprovePostPage() {
                 <p>No submissions found in this queue.</p>
               </div>
             )}
-
-            {filteredPosts.length > 0 && (
-              <nav className="approve-pagination" aria-label="Approve post pagination">
-                <button
-                  type="button"
-                  className="approve-pagination__nav"
-                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                  disabled={currentPage === 1 || isSubmitting}
-                  aria-label="Previous page"
-                >
-                  <ChevronLeft size={16} />
-                </button>
-
-                <div className="approve-pagination__pages">
-                  {visiblePages.map((page) => (
-                    <button
-                      key={page}
-                      type="button"
-                      className={`approve-pagination__page ${page === currentPage ? "approve-pagination__page--active" : ""}`}
-                      onClick={() => setCurrentPage(page)}
-                      disabled={isSubmitting}
-                      aria-current={page === currentPage ? "page" : undefined}
-                    >
-                      {page}
-                    </button>
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  className="approve-pagination__nav"
-                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-                  disabled={currentPage === totalPages || isSubmitting}
-                  aria-label="Next page"
-                >
-                  <ChevronRight size={16} />
-                </button>
-              </nav>
-            )}
           </section>
 
           {/* Detail Panel (Manuscript Review Style) */}
-          <aside className="approve-detail">
+          <aside className="approve-detail" ref={detailRef}>
             <div className="approve-detail__inner">
               <div className="approve-detail__header">
                 <h3>Manuscript Details</h3>
@@ -442,13 +414,52 @@ export default function ApprovePostPage() {
                       <Check size={16} /> {isSubmitting ? "Approving..." : "Approve Manuscript"}
                     </button>
                     <button type="button" className="approve-btn approve-btn--reject" disabled={isSubmitting} onClick={handleReject}>
-                      {isSubmitting ? "Rejecting..." : "Request Revisions (Reject)"}
+                      {isSubmitting ? "Declining..." : "Request Revisions (Decline)"}
                     </button>
                   </div>
                 </div>
               )}
             </div>
           </aside>
+           {/* Pagination — now a sibling, renders AFTER the detail panel in mobile stack */}
+  {filteredPosts.length > 0 && (
+    <nav className="approve-pagination" aria-label="Approve post pagination">
+      <button
+        type="button"
+        className="approve-pagination__nav"
+        onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+        disabled={currentPage === 1 || isSubmitting}
+        aria-label="Previous page"
+      >
+        <ChevronLeft size={16} />
+      </button>
+
+      <div className="approve-pagination__pages">
+        {visiblePages.map((page) => (
+          <button
+            key={page}
+            type="button"
+            className={`approve-pagination__page ${page === currentPage ? "approve-pagination__page--active" : ""}`}
+            onClick={() => setCurrentPage(page)}
+            disabled={isSubmitting}
+            aria-current={page === currentPage ? "page" : undefined}
+          >
+            {page}
+          </button>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        className="approve-pagination__nav"
+        onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+        disabled={currentPage === totalPages || isSubmitting}
+        aria-label="Next page"
+      >
+        <ChevronRight size={16} />
+      </button>
+    </nav>
+  )}
         </section>
       </section>
     </AdminSidebarLayout>

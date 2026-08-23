@@ -319,7 +319,11 @@ export default function AboutPageManagement() {
                       )}
                     </div>
 
-                    <h3 className="about-card-title">{section.title}</h3>
+                    <h3 className="about-card-title">
+                      {section.section_key === "cbl_information" && (!section.title || section.title.trim().toLowerCase() === "csa")
+                        ? "Constitution and By-Laws"
+                        : section.title}
+                    </h3>
                   </div>
 
                   <div className="about-card-middle">

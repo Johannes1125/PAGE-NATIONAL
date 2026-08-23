@@ -118,6 +118,20 @@ function IconBack() {
     </svg>
   );
 }
+function IconChevronUp() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+      <polyline points="18 15 12 9 6 15" />
+    </svg>
+  );
+}
+function IconChevronDown() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  );
+}
 function Loader({ size = 20 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
@@ -260,6 +274,7 @@ function RecordModal({ mode, initialData, onClose, onSaved }: ModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="record-modal-title"
+        className="history-modal"
         style={{
           position: "fixed", top: "50%", left: "50%",
           transform: "translate(-50%,-50%)",
@@ -382,7 +397,7 @@ function RecordModal({ mode, initialData, onClose, onSaved }: ModalProps) {
           </div>
 
           {/* Actions */}
-          <div style={{ padding: "14px 24px 20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, borderTop: "1px solid var(--r-border)" }}>
+          <div className="history-modal-actions" style={{ padding: "14px 24px 20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, borderTop: "1px solid var(--r-border)" }}>
             <button
               type="button"
               onClick={onClose}
@@ -462,6 +477,7 @@ function DeleteModal({ record, onClose, onDeleted }: DeleteModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="delete-modal-title"
+        className="history-modal"
         style={{
           position: "fixed", top: "50%", left: "50%",
           transform: "translate(-50%,-50%)",
@@ -512,7 +528,7 @@ function DeleteModal({ record, onClose, onDeleted }: DeleteModalProps) {
         </div>
 
         {/* Actions */}
-        <div style={{ padding: "16px 24px 24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        <div className="history-modal-actions" style={{ padding: "16px 24px 24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           <button
             ref={cancelRef}
             type="button"
@@ -566,6 +582,7 @@ export default function HistoryManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [meta, setMeta] = useState<PaginationMeta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
+  const [programTypeFilter, setProgramTypeFilter] = useState("all");
 
   // Drag and Drop state
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -573,10 +590,11 @@ export default function HistoryManagement() {
   const [isReordering, setIsReordering] = useState(false);
 
   // ── Fetch ────────────────────────────────────────────────────────────────
-  const fetchRecords = useCallback(async (page = currentPage, limit = itemsPerPage) => {
+  const fetchRecords = useCallback(async (page = currentPage, limit = itemsPerPage, programType = programTypeFilter) => {
     try {
       setIsLoading(true);
-      const res = await api.get<PaginatedResponse<HistoricalRecord>>(`/historical-records?page=${page}&limit=${limit}`);
+      const programTypeQuery = programType !== "all" ? `&programType=${encodeURIComponent(programType)}` : "";
+      const res = await api.get<PaginatedResponse<HistoricalRecord>>(`/historical-records?page=${page}&limit=${limit}${programTypeQuery}`);
       if (res.success) {
         setRecords(res.data ?? []);
         if (res.meta) setMeta(res.meta);
@@ -586,7 +604,7 @@ export default function HistoryManagement() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, itemsPerPage]);
+  }, [currentPage, itemsPerPage, programTypeFilter]);
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
@@ -597,6 +615,12 @@ export default function HistoryManagement() {
     setItemsPerPage(newLimit);
     setCurrentPage(1);
     fetchRecords(1, newLimit);
+  };
+
+  const handleProgramTypeChange = (programType: string) => {
+    setProgramTypeFilter(programType);
+    setCurrentPage(1);
+    fetchRecords(1, itemsPerPage, programType);
   };
 
   useEffect(() => { fetchRecords(currentPage, itemsPerPage); }, [fetchRecords]);
@@ -644,7 +668,45 @@ export default function HistoryManagement() {
     setEditingRecord(undefined);
   };
 
-  // Drag and Drop Handlers
+  // Shared reorder commit: recalculates per-year sortOrder and persists it.
+  const commitReorder = useCallback(async (reorderedList: HistoricalRecord[]) => {
+    const yearGroups: Record<number, HistoricalRecord[]> = {};
+    reorderedList.forEach(item => {
+      if (!yearGroups[item.yearStart]) yearGroups[item.yearStart] = [];
+      yearGroups[item.yearStart].push(item);
+    });
+
+    const finalizedList: HistoricalRecord[] = [];
+    const updatePayload: { id: string; sortOrder: number; yearStart: number }[] = [];
+
+    const sortedYears = Object.keys(yearGroups).map(Number).sort((a, b) => a - b);
+    sortedYears.forEach(year => {
+      yearGroups[year].forEach((item, index) => {
+        const updatedItem = { ...item, yearStart: year, sortOrder: index + 1 };
+        finalizedList.push(updatedItem);
+        updatePayload.push({ id: item.id, sortOrder: index + 1, yearStart: year });
+      });
+    });
+
+    setRecords(finalizedList);
+
+    setIsReordering(true);
+    try {
+      const res = await api.patch<{ success: boolean }>("/historical-records-reorder", {
+        records: updatePayload
+      });
+      if (res.success) {
+        gooeyToast.success("New order saved!");
+      }
+    } catch (err) {
+      gooeyToast.error("Failed to save order. Reverting...");
+      fetchRecords();
+    } finally {
+      setIsReordering(false);
+    }
+  }, [fetchRecords]);
+
+  // Drag and Drop Handlers (pointer/mouse devices)
   const handleDragStart = (e: React.DragEvent, index: number) => {
     if (searchQuery) return;
     e.dataTransfer.effectAllowed = "move";
@@ -678,7 +740,7 @@ export default function HistoryManagement() {
     // Update yearStart dynamically if dragged across years
     const targetRecord = reorderedList[targetIndex];
     let newYear = draggedItem.yearStart;
-    
+
     if (targetIndex > 0 && targetIndex < reorderedList.length - 1) {
       const prevItem = reorderedList[targetIndex - 1];
       const nextItem = reorderedList[targetIndex + 1];
@@ -701,58 +763,28 @@ export default function HistoryManagement() {
 
     draggedItem.yearStart = newYear;
 
-    // Recalculate sortOrder for all records
-    const yearGroups: Record<number, typeof reorderedList> = {};
-    reorderedList.forEach(item => {
-      if (!yearGroups[item.yearStart]) {
-        yearGroups[item.yearStart] = [];
-      }
-      yearGroups[item.yearStart].push(item);
-    });
-
-    const finalizedList: typeof reorderedList = [];
-    const updatePayload: { id: string; sortOrder: number; yearStart: number }[] = [];
-
-    const sortedYears = Object.keys(yearGroups).map(Number).sort((a, b) => a - b);
-    sortedYears.forEach(year => {
-      yearGroups[year].forEach((item, index) => {
-        const updatedItem = {
-          ...item,
-          yearStart: year,
-          sortOrder: index + 1
-        };
-        finalizedList.push(updatedItem);
-        updatePayload.push({
-          id: item.id,
-          sortOrder: index + 1,
-          yearStart: year
-        });
-      });
-    });
-
-    setRecords(finalizedList);
     setDraggedIndex(null);
     setDragOverIndex(null);
-
-    setIsReordering(true);
-    try {
-      const res = await api.patch<{ success: boolean }>("/historical-records-reorder", {
-        records: updatePayload
-      });
-      if (res.success) {
-        gooeyToast.success("New order saved!");
-      }
-    } catch (err) {
-      gooeyToast.error("Failed to save order. Reverting...");
-      fetchRecords();
-    } finally {
-      setIsReordering(false);
-    }
+    await commitReorder(reorderedList);
   };
 
   const handleDragEnd = () => {
     setDraggedIndex(null);
     setDragOverIndex(null);
+  };
+
+  // Touch-friendly fallback reordering (mobile card view): move within the
+  // list by one position using the same commit path as drag-and-drop.
+  const moveRecord = async (id: string, direction: "up" | "down") => {
+    if (searchQuery || isReordering) return;
+    const idx = records.findIndex(r => r.id === id);
+    if (idx === -1) return;
+    const swapWith = direction === "up" ? idx - 1 : idx + 1;
+    if (swapWith < 0 || swapWith >= records.length) return;
+
+    const reorderedList = [...records];
+    [reorderedList[idx], reorderedList[swapWith]] = [reorderedList[swapWith], reorderedList[idx]];
+    await commitReorder(reorderedList);
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -769,7 +801,7 @@ export default function HistoryManagement() {
 
       <div className="admin-shell">
         {/* ── Toolbar ──────────────────────────────────────────────────────── */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
+        <div className="history-header-actions">
           <button
             id="back-to-dashboard-btn"
             type="button"
@@ -802,12 +834,28 @@ export default function HistoryManagement() {
               onChange={e => setSearchQuery(e.target.value)}
             />
           </div>
-          <div style={{ fontSize: 15, color: "var(--r-text-muted)", whiteSpace: "nowrap", fontWeight: 500 }}>
-            {filtered.length} record{filtered.length !== 1 ? "s" : ""}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <select
+              aria-label="Filter history by program type"
+              className="about-input"
+              value={programTypeFilter}
+              onChange={e => handleProgramTypeChange(e.target.value)}
+              style={{ width: "auto", minWidth: 160, height: 40 }}
+            >
+              <option value="all">All Program Types</option>
+              <option value="Initiative">Initiative</option>
+              <option value="Conference">Conference</option>
+              <option value="Seminar">Seminar</option>
+              <option value="Convention">Convention</option>
+              <option value="Other">Other</option>
+            </select>
+            <div style={{ fontSize: 15, color: "var(--r-text-muted)", whiteSpace: "nowrap", fontWeight: 500 }}>
+              {meta.totalItems} record{meta.totalItems !== 1 ? "s" : ""}
+            </div>
           </div>
         </div>
 
-        {/* ── Table ────────────────────────────────────────────────────────── */}
+        {/* ── Records ──────────────────────────────────────────────────────── */}
         <div className="about-editor-card" style={{ padding: 0, overflow: "hidden" }}>
           {isLoading ? (
             /* Loading skeleton */
@@ -834,66 +882,154 @@ export default function HistoryManagement() {
               )}
             </div>
           ) : (
-            /* Table */
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 640 }}>
-                <thead>
-                  <tr style={{ background: "var(--r-surface-2)", borderBottom: "2px solid var(--r-border)" }}>
-                    <th style={{ width: 50, padding: "12px 14px", textAlign: "center" }}></th>
-                    {["Year", "Title", "Program Type", "Description", "Actions"].map(h => (
-                      <th key={h} style={{
-                        padding: "12px 14px", textAlign: "left",
-                        fontSize: 12, fontWeight: 700, color: "var(--p-navy)",
-                        textTransform: "uppercase", letterSpacing: "0.5px",
-                        whiteSpace: "nowrap",
-                      }}>
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((record, i) => (
-                    <tr
-                      key={record.id}
-                      draggable={!searchQuery}
-                      onDragStart={(e) => handleDragStart(e, i)}
-                      onDragOver={(e) => handleDragOver(e, i)}
-                      onDragEnd={handleDragEnd}
-                      onDragLeave={handleDragLeave}
-                      onDrop={(e) => handleDrop(e, i)}
-                      style={{
-                        borderBottom: i < filtered.length - 1 ? "1px solid var(--r-border)" : "none",
-                        transition: "background 0.15s ease, opacity 0.15s ease",
-                        opacity: draggedIndex === i ? 0.4 : 1,
-                        background: dragOverIndex === i ? "var(--p-blue-pale)" : "transparent",
-                        cursor: searchQuery ? "default" : "grab",
-                      }}
-                      onMouseEnter={e => {
-                        if (dragOverIndex !== i) {
-                          e.currentTarget.style.background = "var(--r-surface-2)";
-                        }
-                      }}
-                      onMouseLeave={e => {
-                        if (dragOverIndex !== i) {
-                          e.currentTarget.style.background = "transparent";
-                        }
-                      }}
-                    >
-                      {/* Drag Handle */}
-                      <td style={{
-                        padding: "12px 14px",
-                        verticalAlign: "middle",
-                        textAlign: "center",
-                        color: "var(--r-text-muted)",
-                        userSelect: "none",
-                      }}
-                        title={searchQuery ? "Clear search to enable drag-and-drop reordering" : "Drag to reorder milestone"}
+            <>
+              {/* Table (tablet / desktop) */}
+              <div className="history-table-view" style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 640 }}>
+                  <thead>
+                    <tr style={{ background: "var(--r-surface-2)", borderBottom: "2px solid var(--r-border)" }}>
+                      <th style={{ width: 50, padding: "12px 14px", textAlign: "center" }}></th>
+                      {["Year", "Title", "Program Type", "Description", "Actions"].map(h => (
+                        <th key={h} style={{
+                          padding: "12px 14px", textAlign: "left",
+                          fontSize: 12, fontWeight: 700, color: "var(--p-navy)",
+                          textTransform: "uppercase", letterSpacing: "0.5px",
+                          whiteSpace: "nowrap",
+                        }}>
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filtered.map((record, i) => (
+                      <tr
+                        key={record.id}
+                        draggable={!searchQuery}
+                        onDragStart={(e) => handleDragStart(e, i)}
+                        onDragOver={(e) => handleDragOver(e, i)}
+                        onDragEnd={handleDragEnd}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, i)}
+                        style={{
+                          borderBottom: i < filtered.length - 1 ? "1px solid var(--r-border)" : "none",
+                          transition: "background 0.15s ease, opacity 0.15s ease",
+                          opacity: draggedIndex === i ? 0.4 : 1,
+                          background: dragOverIndex === i ? "var(--p-blue-pale)" : "transparent",
+                          cursor: searchQuery ? "default" : "grab",
+                        }}
+                        onMouseEnter={e => {
+                          if (dragOverIndex !== i) {
+                            e.currentTarget.style.background = "var(--r-surface-2)";
+                          }
+                        }}
+                        onMouseLeave={e => {
+                          if (dragOverIndex !== i) {
+                            e.currentTarget.style.background = "transparent";
+                          }
+                        }}
                       >
-                        <span style={{ fontSize: 14, cursor: searchQuery ? "not-allowed" : "grab" }}>☰</span>
-                      </td>
-                      {/* Year */}
-                      <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
+                        {/* Drag Handle */}
+                        <td style={{
+                          padding: "12px 14px",
+                          verticalAlign: "middle",
+                          textAlign: "center",
+                          color: "var(--r-text-muted)",
+                          userSelect: "none",
+                        }}
+                          title={searchQuery ? "Clear search to enable drag-and-drop reordering" : "Drag to reorder milestone"}
+                        >
+                          <span style={{ fontSize: 14, cursor: searchQuery ? "not-allowed" : "grab" }}>☰</span>
+                        </td>
+                        {/* Year */}
+                        <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
+                          <span style={{
+                            display: "inline-block",
+                            background: "var(--p-navy)",
+                            color: "#fff",
+                            padding: "3px 10px",
+                            borderRadius: 6,
+                            fontWeight: 700,
+                            fontSize: 13,
+                            whiteSpace: "nowrap",
+                          }}>
+                            {record.yearStart}
+                          </span>
+                        </td>
+                        {/* Title */}
+                        <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
+                          <span style={{ fontSize: 15, fontWeight: 600, color: "var(--p-navy)", fontFamily: "var(--font-body)" }}>
+                            {record.title}
+                          </span>
+                        </td>
+                        {/* Program Type */}
+                        <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
+                          <ProgramBadge type={record.programType} />
+                        </td>
+                        {/* Description (truncated) */}
+                        <td style={{ padding: "12px 14px", verticalAlign: "top", maxWidth: 300 }}>
+                          <span style={{
+                            fontSize: 13,
+                            color: "var(--r-text-muted)",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical" as const,
+                            overflow: "hidden",
+                            lineHeight: 1.5,
+                          }}>
+                            {record.description}
+                          </span>
+                        </td>
+                        {/* Actions */}
+                        <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
+                          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "nowrap" }}>
+                            <button
+                              id={`edit-record-${record.id}`}
+                              type="button"
+                              onClick={() => openEdit(record)}
+                              title="Edit record"
+                              style={{
+                                height: 40, padding: "0 14px",
+                                borderRadius: 8, fontSize: 14, fontWeight: 600,
+                                display: "flex", alignItems: "center", gap: 6,
+                                background: "var(--p-blue-pale)", color: "var(--p-blue)",
+                                border: "none", cursor: "pointer", whiteSpace: "nowrap",
+                              }}
+                            >
+                              <IconEdit /> Edit
+                            </button>
+                            <button
+                              id={`delete-record-${record.id}`}
+                              type="button"
+                              onClick={() => setDeletingRecord(record)}
+                              title="Delete record"
+                              style={{
+                                height: 40, padding: "0 14px",
+                                borderRadius: 8, fontSize: 14, fontWeight: 600,
+                                display: "flex", alignItems: "center", gap: 6,
+                                background: "var(--p-rose-pale)", color: "var(--p-rose)",
+                                border: "none", cursor: "pointer", whiteSpace: "nowrap",
+                              }}
+                            >
+                              <IconTrash /> Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Card list (mobile) */}
+              <div className="history-card-view">
+                {filtered.map((record, i) => {
+                  const idx = records.findIndex(r => r.id === record.id);
+                  const isFirst = idx <= 0;
+                  const isLast = idx === records.length - 1;
+                  return (
+                    <div key={record.id} className="history-record-card">
+                      <div className="history-record-card__top">
                         <span style={{
                           display: "inline-block",
                           background: "var(--p-navy)",
@@ -906,71 +1042,57 @@ export default function HistoryManagement() {
                         }}>
                           {record.yearStart}
                         </span>
-                      </td>
-                      {/* Title */}
-                      <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
-                        <span style={{ fontSize: 15, fontWeight: 600, color: "var(--p-navy)", fontFamily: "var(--font-body)" }}>
-                          {record.title}
-                        </span>
-                      </td>
-                      {/* Program Type */}
-                      <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
                         <ProgramBadge type={record.programType} />
-                      </td>
-                      {/* Description (truncated) */}
-                      <td style={{ padding: "12px 14px", verticalAlign: "top", maxWidth: 300 }}>
-                        <span style={{
-                          fontSize: 13,
-                          color: "var(--r-text-muted)",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical" as const,
-                          overflow: "hidden",
-                          lineHeight: 1.5,
-                        }}>
-                          {record.description}
-                        </span>
-                      </td>
-                      {/* Actions */}
-                      <td style={{ padding: "12px 14px", verticalAlign: "top" }}>
-                        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "nowrap" }}>
+                      </div>
+
+                      <p className="history-record-card__title">{record.title}</p>
+                      <p className="history-record-card__desc">{record.description}</p>
+
+                      <div className="history-record-card__footer">
+                        <button
+                          id={`edit-record-mobile-${record.id}`}
+                          type="button"
+                          className="history-record-card__action-btn"
+                          onClick={() => openEdit(record)}
+                          style={{ background: "var(--p-blue-pale)", color: "var(--p-blue)" }}
+                        >
+                          <IconEdit /> Edit
+                        </button>
+                        <button
+                          id={`delete-record-mobile-${record.id}`}
+                          type="button"
+                          className="history-record-card__action-btn"
+                          onClick={() => setDeletingRecord(record)}
+                          style={{ background: "var(--p-rose-pale)", color: "var(--p-rose)" }}
+                        >
+                          <IconTrash /> Delete
+                        </button>
+                        <div className="history-record-card__reorder" title={searchQuery ? "Clear search to reorder" : "Reorder milestone"}>
                           <button
-                            id={`edit-record-${record.id}`}
                             type="button"
-                            onClick={() => openEdit(record)}
-                            title="Edit record"
-                            style={{
-                              height: 40, padding: "0 14px",
-                              borderRadius: 8, fontSize: 14, fontWeight: 600,
-                              display: "flex", alignItems: "center", gap: 6,
-                              background: "var(--p-blue-pale)", color: "var(--p-blue)",
-                              border: "none", cursor: "pointer", whiteSpace: "nowrap",
-                            }}
+                            className="history-record-card__reorder-btn"
+                            aria-label="Move up"
+                            disabled={!!searchQuery || isFirst || isReordering}
+                            onClick={() => moveRecord(record.id, "up")}
                           >
-                            <IconEdit /> Edit
+                            <IconChevronUp />
                           </button>
                           <button
-                            id={`delete-record-${record.id}`}
                             type="button"
-                            onClick={() => setDeletingRecord(record)}
-                            title="Delete record"
-                            style={{
-                              height: 40, padding: "0 14px",
-                              borderRadius: 8, fontSize: 14, fontWeight: 600,
-                              display: "flex", alignItems: "center", gap: 6,
-                              background: "var(--p-rose-pale)", color: "var(--p-rose)",
-                              border: "none", cursor: "pointer", whiteSpace: "nowrap",
-                            }}
+                            className="history-record-card__reorder-btn"
+                            aria-label="Move down"
+                            disabled={!!searchQuery || isLast || isReordering}
+                            onClick={() => moveRecord(record.id, "down")}
                           >
-                            <IconTrash /> Delete
+                            <IconChevronDown />
                           </button>
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
           )}
 
           <Pagination

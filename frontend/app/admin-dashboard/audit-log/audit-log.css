@@ -454,8 +454,10 @@ html, body {
 }
 
 @media (max-width: 1080px) {
-  .audit-page { padding-left: 0; padding-top: 88px; }
-}
+ .audit-page {
+    padding-left: 0; /* keep — clears the sidebar gutter once it's hidden on mobile */
+    /* padding-top: 88px;  🗑️ removed — layout already offsets content for the fixed header via --admin-header-height; this was double-stacking */
+  }}
 
 @media (max-width: 900px) {
   .audit-list-header { display: none; }
@@ -466,6 +468,7 @@ html, body {
     align-items: flex-start; text-align: left; justify-content: flex-start;
   }
   .audit-time-stack { align-items: flex-start; flex-direction: column; }
+  .audit-target-entity { white-space: normal; text-align: left; } /* 🆕 lets long titles wrap instead of getting clipped in card view */
 }
 
 @media (max-width: 768px) {
@@ -473,7 +476,77 @@ html, body {
   .audit-toolbar__search { max-width: none; }
   .audit-toolbar__filters { flex-direction: column; align-items: stretch; }
   .audit-filter-group { width: 100%; }
+  .audit-filter-group .audit-select { width: 100%; } /* 🆕 select was staying at min-width:160px and could overflow its wrapper */
   .audit-tabs { gap: 12px; width: 100%; }
   .audit-tab { flex: 1; text-align: center; }
   .audit-stats-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* 🆕 ========================================= */
+/* 🆕 small tablets / large phones               */
+/* 🆕 ========================================= */
+@media (max-width: 640px) { /* 🆕 */
+  .audit-content { padding: 24px 16px; gap: 18px; } /* 🆕 */
+  .audit-stats-grid { grid-template-columns: 1fr; gap: 12px; } /* 🆕 stat cards go full width */
+
+  .audit-modal { width: 100%; max-height: 92vh; margin: 20px; } /* 🆕 modal fits viewport, stays centered */
+  .audit-modal__body { padding: 24px 18px; } /* 🆕 */
+
+  .cnp-grid-2 { grid-template-columns: 1fr; } /* 🆕 metadata fields stack */
+  .cnp-review-grid { grid-template-columns: 1fr; } /* 🆕 review cards stack */
+
+  .audit-modal__footer { gap: 12px; } /* 🆕 */
+
+  .audit-btn-action { flex: 1; justify-content: center; } /* 🆕 edit/delete share width evenly on card rows */
+} /* 🆕 */
+
+/* 🆕 ========================================= */
+/* 🆕 phones                                     */
+/* 🆕 ========================================= */
+@media (max-width: 480px) { /* 🆕 */
+  .audit-content { padding: 16px 12px; } /* 🆕 */
+  .audit-stat-card { padding: 16px; gap: 14px; } /* 🆕 */
+  .audit-stat-icon { width: 40px; height: 40px; } /* 🆕 */
+  .audit-stat-value { font-size: 22px; } /* 🆕 */
+
+  .audit-tabs { gap: 6px; } /* 🆕 */
+  .audit-tab { font-size: 13px; padding: 10px 4px; } /* 🆕 */
+
+  .audit-toolbar-card { padding: 12px 14px; } /* 🆕 */
+  .audit-list-container { padding: 6px; } /* 🆕 */
+  .audit-row { padding: 12px 14px; } /* 🆕 */
+
+  .audit-modal { margin: 12px; max-height: 94vh; } /* 🆕 */
+  .audit-modal__header { padding: 16px; } /* 🆕 */
+  .audit-modal__title { font-size: 17px; } /* 🆕 */
+  .audit-modal__body { padding: 18px 14px; } /* 🆕 */
+  .audit-modal__footer { padding: 14px; flex-direction: column-reverse; } /* 🆕 Back/Continue stack full-width */
+  .audit-modal__footer .cnp-btn { width: 100%; } /* 🆕 */
+
+  .cnp-stepper__item { width: 72px; } /* 🆕 */
+  .cnp-stepper__description { display: none; } /* 🆕 no room for description text at this width */
+  .cnp-stepper__node { width: 30px; height: 30px; font-size: 12px; } /* 🆕 */
+  .cnp-stepper__track { top: 15px; left: 14%; right: 14%; } /* 🆕 */
+
+  .audit-pagination { justify-content: center; } /* 🆕 */
+  .audit-pagination__nav, .audit-pagination__page { min-width: 32px; height: 32px; font-size: 12px; } /* 🆕 */
+}
+
+/* 🆕 ========================================= */
+/* 🆕 very small phones (SE / narrow Android)    */
+/* 🆕 ========================================= */
+@media (max-width: 400px) { /* 🆕 */
+  .audit-stat-value { font-size: 19px; } /* 🆕 */
+  .audit-type-badge { font-size: 10px; padding: 5px 10px; } /* 🆕 */
+  .audit-target-entity { font-size: 13.5px; } /* 🆕 */
+
+  .audit-col--controls { flex-direction: column; align-items: stretch; } /* 🆕 edit/delete stack instead of squeezing side by side */
+  .audit-btn-action { width: 100%; } /* 🆕 */
+
+  .audit-modal__title { font-size: 16px; } /* 🆕 */
+  .audit-modal__subtitle { font-size: 12px; } /* 🆕 */
+
+  .cnp-field input, .cnp-field select, .cnp-field textarea { font-size: 0.8125rem; padding: 0.5rem 0.75rem; } /* 🆕 */
+  .cnp-editor { min-height: 160px; padding: 12px; font-size: 13.5px; } /* 🆕 */
+  .cnp-upload__box { min-height: 96px; padding: 14px; } /* 🆕 */
 }

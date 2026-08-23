@@ -37,8 +37,9 @@ export class HistoricalRecordsController {
   getPublic(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('programType') programType?: string,
   ) {
-    return this.service.findAll(page, limit);
+    return this.service.findAll(page, limit, programType);
   }
 
   // ── ADMIN ENDPOINTS ───────────────────────────────────────────────────────
@@ -49,8 +50,9 @@ export class HistoricalRecordsController {
   findAll(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('programType') programType?: string,
   ) {
-    return this.service.findAll(page, limit);
+    return this.service.findAll(page, limit, programType);
   }
 
   @UseGuards(TokenAuthGuard, RolesGuard)

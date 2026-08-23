@@ -18,7 +18,8 @@ import {
   MapPin,
   ClipboardList,
   Download,
-  AlertTriangle
+  AlertTriangle,
+  FolderOpen
 } from "lucide-react";
 import AdminSidebarLayout from "../components/AdminSidebarLayout";
 import { MembershipApplication } from "../../lib/membership-types";
@@ -75,7 +76,7 @@ export default function MembershipApplicationsPage() {
   const [applications, setApplications] = useState<MembershipApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
-  
+
   // Table filters
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
@@ -113,6 +114,15 @@ export default function MembershipApplicationsPage() {
       const matchType = typeFilter === "all" || app.membershipType.toLowerCase() === typeFilter;
       return matchStatus && matchType;
     });
+
+  // Infographic summary counts (based on full non-draft queue, not the filtered view)
+  const queueStats = {
+    total: applications.filter(a => a.status !== "draft").length,
+    submitted: applications.filter(a => a.status === "submitted").length,
+    underReview: applications.filter(a => a.status === "under_review").length,
+    approved: applications.filter(a => a.status === "approved").length,
+    rejected: applications.filter(a => a.status === "rejected").length,
+  };
 
   const handleOpenReview = (appId: string) => {
     setSelectedAppId(appId);
@@ -181,6 +191,38 @@ export default function MembershipApplicationsPage() {
     }
   };
 
+  // ── Status Stepper (derived from selectedApp) ───────────────────────────────
+
+  const renderStatusStepper = (status: string) => {
+    const isRejected = status === "rejected";
+    const steps = [
+      { key: "submitted", label: "Submitted", icon: FileText },
+      { key: "under_review", label: "Review", icon: Eye },
+      { key: isRejected ? "rejected" : "approved", label: isRejected ? "Rejected" : "Approved", icon: isRejected ? XCircle : CheckCircle },
+    ];
+    const order = ["submitted", "under_review", isRejected ? "rejected" : "approved"];
+    const currentIndex = order.indexOf(status);
+
+    return (
+      <div className="status-stepper">
+        {steps.map((step, idx) => {
+          const Icon = step.icon;
+          const isActive = idx === currentIndex;
+          const isComplete = idx < currentIndex;
+          return (
+            <div
+              key={step.key}
+              className={`status-step ${isActive ? (step.key === "rejected" ? "status-step--rejected" : "status-step--active") : ""} ${isComplete ? "status-step--complete" : ""}`}
+            >
+              <div className="status-step__icon"><Icon size={15} /></div>
+              <span className="status-step__label">{step.label}</span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <AdminSidebarLayout
       pageClassName="applications-page"
@@ -190,6 +232,45 @@ export default function MembershipApplicationsPage() {
       eyebrow="Registrar Panel"
     >
       <div className="applications-content">
+        {/* Infographic Stats Bar */}
+        <div className="stats-grid">
+          <div className="stat-card stat-card--total">
+            <div className="stat-card__icon"><FileText size={18} /></div>
+            <div className="stat-card__info">
+              <strong>{queueStats.total}</strong>
+              <span>Total</span>
+            </div>
+          </div>
+          <div className="stat-card stat-card--pending">
+            <div className="stat-card__icon"><Clock size={18} /></div>
+            <div className="stat-card__info">
+              <strong>{queueStats.submitted}</strong>
+              <span>Submitted</span>
+            </div>
+          </div>
+          <div className="stat-card stat-card--review">
+            <div className="stat-card__icon"><Eye size={18} /></div>
+            <div className="stat-card__info">
+              <strong>{queueStats.underReview}</strong>
+              <span>Under Review</span>
+            </div>
+          </div>
+          <div className="stat-card stat-card--approved">
+            <div className="stat-card__icon"><CheckCircle size={18} /></div>
+            <div className="stat-card__info">
+              <strong>{queueStats.approved}</strong>
+              <span>Approved</span>
+            </div>
+          </div>
+          <div className="stat-card stat-card--rejected">
+            <div className="stat-card__icon"><XCircle size={18} /></div>
+            <div className="stat-card__info">
+              <strong>{queueStats.rejected}</strong>
+              <span>Rejected</span>
+            </div>
+          </div>
+        </div>
+
         {/* Toolbar & Filters */}
         <div className="applications-toolbar">
           <div className="applications-count">
@@ -197,7 +278,7 @@ export default function MembershipApplicationsPage() {
               <>Showing <strong>{filteredApps.length}</strong> application{filteredApps.length !== 1 ? "s" : ""}</>
             )}
           </div>
-          
+
           <div className="applications-filters" role="region" aria-label="Dashboard filters">
             <select
               value={statusFilter}
@@ -251,7 +332,7 @@ export default function MembershipApplicationsPage() {
                   const profile = app.profileData || {};
                   const fullName = profile.fullName || "Unnamed Applicant";
                   const email = profile.email || "-";
-                  const submittedDate = app.submittedAt 
+                  const submittedDate = app.submittedAt
                     ? new Date(app.submittedAt).toLocaleDateString()
                     : new Date(app.createdAt).toLocaleDateString();
 
@@ -261,16 +342,16 @@ export default function MembershipApplicationsPage() {
                       onClick={() => handleOpenReview(app.id)}
                       className={selectedAppId === app.id ? "tr--selected" : ""}
                     >
-                      <td style={{ fontWeight: 700, color: "var(--admin-navy)" }}>{fullName}</td>
-                      <td>{email}</td>
-                      <td style={{ textTransform: "capitalize" }}>{categoryLabels[app.membershipType.toLowerCase()] || app.membershipType}</td>
-                      <td>{submittedDate}</td>
-                      <td>
+                      <td data-label="Applicant" style={{ fontWeight: 700, color: "var(--admin-navy)" }}>{fullName}</td>
+                      <td data-label="Email">{email}</td>
+                      <td data-label="Type" style={{ textTransform: "capitalize" }}>{categoryLabels[app.membershipType.toLowerCase()] || app.membershipType}</td>
+                      <td data-label="Date">{submittedDate}</td>
+                      <td data-label="Status">
                         <span className={`status-badge status-badge--${app.status}`}>
                           {app.status.replace("_", " ")}
                         </span>
                       </td>
-                      <td style={{ textAlign: "right" }}>
+                      <td data-label="" className="table-actions-cell" style={{ textAlign: "right" }}>
                         <button
                           type="button"
                           className="row-review-btn"
@@ -339,48 +420,49 @@ export default function MembershipApplicationsPage() {
                 </button>
               </div>
 
+              {/* Visual Status Stepper */}
+              {renderStatusStepper(selectedApp.status)}
+
               {/* Drawer Body */}
-              <div className="detail-drawer__body" style={{ overflowY: "auto", height: "calc(100vh - 200px)" }}>
-                
-                {/* 1. Contact & Institutional Profile */}
+              <div className="detail-drawer__body">
+
+                {/* 1. Contact Information (icon rows) */}
                 <section className="detail-section">
-                  <div className="detail-section__title">Contact &amp; Personal Profile</div>
-                  <div className="detail-grid">
-                    <div className="detail-block">
-                      <div className="detail-block__label">Full Name</div>
-                      <div className="detail-block__value">{selectedApp.profileData?.fullName || "-"}</div>
-                    </div>
-                    <div className="detail-block">
-                      <div className="detail-block__label">Email Address</div>
-                      <div className="detail-block__value">{selectedApp.profileData?.email || "-"}</div>
-                    </div>
-                    <div className="detail-block">
-                      <div className="detail-block__label">Mobile Phone</div>
-                      <div className="detail-block__value">{selectedApp.profileData?.phone || "-"}</div>
-                    </div>
-                    <div className="detail-block">
-                      <div className="detail-block__label">Region</div>
-                      <div className="detail-block__value">{selectedApp.profileData?.region || "-"}</div>
-                    </div>
-                    <div className="detail-block" style={{ gridColumn: "span 2" }}>
-                      <div className="detail-block__label">Home Address</div>
-                      <div className="detail-block__value">{selectedApp.profileData?.homeAddress || "-"}</div>
-                    </div>
-                    
-                    {selectedApp.membershipType.toLowerCase() === "institutional" && (
-                      <div className="detail-block">
-                        <div className="detail-block__label">Total Program Enrollee Count</div>
-                        <div className="detail-block__value" style={{ fontWeight: "bold", color: "var(--admin-blue)" }}>
-                          {selectedApp.profileData?.enrolleeCount || "0"}
-                        </div>
-                      </div>
-                    )}
+                  <div className="detail-section__title">
+                    <Mail size={13} /> Contact Information
                   </div>
+                  <div className="contact-row-list">
+                    <div className="contact-row">
+                      <Mail size={15} />
+                      <span>{selectedApp.profileData?.email || "-"}</span>
+                    </div>
+                    <div className="contact-row">
+                      <Phone size={15} />
+                      <span>{selectedApp.profileData?.phone || "-"}</span>
+                    </div>
+                    <div className="contact-row">
+                      <MapPin size={15} />
+                      <span>{selectedApp.profileData?.homeAddress || "-"}</span>
+                      {selectedApp.profileData?.region && (
+                        <span className="contact-row__region">{selectedApp.profileData.region}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {selectedApp.membershipType.toLowerCase() === "institutional" && (
+                    <div className="detail-block" style={{ marginTop: "12px" }}>
+                      <div className="detail-block__label">Total Program Enrollee Count</div>
+                      <div className="detail-block__value" style={{ fontWeight: "bold", color: "var(--admin-blue)" }}>
+                        {selectedApp.profileData?.enrolleeCount || "0"}
+                      </div>
+                    </div>
+                  )}
                 </section>
 
                 {/* 2. Employment & Education details (Type Aware) */}
                 <section className="detail-section">
                   <div className="detail-section__title">
+                    <Building2 size={13} />
                     {selectedApp.membershipType.toLowerCase() === "associate" ? "Graduate Program & Academic Details" : "Employment & Education Details"}
                   </div>
                   <div className="detail-grid">
@@ -478,7 +560,7 @@ export default function MembershipApplicationsPage() {
                           </div>
                         </div>
                       )}
-                      
+
                       {selectedApp.membershipType.toLowerCase() === "associate" && selectedApp.experienceData?.relevantActivities && (
                         <div className="detail-block" style={{ gridColumn: "span 2" }}>
                           <div className="detail-block__label">Relevant Academic/Extracurricular Activities</div>
@@ -591,13 +673,15 @@ export default function MembershipApplicationsPage() {
 
                 {/* 6. Uploaded Document Credentials */}
                 <section className="detail-section">
-                  <div className="detail-section__title">Uploaded Document Credentials</div>
+                  <div className="detail-section__title">
+                    <FolderOpen size={13} /> Uploaded Documents
+                  </div>
                   <div>
                     {selectedApp.documents.length === 0 ? (
                       <p style={{ color: "var(--admin-muted)", fontStyle: "italic", fontSize: "13px" }}>No documents uploaded.</p>
                     ) : (
                       selectedApp.documents.map((doc) => (
-                        <div key={doc.id} className="detail-doc-item" style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px", background: "#fff", border: "1px solid var(--admin-border)", borderRadius: "8px", marginBottom: "8px" }}>
+                        <div key={doc.id} className="detail-doc-item">
                           <FileText size={18} style={{ color: "var(--admin-blue)", flexShrink: 0 }} />
                           <div style={{ flexGrow: 1, minWidth: 0 }}>
                             <div style={{ fontSize: "14px", fontWeight: "bold", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
@@ -611,18 +695,7 @@ export default function MembershipApplicationsPage() {
                             href={doc.fileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "4px",
-                              padding: "6px 12px",
-                              fontSize: "13px",
-                              color: "#fff",
-                              background: "var(--admin-blue)",
-                              borderRadius: "4px",
-                              textDecoration: "none",
-                              fontWeight: 600
-                            }}
+                            className="detail-doc-item__link"
                           >
                             <Download size={12} /> View File
                           </a>
@@ -634,11 +707,11 @@ export default function MembershipApplicationsPage() {
 
                 {/* Rejection Audit feedback log */}
                 {selectedApp.status === "rejected" && selectedApp.rejectionReason && (
-                  <section className="detail-section" style={{ background: "#fff1f1", border: "1px solid #fca5a5", padding: "16px", borderRadius: "8px" }}>
-                    <div className="detail-block__label" style={{ color: "#991b1b", display: "flex", alignItems: "center", gap: "6px", fontWeight: "bold" }}>
+                  <section className="detail-section rejection-note">
+                    <div className="detail-block__label rejection-note__label">
                       <AlertTriangle size={14} /> Rejection Reason Feedback
                     </div>
-                    <p style={{ margin: "4px 0 0", fontSize: "14px", lineHeight: "1.4", color: "#991b1b", fontWeight: 600 }}>
+                    <p className="rejection-note__text">
                       {selectedApp.rejectionReason}
                     </p>
                   </section>
@@ -670,7 +743,7 @@ export default function MembershipApplicationsPage() {
                         onClick={handleRejectInit}
                         disabled={selectedApp.status === "rejected"}
                       >
-                        <XCircle size={16} /> Reject Application
+                        <XCircle size={16} /> Decline Application
                       </button>
                     </motion.div>
                   ) : (
@@ -694,18 +767,18 @@ export default function MembershipApplicationsPage() {
                         }}
                       />
                       {rejectionError && (
-                        <p style={{ color: "var(--badge-rejected-text)", fontSize: "12px", margin: "-8px 0 12px", fontWeight: 600 }}>
+                        <p className="decision-error">
                           {rejectionError}
                         </p>
                       )}
-                      
+
                       <div className="decision-actions">
                         <button
                           type="button"
                           className="decision-btn decision-btn--confirm-reject"
                           onClick={handleConfirmReject}
                         >
-                          Confirm Rejection
+                          Confirm Decline
                         </button>
                         <button
                           type="button"

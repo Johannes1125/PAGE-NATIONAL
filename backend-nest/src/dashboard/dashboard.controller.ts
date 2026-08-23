@@ -18,6 +18,14 @@ export class DashboardController {
     return this.dashboardService.adminMetrics();
   }
 
+  @Get('admin/notifications')
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  @HttpCode(HttpStatus.OK)
+  adminNotifications() {
+    return this.dashboardService.adminNotifications();
+  }
+
   @Get('org/metrics')
   @UseGuards(RolesGuard)
   @Roles('organization', 'admin')

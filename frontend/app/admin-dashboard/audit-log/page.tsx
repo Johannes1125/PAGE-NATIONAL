@@ -692,7 +692,6 @@ export default function AuditLogPage() {
                 <h2 className="audit-modal__title">Modify Manuscript Record</h2>
                 <p className="audit-modal__subtitle">Database ID: {editingLogId}</p>
               </div>
-              <button className="audit-modal__close" onClick={closeEditModal}><X size={20}/></button>
             </div>
 
             <div className="audit-modal__body">
@@ -855,7 +854,12 @@ export default function AuditLogPage() {
             </div>
 
             <div className="audit-modal__footer">
-              <button className="cnp-btn cnp-btn--secondary" onClick={goBack} disabled={activeStep === 1}>Back</button>
+              <button
+                className="cnp-btn cnp-btn--secondary"
+                onClick={() => (activeStep === 1 ? closeEditModal() : goBack())}
+              >
+                Back
+              </button>
               {activeStep < 3 ? (
                 <button className="cnp-btn cnp-btn--primary" onClick={goNext}>Continue</button>
               ) : (

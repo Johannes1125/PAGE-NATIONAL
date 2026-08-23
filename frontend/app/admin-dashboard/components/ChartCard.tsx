@@ -33,8 +33,8 @@ export default function ChartCard({
   const values = data.map((d) => d.value);
   const minVal = values.length > 0 ? Math.min(...values) : 0;
   const maxVal = values.length > 0 ? Math.max(...values) : 0;
-  const range = (maxVal - minVal) || 1;
-  const paddedMin = minVal - range * 0.1;
+  const range = maxVal === minVal ? (maxVal === 0 ? 10 : maxVal * 0.2) : (maxVal - minVal);
+  const paddedMin = Math.max(0, minVal - range * 0.1);
   const paddedMax = maxVal + range * 0.15;
   const paddedRange = (paddedMax - paddedMin) || 1;
 
@@ -73,13 +73,14 @@ export default function ChartCard({
   });
 
   const formatLabel = (v: number) => {
+    if (isNaN(v)) return "0";
     if (Math.abs(v) >= 1_000_000) return (v / 1_000_000).toFixed(1) + "M";
     if (Math.abs(v) >= 1_000) return (v / 1_000).toFixed(0) + "k";
     return Math.round(v).toString();
   };
 
   const totalValue = values.reduce((a, b) => a + b, 0);
-  const avgValue = totalValue / values.length;
+  const avgValue = values.length > 0 ? totalValue / values.length : 0;
 
   return (
     <div className={styles.container}>

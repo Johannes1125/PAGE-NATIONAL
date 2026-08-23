@@ -1,6 +1,14 @@
 "use client";
 
-import { Paperclip, Phone, Search, SendHorizontal, Smile, Video, type LucideIcon } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  CheckCheck,
+  Paperclip,
+  Search,
+  SendHorizontal,
+  Smile,
+} from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../../lib/api-client";
 import AdminSidebarLayout from "../components/AdminSidebarLayout";
@@ -138,12 +146,19 @@ const conversations: Conversation[] = [
   },
 ];
 
-function HeaderIcon({ icon: Icon }: { icon: LucideIcon }) {
-  return (
-    <button type="button" className="messages-icon-btn" aria-label="Chat action">
-      <Icon size={14} />
-    </button>
-  );
+/** Compact status indicator: icon-only instead of long status sentences. */
+function StatusIndicator({ role, status }: { role: MessageRole; status: ChatMessage["status"] }) {
+  if (role === "admin") {
+    return (
+      <span className="message-bubble__status" title={status === "seen" ? "Seen" : "Sent"}>
+        {status === "seen" ? <CheckCheck size={12} /> : <Check size={12} />}
+      </span>
+    );
+  }
+  if (status === "unread") {
+    return <span className="message-bubble__status message-bubble__status--dot" title="Unread" />;
+  }
+  return null;
 }
 
 export default function ViewMessagesPage() {
@@ -157,6 +172,8 @@ export default function ViewMessagesPage() {
   const [selectedMessageId, setSelectedMessageId] = useState("");
   const [selectedAttachments, setSelectedAttachments] = useState<string[]>([]);
   const [notification, setNotification] = useState("");
+  // Controls which pane is visible on narrow / mobile viewports.
+  const [mobileShowChat, setMobileShowChat] = useState(false);
 
   // Load threads on mount or tag change
   useEffect(() => {
@@ -204,7 +221,7 @@ export default function ViewMessagesPage() {
         status: m.status === 'read' ? 'read' : (m.status === 'sent' ? 'unread' : m.status),
         attachments: m.attachments ? m.attachments.map((a: any) => a.fileName) : [],
       }));
-      
+
       setConversationState(current =>
         current.map(c => c.id === id ? { ...c, messages: mappedMsgs } : c)
       );
@@ -245,6 +262,7 @@ export default function ViewMessagesPage() {
   const handleSelectConversation = (conversationId: string) => {
     setActiveConversationId(conversationId);
     setSelectedMessageId("");
+    setMobileShowChat(true);
 
     // Mark incoming messages as read when the admin opens the thread.
     setConversationState((current) =>
@@ -259,6 +277,10 @@ export default function ViewMessagesPage() {
             },
       ),
     );
+  };
+
+  const handleBackToList = () => {
+    setMobileShowChat(false);
   };
 
   const handlePickAttachments = () => {
@@ -317,20 +339,27 @@ export default function ViewMessagesPage() {
       subtitle="Communicate with the Admin and respond to general user inquiries."
     >
       <section className="admin-shell admin-shell--main">
-          <section className="messages-panel">
-            <aside className="messages-list-panel">
-              <label className="messages-search" aria-label="Search conversations">
-                <Search size={13} />
-                <input
-                  type="text"
-                  placeholder="Search conversations..."
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                />
-              </label>
+        <section className={`messages-panel${mobileShowChat ? " messages-panel--chat-active" : ""}`}>
+          <aside className="messages-list-panel">
+            <label className="messages-search" aria-label="Search conversations">
+              <Search size={13} />
+              <input
+                type="text"
+                placeholder="Search conversations..."
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+              />
+            </label>
 
-              <div className="messages-tag-row">
-                {tagList.map((tag) => (
+            <div className="messages-tag-row">
+              {tagList.map((tag) => {
+                const tagUnread = conversationState
+                  .filter((c) => c.tag === tag.id)
+                  .reduce(
+                    (sum, c) => sum + c.messages.filter((m) => m.role === "other" && m.status === "unread").length,
+                    0,
+                  );
+                return (
                   <button
                     key={tag.id}
                     type="button"
@@ -338,152 +367,162 @@ export default function ViewMessagesPage() {
                     onClick={() => setActiveTag(tag.id)}
                   >
                     {tag.label}
+                    {tagUnread > 0 && <span className="messages-tag__count">{tagUnread}</span>}
                   </button>
-                ))}
-              </div>
+                );
+              })}
+            </div>
 
-              <div className="messages-conversation-list">
-                {filteredConversations.map((conversation) => {
-                  const latestMessage = conversation.messages[conversation.messages.length - 1];
-                  const unreadCount = conversation.messages.filter(
-                    (message) => message.role === "other" && message.status === "unread",
-                  ).length;
-                  return (
+            <div className="messages-conversation-list">
+              {filteredConversations.map((conversation) => {
+                const latestMessage = conversation.messages[conversation.messages.length - 1];
+                const unreadCount = conversation.messages.filter(
+                  (message) => message.role === "other" && message.status === "unread",
+                ).length;
+                return (
+                  <button
+                    key={conversation.id}
+                    type="button"
+                    className={`messages-conversation${activeConversation?.id === conversation.id ? " messages-conversation--active" : ""}${unreadCount > 0 ? " messages-conversation--unread" : ""}`}
+                    onClick={() => handleSelectConversation(conversation.id)}
+                  >
+                    <span className="messages-conversation__avatar-wrap">
+                      <span className="messages-conversation__avatar">{conversation.avatarText}</span>
+                      {conversation.online && <span className="messages-conversation__online-dot" />}
+                    </span>
+                    <div className="messages-conversation__meta">
+                      <div className="messages-conversation__top">
+                        <p title={conversation.name}>{conversation.name}</p>
+                        <span>{latestMessage?.dateLabel ?? ""}</span>
+                      </div>
+                      <p className="messages-conversation__subject" title={latestMessage?.subject ?? ""}>{latestMessage?.subject ?? ""}</p>
+                      <p className="messages-conversation__preview" title={latestMessage?.text ?? ""}>{latestMessage?.text ?? ""}</p>
+                    </div>
+                    {unreadCount > 0 && <span className="messages-conversation__unread">{unreadCount}</span>}
+                  </button>
+                );
+              })}
+
+              {filteredConversations.length === 0 && (
+                <p className="messages-empty">No conversations match this filter.</p>
+              )}
+            </div>
+          </aside>
+
+          <section className="messages-chat-panel" aria-label="Conversation thread">
+            {!activeConversation && <p className="messages-empty">Select a conversation to view messages.</p>}
+
+            {activeConversation && (
+              <>
+                <header className="messages-chat-header">
+                  <div className="messages-chat-header__identity">
                     <button
-                      key={conversation.id}
                       type="button"
-                      className={`messages-conversation${activeConversation?.id === conversation.id ? " messages-conversation--active" : ""}${unreadCount > 0 ? " messages-conversation--unread" : ""}`}
-                      onClick={() => handleSelectConversation(conversation.id)}
+                      className="messages-back-btn"
+                      aria-label="Back to conversation list"
+                      onClick={handleBackToList}
                     >
-                      <div className="messages-conversation__avatar">{conversation.avatarText}</div>
-                      <div className="messages-conversation__meta">
-                        <div className="messages-conversation__top">
-                          <p title={conversation.name}>{conversation.name}</p>
-                          <span>{latestMessage?.dateLabel ?? ""}</span>
-                        </div>
-                        <p className="messages-conversation__subject" title={latestMessage?.subject ?? ""}>{latestMessage?.subject ?? ""}</p>
-                        <p className="messages-conversation__preview" title={latestMessage?.text ?? ""}>{latestMessage?.text ?? ""}</p>
-                      </div>
-                      {unreadCount > 0 && <span className="messages-conversation__unread">{unreadCount}</span>}
+                      <ArrowLeft size={16} />
                     </button>
-                  );
-                })}
-
-                {filteredConversations.length === 0 && (
-                  <p className="messages-empty">No conversations match this filter.</p>
-                )}
-              </div>
-            </aside>
-
-            <section className="messages-chat-panel" aria-label="Conversation thread">
-              {!activeConversation && <p className="messages-empty">Select a conversation to view messages.</p>}
-
-              {activeConversation && (
-                <>
-                  <header className="messages-chat-header">
-                    <div className="messages-chat-header__identity">
-                      <div className="messages-chat-header__avatar">{activeConversation.avatarText}</div>
-                      <div>
-                        <p className="messages-chat-header__name">{activeConversation.name}</p>
-                        <p className="messages-chat-header__status">
-                          {activeConversation.online ? "Online" : "Last seen recently"}
-                        </p>
-                      </div>
+                    <span className="messages-conversation__avatar-wrap">
+                      <span className="messages-chat-header__avatar">{activeConversation.avatarText}</span>
+                      {activeConversation.online && <span className="messages-conversation__online-dot" />}
+                    </span>
+                    <div>
+                      <p className="messages-chat-header__name">{activeConversation.name}</p>
+                      <p className="messages-chat-header__status">
+                        {activeConversation.online ? "Online" : "Last seen recently"}
+                      </p>
                     </div>
-
-                    <div className="messages-chat-header__actions">
-                      <HeaderIcon icon={Phone} />
-                      <HeaderIcon icon={Video} />
-                    </div>
-                  </header>
-
-                  {notification && <p className="messages-notification">{notification}</p>}
-
-                  <div className="messages-thread">
-                    {activeConversation.messages.map((message) => (
-                      <article
-                        key={message.id}
-                        className={`message-bubble ${message.role === "admin" ? "message-bubble--admin" : "message-bubble--other"}${selectedMessageId === message.id ? " message-bubble--selected" : ""}`}
-                        onClick={() => handleSelectMessage(message.id)}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter" || event.key === " ") handleSelectMessage(message.id);
-                        }}
-                      >
-                        <p className="message-bubble__subject">{message.subject}</p>
-                        <p>{message.text}</p>
-                        {message.attachments.length > 0 && (
-                          <span className="message-bubble__files">
-                            Attachments: {message.attachments.join(", ")}
-                          </span>
-                        )}
-                        <span>{message.dateLabel}</span>
-                        <span className="message-bubble__status">
-                          {message.role === "admin"
-                            ? message.status === "seen"
-                              ? "Seen by recipient"
-                              : "Sent"
-                            : message.status === "read"
-                              ? "Read by you"
-                              : "Unread"}
-                        </span>
-                      </article>
-                    ))}
                   </div>
+                </header>
 
-                  {selectedMessage && (
-                    <section className="messages-detail">
-                      <p><strong>Full Subject:</strong> {selectedMessage.subject}</p>
-                      <p><strong>Full Message:</strong> {selectedMessage.text}</p>
-                      <p><strong>Date:</strong> {selectedMessage.dateLabel}</p>
-                    </section>
-                  )}
+                {notification && <p className="messages-notification">{notification}</p>}
 
-                  <footer className="messages-composer">
-                    <button type="button" className="messages-icon-btn" aria-label="Attach file" onClick={handlePickAttachments}>
-                      <Paperclip size={14} />
-                    </button>
-                    <div className="messages-compose-fields">
-                      <input
-                        type="text"
-                        placeholder="Subject"
-                        value={draftSubject}
-                        onChange={(event) => setDraftSubject(event.target.value)}
-                      />
-                      <input
-                        type="text"
-                        placeholder="Type your message..."
-                        value={draftMessage}
-                        onChange={(event) => setDraftMessage(event.target.value)}
-                      />
-                      {selectedAttachments.length > 0 && (
-                        <p className="messages-attachment-list">
-                          {selectedAttachments.join(", ")}
-                        </p>
+                <div className="messages-thread">
+                  {activeConversation.messages.map((message) => (
+                    <article
+                      key={message.id}
+                      className={`message-bubble ${message.role === "admin" ? "message-bubble--admin" : "message-bubble--other"}${selectedMessageId === message.id ? " message-bubble--selected" : ""}`}
+                      onClick={() => handleSelectMessage(message.id)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") handleSelectMessage(message.id);
+                      }}
+                    >
+                      <p className="message-bubble__subject">{message.subject}</p>
+                      <p>{message.text}</p>
+                      {message.attachments.length > 0 && (
+                        <span className="message-bubble__files">
+                          <Paperclip size={10} /> {message.attachments.join(", ")}
+                        </span>
                       )}
-                    </div>
-                    <button type="button" className="messages-icon-btn" aria-label="Open emoji list">
-                      <Smile size={14} />
-                    </button>
-                    <button type="button" className="messages-send-btn" aria-label="Send message" onClick={handleSendReply}>
-                      <SendHorizontal size={14} />
-                    </button>
+                      <div className="message-bubble__footer">
+                        <span className="message-bubble__time">{message.dateLabel}</span>
+                        <StatusIndicator role={message.role} status={message.status} />
+                      </div>
+                    </article>
+                  ))}
+                </div>
+
+                {selectedMessage && (
+                  <section className="messages-detail">
+                    <p><strong>Full Subject:</strong> {selectedMessage.subject}</p>
+                    <p><strong>Full Message:</strong> {selectedMessage.text}</p>
+                    <p><strong>Date:</strong> {selectedMessage.dateLabel}</p>
+                  </section>
+                )}
+
+                <footer className="messages-composer">
+                  <button type="button" className="messages-icon-btn" aria-label="Attach file" onClick={handlePickAttachments}>
+                    <Paperclip size={14} />
+                  </button>
+                  <div className="messages-compose-fields">
                     <input
-                      ref={fileInputRef}
-                      type="file"
-                      multiple
-                      className="messages-hidden-input"
-                      onChange={(event) => {
-                        const names = Array.from(event.target.files ?? []).map((file) => file.name);
-                        setSelectedAttachments(names);
+                      type="text"
+                      className="messages-compose-fields__subject"
+                      placeholder="Subject"
+                      value={draftSubject}
+                      onChange={(event) => setDraftSubject(event.target.value)}
+                    />
+                    <input
+                      type="text"
+                      className="messages-compose-fields__body"
+                      placeholder="Type your message..."
+                      value={draftMessage}
+                      onChange={(event) => setDraftMessage(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") handleSendReply();
                       }}
                     />
-                  </footer>
-                </>
-              )}
-            </section>
+                    {selectedAttachments.length > 0 && (
+                      <p className="messages-attachment-list">
+                        {selectedAttachments.join(", ")}
+                      </p>
+                    )}
+                  </div>
+                  <button type="button" className="messages-icon-btn" aria-label="Open emoji list">
+                    <Smile size={14} />
+                  </button>
+                  <button type="button" className="messages-send-btn" aria-label="Send message" onClick={handleSendReply}>
+                    <SendHorizontal size={14} />
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    className="messages-hidden-input"
+                    onChange={(event) => {
+                      const names = Array.from(event.target.files ?? []).map((file) => file.name);
+                      setSelectedAttachments(names);
+                    }}
+                  />
+                </footer>
+              </>
+            )}
           </section>
+        </section>
       </section>
     </AdminSidebarLayout>
   );

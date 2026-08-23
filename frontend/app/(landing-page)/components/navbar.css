@@ -23,6 +23,7 @@
   --t-mid:        0.25s ease;
   --nav-bg:       rgba(255, 255, 255, 0.98);
   --nav-border:   #e5e7eb;
+  --navbar-height: 80px; /* single source of truth for header height */
 }
 
 /* ============================================================
@@ -107,7 +108,7 @@
   max-width: 1340px;
   margin: 0 auto;
   padding: 0 40px;
-  height: 80px;
+  height: var(--navbar-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -123,6 +124,7 @@
   gap: 14px;
   flex-shrink: 0;
   text-decoration: none;
+  min-width: 0;
 }
 
 .navbar__logo-mark {
@@ -154,6 +156,7 @@
   display: flex;
   flex-direction: column;
   line-height: 1.2;
+  min-width: 0;
 }
 
 .navbar__logo-name {
@@ -163,6 +166,10 @@
   color: var(--navy);
   letter-spacing: 0.3px;
   text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .navbar__logo-badge {
@@ -172,6 +179,10 @@
   color: var(--gold-label);
   letter-spacing: 0.2px;
   margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 /* ============================================================
@@ -364,6 +375,7 @@
   justify-content: center;
   cursor: pointer;
   transition: background var(--t-fast);
+  flex-shrink: 0;
 }
 
 .navbar__hamburger:hover {
@@ -475,9 +487,12 @@
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1100px) {
+  :root {
+    --navbar-height: 66px;
+  }
   .navbar__inner {
     padding: 0 20px;
-    height: 70px;
+    height: var(--navbar-height);
   }
   .navbar__topbar-inner {
     padding: 0 20px;
@@ -485,4 +500,41 @@
   .navbar__links { display: none; }
   .btn-join-page { display: none; }
   .navbar__hamburger { display: flex; }
+  .navbar__logo-mark {
+    width: 40px;
+    height: 40px;
+  }
+  .navbar__logo-name {
+    font-size: 12px;
+    max-width: 190px;
+  }
+  .navbar__logo-badge {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --navbar-height: 58px;
+  }
+  .navbar__inner {
+    padding: 0 14px;
+    height: var(--navbar-height);
+    gap: 10px;
+  }
+  .navbar__logo {
+    gap: 8px;
+  }
+  .navbar__logo-mark {
+    width: 34px;
+    height: 34px;
+  }
+  .navbar__logo-name {
+    font-size: 11px;
+    max-width: 190px;
+  }
+  .navbar__hamburger {
+    width: 36px;
+    height: 36px;
+  }
 }

@@ -45,12 +45,13 @@ function getCategoryClass(category: string): string {
 
 export default function NationalOfficersManagement() {
   const router = useRouter();
-  
+
   // Data State
   const [officers, setOfficers] = useState<NationalOfficer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
   // Modal State
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -229,12 +230,14 @@ export default function NationalOfficersManagement() {
   // Search Filter
   const filteredOfficers = officers.filter((off) => {
     const q = searchQuery.toLowerCase();
-    return (
+    const matchesSearch = (
       off.memberName.toLowerCase().includes(q) ||
       off.role.toLowerCase().includes(q) ||
       off.positionCategory.toLowerCase().includes(q) ||
       (off.description && off.description.toLowerCase().includes(q))
     );
+    const matchesCategory = categoryFilter === "all" || off.positionCategory === categoryFilter;
+    return matchesSearch && matchesCategory;
   });
 
   if (isLoading) {
@@ -298,10 +301,19 @@ export default function NationalOfficersManagement() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
+                <select
+                  aria-label="Filter officers by category"
+                  className="category-filter-select"
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                >
+                  <option value="all">All Categories</option>
+                  <option value="National Officers">National Officers</option>
+                  <option value="Board of Directors">Board of Directors</option>
+                </select>
                 <button
                   type="button"
-                  className="btn-accessible btn-accessible-primary"
-                  style={{ height: "48px" }}
+                  className="btn-accessible btn-accessible-primary add-officer-btn"
                   onClick={() => {
                     resetForm();
                     setIsFormModalOpen(true);
@@ -327,29 +339,29 @@ export default function NationalOfficersManagement() {
                 <tbody>
                   {filteredOfficers.map((off) => (
                     <tr key={off.id}>
-                      <td>
-                        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                      <td data-label="Member Name">
+                        <div className="name-cell-inner">
                           <div className="avatar-circle">
                             {getInitials(off.memberName)}
                           </div>
                           <span className="name-cell-text">{off.memberName}</span>
                         </div>
                       </td>
-                      <td>
+                      <td data-label="Category">
                         <span className={`role-badge ${getCategoryClass(off.positionCategory)}`}>
                           {getCategoryLabel(off.positionCategory)}
                         </span>
                       </td>
-                      <td>
+                      <td data-label="Role">
                         <span className="member-role-text">{off.role}</span>
                       </td>
-                      <td>
+                      <td data-label="Description">
                         <p className="description-text" title={off.description || ""}>
                           {off.description || "—"}
                         </p>
                       </td>
-                      <td>{formatDate(off.createdAt)}</td>
-                      <td>
+                      <td data-label="Created">{formatDate(off.createdAt)}</td>
+                      <td data-label="Actions">
                         <div className="member-actions-col">
                           <button
                             type="button"
@@ -372,7 +384,7 @@ export default function NationalOfficersManagement() {
                     </tr>
                   ))}
                   {filteredOfficers.length === 0 && (
-                    <tr>
+                    <tr className="empty-row">
                       <td colSpan={6} className="empty-state-cell">
                         No leadership records found. Register a new officer using the form.
                       </td>
@@ -420,7 +432,7 @@ export default function NationalOfficersManagement() {
               </button>
             </div>
 
-            <form onSubmit={handleSave} className="officers-form" noValidate style={{ marginTop: "8px" }}>
+            <form onSubmit={handleSave} className="officers-form" noValidate>
               {/* Member Name */}
               <div className="form-group-accessible">
                 <label htmlFor="memberName" className="label-accessible">
@@ -443,60 +455,61 @@ export default function NationalOfficersManagement() {
                 )}
               </div>
 
-              {/* Position Category */}
-              <div className="form-group-accessible">
-                <label htmlFor="positionCategory" className="label-accessible">
-                  Position Category <span style={{ color: "#ef4444" }}>*</span>
-                </label>
-                <div className="select-wrapper-accessible">
-                  <select
-                    id="positionCategory"
-                    className="select-accessible"
-                    value={positionCategory}
-                    onChange={(e) => setPositionCategory(e.target.value)}
-                    disabled={isSaving}
-                    required
-                  >
-                    <option value="National Officers">National Officers</option>
-                    <option value="Board of Directors">Board of Directors</option>
-                  </select>
-                  <ChevronDown size={18} className="select-chevron-icon" />
+              {/* Position Category + Role, side by side on wide screens */}
+              <div className="form-row-2col">
+                <div className="form-group-accessible">
+                  <label htmlFor="positionCategory" className="label-accessible">
+                    Position Category <span style={{ color: "#ef4444" }}>*</span>
+                  </label>
+                  <div className="select-wrapper-accessible">
+                    <select
+                      id="positionCategory"
+                      className="select-accessible"
+                      value={positionCategory}
+                      onChange={(e) => setPositionCategory(e.target.value)}
+                      disabled={isSaving}
+                      required
+                    >
+                      <option value="National Officers">National Officers</option>
+                      <option value="Board of Directors">Board of Directors</option>
+                    </select>
+                    <ChevronDown size={18} className="select-chevron-icon" />
+                  </div>
+                  {validationErrors.positionCategory && (
+                    <span className="validation-error-text" role="alert">
+                      {validationErrors.positionCategory}
+                    </span>
+                  )}
                 </div>
-                {validationErrors.positionCategory && (
-                  <span className="validation-error-text" role="alert">
-                    {validationErrors.positionCategory}
-                  </span>
-                )}
-              </div>
 
-              {/* Role */}
-              <div className="form-group-accessible">
-                <label htmlFor="role" className="label-accessible">
-                  Role <span style={{ color: "#ef4444" }}>*</span>
-                </label>
-                <div className="select-wrapper-accessible">
-                  <select
-                    id="role"
-                    className="select-accessible"
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                    disabled={isSaving}
-                    required
-                  >
-                    <option value="President">President</option>
-                    <option value="Vice President">Vice President</option>
-                    <option value="Secretary">Secretary</option>
-                    <option value="Treasurer">Treasurer</option>
-                    <option value="Auditor">Auditor</option>
-                    <option value="Other">Other</option>
-                  </select>
-                  <ChevronDown size={18} className="select-chevron-icon" />
+                <div className="form-group-accessible">
+                  <label htmlFor="role" className="label-accessible">
+                    Role <span style={{ color: "#ef4444" }}>*</span>
+                  </label>
+                  <div className="select-wrapper-accessible">
+                    <select
+                      id="role"
+                      className="select-accessible"
+                      value={role}
+                      onChange={(e) => setRole(e.target.value)}
+                      disabled={isSaving}
+                      required
+                    >
+                      <option value="President">President</option>
+                      <option value="Vice President">Vice President</option>
+                      <option value="Secretary">Secretary</option>
+                      <option value="Treasurer">Treasurer</option>
+                      <option value="Auditor">Auditor</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <ChevronDown size={18} className="select-chevron-icon" />
+                  </div>
+                  {validationErrors.role && (
+                    <span className="validation-error-text" role="alert">
+                      {validationErrors.role}
+                    </span>
+                  )}
                 </div>
-                {validationErrors.role && (
-                  <span className="validation-error-text" role="alert">
-                    {validationErrors.role}
-                  </span>
-                )}
               </div>
 
               {/* Description */}
@@ -523,7 +536,7 @@ export default function NationalOfficersManagement() {
               </div>
 
               {/* Form Buttons */}
-              <div style={{ display: "flex", gap: "12px", marginTop: "16px", justifyContent: "flex-end" }}>
+              <div className="form-actions-row">
                 <button
                   type="button"
                   className="btn-accessible btn-accessible-secondary"

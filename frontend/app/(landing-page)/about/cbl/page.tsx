@@ -61,7 +61,7 @@ function AboutHero({ title, subtitle }: { title?: string; subtitle?: string }) {
             <span className="cbl-label-dot" />
             <span>GOVERNANCE FRAMEWORK</span>
           </div>
-          <h1 className="cbl-hero-title">{title || "Constitution and By-Laws"}</h1>
+          <h1 className="cbl-hero-title">{title && title.trim().toLowerCase() !== "csa" ? title : "Constitution and By-Laws"}</h1>
           <div className="cbl-gold-line" />
           <p className="cbl-hero-subtitle">{subtitle || "The official governance framework, organizational principles, and rules guiding the operations of PAGE."}</p>
         </div>

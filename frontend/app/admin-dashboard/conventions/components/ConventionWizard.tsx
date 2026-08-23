@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { gooeyToast } from "goey-toast";
 import { toast } from "react-toastify";
@@ -16,6 +17,7 @@ import {
   Loader2,
   AlertCircle,
   Image as ImageIcon,
+  X,
 } from "lucide-react";
 
 import { conventionsApi } from "../../../lib/api-client";
@@ -163,6 +165,43 @@ function groupSchedulesByDate(schedules: WizardScheduleEntry[]): Map<string, Wiz
     map.set(s.schedule_date, list);
   }
   return map;
+}
+
+// ── Image viewer modal ───────────────────────────────────────────────────────
+// Shared lightbox used by both Step 1 (upload previews) and Step 4 (review).
+// Portaled to document.body for the same reason as other admin modals in this
+// app: it must sit above everything regardless of any ancestor stacking context.
+
+type ViewingImage = { src: string; alt: string } | null;
+
+function ImageViewerModal({ image, onClose }: { image: ViewingImage; onClose: () => void }) {
+  if (!image || typeof document === "undefined") return null;
+
+  return createPortal(
+    <div
+      className="conv-image-viewer-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-label={image.alt}
+      onClick={onClose}
+    >
+      <button
+        type="button"
+        className="conv-image-viewer-close"
+        onClick={onClose}
+        aria-label="Close image preview"
+      >
+        <X size={20} />
+      </button>
+      <img
+        src={image.src}
+        alt={image.alt}
+        className="conv-image-viewer-img"
+        onClick={(e) => e.stopPropagation()}
+      />
+    </div>,
+    document.body,
+  );
 }
 
 // ── Props ─────────────────────────────────────────────────────────────────────
@@ -554,6 +593,7 @@ function Step1Info({
 }) {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const pdfInputRef = useRef<HTMLInputElement>(null);
+  const [viewingImage, setViewingImage] = useState<ViewingImage>(null);
 
   const handleField = (field: keyof Omit<WizardStep1, "attachments" | "pendingImages" | "pendingPdfs">, value: string) => {
     onChange({ ...data, [field]: value });
@@ -731,19 +771,24 @@ function Step1Info({
         />
         <button
           type="button"
-          className="wizard-add-btn"
+          className="wizard-add-btn conv-upload-dropzone"
           onClick={() => imageInputRef.current?.click()}
           disabled={isSaving}
         >
           <Upload size={20} strokeWidth={2.5} aria-hidden="true" />
-          Upload Images
+          <span>Upload Images</span>
+          <small>JPG, PNG, or WEBP</small>
         </button>
 
         {(savedImages.length > 0 || data.pendingImages.length > 0) && (
           <div className="conv-upload-grid" aria-label="Image previews">
             {savedImages.map((img) => (
               <div key={img.id} className="conv-upload-thumb">
-                <img src={img.file_url} alt={img.file_name} />
+                <img
+                  src={img.file_url}
+                  alt={img.file_name}
+                  onClick={() => setViewingImage({ src: img.file_url, alt: img.file_name })}
+                />
                 <button
                   type="button"
                   className="conv-upload-thumb__remove"
@@ -757,7 +802,11 @@ function Step1Info({
             {data.pendingImages.map((img) => (
               <div key={img._key} className="conv-upload-thumb">
                 {img.previewUrl ? (
-                  <img src={img.previewUrl} alt={img.file.name} />
+                  <img
+                    src={img.previewUrl}
+                    alt={img.file.name}
+                    onClick={() => setViewingImage({ src: img.previewUrl!, alt: img.file.name })}
+                  />
                 ) : (
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
                     <ImageIcon size={32} color="#94a3b8" />
@@ -793,12 +842,13 @@ function Step1Info({
         />
         <button
           type="button"
-          className="wizard-add-btn"
+          className="wizard-add-btn conv-upload-dropzone"
           onClick={() => pdfInputRef.current?.click()}
           disabled={isSaving}
         >
           <FileText size={20} strokeWidth={2.5} aria-hidden="true" />
-          Upload PDFs
+          <span>Upload PDFs</span>
+          <small>PDF files only</small>
         </button>
 
         {(savedPdfs.length > 0 || data.pendingPdfs.length > 0) && (
@@ -832,6 +882,8 @@ function Step1Info({
           </div>
         )}
       </div>
+
+      <ImageViewerModal image={viewingImage} onClose={() => setViewingImage(null)} />
     </div>
   );
 }
@@ -1325,6 +1377,7 @@ function Step4Review({
   const pendingImageCount = step1.pendingImages.length;
   const pendingPdfCount = step1.pendingPdfs.length;
   const grouped = groupSchedulesByDate(schedules);
+  const [viewingImage, setViewingImage] = useState<ViewingImage>(null);
 
   return (
     <div className="wizard-panel">
@@ -1350,7 +1403,11 @@ function Step4Review({
               <div className="conv-upload-grid" style={{ marginBottom: 16 }}>
                 {images.map((img) => (
                   <div key={img.id} className="conv-upload-thumb">
-                    <img src={img.file_url} alt={img.file_name} />
+                    <img
+                      src={img.file_url}
+                      alt={img.file_name}
+                      onClick={() => setViewingImage({ src: img.file_url, alt: img.file_name })}
+                    />
                   </div>
                 ))}
               </div>
@@ -1410,6 +1467,8 @@ function Step4Review({
           ))
         )}
       </div>
+
+      <ImageViewerModal image={viewingImage} onClose={() => setViewingImage(null)} />
     </div>
   );
 }

@@ -26,6 +26,13 @@ type PostRecord = {
   createdAt: string;
 };
 
+// Builds a short editorial-style reference tag from a record, e.g. "ART-4F12"
+const referenceTag = (record: PostRecord) => {
+  const prefix = record.category.slice(0, 3).toUpperCase();
+  const suffix = record.id.slice(-4).toUpperCase();
+  return `${prefix}-${suffix}`;
+};
+
 export default function CreateNewPostPage() {
   const router = useRouter();
 
@@ -229,14 +236,41 @@ export default function CreateNewPostPage() {
     }
   };
 
-  const renderFileList = (files: File[]) => {
-    if (files.length === 0) return <small className="cnp-upload__empty">No file chosen</small>;
+  // 🆕 refs to reset file inputs when a file is removed
+const featuredInputRef = useRef<HTMLInputElement | null>(null);
+const proofInputRef = useRef<HTMLInputElement | null>(null);
+const supportingInputRef = useRef<HTMLInputElement | null>(null);
 
-    return (
-      <ul className="cnp-upload__file-list">
-        {files.map((file, idx) => (
-          <li key={idx} className="cnp-file-item">
-            <span className="cnp-file-name" title={file.name}>{file.name}</span>
+// ...existing state stays the same...
+
+// 🆕 removes a file from the given category's file list and resets the input
+const handleRemoveFile = (
+  category: "featured" | "proof" | "supporting",
+  idx: number
+) => {
+  if (category === "featured") {
+    setFeaturedImageFiles((prev) => prev.filter((_, i) => i !== idx));
+    if (featuredInputRef.current) featuredInputRef.current.value = "";
+  } else if (category === "proof") {
+    setProofFiles((prev) => prev.filter((_, i) => i !== idx));
+    if (proofInputRef.current) proofInputRef.current.value = "";
+  } else {
+    setSupportingFiles((prev) => prev.filter((_, i) => i !== idx));
+    if (supportingInputRef.current) supportingInputRef.current.value = "";
+  }
+  if (error) setError("");
+};
+
+// 🆕 renderFileList now accepts an onRemove callback and shows an X button
+const renderFileList = (files: File[], onRemove: (idx: number) => void) => {
+  if (files.length === 0) return <small className="cnp-upload__empty">No file chosen</small>;
+
+  return (
+    <ul className="cnp-upload__file-list">
+      {files.map((file, idx) => (
+        <li key={idx} className="cnp-file-item">
+          <span className="cnp-file-name" title={file.name}>{file.name}</span>
+          <div className="cnp-file-item__actions"> {/* 🆕 */}
             {file.type.startsWith("image/") && (
               <button
                 type="button"
@@ -250,11 +284,24 @@ export default function CreateNewPostPage() {
                 <Eye size={14} />
               </button>
             )}
-          </li>
-        ))}
-      </ul>
-    );
-  };
+            {/* 🆕 remove button */}
+            <button
+              type="button"
+              className="cnp-file-remove-btn"
+              onClick={(e) => {
+                e.preventDefault();
+                onRemove(idx);
+              }}
+              aria-label={`Remove ${file.name}`}
+            >
+              <X size={14} />
+            </button>
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+};
 
   return (
     <AdminSidebarLayout
@@ -268,8 +315,9 @@ export default function CreateNewPostPage() {
           {/* Main Card */}
           <article className="cnp-card">
             <div className="cnp-card__section-title">
+              <span className="cnp-eyebrow">Submission Details</span>
               <h3>Post Basics</h3>
-              <p>Setup the metadata, authorship, and targeting parameters of this post.</p>
+              <p>Set the metadata, authorship, and targeting parameters of this post.</p>
             </div>
 
             <div className="cnp-field">
@@ -354,6 +402,7 @@ export default function CreateNewPostPage() {
             <div className="cnp-card__divider" />
 
             <div className="cnp-card__section-title">
+              <span className="cnp-eyebrow">Manuscript Body</span>
               <h3>Content &amp; Assets</h3>
               <p>Compose the summary copy, details, and upload supporting media attachments.</p>
             </div>
@@ -408,14 +457,15 @@ export default function CreateNewPostPage() {
             </div>
 
             <div className="cnp-upload-grid">
-              <div className="cnp-upload">
+              <div className="cnp-upload cnp-upload--featured">
                 <span>Featured Image <span className="cnp-required">*</span></span>
                 <label htmlFor="featured-image-input" className="cnp-upload__box">
                   <ImageIcon size={18} />
-                  Click or drag image to upload
+                  <span className="cnp-upload__box-text">Click or drag image to upload</span>
                 </label>
                 <input
                   id="featured-image-input"
+                  ref={featuredInputRef}              // 🆕
                   className="cnp-upload__input"
                   type="file"
                   accept="image/*"
@@ -424,21 +474,23 @@ export default function CreateNewPostPage() {
                     if (error) setError("");
                   }}
                 />
-                {renderFileList(featuredImageFiles)}
+                {renderFileList(featuredImageFiles, (idx) => handleRemoveFile("featured", idx))}
               </div>
 
-              <div className="cnp-upload" style={{ opacity: category !== "events" ? 0.5 : 1 }}>
+              <div className="cnp-upload cnp-upload--proof" data-disabled={category !== "events"}>
                 <span>Proof of Payment {category === "events" && <span className="cnp-required">*</span>}</span>
                 <label
                   htmlFor="proof-files-input"
                   className="cnp-upload__box"
-                  style={{ cursor: category !== "events" ? "not-allowed" : "pointer" }}
                 >
                   <FileUp size={18} />
-                  {category === "events" ? "Upload receipt (PDF/Image)" : "Not required for this category"}
+                  <span className="cnp-upload__box-text">
+                    {category === "events" ? "Upload receipt (PDF/Image)" : "Not required for this category"}
+                  </span>
                 </label>
                 <input
                   id="proof-files-input"
+                  ref={proofInputRef}                 // 🆕
                   className="cnp-upload__input"
                   type="file"
                   accept=".pdf,image/*"
@@ -448,7 +500,9 @@ export default function CreateNewPostPage() {
                     if (error) setError("");
                   }}
                 />
-                {category === "events" && renderFileList(proofFiles)}
+               {category === "events"
+                ? renderFileList(proofFiles, (idx) => handleRemoveFile("proof", idx))
+                : <small className="cnp-upload__empty">&nbsp;</small>}
               </div>
             </div>
 
@@ -457,6 +511,7 @@ export default function CreateNewPostPage() {
               <div className="cnp-supporting-row">
                 <input
                   id="supporting-files-input"
+                  ref={supportingInputRef}            // 🆕
                   className="cnp-upload__input"
                   type="file"
                   onChange={(event) => setSupportingFiles(Array.from(event.target.files ?? []))}
@@ -468,7 +523,8 @@ export default function CreateNewPostPage() {
                   {supportingFiles.length > 0 ? supportingFiles[0].name : "No additional files"}
                 </span>
               </div>
-              {supportingFiles.length > 0 && renderFileList(supportingFiles)}
+              {supportingFiles.length > 0 &&
+              renderFileList(supportingFiles, (idx) => handleRemoveFile("supporting", idx))}
             </div>
 
             {error && <p className="cnp-error">{error}</p>}
@@ -477,6 +533,7 @@ export default function CreateNewPostPage() {
           {/* Right Sidebar Column */}
           <aside className="cnp-side">
             <section className="cnp-side-block">
+              <span className="cnp-eyebrow">Timing</span>
               <h3>Publishing Options</h3>
               <div className="cnp-publish-radios">
                 <label className="cnp-radio-label">
@@ -504,7 +561,8 @@ export default function CreateNewPostPage() {
             </section>
 
             <section className="cnp-side-block">
-              <h3>Actions</h3>
+              <span className="cnp-eyebrow">Actions</span>
+              <h3>Finalize Submission</h3>
               <div className="cnp-actions-stack">
                 <button
                   type="button"
@@ -540,12 +598,19 @@ export default function CreateNewPostPage() {
             </section>
 
             <section className="cnp-side-block">
+              <span className="cnp-eyebrow">Archive</span>
               <h3>Recent Submissions</h3>
               <div className="cnp-records">
                 {records.slice(0, 4).map((record) => (
                   <article key={record.id} className="cnp-record-item">
+                    <div className="cnp-record-item__head">
+                      <span className="cnp-record-item__ref">{referenceTag(record)}</span>
+                      <span className={`cnp-record-item__status cnp-record-item__status--${record.status}`}>
+                        {record.status}
+                      </span>
+                    </div>
                     <p>{record.title}</p>
-                    <span>{record.status.toUpperCase()} • {record.createdAt}</span>
+                    <span className="cnp-record-item__date">{record.createdAt}</span>
                   </article>
                 ))}
                 {records.length === 0 && <p className="cnp-empty">No submissions yet.</p>}
@@ -553,9 +618,16 @@ export default function CreateNewPostPage() {
             </section>
 
             <section className="cnp-side-block cnp-side-block--info">
+              <span className="cnp-eyebrow">Overview</span>
               <h3>Submission Status</h3>
-              <p><strong>Published Posts:</strong> {records.filter((r) => r.status === "published").length}</p>
-              <p><strong>Drafts:</strong> {records.filter((r) => r.status === "draft").length}</p>
+              <div className="cnp-stat-row">
+                <span className="cnp-stat-row__label">Published Posts</span>
+                <span className="cnp-stat-row__value">{records.filter((r) => r.status === "published").length}</span>
+              </div>
+              <div className="cnp-stat-row">
+                <span className="cnp-stat-row__label">Drafts</span>
+                <span className="cnp-stat-row__value">{records.filter((r) => r.status === "draft").length}</span>
+              </div>
             </section>
           </aside>
         </section>
@@ -566,12 +638,12 @@ export default function CreateNewPostPage() {
         <section className="cnp-preview-backdrop" role="dialog" aria-modal="true" aria-label="Post preview">
           <article className="cnp-preview">
             <div className="cnp-preview__head">
-              <h2>Preview Content</h2>
+              <span className="cnp-eyebrow">Preview</span>
               <button type="button" onClick={() => setPreviewOpen(false)} aria-label="Close preview">
                 <X size={16} />
               </button>
             </div>
-            <h3>{title || "Untitled Post"}</h3>
+            <h2>{title || "Untitled Post"}</h2>
             <p className="cnp-preview__meta">{category} • By {author}</p>
             <div
               className="cnp-preview__content"
@@ -587,21 +659,23 @@ export default function CreateNewPostPage() {
       )}
 
       {/* Image Preview Modal */}
-      {imagePreviewUrl && (
-        <section
-          className="cnp-image-modal-backdrop"
-          role="dialog"
-          aria-modal="true"
-          onClick={() => setImagePreviewUrl(null)}
-        >
-          <div className="cnp-image-modal" onClick={e => e.stopPropagation()}>
-            <button type="button" className="cnp-image-modal__close" onClick={() => setImagePreviewUrl(null)}>
-              <X size={20} />
-            </button>
-            <img src={imagePreviewUrl} alt="File Preview" className="cnp-image-modal__img" />
-          </div>
-        </section>
-      )}
+{imagePreviewUrl && (
+  <section
+    className="cnp-image-modal-backdrop"
+    role="dialog"
+    aria-modal="true"
+    onClick={() => setImagePreviewUrl(null)}
+  >
+    <div className="cnp-image-modal" onClick={e => e.stopPropagation()}>
+      <button type="button" className="cnp-image-modal__close" onClick={() => setImagePreviewUrl(null)}>
+        <X size={20} />
+      </button>
+      <div className="cnp-image-modal__frame"> {/* 🆕 */}
+        <img src={imagePreviewUrl} alt="File Preview" className="cnp-image-modal__img" />
+      </div>
+    </div>
+  </section>
+)}
     </AdminSidebarLayout>
   );
 }

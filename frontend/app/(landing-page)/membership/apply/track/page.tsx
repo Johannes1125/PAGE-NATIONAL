@@ -267,7 +267,7 @@ function TrackContent() {
   const [scrolled, setScrolled] = useState(false);
   const [formData, setFormData] = useState<ApplicationFormState | null>(null);
   
-  const applicationId = searchParams.get("id") || "MOCK-2025-0042";
+  const applicationId = searchParams.get("id") || "";
   const [status, setStatus] = useState<ApplicationStatus | null>(null);
 
   useEffect(() => {
@@ -278,7 +278,7 @@ function TrackContent() {
 
   useEffect(() => {
     async function fetchApp() {
-      if (applicationId && !applicationId.startsWith("MOCK")) {
+      if (applicationId) {
         try {
           const app = await getMembershipApplication(applicationId);
           const formattedToday = new Date(app.submittedAt || app.createdAt).toLocaleDateString("en-US", {
@@ -386,10 +386,9 @@ function TrackContent() {
 
         } catch (err) {
           console.error("Error loading application status:", err);
-          setStatus(getMockStatus(applicationId));
+          setStatus(null);
         }
       } else {
-        setStatus(getMockStatus(applicationId));
         const saved = localStorage.getItem("page_membership_application_data");
         if (saved) {
           try {

@@ -323,6 +323,15 @@ export default function HistoryPage() {
             >
               Modern Era (2000-Present)
             </button>
+            {(["Initiative", "Conference", "Seminar", "Convention", "Other"] as ProgramType[]).map((programType) => (
+              <button
+                key={programType}
+                className={`history-filter-btn ${activeFilter === programType.toLowerCase() ? "active" : ""}`}
+                onClick={() => setActiveFilter(programType.toLowerCase())}
+              >
+                {programType}
+              </button>
+            ))}
           </div>
 
           {/* Timeline Section */}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { Clock3, Pencil, Search, X, Loader2 } from "lucide-react";
 import AdminSidebarLayout from "../components/AdminSidebarLayout";
 import AdminTypewriterLoader from "../../lib/admin-loader/AdminTypewriterLoader";
@@ -28,20 +29,26 @@ type UserActivity = {
   action: string;
 };
 
-type ActivePanel = "stats" | "edit" | "history";
+// Sidebar now only ever shows "stats" or "history" — the edit modal
+// has its own independent state (editingUser) so it can never blank
+// out the Overview / Composition / Guide panels.
+type ActivePanel = "stats" | "history";
 
 export default function ManageUsersPage() {
   const [usersState, setUsersState] = useState<ManagedUser[]>([]);
   const [activityByUserId, setActivityByUserId] = useState<Record<string, UserActivity[]>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
-  
-  // Right sidebar details state
+
+  // Right sidebar (stats / history) state
   const [activePanel, setActivePanel] = useState<ActivePanel>("stats");
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [isSidebarLoading, setIsSidebarLoading] = useState(false);
+
+  // Edit modal state — fully independent from the sidebar above
+  const [editingUser, setEditingUser] = useState<ManagedUser | null>(null);
   const [editRole, setEditRole] = useState("Organization");
   const [editStatus, setEditStatus] = useState<UserStatus>("active");
-  const [isSidebarLoading, setIsSidebarLoading] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -150,33 +157,38 @@ export default function ManageUsersPage() {
     }
   };
 
+  // Opening Edit no longer touches activePanel/selectedUserId at all —
+  // the Overview/Composition/Guide (or History) panel stays exactly as
+  // it was underneath the modal.
   const handleOpenEdit = (user: ManagedUser) => {
-    setSelectedUserId(user.id);
-    setActivePanel("edit");
+    setEditingUser(user);
     setEditRole(user.role);
     setEditStatus(user.status);
   };
 
+  // shared close handler for the edit modal (used by X button, Cancel, and backdrop click)
+  const closeEditPanel = () => {
+    setEditingUser(null);
+  };
+
   const handleSaveChanges = async () => {
-    if (!selectedUser) return;
+    if (!editingUser) return;
 
     try {
       setIsLoading(true);
-      await api.patch(`/admin/users/${selectedUser.id}`, {
+      await api.patch(`/admin/users/${editingUser.id}`, {
         role: editRole.toLowerCase(),
         status: editStatus,
       });
 
       setUsersState((current) =>
         current.map((u) =>
-          u.id === selectedUser.id ? { ...u, role: editRole, status: editStatus } : u
+          u.id === editingUser.id ? { ...u, role: editRole, status: editStatus } : u
         )
       );
-      gooeyToast.success(`Successfully updated ${selectedUser.name}'s profile.`);
-      
-      // Return to stats panel
-      setSelectedUserId(null);
-      setActivePanel("stats");
+      gooeyToast.success(`Successfully updated ${editingUser.name}'s profile.`);
+
+      setEditingUser(null);
     } catch (err) {
       console.error("Failed to save user role update", err);
       gooeyToast.error("Failed to update user profile.");
@@ -190,16 +202,16 @@ export default function ManageUsersPage() {
     try {
       setIsLoading(true);
       await api.delete(`/admin/users/${user.id}`);
-      
+
       setUsersState((current) =>
         current.map((u) =>
           u.id === user.id ? { ...u, status: "inactive" as UserStatus } : u
         )
       );
       gooeyToast.success(`Deactivated ${user.name} successfully.`);
-      
-      // If we are currently editing/viewing this deactivated user, update stats panel
-      if (selectedUserId === user.id) {
+
+      // If we are currently editing this deactivated user, reflect it in the modal
+      if (editingUser?.id === user.id) {
         setEditStatus("inactive");
       }
     } catch (err) {
@@ -243,243 +255,309 @@ export default function ManageUsersPage() {
       title="User Management"
       subtitle="Manage general users and organization members"
     >
-      <section className="manage-content">
-        <section className="manage-layout">
-          {/* Left Column (Table) */}
-          <article className="manage-card">
-            <div className="manage-toolbar">
-              <label className="manage-search" aria-label="Search users">
-                <Search size={14} />
-                <input
-                  type="text"
-                  placeholder="Search Customers..."
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                />
-              </label>
+      {/* wrapped in a fragment so the edit modal can render as a sibling, outside the normal layout flow */}
+      <>
+        <section className="manage-content">
+          <section className="manage-layout">
+            {/* Table Card — now always full width */}
+            <article className="manage-card">
+              <div className="manage-card__section-title">
+                <span className="manage-eyebrow">User Management</span>
+                <h2>Member Directory</h2>
+                <p>Search, filter, and manage every registered account on the platform.</p>
+              </div>
 
-              <select
-                className="manage-role-filter"
-                value={roleFilter}
-                aria-label="Role filter"
-                onChange={(event) => setRoleFilter(event.target.value)}
-              >
-                <option value="all">All Roles</option>
-                <option value="organization">Organization</option>
-                <option value="member">Member</option>
-                <option value="reviewer">Reviewer</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
+              <div className="manage-toolbar">
+                <label className="manage-search" aria-label="Search users">
+                  <Search size={14} />
+                  <input
+                    type="text"
+                    placeholder="Search Customers..."
+                    value={searchQuery}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                  />
+                </label>
 
-            <div className="manage-table-wrap">
-              <table className="manage-table">
-                <thead>
-                  <tr>
-                    <th>User</th>
-                    <th>Role</th>
-                    <th>University</th>
-                    <th>Position</th>
-                    <th>Join Date</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pagedUsers.map((user) => (
-                    <tr key={user.id} className={selectedUserId === user.id ? "manage-row-selected" : ""}>
-                      <td>{user.name}</td>
-                      <td>
-                        <span className="manage-chip">{user.role}</span>
-                      </td>
-                      <td>{user.university}</td>
-                      <td>{user.position}</td>
-                      <td>{user.joinDate}</td>
-                      <td>
-                        <span className={`manage-status manage-status--${user.status}`}>{user.status}</span>
-                      </td>
-                      <td>
-                        <div className="manage-actions">
-                          <button
-                            type="button"
-                            className={`manage-icon-btn ${selectedUserId === user.id && activePanel === "edit" ? "manage-icon-btn--active" : ""}`}
-                            aria-label={`Edit ${user.name}`}
-                            onClick={() => handleOpenEdit(user)}
-                          >
-                            <Pencil size={13} />
-                          </button>
-                          <button
-                            type="button"
-                            className={`manage-icon-btn manage-icon-btn--history ${selectedUserId === user.id && activePanel === "history" ? "manage-icon-btn--active" : ""}`}
-                            aria-label={`View ${user.name} activity history`}
-                            onClick={() => handleOpenHistory(user)}
-                          >
-                            <Clock3 size={13} />
-                          </button>
-                          <button
-                            type="button"
-                            className="manage-icon-btn manage-icon-btn--danger"
-                            aria-label={`Deactivate ${user.name}`}
-                            onClick={() => handleDeactivate(user)}
-                          >
-                            <X size={13} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                <select
+                  className="manage-role-filter"
+                  value={roleFilter}
+                  aria-label="Role filter"
+                  onChange={(event) => setRoleFilter(event.target.value)}
+                >
+                  <option value="all">All Roles</option>
+                  <option value="organization">Organization</option>
+                  <option value="member">Member</option>
+                  <option value="reviewer">Reviewer</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
 
-                  {filteredUsers.length === 0 && (
+              <div className="manage-table-wrap">
+                <table className="manage-table">
+                  <thead>
                     <tr>
-                      <td colSpan={7} className="manage-empty-cell">No users match your filters.</td>
+                      <th>User</th>
+                      <th>Role</th>
+                      <th>University</th>
+                      <th>Position</th>
+                      <th>Join Date</th>
+                      <th>Status</th>
+                      <th>Actions</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {pagedUsers.map((user) => (
+                      <tr key={user.id} className={selectedUserId === user.id ? "manage-row-selected" : ""}>
+                        <td data-label="User">{user.name}</td>
+                        <td data-label="Role">
+                          <span className="manage-chip">{user.role}</span>
+                        </td>
+                        <td data-label="University">{user.university}</td>
+                        <td data-label="Position">{user.position}</td>
+                        <td data-label="Join Date">{user.joinDate}</td>
+                        <td data-label="Status">
+                          <span className={`manage-status manage-status--${user.status}`}>{user.status}</span>
+                        </td>
+                        <td data-label="Actions" className="manage-actions-cell">
+                          <div className="manage-actions">
+                            <button
+                              type="button"
+                              className={`manage-icon-btn ${editingUser?.id === user.id ? "manage-icon-btn--active" : ""}`}
+                              aria-label={`Edit ${user.name}`}
+                              onClick={() => handleOpenEdit(user)}
+                            >
+                              <Pencil size={13} />
+                            </button>
+                            <button
+                              type="button"
+                              className={`manage-icon-btn manage-icon-btn--history ${selectedUserId === user.id && activePanel === "history" ? "manage-icon-btn--active" : ""}`}
+                              aria-label={`View ${user.name} activity history`}
+                              onClick={() => handleOpenHistory(user)}
+                            >
+                              <Clock3 size={13} />
+                            </button>
+                            <button
+                              type="button"
+                              className="manage-icon-btn manage-icon-btn--danger"
+                              aria-label={`Deactivate ${user.name}`}
+                              onClick={() => handleDeactivate(user)}
+                            >
+                              <X size={13} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
 
-              <div className="manage-table-footer">
-                <div className="manage-table-footer__meta">
-                  <div className="manage-page-size">
-                    <span>Rows per page</span>
-                    <select
-                      className="manage-page-size__select"
-                      value={pageSize}
-                      onChange={(event) => {
-                        setPageSize(Number(event.target.value));
-                        setCurrentPage(1);
-                      }}
-                      aria-label="Rows per page"
-                    >
-                      <option value={5}>5</option>
-                      <option value={10}>10</option>
-                      <option value={25}>25</option>
-                      <option value={50}>50</option>
-                    </select>
+                    {filteredUsers.length === 0 && (
+                      <tr>
+                        <td colSpan={7} className="manage-empty-cell">No users match your filters.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+
+                <div className="manage-table-footer">
+                  <div className="manage-table-footer__meta">
+                    <div className="manage-page-size">
+                      <span>Rows per page</span>
+                      <select
+                        className="manage-page-size__select"
+                        value={pageSize}
+                        onChange={(event) => {
+                          setPageSize(Number(event.target.value));
+                          setCurrentPage(1);
+                        }}
+                        aria-label="Rows per page"
+                      >
+                        <option value={5}>5</option>
+                        <option value={10}>10</option>
+                        <option value={25}>25</option>
+                        <option value={50}>50</option>
+                      </select>
+                    </div>
+
+                    <p className="manage-table-footer__summary" aria-live="polite">
+                      {totalItems === 0
+                        ? "No users to display"
+                        : `Showing ${(currentPage - 1) * pageSize + 1} - ${Math.min(currentPage * pageSize, totalItems)} of ${totalItems}`}
+                    </p>
                   </div>
 
-                  <p className="manage-table-footer__summary" aria-live="polite">
-                    {totalItems === 0
-                      ? "No users to display"
-                      : `Showing ${(currentPage - 1) * pageSize + 1} - ${Math.min(currentPage * pageSize, totalItems)} of ${totalItems}`}
-                  </p>
-                </div>
+                  <nav className="pagination" role="navigation" aria-label="User list pagination">
+                    <button
+                      type="button"
+                      className="pagination__nav"
+                      onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                      disabled={currentPage === 1}
+                      aria-label="Previous page"
+                    >
+                      ‹
+                    </button>
 
-                <nav className="pagination" role="navigation" aria-label="User list pagination">
-                  <button
-                    type="button"
-                    className="pagination__nav"
-                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                    disabled={currentPage === 1}
-                    aria-label="Previous page"
-                  >
-                    ‹
-                  </button>
+                    <ul className="pagination__list">
+                      {paginationItems.map((item) => {
+                        if (typeof item === "string") {
+                          return (
+                            <li key={item} className="pagination__item pagination__item--dots" aria-hidden="true">
+                              …
+                            </li>
+                          );
+                        }
 
-                  <ul className="pagination__list">
-                    {paginationItems.map((item) => {
-                      if (typeof item === "string") {
                         return (
-                          <li key={item} className="pagination__item pagination__item--dots" aria-hidden="true">
-                            …
+                          <li key={item} className="pagination__item">
+                            <button
+                              type="button"
+                              className={`pagination__link ${item === currentPage ? "pagination__link--active" : ""}`}
+                              onClick={() => setCurrentPage(item)}
+                              aria-current={item === currentPage ? "page" : undefined}
+                            >
+                              {item}
+                            </button>
                           </li>
                         );
-                      }
+                      })}
+                    </ul>
 
-                      return (
-                        <li key={item} className="pagination__item">
-                          <button
-                            type="button"
-                            className={`pagination__link ${item === currentPage ? "pagination__link--active" : ""}`}
-                            onClick={() => setCurrentPage(item)}
-                            aria-current={item === currentPage ? "page" : undefined}
-                          >
-                            {item}
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-
-                  <button
-                    type="button"
-                    className="pagination__nav"
-                    onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-                    disabled={currentPage === totalPages}
-                    aria-label="Next page"
-                  >
-                    ›
-                  </button>
-                </nav>
+                    <button
+                      type="button"
+                      className="pagination__nav"
+                      onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                      disabled={currentPage === totalPages}
+                      aria-label="Next page"
+                    >
+                      ›
+                    </button>
+                  </nav>
+                </div>
               </div>
-            </div>
-          </article>
+            </article>
 
-          {/* Right Column (Sidebar Panel) */}
-          <aside className="manage-side">
-            {activePanel === "stats" && (
-              <>
+            {/* Sidebar — stats + history only; edit lives entirely in its own modal below
+                and can never blank this section out. */}
+            <aside className={`manage-side ${activePanel === "history" ? "manage-side--history" : ""}`}>
+              {activePanel === "stats" && (
+                <>
+                  <section className="manage-side-block">
+                    <span className="manage-eyebrow">Overview</span>
+                    <h3>Overview Statistics</h3>
+                    <div className="manage-stats-grid">
+                      <div className="manage-stat-box">
+                        <span>Total Accounts</span>
+                        <strong>{stats.total}</strong>
+                      </div>
+                      <div className="manage-stat-box">
+                        <span>Active Members</span>
+                        <strong className="manage-stat-box__value--positive">{stats.active}</strong>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section className="manage-side-block">
+                    <span className="manage-eyebrow">Composition</span>
+                    <h3>Roles Breakdown</h3>
+                    <div className="manage-records">
+                      <div className="manage-record-item">
+                        <p>Administrators</p>
+                        <span className="manage-record-item__value">{stats.admins}</span>
+                      </div>
+                      <div className="manage-record-item">
+                        <p>Reviewer Committee</p>
+                        <span className="manage-record-item__value">{stats.reviewers}</span>
+                      </div>
+                      <div className="manage-record-item">
+                        <p>Institutional Orgs</p>
+                        <span className="manage-record-item__value">{stats.orgs}</span>
+                      </div>
+                      <div className="manage-record-item">
+                        <p>General Members</p>
+                        <span className="manage-record-item__value">{stats.members}</span>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section className="manage-side-block manage-side-block--info">
+                    <span className="manage-eyebrow">Guide</span>
+                    <h3>Quick Admin Guide</h3>
+                    <p>1. Roles update takes effect instantly on the user session.</p>
+                    <p>2. Deactivating a user revokes login privileges from the system.</p>
+                    <p>3. Audit trails can be checked by clicking the activity timeline.</p>
+                  </section>
+                </>
+              )}
+
+              {activePanel === "history" && selectedUser && (
                 <section className="manage-side-block">
-                  <h3>Overview Statistics</h3>
-                  <div className="manage-stats-grid">
-                    <div className="manage-stat-box">
-                      <span>Total Accounts</span>
-                      <strong>{stats.total}</strong>
+                  <div className="manage-side-block__head">
+                    <div>
+                      <span className="manage-eyebrow">Audit Trail</span>
+                      <h3>User History</h3>
                     </div>
-                    <div className="manage-stat-box">
-                      <span>Active Members</span>
-                      <strong className="text-emerald-600">{stats.active}</strong>
-                    </div>
+                    <button
+                      type="button"
+                      className="manage-close-btn"
+                      onClick={() => {
+                        setSelectedUserId(null);
+                        setActivePanel("stats");
+                      }}
+                      aria-label="Back to stats"
+                    >
+                      <X size={14} />
+                    </button>
                   </div>
-                </section>
+                  <p className="manage-side-block__subject">{selectedUser.name}</p>
 
-                <section className="manage-side-block">
-                  <h3>Roles Breakdown</h3>
-                  <div className="manage-records">
-                    <div className="manage-record-item flex justify-between items-center">
-                      <p>Administrators</p>
-                      <span className="font-bold text-slate-800 text-[13px]">{stats.admins}</span>
+                  {isSidebarLoading ? (
+                    <div className="manage-history-loading">
+                      <Loader2 className="animate-spin" size={22} />
                     </div>
-                    <div className="manage-record-item flex justify-between items-center">
-                      <p>Reviewer Committee</p>
-                      <span className="font-bold text-slate-800 text-[13px]">{stats.reviewers}</span>
-                    </div>
-                    <div className="manage-record-item flex justify-between items-center">
-                      <p>Institutional Orgs</p>
-                      <span className="font-bold text-slate-800 text-[13px]">{stats.orgs}</span>
-                    </div>
-                    <div className="manage-record-item flex justify-between items-center">
-                      <p>General Members</p>
-                      <span className="font-bold text-slate-800 text-[13px]">{stats.members}</span>
-                    </div>
+                  ) : historyActivities.length > 0 ? (
+                    <ul className="manage-history">
+                      {historyActivities.map((activity) => (
+                        <li key={activity.id}>
+                          <p>{activity.action}</p>
+                          <span>{activity.timestamp}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="manage-panel__empty">No recorded activity yet for this user.</p>
+                  )}
+                </section>
+              )}
+            </aside>
+          </section>
+        </section>
+
+        {/* Edit Profile — rendered via portal into document.body so the fixed 
+            backdrop always covers the full viewport and stays above the sidebar/header, 
+            regardless of any transform/filter on the admin shell ancestors */}
+        {editingUser && typeof document !== "undefined" &&
+          createPortal(
+            <div
+              className="manage-edit-modal-backdrop"
+              role="dialog"
+              aria-modal="true"
+              aria-label={`Edit ${editingUser.name}`}
+              onClick={closeEditPanel}
+            >
+              <div className="manage-edit-modal" onClick={(event) => event.stopPropagation()}>
+                <div className="manage-edit-modal__header">
+                  <div>
+                    <span className="manage-eyebrow">Record Update</span>
+                    <h3>Edit Profile</h3>
+                    <p className="manage-edit-modal__subtitle">{editingUser.name}</p>
                   </div>
-                </section>
-
-                <section className="manage-side-block manage-side-block--info">
-                  <h3>Quick Admin Guide</h3>
-                  <p>1. Roles update takes effect instantly on the user session.</p>
-                  <p>2. Deactivating a user revokes login privileges from the system.</p>
-                  <p>3. Audit trails can be checked by clicking the activity timeline.</p>
-                </section>
-              </>
-            )}
-
-            {activePanel === "edit" && selectedUser && (
-              <section className="manage-side-block">
-                <div className="flex justify-between items-center border-b pb-2 mb-3">
-                  <h3>Edit Profile</h3>
                   <button
                     type="button"
                     className="manage-close-btn"
-                    onClick={() => {
-                      setSelectedUserId(null);
-                      setActivePanel("stats");
-                    }}
-                    aria-label="Back to stats"
+                    onClick={closeEditPanel}
+                    aria-label="Close edit dialog"
                   >
-                    <X size={14} />
+                    <X size={16} />
                   </button>
                 </div>
-                <p className="text-xs text-slate-500 font-bold mb-4">{selectedUser.name}</p>
 
                 <div className="manage-form">
                   <label className="manage-field">
@@ -500,68 +578,29 @@ export default function ManageUsersPage() {
                     </select>
                   </label>
 
-                  <div className="flex gap-2 mt-4">
+                  <div className="manage-edit-modal__actions">
                     <button
                       type="button"
-                      className="manage-btn manage-btn--primary flex-1"
+                      className="manage-btn manage-btn--secondary"
+                      onClick={closeEditPanel}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="manage-btn manage-btn--primary"
                       onClick={handleSaveChanges}
                     >
                       Save Changes
                     </button>
-                    <button
-                      type="button"
-                      className="manage-btn manage-btn--secondary"
-                      onClick={() => {
-                        setSelectedUserId(null);
-                        setActivePanel("stats");
-                      }}
-                    >
-                      Cancel
-                    </button>
                   </div>
                 </div>
-              </section>
-            )}
-
-            {activePanel === "history" && selectedUser && (
-              <section className="manage-side-block">
-                <div className="flex justify-between items-center border-b pb-2 mb-3">
-                  <h3>User History</h3>
-                  <button
-                    type="button"
-                    className="manage-close-btn"
-                    onClick={() => {
-                      setSelectedUserId(null);
-                      setActivePanel("stats");
-                    }}
-                    aria-label="Back to stats"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-                <p className="text-xs text-slate-500 font-bold mb-4">{selectedUser.name}</p>
-
-                {isSidebarLoading ? (
-                  <div className="flex justify-center items-center py-8">
-                    <Loader2 className="animate-spin text-slate-400" size={24} />
-                  </div>
-                ) : historyActivities.length > 0 ? (
-                  <ul className="manage-history">
-                    {historyActivities.map((activity) => (
-                      <li key={activity.id}>
-                        <p>{activity.action}</p>
-                        <span>{activity.timestamp}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="manage-panel__empty">No recorded activity yet for this user.</p>
-                )}
-              </section>
-            )}
-          </aside>
-        </section>
-      </section>
+              </div>
+            </div>,
+            document.body
+          )
+        }
+      </>
     </AdminSidebarLayout>
   );
 }

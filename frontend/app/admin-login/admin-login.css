@@ -380,6 +380,24 @@ html, body { height: 100%; }
   color: var(--text-dark);
 }
 
+/* Add this to admin-login.css */
+
+/* Disable Edge's native password reveal/clear icons */
+.al-input--pw::-ms-reveal,
+.al-input--pw::-ms-clear {
+  display: none;
+}
+
+/* Disable Chrome's native password reveal icon (newer versions) */
+.al-input--pw::-webkit-credentials-auto-fill-button,
+.al-input--pw::-webkit-strong-password-auto-fill-button {
+  display: none !important;
+  visibility: hidden;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+}
+
 /* ── REMEMBER / FORGOT ROW ──────────────────────────── */
 .al-row {
   display: flex;

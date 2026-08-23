@@ -30,7 +30,7 @@ type Section = {
 
 export default function LogoDescriptionManagement() {
   const router = useRouter();
-  
+
   // Branding Details state
   const [section, setSection] = useState<Section | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -68,7 +68,7 @@ export default function LogoDescriptionManagement() {
     let initialPhilosophy = "";
     let initialSymbols: any[] = [];
     let initialColors: any[] = [];
-    
+
     try {
       const parsed = JSON.parse(section.content);
       if (parsed && typeof parsed === "object") {
@@ -125,7 +125,7 @@ export default function LogoDescriptionManagement() {
         if (secRes.success) {
           setSection(secRes.data);
           setTitle(secRes.data.title);
-          
+
           try {
             const parsed = JSON.parse(secRes.data.content);
             if (parsed && typeof parsed === "object") {
@@ -360,7 +360,7 @@ export default function LogoDescriptionManagement() {
       seniorFriendlyHeader={true}
     >
       <div className="admin-shell">
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
+        <div className="logo-desc-toolbar">
           <button
             type="button"
             className="about-btn about-btn--secondary"
@@ -385,7 +385,7 @@ export default function LogoDescriptionManagement() {
           </div>
         </div>
 
-        <section style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: "24px", alignItems: "start" }}>
+        <section className="logo-desc-layout">
           {/* Text & Dynamic Editors Column */}
           <div style={{ display: "flex", flexDirection: "column" }}>
             {/* Main Narrative Editor */}
@@ -429,7 +429,7 @@ export default function LogoDescriptionManagement() {
 
             {/* Symbol Breakdown Section */}
             <div className="about-editor-card" style={{ marginTop: "24px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", flexWrap: "wrap", gap: "8px" }}>
                 <h3 style={{ fontSize: "16px", color: "var(--p-navy)", margin: 0, fontWeight: 600 }}>
                   Logo Symbols & Meanings
                 </h3>
@@ -445,20 +445,8 @@ export default function LogoDescriptionManagement() {
 
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 {symbolBreakdown.map((symbol, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "16px",
-                      background: "var(--r-surface-2)",
-                      border: "1px solid var(--r-border)",
-                      borderRadius: "12px",
-                      gap: "16px",
-                    }}
-                  >
-                    <div style={{ flex: 1 }}>
+                  <div key={idx} className="logo-desc-item-row">
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <h4 style={{ fontSize: "15px", fontWeight: 700, color: "var(--p-navy)", margin: "0 0 4px" }}>
                         {idx + 1}. {symbol.element}
                       </h4>
@@ -467,7 +455,7 @@ export default function LogoDescriptionManagement() {
                       </p>
                     </div>
 
-                    <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
+                    <div className="logo-desc-item-actions">
                       <button
                         type="button"
                         className="about-btn about-btn--secondary"
@@ -497,7 +485,7 @@ export default function LogoDescriptionManagement() {
 
             {/* Color Palette Section */}
             <div className="about-editor-card" style={{ marginTop: "24px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", flexWrap: "wrap", gap: "8px" }}>
                 <h3 style={{ fontSize: "16px", color: "var(--p-navy)", margin: 0, fontWeight: 600 }}>
                   Logo Color Palette
                 </h3>
@@ -513,20 +501,8 @@ export default function LogoDescriptionManagement() {
 
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 {colorPalette.map((color, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "16px",
-                      background: "var(--r-surface-2)",
-                      border: "1px solid var(--r-border)",
-                      borderRadius: "12px",
-                      gap: "16px",
-                    }}
-                  >
-                    <div style={{ display: "flex", gap: "12px", alignItems: "flex-start", flex: 1 }}>
+                  <div key={idx} className="logo-desc-item-row">
+                    <div style={{ display: "flex", gap: "12px", alignItems: "flex-start", flex: 1, minWidth: 0 }}>
                       <div
                         style={{
                           width: "36px",
@@ -538,8 +514,8 @@ export default function LogoDescriptionManagement() {
                           marginTop: "2px",
                         }}
                       />
-                      <div>
-                        <h4 style={{ fontSize: "15px", fontWeight: 700, color: "var(--p-navy)", margin: "0 0 4px", display: "flex", alignItems: "center", gap: "8px" }}>
+                      <div style={{ minWidth: 0 }}>
+                        <h4 style={{ fontSize: "15px", fontWeight: 700, color: "var(--p-navy)", margin: "0 0 4px", display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
                           {color.color_name}
                           <span style={{ fontSize: "12px", color: "var(--r-text-muted)", fontWeight: 500 }}>
                             {color.hex}
@@ -551,7 +527,7 @@ export default function LogoDescriptionManagement() {
                       </div>
                     </div>
 
-                    <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
+                    <div className="logo-desc-item-actions">
                       <button
                         type="button"
                         className="about-btn about-btn--secondary"
@@ -665,6 +641,8 @@ export default function LogoDescriptionManagement() {
                         background: "var(--r-surface-2)",
                         border: "1px solid var(--r-border)",
                         borderRadius: "8px",
+                        flexWrap: "wrap",
+                        gap: "6px",
                       }}
                     >
                       <span
@@ -788,7 +766,7 @@ export default function LogoDescriptionManagement() {
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "8px" }}>
+              <div className="cbl-modal-actions" style={{ marginTop: "8px" }}>
                 <button
                   type="button"
                   onClick={() => setIsSymbolFormOpen(false)}
@@ -868,7 +846,7 @@ export default function LogoDescriptionManagement() {
             <p style={{ fontSize: "14.5px", color: "var(--r-text-muted)", margin: "0 0 20px", lineHeight: 1.5 }}>
               Are you sure you want to delete this symbol element from the logo breakdown list?
             </p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <div className="cbl-modal-actions">
               <button
                 type="button"
                 onClick={() => setIsDeleteSymbolOpen(false)}
@@ -955,7 +933,7 @@ export default function LogoDescriptionManagement() {
             </div>
 
             <form onSubmit={handleSaveColorForm} style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "16px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 150px", gap: "12px" }}>
+              <div className="logo-desc-color-fields">
                 <div className="about-form-group" style={{ marginBottom: 0 }}>
                   <label className="about-form-label">Color Name</label>
                   <input
@@ -1011,7 +989,7 @@ export default function LogoDescriptionManagement() {
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "8px" }}>
+              <div className="cbl-modal-actions" style={{ marginTop: "8px" }}>
                 <button
                   type="button"
                   onClick={() => setIsColorFormOpen(false)}
@@ -1091,7 +1069,7 @@ export default function LogoDescriptionManagement() {
             <p style={{ fontSize: "14.5px", color: "var(--r-text-muted)", margin: "0 0 20px", lineHeight: 1.5 }}>
               Are you sure you want to delete this color from the brand palette list?
             </p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <div className="cbl-modal-actions">
               <button
                 type="button"
                 onClick={() => setIsDeleteColorOpen(false)}

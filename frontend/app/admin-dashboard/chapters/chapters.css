@@ -2,21 +2,32 @@
 /* PAGE Senior-Friendly UI design tokens */
 
 :root {
-  --chapters-section-gap: 32px;
+  --chapters-section-gap: 24px;
   --chapters-card-gap: 24px;
   --chapters-card-padding: 28px;
   --chapters-toolbar-gap: 20px;
   --chapters-max-width: 1600px;
-  --chapters-page-padding: 40px;
+  --chapters-page-padding: 32px;
   --chapters-radius: 16px;
   --chapters-radius-sm: 12px;
-  --chapters-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  --chapters-shadow-hover: 0 12px 28px -8px rgba(20, 49, 82, 0.12);
-  --chapters-control-height: 40px;
-  --chapters-font-body: 0.8125rem;
-  --chapters-font-label: 13px;
-  --chapters-font-title: 20px;
-  --chapters-font-page-title: 26px;
+  --chapters-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --chapters-shadow-card: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --chapters-shadow-elevated: 0 8px 24px rgba(0,0,0,0.08), 0 4px 8px rgba(0,0,0,0.04);
+  --chapters-control-height: 48px;
+  --chapters-font-body: 15px;
+  --chapters-font-label: 14px;
+  --chapters-font-title: 22px;
+  --chapters-font-page-title: 28px;
+  
+  /* Solid color palette */
+  --chapters-card-bg: #ffffff;
+  --chapters-accent-blue: #2563eb;
+  --chapters-accent-emerald: #10b981;
+  --chapters-accent-amber: #f59e0b;
+  --chapters-accent-rose: #f43f5e;
+  --chapters-border-light: #e2e8f0;
+  --chapters-border-medium: #cbd5e1;
+  --chapters-bg-subtle: #f8fafc;
 }
 
 /* Global focus-visible for accessibility */
@@ -27,8 +38,10 @@
 
 /* Page header title override */
 .chapters-management-page h1 {
-  font-size: max(26px, var(--chapters-font-page-title, 26px)) !important;
+  font-size: max(28px, var(--chapters-font-page-title, 28px)) !important;
   font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.2 !important;
 }
 
 /* ─── Page container ─── */
@@ -47,20 +60,30 @@
 .chapters-section {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   min-width: 0;
 }
 
 .chapters-section__label {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--p-navy);
-  letter-spacing: 0.02em;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.chapters-section__description {
+  font-size: 15px;
+  color: #64748b;
+  line-height: 1.6;
+  margin-top: 8px;
 }
 
 .chapters-management-page .admin-main-content {
   min-width: 0;
   overflow-x: clip;
+  background: #eef3f9;
 }
 
 .chapters-management-page [class*="introSeniorFriendly"] [class*="introContent"] {
@@ -81,17 +104,18 @@
   justify-content: center;
   gap: 10px;
   min-height: var(--chapters-control-height);
-  padding: 0 24px;
+  padding: 0 28px;
   font-size: var(--chapters-font-body);
   font-weight: 600;
   border-radius: var(--chapters-radius-sm);
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease;
+  border: none;
 }
 
 .chapters-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.25);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
 }
 
 .chapters-btn:active {
@@ -101,27 +125,15 @@
 .chapters-btn--secondary {
   background: var(--r-surface, #ffffff);
   color: var(--r-text-mid, #334e6e);
-  border: 1.5px solid var(--r-border-mid, #cbd5e1);
-}
-
-.chapters-btn--secondary:hover {
-  background: rgba(20, 49, 82, 0.05);
-  color: var(--p-navy);
-  border-color: var(--r-border-mid);
+  border: 2px solid var(--r-border-mid, #cbd5e1);
+  box-shadow: var(--chapters-shadow);
 }
 
 .chapters-btn--primary {
-  background: var(--p-blue, #1e538e);
+  background: #2563eb;
   color: #ffffff;
-  border: 1.5px solid var(--p-blue);
-  box-shadow: 0 4px 10px rgba(30, 83, 142, 0.1);
-}
-
-.chapters-btn--primary:hover {
-  background: var(--p-navy);
-  border-color: var(--p-navy);
-  color: #ffffff;
-  box-shadow: 0 6px 16px rgba(20, 49, 82, 0.2);
+  border: none;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
 }
 
 .chapters-icon-btn {
@@ -135,17 +147,12 @@
   background: transparent;
   color: var(--r-text-muted, #6b87a4);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.chapters-icon-btn:hover {
-  background: var(--r-surface-2, #f1f5f9);
-  color: var(--p-blue, #1e538e);
+  transition: all 0.2s ease;
 }
 
 .chapters-icon-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.25);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
 }
 
 /* ─── Status badges ─── */
@@ -213,48 +220,50 @@
   gap: 5px;
   padding: 6px 14px;
   border-radius: 999px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   background: var(--r-surface-2, #f1f5f9);
   color: var(--r-text-mid, #334e6e);
-  border: 1px solid var(--r-border-mid, #cbd5e1);
-  transition: all 0.15s ease;
+  border: 1.5px solid var(--r-border-mid, #cbd5e1);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .chapters-chip--luzon {
   background: #e0e7ff;
   color: #3730a3;
-  border-color: #c7d2fe;
+  border-color: #a5b4fc;
 }
 
 .chapters-chip--visayas {
   background: #fef3c7;
   color: #92400e;
-  border-color: #fde68a;
+  border-color: #fcd34d;
 }
 
 .chapters-chip--mindanao {
   background: #ffe4e6;
   color: #9f1239;
-  border-color: #fecdd3;
+  border-color: #fda4af;
 }
 
 .chapters-chip--region {
   background: #eff6ff;
   color: #1d4ed8;
-  border-color: #bfdbfe;
+  border-color: #93c5fd;
 }
 
 .chapters-count-chip {
   display: inline-flex;
   align-items: center;
-  padding: 3px 12px;
+  padding: 6px 14px;
   border-radius: 999px;
   font-size: 13px;
   font-weight: 700;
   background: #eff6ff;
   color: #1e538e;
-  border: 1px solid #bfdbfe;
+  border: 1.5px solid #bfdbfe;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.08);
 }
 
 
@@ -262,7 +271,7 @@
 .chapters-stats-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--chapters-card-gap);
+  gap: 24px;
   width: 100%;
   min-width: 0;
 }
@@ -271,28 +280,43 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 120px;
+  min-height: 156px;
   min-width: 0;
-  padding: var(--chapters-card-padding);
-  background: var(--r-surface, #ffffff);
-  border: 1px solid var(--r-border-mid, #cbd5e1);
-  border-left-width: 4px;
+  padding: 32px;
+  background: var(--chapters-card-bg);
+  border: 2px solid var(--chapters-border-light);
+  border-left-width: 5px;
   border-radius: var(--chapters-radius);
-  box-shadow: var(--chapters-shadow);
+  box-shadow: var(--chapters-shadow-card);
   overflow: hidden;
   cursor: default;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
 }
 
-.chapters-stat-card--blue { border-left-color: #3b82f6; }
-.chapters-stat-card--emerald { border-left-color: #10b981; }
-.chapters-stat-card--amber { border-left-color: #f59e0b; }
-.chapters-stat-card--rose { border-left-color: #f43f5e; }
+.chapters-stat-card--blue { 
+  border-left-color: #2563eb;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.02) 0%, #ffffff 100%);
+}
+
+.chapters-stat-card--emerald { 
+  border-left-color: #10b981;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.02) 0%, #ffffff 100%);
+}
+
+.chapters-stat-card--amber { 
+  border-left-color: #f59e0b;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.02) 0%, #ffffff 100%);
+}
+
+.chapters-stat-card--rose { 
+  border-left-color: #f43f5e;
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.02) 0%, #ffffff 100%);
+}
 
 .chapters-stat-card__head {
   display: flex;
   align-items: flex-start;
-  gap: 18px;
+  gap: 20px;
   min-width: 0;
 }
 
@@ -309,47 +333,49 @@
 .chapters-stat-card__icon--blue {
   background: #eff6ff;
   color: #2563eb;
-  border: 1px solid #dbeafe;
+  border: 2px solid #dbeafe;
 }
 
 .chapters-stat-card__icon--emerald {
   background: #ecfdf5;
   color: #059669;
-  border: 1px solid #a7f3d0;
+  border: 2px solid #a7f3d0;
 }
 
 .chapters-stat-card__icon--amber {
   background: #fffbeb;
   color: #d97706;
-  border: 1px solid #fde68a;
+  border: 2px solid #fde68a;
 }
 
 .chapters-stat-card__icon--rose {
   background: #fff1f2;
   color: #e11d48;
-  border: 1px solid #fecdd3;
+  border: 2px solid #fecdd3;
 }
 
 .chapters-stat-card__body {
   flex: 1;
   min-width: 0;
-  padding-top: 2px;
+  padding-top: 4px;
 }
 
 .chapters-stat-card__label {
-  font-size: var(--chapters-font-label);
+  font-size: 14px;
   font-weight: 600;
   color: var(--r-text-muted, #6b87a4);
-  line-height: 1.35;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .chapters-stat-card__value {
-  font-size: 38px;
+  font-size: 48px;
   font-weight: 800;
   color: var(--r-text, #0e2340);
   line-height: 1;
-  margin-top: 8px;
-  letter-spacing: -0.02em;
+  margin-top: 16px;
+  letter-spacing: -0.04em;
 }
 
 .chapters-stat-card__footer {
@@ -416,11 +442,11 @@
 
 /* ─── Toolbar panel ─── */
 .chapters-toolbar-panel {
-  background: var(--r-surface, #ffffff);
-  border: 1.5px solid var(--r-border-mid, #cbd5e1);
+  background: var(--chapters-card-bg);
+  border: 2px solid var(--chapters-border-light);
   border-radius: var(--chapters-radius);
-  padding: 24px 28px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  padding: 32px 36px;
+  box-shadow: var(--chapters-shadow-card);
   min-width: 0;
 }
 
@@ -436,24 +462,27 @@
 .chapters-toolbar__field-label {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
+  gap: 8px;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--r-text-muted, #6b87a4);
-  margin-bottom: 6px;
+  color: #475569;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .chapters-toolbar__field-icon {
-  color: #3b82f6;
+  color: #2563eb;
   flex-shrink: 0;
 }
 
 .chapters-toolbar__active-dot {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: #2563eb;
-  margin-left: 2px;
+  margin-left: 4px;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
 .chapters-toolbar__search {
@@ -489,23 +518,19 @@
   font-size: var(--chapters-font-body);
   font-weight: 600;
   color: var(--r-text, #0e2340);
-  background: var(--r-surface-2, #f8fafc);
-  border: 1.5px solid var(--r-border-mid, #cbd5e1);
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
   border-radius: 10px;
   appearance: none;
   cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
-}
-
-.chapters-toolbar__control:hover {
-  border-color: #94a3b8;
-  background: #ffffff;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .chapters-toolbar__control:focus {
   outline: none;
-  border-color: var(--p-blue, #1e538e);
-  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.15);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
   background: #ffffff;
 }
 
@@ -523,60 +548,57 @@
   font-size: var(--chapters-font-body);
   font-weight: 500;
   color: var(--r-text, #0e2340);
-  background: var(--r-surface-2, #f8fafc);
-  border: 1.5px solid var(--r-border-mid, #cbd5e1);
-  border-radius: 10px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-}
-
-.chapters-toolbar__search-input:hover {
-  border-color: #94a3b8;
   background: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .chapters-toolbar__search-input::placeholder {
-  color: var(--r-text-muted, #6b87a4);
+  color: #94a3b8;
+  font-weight: 400;
 }
 
 .chapters-toolbar__search-input:focus {
   outline: none;
-  border-color: var(--p-blue, #1e538e);
-  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.15);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
   background: #ffffff;
 }
 
 .chapters-toolbar__filter-badge {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 3px 10px;
+  gap: 6px;
+  padding: 5px 12px;
   border-radius: 999px;
   font-size: 13px;
   font-weight: 700;
   background: #dbeafe;
   color: #1e40af;
-  border: 1px solid #bfdbfe;
+  border: 1.5px solid #93c5fd;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.12);
 }
 
 .chapters-toolbar__reset-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
+  gap: 8px;
+  padding: 8px 16px;
   border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
   color: #dc2626;
   background: #fef2f2;
-  border: 1px solid #fecaca;
+  border: 1.5px solid #fecaca;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.08);
 }
 
-.chapters-toolbar__reset-btn:hover {
-  background: #fee2e2;
-  color: #b91c1c;
-  transform: translateY(-1px);
+.chapters-toolbar__reset-btn:active {
+  transform: scale(0.98);
 }
 
 .chapters-toolbar__select-wrap {
@@ -639,18 +661,19 @@
 
 .chapters-view-toggle__btn--active,
 .chapters-view-toggle__btn--active:hover {
-  background: var(--p-blue, #1e538e) !important;
+  background: linear-gradient(135deg, #2563eb 0%, #1e538e 100%) !important;
   color: #ffffff !important;
   cursor: default;
-  box-shadow: 0 4px 12px rgba(30, 83, 142, 0.22);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+  transform: scale(1.02);
 }
 
 
 /* ─── Chapter cards grid ─── */
 .chapters-grid {
   display: grid;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-  gap: var(--chapters-card-gap);
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 28px;
   width: 100%;
   min-width: 0;
 }
@@ -664,25 +687,24 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #ffffff;
-  border: 1.5px solid #cbd5e1;
-  border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  background: var(--chapters-card-bg);
+  border: 2px solid var(--chapters-border-light);
+  border-radius: var(--chapters-radius);
+  box-shadow: var(--chapters-shadow-card);
   overflow: hidden;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.chapters-card-v2:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 10px 25px -5px rgba(30, 83, 142, 0.12);
-  transform: translateY(-2px);
+.chapters-card-v2:focus-within {
+  border-color: var(--chapters-accent-blue);
+  box-shadow: var(--chapters-shadow-elevated);
 }
 
 .chapters-card-v2__body {
-  padding: 20px;
+  padding: 28px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 20px;
   flex: 1;
 }
 
@@ -690,37 +712,39 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
 }
 
 .chapters-card-v2__info {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 16px;
   min-width: 0;
   flex: 1;
 }
 
 .chapters-card-v2__icon-box {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
   background: #eff6ff;
-  border: 1.5px solid #bfdbfe;
+  border: 2px solid #bfdbfe;
   color: #1e538e;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
 }
 
 .chapters-card-v2__title-block {
   min-width: 0;
   flex: 1;
+  padding-top: 4px;
 }
 
 .chapters-card-v2__title {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   color: #0e2340;
   line-height: 1.3;
@@ -728,35 +752,37 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  letter-spacing: -0.01em;
 }
 
 .chapters-card-v2__date {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 500;
   color: #64748b;
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin-top: 3px;
+  gap: 6px;
+  margin-top: 6px;
 }
 
 .chapters-card-v2__chips {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .chapters-card-v2__desc-box {
   background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 13.5px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 18px;
+  font-size: 14px;
   color: #334e6e;
-  line-height: 1.5;
+  line-height: 1.65;
   width: 100%;
   box-sizing: border-box;
+  min-height: 80px;
 }
 
 .chapters-card-v2__desc-text {
@@ -768,7 +794,7 @@
 }
 
 .chapters-card-v2__desc-empty {
-  font-size: 12.5px;
+  font-size: 13px;
   color: #94a3b8;
   font-style: italic;
 }
@@ -777,18 +803,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 14px;
   margin-top: auto;
-  padding-top: 4px;
+  padding-top: 8px;
 }
 
 .chapters-card-v2__footer {
-  padding: 12px 16px;
+  padding: 20px 24px;
   background: #f8fafc;
-  border-top: 1px solid #cbd5e1;
+  border-top: 2px solid #e2e8f0;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 
@@ -993,9 +1019,9 @@
 /* ─── Enterprise table ─── */
 .chapters-table-wrap {
   background: var(--r-surface, #ffffff);
-  border: 1.5px solid var(--r-border-mid, #cbd5e1);
+  border: 1.5px solid #e2e8f0;
   border-radius: var(--chapters-radius);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--chapters-shadow-card);
   overflow: hidden;
   min-width: 0;
 }
@@ -1003,6 +1029,7 @@
 .chapters-table-scroll {
   overflow-x: auto;
   max-height: 70vh;
+  -webkit-overflow-scrolling: touch;
 }
 
 .chapters-table {
@@ -1016,25 +1043,22 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  padding: 16px 22px;
+  padding: 18px 24px;
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.02em;
-  color: var(--r-text-muted, #6b87a4);
+  color: #475569;
   background: #f8fafc;
-  border-bottom: 2px solid #e2e8f0;
+  border-bottom: 2px solid #cbd5e1;
   white-space: nowrap;
+  text-transform: uppercase;
 }
 
 .chapters-table tbody tr {
-  min-height: 68px;
-  height: 68px;
-  transition: background 0.18s ease, transform 0.18s ease;
+  min-height: 72px;
+  height: 72px;
+  transition: background 0.2s ease;
   background: #ffffff;
-}
-
-.chapters-table tbody tr:hover {
-  background: #f8fafc;
 }
 
 .chapters-table tbody tr.chapters-table__row--selected {
@@ -1042,10 +1066,10 @@
 }
 
 .chapters-table tbody td {
-  padding: 18px 22px;
+  padding: 20px 24px;
   font-size: 15px;
   color: var(--r-text-mid, #334e6e);
-  border-bottom: 1px solid var(--r-border, rgba(20, 49, 82, 0.08));
+  border-bottom: 1px solid #e2e8f0;
   vertical-align: middle;
 }
 
@@ -1053,7 +1077,7 @@
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  background: #eff6ff;
   color: #1e538e;
   border: 1.5px solid #bfdbfe;
   display: flex;
@@ -1061,14 +1085,6 @@
   justify-content: center;
   flex-shrink: 0;
   box-shadow: 0 2px 6px rgba(30, 83, 142, 0.08);
-  transition: all 0.2s ease;
-}
-
-.chapters-table tbody tr.chapters-table__row:hover .chapters-table__chapter-avatar {
-  background: linear-gradient(135deg, #1e538e 0%, #143152 100%);
-  color: #ffffff;
-  border-color: #1e538e;
-  transform: scale(1.05);
 }
 
 .chapters-table__chapter-name {
@@ -1097,40 +1113,45 @@
 
 /* ─── Pagination ─── */
 .chapters-pagination {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
   align-items: center;
-  gap: 20px;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
   width: 100%;
-  padding: 18px var(--chapters-card-padding);
-  background: var(--r-surface, #ffffff);
-  border: 1.5px solid var(--r-border-mid, #cbd5e1);
-  border-radius: var(--chapters-radius);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  padding: 4px 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .chapters-pagination__info {
-  justify-self: start;
-  font-size: var(--chapters-font-body);
-  font-weight: 600;
-  color: var(--r-text-muted, #6b87a4);
+  margin-right: auto;
+  font-size: 14px;
+  font-weight: 500;
+  color: #274768;
+}
+
+.chapters-pagination__info strong {
+  color: var(--p-navy);
 }
 
 .chapters-pagination__count-badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 12px;
-  border-radius: 8px;
+  padding: 6px 14px;
+  border-radius: 10px;
   background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  font-size: 14px;
+  border: 1.5px solid #e2e8f0;
+  font-size: 15px;
   color: #475569;
 }
 
 .chapters-pagination__count-badge strong {
   color: var(--r-text, #0e2340);
   font-weight: 800;
-  margin: 0 2px;
+  margin: 0 3px;
 }
 
 .chapters-pagination__page-of {
@@ -1143,14 +1164,13 @@
 }
 
 .chapters-pagination__controls {
-  justify-self: center;
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 4px;
-  background: var(--r-surface-2, #f8fafc);
-  border: 1.5px solid var(--r-border-mid, #cbd5e1);
-  border-radius: var(--chapters-radius-sm);
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
 }
 
 .chapters-pagination__ellipsis {
@@ -1165,15 +1185,33 @@
 }
 
 .chapters-pagination__per-page {
-
-  justify-self: end;
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 12px;
+  color: #274768;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.chapters-pagination__per-page > span {
+  white-space: nowrap;
+}
+
+.chapters-pagination__per-page .chapters-toolbar__select-wrap {
+  width: auto;
+  flex-shrink: 0;
 }
 
 .chapters-pagination__per-page select {
-  height: var(--chapters-control-height);
-  padding: 0 40px 0 16px;
-  font-size: 15px;
+  height: 36px;
+  min-width: 70px;
+  width: 70px;
+  padding: 0 40px 0 10px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--r-text-mid, #334e6e);
   background: var(--r-surface, #ffffff);
@@ -1202,15 +1240,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: var(--chapters-control-height);
-  height: var(--chapters-control-height);
+  min-width: 36px;
+  height: 36px;
   padding: 0 12px;
-  border: none;
-  border-radius: 10px;
-  font-size: var(--chapters-font-body);
+  border: 1px solid var(--chapters-border-medium);
+  border-radius: 999px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--r-text-mid, #334e6e);
-  background: transparent;
+  background: #ffffff;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
@@ -1233,18 +1271,29 @@
 .chapters-pagination__btn--active,
 .chapters-pagination__btn--active:hover,
 .chapters-pagination__btn--active:focus {
-  background: var(--p-blue, #1e538e) !important;
+  background: #143152 !important;
   color: #ffffff !important;
   cursor: default !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+.chapters-pagination__nav-label {
+  display: inline;
+}
+
+.chapters-pagination__controls > .chapters-pagination__btn:first-child,
+.chapters-pagination__controls > .chapters-pagination__btn:last-child {
+  gap: 4px;
+  padding: 0 12px;
 }
 
 
-/* ─── Empty state ─── */
+/* ─── Empty state - Enhanced ─── */
 .chapters-empty {
-  background: var(--r-surface, #ffffff);
-  border: 1.5px solid var(--r-border-mid, #cbd5e1);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px dashed #cbd5e1;
   border-radius: var(--chapters-radius);
-  padding: 56px 40px;
+  padding: 64px 40px;
   box-shadow: var(--chapters-shadow);
   display: flex;
   flex-direction: column;
@@ -1253,13 +1302,25 @@
   max-width: 640px;
   margin: 0 auto;
   width: 100%;
+  transition: all 0.3s ease;
+}
+
+.chapters-empty:hover {
+  border-color: #2563eb;
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
 }
 
 .chapters-empty__illustration {
   position: relative;
   width: 120px;
   height: 120px;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 .chapters-empty__icon-ring {
@@ -1271,23 +1332,37 @@
   align-items: center;
   justify-content: center;
   color: var(--p-blue, #1e538e);
-  border: 2px solid #bfdbfe;
+  border: 3px solid #bfdbfe;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.15);
+  transition: all 0.3s ease;
+}
+
+.chapters-empty:hover .chapters-empty__icon-ring {
+  background: linear-gradient(135deg, #2563eb 0%, #1e538e 100%);
+  color: #ffffff;
+  transform: scale(1.05);
 }
 
 .chapters-empty__icon-badge {
   position: absolute;
-  bottom: 0;
-  right: -4px;
-  width: 36px;
-  height: 36px;
+  bottom: -4px;
+  right: -8px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: var(--p-blue, #1e538e);
+  background: linear-gradient(135deg, #2563eb 0%, #1e538e 100%);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 3px solid #ffffff;
-  box-shadow: var(--chapters-shadow);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 .chapters-empty__title {
@@ -1322,19 +1397,62 @@
 
 @media (min-width: 768px) {
   .chapters-grid {
-    grid-template-columns: repeat(2, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   }
 }
 
 @media (min-width: 1200px) {
   .chapters-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   }
 }
 
 @media (min-width: 1400px) {
   .chapters-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+}
+
+/* 🆕 Header actions (Export / Create Chapter) — these carry inline styles
+   in the page component, so !important is required to override them
+   on smaller screens. */
+@media (max-width: 640px) {
+  .chapters-management-page .chapters-btn {
+    min-height: 44px !important;
+    font-size: 14px !important;
+    padding: 0 16px !important;
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .chapters-management-page .chapters-btn {
+    width: 100%;
+  }
+}
+
+/* 🆕 "All Chapters" list header — title, count chip, and the
+   Card/List view toggle were crowding into one row on mobile.
+   Stack them so each gets its own full-width row. */
+@media (max-width: 640px) {
+  .chapters-section > div.flex.items-center.justify-between {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .chapters-section > div.flex.items-center.justify-between > div.flex.items-center.gap-3 {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chapters-section__label {
+    font-size: 18px;
+  }
+
+  .chapters-count-chip {
+    font-size: 12px;
+    padding: 4px 10px;
   }
 }
 
@@ -1342,8 +1460,8 @@
   :root {
     --chapters-page-padding: 20px;
     --chapters-section-gap: 28px;
-    --chapters-card-gap: 20px;
-    --chapters-card-padding: 22px;
+    --chapters-card-gap: 16px;
+    --chapters-card-padding: 20px;
   }
 
   .chapters-management-page [class*="introSeniorFriendly"] {
@@ -1353,6 +1471,38 @@
 
   .chapters-stats-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  /* 🆕 tighten stat cards on mobile */
+  .chapters-stat-card {
+    padding: 20px;
+    min-height: auto;
+    gap: 16px;
+  }
+
+  .chapters-stat-card__head {
+    gap: 14px;
+  }
+
+  .chapters-stat-card__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+  }
+
+  .chapters-stat-card__label {
+    font-size: 12px;
+  }
+
+  .chapters-stat-card__value {
+    font-size: 32px;
+    margin-top: 10px;
+  }
+
+  .chapters-stat-card__footer {
+    margin-top: 16px;
+    font-size: 13px;
   }
 
   .chapters-grid {
@@ -1381,21 +1531,473 @@
     flex: 1;
   }
 
+  /* 🔧 FIX: this used to collapse to grid-template-columns: 1fr, which
+     turned every meta block (Island Group / Region / Status / Updated)
+     into its own full-width row — that's the "one field per line"
+     look. Chips/values are short, so let them wrap in a compact row
+     instead of eating a whole line each. */
   .chapters-card__meta {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
   }
 
+  .chapters-card__meta-block {
+    flex: 0 1 auto;
+  }
+
+  .chapters-card__meta-value {
+    padding-left: 0;
+  }
+
+  .chapters-card__meta-heading {
+    font-size: 13px;
+  }
+
+  /* 🆕 shrink card v2 padding on mobile */
+  .chapters-card-v2__body {
+    padding: 18px;
+    gap: 14px;
+  }
+
+  .chapters-card-v2__footer {
+    padding: 14px 16px;
+  }
+
+  .chapters-card-v2__icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+  }
+
+  .chapters-card-v2__title {
+    font-size: 16px;
+  }
+
+  .chapters-card-v2__desc-box {
+    padding: 12px 14px;
+    font-size: 13px;
+    min-height: 0;
+  }
+
+  /* 🔧 Card-view (ChapterCard.tsx) refinements, informed by the real
+     JSX: icon-box + title-block on the left, StatusBadge on the
+     right, in one space-between row. */
+  .chapters-card-v2__header {
+    gap: 10px;
+  }
+
+  .chapters-card-v2__title {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+
+  .chapters-card-v2__date {
+    font-size: 12px;
+  }
+
+  /* The kebab button is a PillButton sized only by inline padding —
+     give it a real touch target on mobile. */
+  .chapters-card-v2__footer .relative > button,
+  .chapters-card-v2__footer button[aria-haspopup="true"] {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .chapters-card-v2__officers-row {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  /* 🔧 MOBILE TABLE-AS-CARDS — rebuilt.
+     Previously every <td> became its own full-width flex row with a
+     divider (name, then Luzon, then NCR, then Published, then the
+     date — five stacked rows each with a border-bottom). That's the
+     "one field per line" look in the screenshot.
+
+     New approach: the row becomes a wrapping flex container. The
+     name cell (first child) and the actions cell (last child) each
+     force themselves onto their own full-width line via
+     flex-basis: 100%. Every cell in between (island group, region,
+     status, updated date) is a normal inline flex item, so they
+     pack into one compact row and wrap only if they don't fit —
+     matching how the chips already behave on the card view.
+
+     Also: content: attr(data-label) is dropped. If ChapterTable.tsx
+     doesn't set data-label on every <td>, that pseudo-element renders
+     as blank space (which is what created the empty gap before each
+     chip in the screenshot) while still reserving no room — so it's
+     safe to remove outright. If you *do* want inline labels, re-add
+     the label as a small span inside the badge/chip cells instead of
+     relying on ::before. */
+  .chapters-table-scroll {
+    overflow-x: visible;
+    max-height: none;
+  }
+
+  .chapters-table,
+  .chapters-table thead,
+  .chapters-table tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .chapters-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .chapters-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .chapters-table tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    background: #ffffff;
+    border: 1.5px solid var(--chapters-border-light);
+    border-radius: var(--chapters-radius-sm);
+    box-shadow: var(--chapters-shadow-card);
+    padding: 16px;
+    height: auto;
+    min-height: 0;
+  }
+
+  .chapters-table tbody tr.chapters-table__row--selected {
+    border-color: var(--chapters-accent-blue);
+  }
+
+  .chapters-table tbody td {
+    display: inline-flex;
+    align-items: center;
+    width: auto;
+    padding: 0;
+    border-bottom: none;
+    font-size: 14px;
+    position: static;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .chapters-table tbody td::before {
+    content: none;
+  }
+
+  /* Name + description: own full-width row up top */
+  .chapters-table tbody td:first-child {
+    flex: 1 1 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eef2f7;
+  }
+
+  .chapters-table__chapter-desc {
+    white-space: normal;
+    max-width: 100%;
+  }
+
+  /* Island group / region / status / updated: packed into one
+     wrapping row between the name and the actions */
+  .chapters-table tbody td:not(:first-child):not(:last-child) {
+    flex: 0 0 auto;
+  }
+
+  /* Push the date (last badge-ish cell before Actions) to the right
+     edge of that row, the way "Jul 24, 2026" reads in the original
+     design — remove this rule if that cell isn't actually a date. */
+  .chapters-table tbody td:nth-last-child(2) {
+    margin-left: auto;
+  }
+
+  /* Actions: own full-width row at the bottom */
+  .chapters-table tbody td:last-child {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid #eef2f7;
+  }
+
+  .chapters-table__actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .chapters-table__manage-btn,
+  .chapters-table__actions-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  /* 🔧 PAGINATION — rebuilt against the real ChapterPagination.tsx.
+     getPageNumbers() can return up to 7 items (1,2,3,4,5,…,last or
+     similar), so with prev/next that's up to 9 buttons — nowrap
+     alone would push that off-screen on a phone. This version keeps
+     the row centered and tight for the common case (few pages) but
+     scrolls horizontally as a last resort instead of wrapping into a
+     messy multi-row grid or overflowing the viewport. */
   .chapters-pagination {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 0;
   }
 
-  .chapters-pagination__info,
-  .chapters-pagination__controls,
-  .chapters-pagination__per-page {
-    justify-self: center;
+  .chapters-pagination__info {
+    order: 1;
+    width: 100%;
+    margin-right: 0;
+    text-align: center;
+    font-size: 13px;
   }
+
+  .chapters-pagination__info p {
+    white-space: normal;
+    line-height: 1.5;
+  }
+
+  .chapters-pagination__controls {
+    order: 2;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 2px;
+    padding: 4px;
+  }
+
+  .chapters-pagination__controls::-webkit-scrollbar {
+    display: none;
+  }
+
+  .chapters-pagination__controls > * {
+    flex: 0 0 auto;
+  }
+
+  .chapters-pagination__btn {
+    min-width: 40px;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+  }
+
+  .chapters-pagination__nav-label {
+    display: none;
+  }
+
+  .chapters-pagination__ellipsis {
+    min-width: 28px;
+    height: 40px;
+  }
+
+  .chapters-pagination__per-page {
+    order: 3;
+    width: auto;
+    max-width: none;
+    justify-content: center;
+  }
+
+  .chapters-pagination__per-page select {
+    width: 70px;
+    height: 40px;
+    font-size: 13.5px;
+  }
+  
+  .chapters-section__label::before {
+    width: 3px;
+    height: 20px;
+  }
+}
+
+/* 🆕 Extra-small phones: chapters-card-v2 header fallback — if a long
+   name + StatusBadge still can't share a row at this width, drop the
+   badge to its own line under the title instead of clipping it. */
+@media (max-width: 400px) {
+  .chapters-card-v2__header {
+    flex-wrap: wrap;
+  }
+
+  .chapters-card-v2__header > .flex-shrink-0 {
+    flex-basis: 100%;
+    display: flex;
+    justify-content: flex-start;
+    margin-left: 60px;
+  }
+}
+
+/* 🆕 Extra-small phones */
+@media (max-width: 480px) {
+  :root {
+    --chapters-page-padding: 14px;
+    --chapters-section-gap: 20px;
+  }
+
+  .chapters-management-page h1 {
+    font-size: 22px !important;
+  }
+
+  .chapters-section__label {
+    font-size: 18px;
+  }
+
+  .chapters-count-chip {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  .chapters-badge,
+  .chapters-chip {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  .chapters-stat-card {
+    padding: 16px;
+  }
+
+  .chapters-stat-card__value {
+    font-size: 26px;
+  }
+
+  .chapters-toolbar-panel {
+    padding: 14px;
+  }
+
+  .chapters-toolbar__search-input,
+  .chapters-toolbar__control {
+    font-size: 14px;
+    padding-left: 40px;
+  }
+
+  .chapters-card-v2__body {
+    padding: 14px;
+  }
+
+  .chapters-card-v2__desc-text {
+    -webkit-line-clamp: 3;
+  }
+
+  .chapters-pagination__btn {
+    min-width: 36px;
+    width: 36px;
+    height: 36px;
+    font-size: 13px;
+  }
+
+  .chapters-pagination__ellipsis {
+    min-width: 24px;
+    height: 36px;
+  }
+
+  .chapters-empty {
+    padding: 40px 20px;
+  }
+
+  .chapters-empty__illustration {
+    width: 88px;
+    height: 88px;
+    margin-bottom: 20px;
+  }
+
+  .chapters-empty__title {
+    font-size: 19px;
+  }
+
+  .chapters-empty__subtitle {
+    font-size: 14px;
+  }
+
+  .chapters-empty__actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .chapters-empty__actions .chapters-btn {
+    width: 100%;
+  }
+}
+
+/* ─── Custom Scrollbar Styling ─── */
+.chapters-table-scroll::-webkit-scrollbar,
+.chapters-container::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.chapters-table-scroll::-webkit-scrollbar-track,
+.chapters-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.chapters-table-scroll::-webkit-scrollbar-thumb,
+.chapters-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+  border-radius: 10px;
+  border: 2px solid #f1f5f9;
+  transition: background 0.3s ease;
+}
+
+.chapters-table-scroll::-webkit-scrollbar-thumb:hover,
+.chapters-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1e538e 100%);
+}
+
+/* ─── Smooth Transitions for All Interactive Elements ─── */
+.chapters-card-v2 *,
+.chapters-stat-card *,
+.chapters-btn *,
+.chapters-toolbar * {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Focus Indicators for Accessibility ─── */
+.chapters-card-v2:focus-within {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* ─── Skeleton Loader Enhancement ─── */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.chapters-card-skeleton,
+.chapters-stat-card-skeleton {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(
+    90deg,
+    #f1f5f9 0%,
+    #e2e8f0 50%,
+    #f1f5f9 100%
+  );
+  background-size: 1000px 100%;
 }
 
 /* ─── Toolbar two-row layout with visible labels ─── */
