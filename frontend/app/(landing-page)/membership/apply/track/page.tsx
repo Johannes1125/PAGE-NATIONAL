@@ -178,12 +178,16 @@ function PrintableForm({ state }: { state: ApplicationFormState }) {
       <div className="pf-references">
         <div className="pf-ref-col">
           <div>1. Name: <span className="pf-val">{ref1Name}</span></div>
-          <div>Position: <span className="pf-val">{ref1Position}</span></div>
+          {ref1Position && ref1Position !== "(Not Specified)" && (
+            <div>Position: <span className="pf-val">{ref1Position}</span></div>
+          )}
           <div>Address: <span className="pf-val">{ref1Address}</span></div>
         </div>
         <div className="pf-ref-col">
           <div>2. Name: <span className="pf-val">{ref2Name}</span></div>
-          <div>Position: <span className="pf-val">{ref2Position}</span></div>
+          {ref2Position && ref2Position !== "(Not Specified)" && (
+            <div>Position: <span className="pf-val">{ref2Position}</span></div>
+          )}
           <div>Address: <span className="pf-val">{ref2Address}</span></div>
         </div>
       </div>

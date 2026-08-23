@@ -346,8 +346,8 @@ export default function MembershipApplicationsPage() {
               <tbody>
                 {filteredApps.map((app) => {
                   const profile = app.profileData || {};
-                  const fullName = profile.fullName || "Unnamed Applicant";
-                  const email = profile.email || "-";
+                  const fullName = profile.fullName || profile.name || profile.collegeUniversityName || "Unnamed Applicant";
+                  const email = profile.email || profile.emailAddress || "-";
                   const submittedDate = app.submittedAt
                     ? new Date(app.submittedAt).toLocaleDateString()
                     : new Date(app.createdAt).toLocaleDateString();
@@ -423,7 +423,7 @@ export default function MembershipApplicationsPage() {
                     {selectedApp.status.replace("_", " ")}
                   </span>
                   <h3 className="detail-drawer__title">
-                    {selectedApp.profileData?.fullName || "Unnamed Applicant"}
+                    {selectedApp.profileData?.fullName || selectedApp.profileData?.name || selectedApp.profileData?.collegeUniversityName || "Unnamed Applicant"}
                   </h3>
                 </div>
                 <button
@@ -646,7 +646,7 @@ export default function MembershipApplicationsPage() {
                         {selectedApp.referencesData?.characterReferences?.map((r: any, idx: number) => (
                           <div key={idx} style={{ padding: "12px", background: "var(--af-cream)", borderRadius: "8px" }}>
                             <div style={{ fontWeight: "bold", fontSize: "14px" }}>Character Reference #{idx + 1}: {r.name}</div>
-                            <div style={{ fontSize: "12px", color: "var(--admin-muted)" }}>Position: {r.position}</div>
+                            {r.position && <div style={{ fontSize: "12px", color: "var(--admin-muted)" }}>Position: {r.position}</div>}
                             <div style={{ fontSize: "12px", color: "var(--admin-muted)", marginTop: "4px" }}>Address: {r.address}</div>
                           </div>
                         ))}

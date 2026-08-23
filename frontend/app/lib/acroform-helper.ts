@@ -60,9 +60,9 @@ export async function generateAcroform(app: any): Promise<void> {
   // Helper to safely set text fields
   const safeSet = (fieldName: string, value: any) => {
     try {
-      const field = form.getField(fieldName);
-      if (field && field.constructor.name === 'PDFTextField') {
-        form.getTextField(fieldName).setText(String(value ?? ''));
+      const field = form.getTextField(fieldName);
+      if (field) {
+        field.setText(String(value ?? ''));
       }
     } catch (e) {
       console.warn(`Field "${fieldName}" not set:`, e);
