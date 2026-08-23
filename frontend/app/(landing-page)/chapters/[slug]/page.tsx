@@ -1,22 +1,12 @@
-// This chapter detail page derives its data by matching the dynamic route 'slug'
-// against the shared chapters mock data defined in '../mock-data.ts'.
-// This avoids duplicating mock data structures while keeping chapters dynamic.
-
 "use client";
 import Navbar from "../../components/Navbar";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
-
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { CHAPTERS_DATA } from "../mock-data";
-import { Chapter } from "../types";
+import { chaptersApi } from "../../../lib/api-client";
 import Lightbox from "../../components/Lightbox";
 import { FileText, FileImage, Presentation, Download, Info, Calendar, MapPin, ChevronDown, Award, Users, BookOpen, AlertCircle } from "lucide-react";
 import "./chapter-detail.css";
-
-// ── Shared Navbar Component ─────────────────────────────────────────────────
-
 
 // ── Detail page animations ──────────────────────────────────────────────────
 const containerVariants: Variants = {
@@ -65,10 +55,7 @@ export default function ChapterDetailPage({
 
   const [scrolled, setScrolled] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [chapter, setChapter] = useState<Chapter | null>(null);
-  
-  // States for Officers tab switcher
-  const [selectedTerm, setSelectedTerm] = useState("2024-2026");
+  const [chapter, setChapter] = useState<any | null>(null);
   
   // Expanded IDs states
   const [expandedActivity, setExpandedActivity] = useState<string | null>(null);
@@ -84,16 +71,47 @@ export default function ChapterDetailPage({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Fetch / find chapter mock data
+  // Fetch chapter data from NestJS API by slug
   useEffect(() => {
-    setLoading(true);
-    const found = CHAPTERS_DATA.find((c) => c.slug === slug) ?? null;
-    setChapter(found);
-    
-    // Simulate brief API loading state
-    const t = setTimeout(() => setLoading(false), 650);
-    return () => clearTimeout(t);
+    async function fetchChapter() {
+      try {
+        setLoading(true);
+        const res = await chaptersApi.get(slug);
+        if (res.success && res.data) {
+          setChapter(res.data);
+        } else {
+          setChapter(null);
+        }
+      } catch (err) {
+        console.error("Failed to load chapter:", err);
+        setChapter(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchChapter();
   }, [slug]);
+
+  // Dynamically extract and group officers' terms from the database
+  const terms = useMemo(() => {
+    if (!chapter || !chapter.officers || chapter.officers.length === 0) return [];
+    const years = Array.from(new Set(chapter.officers.map((o: any) => o.year_joined || 2024))) as number[];
+    return years.sort((a, b) => b - a); // latest years first
+  }, [chapter]);
+
+  // Selected term year (e.g. 2024 represents "2024-2026")
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (terms.length > 0 && selectedYear === null) {
+      setSelectedYear(terms[0]);
+    }
+  }, [terms, selectedYear]);
+
+  const currentOfficers = useMemo(() => {
+    if (!chapter || !chapter.officers || selectedYear === null) return [];
+    return chapter.officers.filter((o: any) => o.year_joined === selectedYear);
+  }, [chapter, selectedYear]);
 
   if (!loading && !chapter) {
     return (
@@ -123,29 +141,14 @@ export default function ChapterDetailPage({
   };
 
   const getDocIcon = (type: string) => {
-    switch (type) {
-      case "pdf": return <FileText className="doc-icon doc-icon--pdf" />;
-      case "docx": return <FileText className="doc-icon doc-icon--docx" />;
-      case "pptx": return <Presentation className="doc-icon doc-icon--pptx" />;
-      case "image": return <FileImage className="doc-icon doc-icon--image" />;
-      default: return <FileText className="doc-icon" />;
+    const t = String(type || "").toLowerCase();
+    if (t.includes("pdf")) return <FileText className="doc-icon doc-icon--pdf" />;
+    if (t.includes("doc")) return <FileText className="doc-icon doc-icon--docx" />;
+    if (t.includes("ppt")) return <Presentation className="doc-icon doc-icon--pptx" />;
+    if (t.includes("png") || t.includes("jpg") || t.includes("jpeg") || t.includes("image")) {
+      return <FileImage className="doc-icon doc-icon--image" />;
     }
-  };
-
-  const currentOfficers = chapter
-    ? chapter.officers.filter((o) => o.term === selectedTerm)
-    : [];
-
-  const activityLabels: Record<string, string> = {
-    conference: "Conference",
-    seminar: "Seminar",
-    workshop: "Workshop",
-    other: "Other Event",
-  };
-
-  const handleTermChange = (term: string) => {
-    if (term === selectedTerm) return;
-    setSelectedTerm(term);
+    return <FileText className="doc-icon" />;
   };
 
   const handleOpenLightbox = (index: number) => {
@@ -153,19 +156,17 @@ export default function ChapterDetailPage({
     setLightboxOpen(true);
   };
 
+  // Mapped values
+  const coverImageUrl = chapter?.images?.[0]?.file_url || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'><rect width='100%' height='100%' fill='%23143152'/><rect width='90%' height='90%' x='5%' y='5%' fill='none' stroke='%23ffffff' stroke-width='2' stroke-opacity='0.1'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='system-ui, sans-serif' font-weight='bold' font-size='36' fill='%23ffffff'>PAGE</text></svg>";
+  const establishedYear = chapter ? new Date(chapter.created_at).getFullYear() : 2010;
+  const taglineText = chapter?.short_description || "Empowering graduate education and research.";
+  const overviewText = chapter?.overview || "";
+  const missionText = chapter?.mission || "To promote graduate academic excellence, faculty growth, and research development.";
+  const visionText = chapter?.vision || "To be a leading regional consortium representing graduate programs throughout the nation.";
+
   return (
     <>
       <Navbar scrolled={scrolled} />
-
-      {/* Access Control Placeholder Guest Banner */}
-     {/*  <div className="guest-banner">
-        <div className="container guest-banner__inner">
-          <span className="guest-banner__icon"><Info size={14} /></span>
-          <p className="guest-banner__text">
-            <strong>Viewing as Guest</strong>. You are currently viewing public information. Editing capabilities are reserved for Chapter PIOs.
-          </p>
-        </div>
-      </div> */}
 
       {/* Hero Breadcrumb and Action Section */}
       <section className="chapter-detail-hero-bar">
@@ -175,7 +176,7 @@ export default function ChapterDetailPage({
             <span className="chapter-detail-hero-bar__sep">/</span>
             <Link href="/chapters" className="chapter-detail-hero-bar__link">Chapters</Link>
             <span className="chapter-detail-hero-bar__sep">/</span>
-            <span className="chapter-detail-hero-bar__current">{chapter?.chapter_name}</span>
+            <span className="chapter-detail-hero-bar__current">{chapter?.title}</span>
           </div>
           <Link href="/chapters" className="chapter-detail-hero-bar__back">
             &larr; Back to Directory
@@ -198,26 +199,26 @@ export default function ChapterDetailPage({
                 <div className="ch-hero__card">
                   {/* Left Column: Visual representation */}
                   <div className="ch-hero__visual">
-                    <img src={chapter.cover_image_url} alt={chapter.chapter_name} className="ch-hero__img" />
+                    <img src={coverImageUrl} alt={chapter.title} className="ch-hero__img" />
                     <div className="ch-hero__badge">{chapter.region} Region</div>
                   </div>
 
                   {/* Right Column: Key Details */}
                   <div className="ch-hero__content">
-                    <h1 className="ch-hero__title">{chapter.chapter_name}</h1>
-                    <p className="ch-hero__tagline">"{chapter.tagline}"</p>
+                    <h1 className="ch-hero__title">{chapter.title}</h1>
+                    <p className="ch-hero__tagline">"{taglineText}"</p>
                     <div className="ch-hero__stats">
                       <div className="ch-hero__stat-pill">
                         <Award size={15} />
-                        <span>Established {chapter.established_year}</span>
+                        <span>Established {establishedYear}</span>
                       </div>
                       <div className="ch-hero__stat-pill">
                         <Users size={15} />
-                        <span>{chapter.member_institutions_count} Member Universities</span>
+                        <span>{chapter.officers?.length || 10} Chapter Officers</span>
                       </div>
                       <div className="ch-hero__stat-pill">
                         <BookOpen size={15} />
-                        <span>{chapter.activities.length} Regional Activities</span>
+                        <span>{chapter.activities?.length || 0} Regional Activities</span>
                       </div>
                     </div>
                   </div>
@@ -232,16 +233,16 @@ export default function ChapterDetailPage({
                 {/* ── SECTION 2: About the Chapter ── */}
                 <motion.section className="ch-section card-container" variants={sectionVariants}>
                   <h2 className="ch-section__title">About the Chapter</h2>
-                  <p className="ch-section__desc">{chapter.description}</p>
+                  <p className="ch-section__desc">{overviewText}</p>
                   
                   <div className="ch-mv-grid">
                     <div className="ch-mv-block">
                       <h3 className="ch-mv-block__title">Our Mission</h3>
-                      <p className="ch-mv-block__text">{chapter.mission}</p>
+                      <p className="ch-mv-block__text">{missionText}</p>
                     </div>
                     <div className="ch-mv-block">
                       <h3 className="ch-mv-block__title">Our Vision</h3>
-                      <p className="ch-mv-block__text">{chapter.vision}</p>
+                      <p className="ch-mv-block__text">{visionText}</p>
                     </div>
                   </div>
                 </motion.section>
@@ -251,167 +252,181 @@ export default function ChapterDetailPage({
                   <div className="ch-section__header-row">
                     <h2 className="ch-section__title">Chapter Officers</h2>
                     
-                    {/* Term switcher using layoutId sliding pill */}
-                    <div className="term-selector" role="tablist" aria-label="Filter terms">
-                      {["2024-2026", "2022-2024"].map((term) => {
-                        const isActive = selectedTerm === term;
-                        return (
-                          <button
-                            key={term}
-                            role="tab"
-                            aria-selected={isActive}
-                            className={`term-selector__btn${isActive ? " term-selector__btn--active" : ""}`}
-                            onClick={() => handleTermChange(term)}
-                          >
-                            {term}
-                            {isActive && (
-                              <motion.div
-                                layoutId="active-term-pill"
-                                className="term-selector__active-indicator"
-                                transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                              />
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
+                    {/* Term switcher using dynamic terms */}
+                    {terms.length > 0 && (
+                      <div className="term-selector" role="tablist" aria-label="Filter terms">
+                        {terms.map((year) => {
+                          const label = `${year}-${year + 2}`;
+                          const isActive = selectedYear === year;
+                          return (
+                            <button
+                              key={year}
+                              role="tab"
+                              aria-selected={isActive}
+                              className={`term-selector__btn${isActive ? " term-selector__btn--active" : ""}`}
+                              onClick={() => setSelectedYear(year)}
+                            >
+                              {label}
+                              {isActive && (
+                                <motion.div
+                                  layoutId="active-term-pill"
+                                  className="term-selector__active-indicator"
+                                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                                />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
 
                   <AnimatePresence mode="wait">
-                    <motion.div
-                      key={selectedTerm}
-                      initial={{ opacity: 0, y: 12 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -12 }}
-                      transition={{ duration: 0.25 }}
-                      className="ch-officers-grid"
-                    >
-                      {currentOfficers.map((officer) => (
-                        <div key={officer.name} className="ch-officer-card">
-                          <div className="ch-officer-card__avatar">
-                            <Image
-                              src={officer.photo_url}
-                              width={80}
-                              height={80}
-                              alt={`${officer.name} profile photo`}
-                              unoptimized
-                            />
+                    {currentOfficers.length === 0 ? (
+                      <p style={{ color: "var(--af-text-muted)", fontSize: "14px" }}>No officers configured for this term.</p>
+                    ) : (
+                      <motion.div
+                        key={selectedYear}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -12 }}
+                        transition={{ duration: 0.25 }}
+                        className="ch-officers-grid"
+                      >
+                        {currentOfficers.map((officer: any) => (
+                          <div key={officer.id} className="ch-officer-card">
+                            <div className="ch-officer-card__avatar">
+                              <img
+                                src="/images/officer-placeholder.png"
+                                width={80}
+                                height={80}
+                                alt={`${officer.name} profile photo`}
+                                style={{ objectFit: "cover", borderRadius: "50%" }}
+                              />
+                            </div>
+                            <div className="ch-officer-card__info">
+                              <span className="ch-officer-card__role">{officer.category_type}</span>
+                              <h4 className="ch-officer-card__name">{officer.name}</h4>
+                              <p className="ch-officer-card__uni">Member University</p>
+                            </div>
                           </div>
-                          <div className="ch-officer-card__info">
-                            <span className="ch-officer-card__role">{officer.position}</span>
-                            <h4 className="ch-officer-card__name">{officer.name}</h4>
-                            <p className="ch-officer-card__uni">{officer.university}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </motion.div>
+                        ))}
+                      </motion.div>
+                    )}
                   </AnimatePresence>
                 </motion.section>
 
                 {/* ── SECTION 4: Chapter Activities ── */}
                 <motion.section className="ch-section card-container" variants={sectionVariants}>
                   <h2 className="ch-section__title">Chapter Activities</h2>
-                  <div className="ch-activities-list">
-                    {chapter.activities.map((act) => {
-                      const isExpanded = expandedActivity === act.title;
-                      return (
-                        <div key={act.title} className="ch-activity-item">
-                          <div
-                            className="ch-activity-item__header"
-                            onClick={() => setExpandedActivity(isExpanded ? null : act.title)}
-                            role="button"
-                            tabIndex={0}
-                            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setExpandedActivity(isExpanded ? null : act.title); }}
-                          >
-                            <div className="ch-activity-item__title-col">
-                              <span className={`ch-activity-badge ch-activity-badge--${act.type}`}>
-                                {activityLabels[act.type]}
-                              </span>
-                              <h3 className="ch-activity-item__title">{act.title}</h3>
+                  {(!chapter.activities || chapter.activities.length === 0) ? (
+                    <p style={{ color: "var(--af-text-muted)", fontSize: "14px" }}>No recent activities listed.</p>
+                  ) : (
+                    <div className="ch-activities-list">
+                      {chapter.activities.map((act: any) => {
+                        const isExpanded = expandedActivity === act.id;
+                        return (
+                          <div key={act.id} className="ch-activity-item">
+                            <div
+                              className="ch-activity-item__header"
+                              onClick={() => setExpandedActivity(isExpanded ? null : act.id)}
+                              role="button"
+                              tabIndex={0}
+                              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setExpandedActivity(isExpanded ? null : act.id); }}
+                            >
+                              <div className="ch-activity-item__title-col">
+                                <span className="ch-activity-badge ch-activity-badge--conference">
+                                  Event
+                                </span>
+                                <h3 className="ch-activity-item__title">{act.title}</h3>
+                              </div>
+                              <div className="ch-activity-item__trigger">
+                                <span className={`ch-trigger-chevron${isExpanded ? " ch-trigger-chevron--rotated" : ""}`}>
+                                  <ChevronDown size={18} />
+                                </span>
+                              </div>
                             </div>
-                            <div className="ch-activity-item__trigger">
-                              <span className={`ch-trigger-chevron${isExpanded ? " ch-trigger-chevron--rotated" : ""}`}>
-                                <ChevronDown size={18} />
-                              </span>
-                            </div>
-                          </div>
 
-                          <AnimatePresence initial={false}>
-                            {isExpanded && (
-                              <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: "auto", opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.28, ease: "easeInOut" }}
-                                style={{ overflow: "hidden" }}
-                              >
-                                <div className="ch-activity-item__body">
-                                  <div className="ch-activity-item__meta">
-                                    <div className="ch-activity-meta-p">
-                                      <Calendar size={13} />
-                                      <span>{formatDate(act.date)}</span>
+                            <AnimatePresence initial={false}>
+                              {isExpanded && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: "auto", opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  transition={{ duration: 0.28, ease: "easeInOut" }}
+                                  style={{ overflow: "hidden" }}
+                                >
+                                  <div className="ch-activity-item__body">
+                                    <div className="ch-activity-item__meta">
+                                      <div className="ch-activity-meta-p">
+                                        <Calendar size={13} />
+                                        <span>{formatDate(act.date)}</span>
+                                      </div>
                                     </div>
-                                    <div className="ch-activity-meta-p">
-                                      <MapPin size={13} />
-                                      <span>{act.venue}</span>
-                                    </div>
+                                    <p className="ch-activity-item__desc">{act.description}</p>
+                                    {act.image_url && (
+                                      <img src={act.image_url} alt={act.title} className="ch-activity-img" style={{ marginTop: "12px", maxWidth: "100%", borderRadius: "8px" }} />
+                                    )}
                                   </div>
-                                  <p className="ch-activity-item__desc">{act.description}</p>
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      );
-                    })}
-                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </motion.section>
 
                 {/* ── SECTION 5: Announcements ── */}
                 <motion.section className="ch-section card-container" variants={sectionVariants}>
                   <h2 className="ch-section__title">Recent Announcements</h2>
-                  <div className="ch-announcements-list">
-                    {chapter.announcements.map((ann) => {
-                      const isExpanded = expandedAnnouncement === ann.title;
-                      return (
-                        <div key={ann.title} className="ch-ann-item">
-                          <div
-                            className="ch-ann-item__header"
-                            onClick={() => setExpandedAnnouncement(isExpanded ? null : ann.title)}
-                            role="button"
-                            tabIndex={0}
-                            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setExpandedAnnouncement(isExpanded ? null : ann.title); }}
-                          >
-                            <div>
-                              <h3 className="ch-ann-item__title">{ann.title}</h3>
-                              <span className="ch-ann-item__date">{formatDate(ann.date)}</span>
+                  {(!chapter.announcements || chapter.announcements.length === 0) ? (
+                    <p style={{ color: "var(--af-text-muted)", fontSize: "14px" }}>No recent announcements.</p>
+                  ) : (
+                    <div className="ch-announcements-list">
+                      {chapter.announcements.map((ann: any) => {
+                        const isExpanded = expandedAnnouncement === ann.id;
+                        return (
+                          <div key={ann.id} className="ch-ann-item">
+                            <div
+                              className="ch-ann-item__header"
+                              onClick={() => setExpandedAnnouncement(isExpanded ? null : ann.id)}
+                              role="button"
+                              tabIndex={0}
+                              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setExpandedAnnouncement(isExpanded ? null : ann.id); }}
+                            >
+                              <div>
+                                <h3 className="ch-ann-item__title">{ann.title}</h3>
+                                <span className="ch-ann-item__date">{formatDate(ann.date)}</span>
+                              </div>
+                              <div className="ch-ann-item__trigger">
+                                <span className={`ch-trigger-chevron${isExpanded ? " ch-trigger-chevron--rotated" : ""}`}>
+                                  <ChevronDown size={18} />
+                                </span>
+                              </div>
                             </div>
-                            <div className="ch-ann-item__trigger">
-                              <span className={`ch-trigger-chevron${isExpanded ? " ch-trigger-chevron--rotated" : ""}`}>
-                                <ChevronDown size={18} />
-                              </span>
-                            </div>
-                          </div>
 
-                          <AnimatePresence initial={false}>
-                            {isExpanded && (
-                              <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: "auto", opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.28, ease: "easeInOut" }}
-                                style={{ overflow: "hidden" }}
-                              >
-                                <div className="ch-ann-item__body">
-                                  <p className="ch-ann-item__text">{ann.body}</p>
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      );
-                    })}
-                  </div>
+                            <AnimatePresence initial={false}>
+                              {isExpanded && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: "auto", opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  transition={{ duration: 0.28, ease: "easeInOut" }}
+                                  style={{ overflow: "hidden" }}
+                                >
+                                  <div className="ch-ann-item__body">
+                                    <p className="ch-ann-item__text">{ann.content}</p>
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </motion.section>
               </div>
 
@@ -420,59 +435,69 @@ export default function ChapterDetailPage({
                 {/* ── SECTION 6: Gallery ── */}
                 <motion.section className="ch-sidebar-section card-container" variants={sectionVariants}>
                   <h3 className="ch-sidebar-section__title">Photo Gallery</h3>
-                  <div className="ch-gallery-grid">
-                    {chapter.gallery.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="ch-gallery-item"
-                        onClick={() => handleOpenLightbox(idx)}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleOpenLightbox(idx); }}
-                        aria-label={`Open gallery image ${idx + 1}`}
-                      >
-                        <img src={item.image_url} alt={item.caption} className="ch-gallery-img" />
-                        <div className="ch-gallery-overlay">
-                          <span className="ch-gallery-caption">{item.caption}</span>
+                  {(!chapter.images || chapter.images.length === 0) ? (
+                    <p style={{ color: "var(--af-text-muted)", fontSize: "14px", margin: 0 }}>No photos uploaded yet.</p>
+                  ) : (
+                    <div className="ch-gallery-grid">
+                      {chapter.images.map((item: any, idx: number) => (
+                        <div
+                          key={item.id}
+                          className="ch-gallery-item"
+                          onClick={() => handleOpenLightbox(idx)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleOpenLightbox(idx); }}
+                          aria-label={`Open gallery image ${idx + 1}`}
+                        >
+                          <img src={item.file_url} alt={item.file_name} className="ch-gallery-img" />
+                          <div className="ch-gallery-overlay">
+                            <span className="ch-gallery-caption">{item.file_name || "Gallery Image"}</span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </motion.section>
 
                 {/* ── SECTION 7: Document Repository ── */}
                 <motion.section className="ch-sidebar-section card-container" variants={sectionVariants}>
                   <h3 className="ch-sidebar-section__title">Document Repository</h3>
-                  <div className="ch-docs-list">
-                    {chapter.documents.map((doc) => (
-                      <div key={doc.file_name} className="ch-doc-row">
-                        <div className="ch-doc-row__info">
-                          {getDocIcon(doc.file_type)}
-                          <div style={{ minWidth: 0 }}>
-                            <p className="ch-doc-filename" title={doc.file_name}>{doc.file_name}</p>
-                            <span className="ch-doc-date">Uploaded: {new Date(doc.upload_date).toLocaleDateString()}</span>
+                  {(!chapter.documents || chapter.documents.length === 0) ? (
+                    <p style={{ color: "var(--af-text-muted)", fontSize: "14px", margin: 0 }}>No documents available.</p>
+                  ) : (
+                    <div className="ch-docs-list">
+                      {chapter.documents.map((doc: any) => (
+                        <div key={doc.id} className="ch-doc-row">
+                          <div className="ch-doc-row__info">
+                            {getDocIcon(doc.file_type)}
+                            <div style={{ minWidth: 0 }}>
+                              <p className="ch-doc-filename" title={doc.file_name}>{doc.file_name}</p>
+                              <span className="ch-doc-date">Uploaded: {new Date(doc.created_at).toLocaleDateString()}</span>
+                            </div>
                           </div>
+                          <a
+                            href={doc.file_url}
+                            download={doc.file_name}
+                            className="ch-doc-download"
+                            aria-label={`Download ${doc.file_name}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Download size={14} />
+                          </a>
                         </div>
-                        <a
-                          href={doc.download_url}
-                          download={doc.file_name}
-                          className="ch-doc-download"
-                          aria-label={`Download ${doc.file_name}`}
-                        >
-                          <Download size={14} />
-                        </a>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </motion.section>
               </div>
             </div>
 
             {/* Shared Lightbox Overlay */}
             <AnimatePresence>
-              {lightboxOpen && (
+              {lightboxOpen && chapter.images && (
                 <Lightbox
-                  images={chapter.gallery.map(g => g.image_url)}
+                  images={chapter.images.map((g: any) => g.file_url)}
                   startIndex={lightboxStart}
                   onClose={() => setLightboxOpen(false)}
                 />

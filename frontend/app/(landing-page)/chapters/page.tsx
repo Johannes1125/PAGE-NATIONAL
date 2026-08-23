@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { CHAPTERS_DATA } from "./mock-data";
+import { chaptersApi } from "../../lib/api-client";
 import { MapPin, Search, Calendar, GraduationCap, ArrowRight, FileText, Globe2 } from "lucide-react";
 import "./chapters.css";
 
@@ -23,7 +23,7 @@ function ChaptersHero() {
           <h1 className="cbl-hero-title">Regional Chapters</h1>
           <div className="cbl-gold-line" />
           <p className="cbl-hero-subtitle">
-            Discover PAGE&apos;s 18 regional chapters across the Philippines. Explore their local leadership, academic initiatives, and research collaborations.
+            Discover PAGE&apos;s regional chapters across the Philippines. Explore their local leadership, academic initiatives, and research collaborations.
           </p>
         </div>
       </div>
@@ -84,16 +84,29 @@ export default function ChaptersPage() {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<"All" | "Luzon" | "Visayas" | "Mindanao">("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [chapters, setChapters] = useState<any[]>([]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", onScroll);
     
-    const timer = setTimeout(() => setLoading(false), 400);
+    async function fetchChapters() {
+      try {
+        setLoading(true);
+        const res = await chaptersApi.list({ status: "published" });
+        if (res.success && Array.isArray(res.data)) {
+          setChapters(res.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch chapters:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchChapters();
 
     return () => {
       window.removeEventListener("scroll", onScroll);
-      clearTimeout(timer);
     };
   }, []);
 
@@ -107,19 +120,18 @@ export default function ChaptersPage() {
   };
 
   const filteredChapters = useMemo(() => {
-    return CHAPTERS_DATA.filter((chapter) => {
-      const matchesRegion = activeFilter === "All" ? true : chapter.region === activeFilter;
+    return chapters.filter((chapter) => {
+      const matchesRegion = activeFilter === "All" ? true : chapter.island_group === activeFilter;
       const q = searchQuery.trim().toLowerCase();
       if (!q) return matchesRegion;
 
       const matchesSearch =
-        chapter.chapter_name.toLowerCase().includes(q) ||
+        chapter.title.toLowerCase().includes(q) ||
         chapter.region.toLowerCase().includes(q) ||
-        chapter.tagline.toLowerCase().includes(q) ||
-        (chapter.description && chapter.description.toLowerCase().includes(q));
+        (chapter.short_description && chapter.short_description.toLowerCase().includes(q));
       return matchesRegion && matchesSearch;
     });
-  }, [activeFilter, searchQuery]);
+  }, [chapters, activeFilter, searchQuery]);
 
   const filterOptions: Array<{ id: "All" | "Luzon" | "Visayas" | "Mindanao"; label: string }> = [
     { id: "All", label: "All Regions" },
@@ -141,7 +153,7 @@ export default function ChaptersPage() {
             <div className="chapters-tabs-bar" role="tablist" aria-label="Filter chapters by region">
               {filterOptions.map((opt) => {
                 const isActive = activeFilter === opt.id;
-                const count = CHAPTERS_DATA.filter(c => opt.id === "All" ? true : c.region === opt.id).length;
+                const count = chapters.filter(c => opt.id === "All" ? true : c.island_group === opt.id).length;
                 return (
                   <button
                     key={opt.id}
@@ -203,49 +215,56 @@ export default function ChaptersPage() {
                   initial="hidden"
                   animate="visible"
                 >
-                  {filteredChapters.map((chapter) => (
-                    <motion.article
-                      key={chapter.slug}
-                      className="chapters-card"
-                      variants={cardVariants}
-                    >
-                      {/* Cover Photo & Badge */}
-                      <div className="chapters-card__cover">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={chapter.cover_image_url}
-                          alt={`${chapter.chapter_name} Cover`}
-                          className="chapters-card__img"
-                        />
-                        <span className="chapters-card__badge">{chapter.region}</span>
-                      </div>
+                  {filteredChapters.map((chapter) => {
+                    const coverImageUrl = chapter.images?.[0]?.file_url || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'><rect width='100%' height='100%' fill='%23143152'/><rect width='90%' height='90%' x='5%' y='5%' fill='none' stroke='%23ffffff' stroke-width='2' stroke-opacity='0.1'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='system-ui, sans-serif' font-weight='bold' font-size='36' fill='%23ffffff'>PAGE</text></svg>";
+                    const establishedYear = new Date(chapter.created_at || new Date()).getFullYear();
+                    const taglineText = chapter.short_description || "Empowering graduate education and research.";
+                    const officersCount = chapter.officers?.length || 0;
 
-                      {/* Content Body */}
-                      <div className="chapters-card__body">
-                        <h3 className="chapters-card__title">{chapter.chapter_name}</h3>
-
-                        <div className="chapters-card__meta">
-                          <div className="chapters-card__meta-item">
-                            <Calendar size={13} />
-                            <span>Est. {chapter.established_year}</span>
-                          </div>
-                          <div className="chapters-card__meta-item">
-                            <GraduationCap size={13} />
-                            <span>{chapter.member_institutions_count} Institutions</span>
-                          </div>
+                    return (
+                      <motion.article
+                        key={chapter.slug}
+                        className="chapters-card"
+                        variants={cardVariants}
+                      >
+                        {/* Cover Photo & Badge */}
+                        <div className="chapters-card__cover">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={coverImageUrl}
+                            alt={`${chapter.title} Cover`}
+                            className="chapters-card__img"
+                          />
+                          <span className="chapters-card__badge">{chapter.region}</span>
                         </div>
 
-                        <p className="chapters-card__tagline">{chapter.tagline}</p>
+                        {/* Content Body */}
+                        <div className="chapters-card__body">
+                          <h3 className="chapters-card__title">{chapter.title}</h3>
 
-                        <div className="chapters-card__footer">
-                          <Link href={`/chapters/${chapter.slug}`} className="chapters-card__cta">
-                            <span>View Chapter</span>
-                            <ArrowRight size={14} />
-                          </Link>
+                          <div className="chapters-card__meta">
+                            <div className="chapters-card__meta-item">
+                              <Calendar size={13} />
+                              <span>Est. {establishedYear}</span>
+                            </div>
+                            <div className="chapters-card__meta-item">
+                              <GraduationCap size={13} />
+                              <span>{officersCount || 10} Officers</span>
+                            </div>
+                          </div>
+
+                          <p className="chapters-card__tagline">{taglineText}</p>
+
+                          <div className="chapters-card__footer">
+                            <Link href={`/chapters/${chapter.slug}`} className="chapters-card__cta">
+                              <span>View Chapter</span>
+                              <ArrowRight size={14} />
+                            </Link>
+                          </div>
                         </div>
-                      </div>
-                    </motion.article>
-                  ))}
+                      </motion.article>
+                    );
+                  })}
                 </motion.div>
               </AnimatePresence>
             )}

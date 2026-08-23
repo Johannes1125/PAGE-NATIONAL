@@ -260,12 +260,17 @@ export class ChaptersService {
 
   // ── Single ──────────────────────────────────────────────────────────────────
 
-  async findOne(id: string) {
-    const chapter = await this.prisma.chapter.findUnique({
-      where: { id },
+  async findOne(idOrSlug: string) {
+    const chapter = await this.prisma.chapter.findFirst({
+      where: {
+        OR: [
+          { id: idOrSlug },
+          { slug: idOrSlug },
+        ],
+      },
       include: CHAPTER_INCLUDE,
     });
-    if (!chapter) throw new NotFoundException(`Chapter with id "${id}" not found.`);
+    if (!chapter) throw new NotFoundException(`Chapter with identifier "${idOrSlug}" not found.`);
     return { success: true, data: chapter, message: 'Chapter retrieved successfully.' };
   }
 
