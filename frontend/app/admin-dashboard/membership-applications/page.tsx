@@ -434,15 +434,31 @@ export default function MembershipApplicationsPage() {
                   <div className="contact-row-list">
                     <div className="contact-row">
                       <Mail size={15} />
-                      <span>{selectedApp.profileData?.email || "-"}</span>
+                      <span>{selectedApp.profileData?.email || selectedApp.profileData?.emailAddress || "-"}</span>
                     </div>
                     <div className="contact-row">
                       <Phone size={15} />
-                      <span>{selectedApp.profileData?.phone || "-"}</span>
+                      <span>
+                        <strong>Mobile:</strong> {
+                          (selectedApp.membershipType?.toLowerCase() === "institutional"
+                            ? selectedApp.profileData?.phone
+                            : (selectedApp.profileData?.telMobileNo || selectedApp.profileData?.phone)) || "-"
+                        }
+                      </span>
+                    </div>
+                    <div className="contact-row">
+                      <Phone size={15} />
+                      <span>
+                        <strong>Tel:</strong> {
+                          (selectedApp.membershipType?.toLowerCase() === "institutional"
+                            ? selectedApp.profileData?.telMobileNo
+                            : selectedApp.profileData?.telephoneNo) || "-"
+                        }
+                      </span>
                     </div>
                     <div className="contact-row">
                       <MapPin size={15} />
-                      <span>{selectedApp.profileData?.homeAddress || "-"}</span>
+                      <span>{selectedApp.profileData?.homeAddress || selectedApp.profileData?.institutionAddress || "-"}</span>
                       {selectedApp.profileData?.region && (
                         <span className="contact-row__region">{selectedApp.profileData.region}</span>
                       )}

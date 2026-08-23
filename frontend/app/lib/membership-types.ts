@@ -44,6 +44,7 @@ export interface ApplicationFormState {
   fullName: string;
   email: string;
   phone: string;
+  telephoneNo?: string;
   institution: string;
   address: string;
   membershipType: 'life' | 'institutional' | 'associate' | 'regular' | null;

@@ -69,6 +69,7 @@ const initialFormState: ApplicationFormState = {
   fullName: "",
   email: "",
   phone: "",
+  telephoneNo: "",
   institution: "",
   address: "",
   membershipType: null,
@@ -327,6 +328,7 @@ function formReducer(state: ApplicationFormState, action: Action): ApplicationFo
         emailAddress: profile.emailAddress || profile.email || "",
         phone: profile.phone || profile.telMobileNo || "",
         telMobileNo: profile.telMobileNo || profile.phone || "",
+        telephoneNo: profile.telephoneNo || "",
         region: profile.region || "",
         homeAddress: profile.homeAddress || "",
         enrolleeCount: profile.enrolleeCount !== undefined ? String(profile.enrolleeCount) : "",
@@ -578,16 +580,35 @@ function ApplyContent() {
         if (!state.name?.trim()) { stepErrors.name = "Full Name is required."; isValid = false; }
         if (!state.region?.trim()) { stepErrors.region = "Region is required."; isValid = false; }
         if (!state.homeAddress?.trim()) { stepErrors.homeAddress = "Home Address is required."; isValid = false; }
-        if (!state.telMobileNo?.trim()) { stepErrors.telMobileNo = "Tel./Mobile No. is required."; isValid = false; }
-        else if (!/^\d{7,15}$/.test(state.telMobileNo.trim())) { stepErrors.telMobileNo = "Must be 7–15 digits (numbers only)."; isValid = false; }
+        if (!state.telMobileNo?.trim()) { stepErrors.telMobileNo = "Mobile No. is required."; isValid = false; }
+        else if (!/^\+?\d{7,15}$/.test(state.telMobileNo.trim())) { stepErrors.telMobileNo = "Must be a valid mobile number (e.g. 09171234567 or +639171234567)."; isValid = false; }
+        if (state.telephoneNo?.trim()) {
+          const telDigits = state.telephoneNo.replace(/\D/g, "");
+          if (telDigits.length !== 10) {
+            stepErrors.telephoneNo = "Telephone must be a valid 10-digit number (e.g. (02) 8123-4567).";
+            isValid = false;
+          }
+        }
         if (!state.emailAddress?.trim()) { stepErrors.emailAddress = "Email Address is required."; isValid = false; }
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.emailAddress)) { stepErrors.emailAddress = "Invalid email format."; isValid = false; }
         if (!state.documents["photo_1x1"]) { stepErrors.photo_1x1 = "1x1 Photo is required."; isValid = false; }
       } else if (state.membershipType === "institutional") {
         if (!state.collegeUniversityName?.trim()) { stepErrors.collegeUniversityName = "College/University Name is required."; isValid = false; }
         if (!state.institutionAddress?.trim()) { stepErrors.institutionAddress = "Institution Complete Address is required."; isValid = false; }
-        if (!state.telMobileNo?.trim()) { stepErrors.telMobileNo = "Telephone/Mobile Number is required."; isValid = false; }
-        else if (!/^\d{7,15}$/.test(state.telMobileNo.trim())) { stepErrors.telMobileNo = "Must be 7–15 digits (numbers only)."; isValid = false; }
+        if (!state.telMobileNo?.trim()) { stepErrors.telMobileNo = "Telephone No. is required."; isValid = false; }
+        else {
+          const telDigits = state.telMobileNo.replace(/\D/g, "");
+          if (telDigits.length !== 10) {
+            stepErrors.telMobileNo = "Telephone must be a valid 10-digit number (e.g. (02) 8123-4567).";
+            isValid = false;
+          }
+        }
+        if (state.phone?.trim()) {
+          if (!/^\+?\d{7,15}$/.test(state.phone.trim())) {
+            stepErrors.phone = "Must be a valid mobile number (e.g. 09171234567 or +639171234567).";
+            isValid = false;
+          }
+        }
         if (!state.emailAddress?.trim()) { stepErrors.emailAddress = "Email Address is required."; isValid = false; }
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.emailAddress)) { stepErrors.emailAddress = "Invalid email format."; isValid = false; }
         if (!state.presidentName?.trim()) { stepErrors.presidentName = "President of College/University is required."; isValid = false; }
@@ -596,8 +617,15 @@ function ApplyContent() {
         if (!state.fullName?.trim()) { stepErrors.fullName = "Full Name is required."; isValid = false; }
         if (!state.region?.trim()) { stepErrors.region = "Region is required."; isValid = false; }
         if (!state.homeAddress?.trim()) { stepErrors.homeAddress = "Home Address is required."; isValid = false; }
-        if (!state.phone?.trim()) { stepErrors.phone = "Phone number is required."; isValid = false; }
-        else if (!/^\d{7,15}$/.test(state.phone.trim())) { stepErrors.phone = "Must be 7–15 digits (numbers only)."; isValid = false; }
+        if (!state.phone?.trim()) { stepErrors.phone = "Mobile No. is required."; isValid = false; }
+        else if (!/^\+?\d{7,15}$/.test(state.phone.trim())) { stepErrors.phone = "Must be a valid mobile number (e.g. 09171234567 or +639171234567)."; isValid = false; }
+        if (state.telephoneNo?.trim()) {
+          const telDigits = state.telephoneNo.replace(/\D/g, "");
+          if (telDigits.length !== 10) {
+            stepErrors.telephoneNo = "Telephone must be a valid 10-digit number (e.g. (02) 8123-4567).";
+            isValid = false;
+          }
+        }
         if (!state.email?.trim()) { stepErrors.email = "Email is required."; isValid = false; }
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email)) { stepErrors.email = "Invalid email format."; isValid = false; }
         
@@ -789,17 +817,29 @@ function ApplyContent() {
           name: state.name,
           emailAddress: state.emailAddress,
           telMobileNo: state.telMobileNo,
+          telephoneNo: state.telephoneNo,
           region: state.region,
           homeAddress: state.homeAddress,
+        };
+      } else if (state.membershipType === "institutional") {
+        stepData = {
+          collegeUniversityName: state.collegeUniversityName,
+          institutionAddress: state.institutionAddress,
+          telMobileNo: state.telMobileNo,
+          phone: state.phone,
+          emailAddress: state.emailAddress,
+          presidentName: state.presidentName,
+          deanHeadGraduateSchool: state.deanHeadGraduateSchool,
+          enrolleeCount: state.enrolleeCount !== undefined ? Number(state.enrolleeCount) : undefined,
         };
       } else {
         stepData = {
           fullName: state.fullName,
           email: state.email,
           phone: state.phone,
+          telephoneNo: state.telephoneNo,
           region: state.region,
           homeAddress: state.homeAddress,
-          enrolleeCount: state.membershipType === "institutional" ? Number(state.enrolleeCount) : undefined,
         };
       }
     } else if (stepId === "education-job") {
@@ -1033,6 +1073,47 @@ function ApplyContent() {
   const stepsList = (STEPS as any)[state.membershipType || "default"] || STEPS.default;
   const progress = ((currentStep - 1) / (stepsList.length - 1)) * 100;
 
+  /* ── Formatting Helpers ──────────────────────────────────────────────────── */
+
+  const formatTelephone = (val: string, previousVal = "") => {
+    const isDeleting = previousVal.length > val.length;
+    let digits = val.replace(/\D/g, "");
+    if (digits.length > 0 && digits[0] !== "0") {
+      digits = "0" + digits;
+    }
+    if (digits.length === 0) return "";
+    
+    if (digits.startsWith("02")) {
+      if (digits.length <= 2) {
+        return isDeleting ? digits : `(${digits}`;
+      }
+      const rest = digits.slice(2);
+      if (rest.length <= 4) {
+        return `(02) ${rest}`;
+      }
+      return `(02) ${rest.slice(0, 4)}-${rest.slice(4, 8)}`;
+    } else {
+      if (digits.length <= 3) {
+        return isDeleting ? digits : `(${digits}`;
+      }
+      const area = digits.slice(0, 3);
+      const rest = digits.slice(3);
+      if (rest.length <= 3) {
+        return `(${area}) ${rest}`;
+      }
+      return `(${area}) ${rest.slice(0, 3)}-${rest.slice(3, 7)}`;
+    }
+  };
+
+  const cleanMobile = (val: string) => {
+    let clean = val.replace(/[^0-9+]/g, "");
+    if (clean.includes('+')) {
+      const hasLeading = clean.startsWith('+');
+      clean = (hasLeading ? '+' : '') + clean.replace(/\+/g, '');
+    }
+    return clean;
+  };
+
   /* ── Input Render Helper ─────────────────────────────────────────────────── */
 
   const renderInput = (
@@ -1058,9 +1139,19 @@ function ApplyContent() {
           value={value}
           onChange={(e) => {
             let val = e.target.value;
-            const digitOnlyFields = ["phone", "enrolleeCount", "yearObtained", "expectedGraduationYear", "yearsActiveInPAGE", "teachingFrom", "teachingTo", "adminFrom", "adminTo"];
-            if (digitOnlyFields.includes(field)) {
-              val = val.replace(/\D/g, "");
+            const previousVal = value || "";
+            const isTelephone = field === "telephoneNo" || (state.membershipType === "institutional" && field === "telMobileNo");
+            const isMobile = (state.membershipType !== "institutional" && field === "telMobileNo") || field === "phone";
+
+            if (isTelephone) {
+              val = formatTelephone(val, previousVal);
+            } else if (isMobile) {
+              val = cleanMobile(val);
+            } else {
+              const digitOnlyFields = ["enrolleeCount", "yearObtained", "expectedGraduationYear", "yearsActiveInPAGE", "teachingFrom", "teachingTo", "adminFrom", "adminTo"];
+              if (digitOnlyFields.includes(field)) {
+                val = val.replace(/\D/g, "");
+              }
             }
             setField(field, val);
           }}
@@ -1329,8 +1420,12 @@ function ApplyContent() {
                         {renderInput("institutionAddress", "Institution Complete Address", "123 Taft Avenue, Manila", state.institutionAddress || "", "institutionAddress", { required: true })}
                         
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                          {renderInput("telMobileNo", "Telephone / Mobile Number", "e.g. 028123456", state.telMobileNo || "", "telMobileNo", { required: true })}
-                          {renderInput("emailAddress", "Email Address", "info@university.edu.ph", state.emailAddress || "", "emailAddress", { required: true })}
+                          {renderInput("telMobileNo", "Telephone No.", "(02) 8123-4567", state.telMobileNo || "", "telMobileNo", { type: "tel", required: true })}
+                          {renderInput("phone", "Mobile No.", "09171234567", state.phone || "", "phone", { type: "tel", required: false })}
+                        </div>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "16px" }}>
+                          {renderInput("emailAddress", "Email Address", "info@university.edu.ph", state.emailAddress || "", "emailAddress", { type: "email", required: true })}
                         </div>
 
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "16px" }}>
@@ -1354,7 +1449,10 @@ function ApplyContent() {
                         </div>
                         {renderInput("homeAddress", "Home Address", "123 Campus Lane, Quezon City", state.homeAddress || "", "homeAddress", { required: true })}
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                          {renderInput("telMobileNo", "Mobile / Tel No", "09171234567", state.telMobileNo || "", "telMobileNo", { type: "tel", required: true })}
+                          {renderInput("telMobileNo", "Mobile No.", "09171234567", state.telMobileNo || "", "telMobileNo", { type: "tel", required: true })}
+                          {renderInput("telephoneNo", "Telephone No.", "(02) 8123-4567", state.telephoneNo || "", "telephoneNo", { type: "tel", required: false })}
+                        </div>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "16px" }}>
                           {renderInput("emailAddress", "Email Address", "jane.doe@university.edu.ph", state.emailAddress || "", "emailAddress", { type: "email", required: true })}
                         </div>
                         
@@ -1387,7 +1485,10 @@ function ApplyContent() {
                         </div>
                         {renderInput("homeAddress", "Home Address", "123 Campus Lane, Quezon City", state.homeAddress || "", "homeAddress", { required: true })}
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                          {renderInput("phone", "Mobile / Tel No", "09171234567", state.phone, "phone", { type: "tel", required: true })}
+                          {renderInput("phone", "Mobile No.", "09171234567", state.phone, "phone", { type: "tel", required: true })}
+                          {renderInput("telephoneNo", "Telephone No.", "(02) 8123-4567", state.telephoneNo || "", "telephoneNo", { type: "tel", required: false })}
+                        </div>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "16px" }}>
                           {renderInput("email", "Email Address", "jane.doe@university.edu.ph", state.email, "email", { type: "email", required: true })}
                         </div>
 
@@ -2148,7 +2249,8 @@ function ApplyContent() {
                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 24px", fontSize: "15px" }}>
                             <div style={{ gridColumn: "span 2" }}><strong>College / University Name:</strong> {state.collegeUniversityName}</div>
                             <div style={{ gridColumn: "span 2" }}><strong>Institution Address:</strong> {state.institutionAddress}</div>
-                            <div><strong>Telephone / Mobile:</strong> {state.telMobileNo}</div>
+                            <div><strong>Telephone No:</strong> {state.telMobileNo || "-"}</div>
+                            <div><strong>Mobile No:</strong> {state.phone || "-"}</div>
                             <div><strong>Email Address:</strong> {state.emailAddress}</div>
                             <div><strong>President of College/University:</strong> {state.presidentName}</div>
                             <div><strong>Dean / Head of Graduate School:</strong> {state.deanHeadGraduateSchool}</div>
@@ -2158,7 +2260,8 @@ function ApplyContent() {
                             <div><strong>Full Name:</strong> {state.name}</div>
                             <div><strong>Region:</strong> {state.region}</div>
                             <div style={{ gridColumn: "span 2" }}><strong>Home Address:</strong> {state.homeAddress}</div>
-                            <div><strong>Mobile / Tel No:</strong> {state.telMobileNo}</div>
+                            <div><strong>Mobile No:</strong> {state.telMobileNo || "-"}</div>
+                            <div><strong>Telephone No:</strong> {state.telephoneNo || "-"}</div>
                             <div><strong>Email Address:</strong> {state.emailAddress}</div>
                           </div>
                         ) : (
@@ -2166,7 +2269,8 @@ function ApplyContent() {
                             <div><strong>Full Name:</strong> {state.fullName}</div>
                             <div><strong>Region:</strong> {state.region}</div>
                             <div style={{ gridColumn: "span 2" }}><strong>Home Address:</strong> {state.homeAddress}</div>
-                            <div><strong>Mobile / Tel No:</strong> {state.phone}</div>
+                            <div><strong>Mobile No:</strong> {state.phone || "-"}</div>
+                            <div><strong>Telephone No:</strong> {state.telephoneNo || "-"}</div>
                             <div><strong>Email:</strong> {state.email}</div>
                           </div>
                         )}

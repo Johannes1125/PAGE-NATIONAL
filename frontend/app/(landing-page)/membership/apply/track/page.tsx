@@ -124,7 +124,8 @@ function PrintableForm({ state }: { state: ApplicationFormState }) {
           <div className="pf-col">Home Address: <span className="pf-val">{state.homeAddress || "(Not Specified)"}</span></div>
         </div>
         <div className="pf-row">
-          <div className="pf-col pf-flex-1">Tel No(s)./ Mobile No: <span className="pf-val">{displayPhone || "(Not Specified)"}</span></div>
+          <div className="pf-col pf-flex-1">Mobile No: <span className="pf-val">{(state.membershipType === "institutional" ? state.phone : (isLifeOrRegular ? state.telMobileNo : state.phone)) || "(Not Specified)"}</span></div>
+          <div className="pf-col pf-flex-1">Tel No: <span className="pf-val">{(state.membershipType === "institutional" ? state.telMobileNo : state.telephoneNo) || "(Not Specified)"}</span></div>
           <div className="pf-col pf-flex-1">Email Address: <span className="pf-val">{displayEmail || "(Not Specified)"}</span></div>
         </div>
         <div className="pf-row">
@@ -333,6 +334,7 @@ function TrackContent() {
             fullName: profile.fullName || profile.name || "",
             email: profile.email || profile.emailAddress || "",
             phone: profile.phone || profile.telMobileNo || "",
+            telephoneNo: profile.telephoneNo || "",
             region: profile.region || "",
             homeAddress: profile.homeAddress || "",
             institution: eduJob.whereEmployed ? (eduJob.institution || "") : (eduJob.degreeInstitution || ""),
