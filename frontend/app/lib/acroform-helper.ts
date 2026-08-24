@@ -53,9 +53,17 @@ export async function generateAcroform(app: any): Promise<void> {
   const pdfBytes = await response.arrayBuffer();
 
   // 2. Load PDF document
-  const { PDFDocument } = await import('pdf-lib');
+  const { PDFDocument, StandardFonts } = await import('pdf-lib');
   const pdfDoc = await PDFDocument.load(pdfBytes);
   const form = pdfDoc.getForm();
+
+  // Embed standard Helvetica font to override template bold styles
+  let helveticaFont: any = null;
+  try {
+    helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  } catch (err) {
+    console.warn("Could not embed standard Helvetica font:", err);
+  }
 
   // Helper to safely set text fields with font size adjustment to prevent overlap
   const safeSet = (fieldName: string, value: any) => {
@@ -75,6 +83,13 @@ export async function generateAcroform(app: any): Promise<void> {
           console.warn(`Could not set font size for "${fieldName}":`, fontErr);
         }
         field.setText(textVal);
+        if (helveticaFont) {
+          try {
+            field.updateAppearances(helveticaFont);
+          } catch (fontErr) {
+            console.warn(`Could not set font for "${fieldName}":`, fontErr);
+          }
+        }
       }
     } catch (e) {
       console.warn(`Field "${fieldName}" not set:`, e);
