@@ -22,9 +22,9 @@ export class CharacterReferenceDto {
   @IsString()
   name: string;
 
-  @IsNotEmpty({ message: 'Reference position is required.' })
+  @IsOptional()
   @IsString()
-  position: string;
+  position?: string;
 
   @IsNotEmpty({ message: 'Reference address is required.' })
   @IsString()
