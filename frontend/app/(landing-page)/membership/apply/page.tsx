@@ -1071,6 +1071,8 @@ function ApplyContent() {
   };
 
   const stepsList = (STEPS as any)[state.membershipType || "default"] || STEPS.default;
+  const currentStepConfig = stepsList[currentStep - 1];
+  const currentStepId = currentStepConfig?.id;
   const progress = ((currentStep - 1) / (stepsList.length - 1)) * 100;
 
   /* ── Formatting Helpers ──────────────────────────────────────────────────── */
@@ -1410,7 +1412,7 @@ function ApplyContent() {
                 exit="exit"
               >
                 {/* ═══ STEP 1: Profile ═══════════════════════════════ */}
-                {currentStep === 1 && (
+                {currentStepId === "profile" && (
                   <div>
                     <div className="af-section-header" style={{ marginBottom: "32px" }}>
                       <div className="af-section-icon"><User size={20} /></div>
@@ -1524,7 +1526,7 @@ function ApplyContent() {
                 )}
 
                 {/* ═══ STEP 2: Education & Job ═══════════════════════ */}
-                {currentStep === 2 && (
+                {currentStepId === "education-job" && (
                   <div>
                     <div className="af-section-header" style={{ marginBottom: "32px" }}>
                       <div className="af-section-icon"><GraduationCap size={20} /></div>
@@ -1702,8 +1704,26 @@ function ApplyContent() {
                   </div>
                 )}
 
-                {/* ═══ STEP 3: Experience ════════════════════════════ */}
-                {currentStep === 3 && (
+                {/* ═══ STEP 3: Academic Information (Associate Specific) ═══ */}
+                {currentStepId === "academic-info" && (
+                  <div>
+                    <div className="af-section-header" style={{ marginBottom: "32px" }}>
+                      <div className="af-section-icon"><BookOpen size={20} /></div>
+                      <div>
+                        <h2 className="af-section-title" style={{ fontSize: "22px", fontWeight: 800 }}>Academic Information</h2>
+                        <p className="af-section-desc">Provide details about your current academic status and research interests.</p>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
+                      {renderInput("currentAcademicStatus", "Current Academic Status *", "e.g. Enrolled / Active Graduate Student", state.currentAcademicStatus || "", "currentAcademicStatus", { required: true })}
+                      {renderInput("researchInterests", "Research Interests / Areas of Specialization", "e.g. Educational Technology, Curriculum Development", state.researchInterests || "", "researchInterests")}
+                    </div>
+                  </div>
+                )}
+
+                {/* ═══ STEP 4: Experience ════════════════════════════ */}
+                {currentStepId === "experience" && (
                   <div>
                     <div className="af-section-header" style={{ marginBottom: "32px" }}>
                       <div className="af-section-icon"><Briefcase size={20} /></div>
@@ -2062,7 +2082,7 @@ function ApplyContent() {
                 )}
 
                 {/* ═══ STEP 4: References & Docs ═════════════════════ */}
-                {currentStep === 4 && (
+                {currentStepId === "references" && (
                   <div>
                     <div className="af-section-header" style={{ marginBottom: "32px" }}>
                       <div className="af-section-icon"><ShieldCheck size={20} /></div>
@@ -2228,7 +2248,7 @@ function ApplyContent() {
                 )}
 
                 {/* ═══ STEP 5: Review & Submit ═══════════════════════ */}
-                {currentStep === stepsList.length && (
+                {currentStepId === "review" && (
                   <div>
                     <div className="af-section-header screen-only" style={{ marginBottom: "32px" }}>
                       <div className="af-section-icon"><FileText size={20} /></div>
