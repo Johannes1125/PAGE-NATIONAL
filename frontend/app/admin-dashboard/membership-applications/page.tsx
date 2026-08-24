@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion"; // 🆕 useReducedMotion
 import {
   FileText,
   CheckCircle,
@@ -88,10 +88,22 @@ export default function MembershipApplicationsPage() {
   const [rejectionError, setRejectionError] = useState("");
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
+  const prefersReducedMotion = useReducedMotion(); // 🆕 skip/shorten motion for users who've asked the OS to reduce it
+
   // Load applications from API
   useEffect(() => {
     fetchApplications();
   }, []);
+
+  // 🆕 Close the review drawer with Escape, matching how any dialog-like panel should behave for keyboard users
+  useEffect(() => {
+    if (!selectedAppId) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") handleCloseReview();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedAppId]);
 
   const fetchApplications = async () => {
     setIsLoading(true);
@@ -162,7 +174,7 @@ export default function MembershipApplicationsPage() {
     try {
       const updated = await updateMembershipApplicationStatus(selectedApp.id, "approved");
       setApplications(prev =>
-        prev.map(app => app.id === selectedApp.id ? updated : app)
+        prev.map(app => app.id === selectedApp.id ? { ...app, ...updated } : app) // 🆕 merge instead of replace — if the API response omits a field (e.g. documents), the existing value is kept instead of becoming undefined
       );
       gooeyToast.success(`Application approved successfully.`);
       handleCloseReview();
@@ -197,7 +209,7 @@ export default function MembershipApplicationsPage() {
         rejectionReasonInput
       );
       setApplications(prev =>
-        prev.map(app => app.id === selectedApp.id ? updated : app)
+        prev.map(app => app.id === selectedApp.id ? { ...app, ...updated } : app) // 🆕 same merge fix as approve, so rejecting can't drop fields either
       );
       gooeyToast.success(`Application rejected. Feedback has been sent.`);
       handleCloseReview();
@@ -357,6 +369,15 @@ export default function MembershipApplicationsPage() {
                       key={app.id}
                       onClick={() => handleOpenReview(app.id)}
                       className={selectedAppId === app.id ? "tr--selected" : ""}
+                      tabIndex={0} // 🆕 row is keyboard-focusable to match its clickable behavior
+                      role="button" // 🆕
+                      aria-label={`Review application from ${fullName}`} // 🆕
+                      onKeyDown={(e) => { // 🆕 Enter/Space opens the review drawer, same as a click
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          handleOpenReview(app.id);
+                        }
+                      }}
                     >
                       <td data-label="Applicant" style={{ fontWeight: 700, color: "var(--admin-navy)" }}>{fullName}</td>
                       <td data-label="Email">{email}</td>
@@ -406,6 +427,7 @@ export default function MembershipApplicationsPage() {
             initial="hidden"
             animate="visible"
             exit="exit"
+            transition={prefersReducedMotion ? { duration: 0 } : undefined} // 🆕
             onClick={handleCloseReview}
           >
             <motion.aside
@@ -414,6 +436,10 @@ export default function MembershipApplicationsPage() {
               initial="hidden"
               animate="visible"
               exit="exit"
+              transition={prefersReducedMotion ? { duration: 0 } : undefined} // 🆕
+              role="dialog" // 🆕 the drawer is a modal dialog for assistive tech
+              aria-modal="true" // 🆕
+              aria-labelledby="detail-drawer-title" // 🆕
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
@@ -422,7 +448,7 @@ export default function MembershipApplicationsPage() {
                   <span className={`status-badge status-badge--${selectedApp.status}`} style={{ marginBottom: "6px" }}>
                     {selectedApp.status.replace("_", " ")}
                   </span>
-                  <h3 className="detail-drawer__title">
+                  <h3 className="detail-drawer__title" id="detail-drawer-title"> {/* 🆕 id target for aria-labelledby */}
                     {selectedApp.profileData?.fullName || selectedApp.profileData?.name || selectedApp.profileData?.collegeUniversityName || "Unnamed Applicant"}
                   </h3>
                 </div>
@@ -709,10 +735,10 @@ export default function MembershipApplicationsPage() {
                     <FolderOpen size={13} /> Uploaded Documents
                   </div>
                   <div>
-                    {selectedApp.documents.length === 0 ? (
+                    {(selectedApp.documents || []).length === 0 ? ( // 🆕 fall back to [] so a partial API response can't crash the render
                       <p style={{ color: "var(--admin-muted)", fontStyle: "italic", fontSize: "13px" }}>No documents uploaded.</p>
                     ) : (
-                      selectedApp.documents.map((doc) => (
+                      (selectedApp.documents || []).map((doc) => ( // 🆕 same fallback here
                         <div key={doc.id} className="detail-doc-item">
                           <FileText size={18} style={{ color: "var(--admin-blue)", flexShrink: 0 }} />
                           <div style={{ flexGrow: 1, minWidth: 0 }}>
@@ -760,6 +786,7 @@ export default function MembershipApplicationsPage() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
+                      transition={prefersReducedMotion ? { duration: 0 } : undefined} // 🆕
                     >
                       <button
                         type="button"
@@ -792,6 +819,7 @@ export default function MembershipApplicationsPage() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
+                      transition={prefersReducedMotion ? { duration: 0 } : undefined} // 🆕
                     >
                       <label htmlFor="rejection-reason" className="decision-reason-label">
                         Provide feedback / rejection reasons:

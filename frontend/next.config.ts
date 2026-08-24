@@ -14,6 +14,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    proxyClientMaxBodySize: '50mb',
+  },
   async rewrites() {
     return [
       {
