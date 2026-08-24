@@ -939,6 +939,44 @@
   .af-actions .af-btn { width: 100%; justify-content: center; }
 }
 
+/* =========================================================
+   🆕 MOBILE FORM FIX
+   ---------------------------------------------------------
+   Most of the multi-column field rows in apply/page.tsx are
+   set with inline `style={{ gridTemplateColumns: "1fr 1fr" }}`
+   (and "1fr 1fr 120px", "1fr 1fr 1fr", "1fr 1fr 100px 100px 40px",
+   etc.) directly in JSX rather than in this stylesheet. A normal
+   media query here can't reach an inline style, so on phones
+   those rows never collapsed — inputs were getting squeezed
+   into ~100px-wide columns instead of stacking full-width.
+   The attribute selector below targets any element carrying a
+   "grid-template-columns" inline style inside the form card and
+   forces it to a single full-width column on small screens.
+   `!important` is required specifically because it's overriding
+   an inline style (the highest normal specificity).
+   ========================================================= */
+@media (max-width: 640px) {
+  .af-card [style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Tighten the form card's own padding so the now-full-width
+     fields actually have room to breathe on narrow phones —
+     the card's 40px inline padding was eating ~80px of a
+     375px-wide screen on its own. */
+  .af-card {
+    padding: 20px 16px !important;
+    max-width: 100% !important;
+  }
+
+  /* The review-step summary blocks that use `gridColumn: "span 2"`
+     no longer need to span anything once there's only one column;
+     harmless to leave, but reset it for cleanliness. */
+  .af-card [style*="grid-column"] {
+    grid-column: auto !important;
+  }
+}
+
 /* =========================================
    PRINTABLE FORM STYLES
    ========================================= */

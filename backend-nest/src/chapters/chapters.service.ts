@@ -316,7 +316,6 @@ export class ChaptersService {
               category_type: off.category_type,
               year_joined: Number(off.year_joined),
               sort_order: off.sort_order ?? idx,
-              image_url: off.image_url ?? null,
             })),
           },
           activities: {
@@ -418,7 +417,6 @@ export class ChaptersService {
                 category_type: off.category_type,
                 year_joined: off.year_joined,
                 sort_order: off.sort_order ?? idx,
-                image_url: off.image_url ?? null,
               })),
             },
           }),

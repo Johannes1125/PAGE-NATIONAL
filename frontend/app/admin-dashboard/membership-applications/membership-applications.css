@@ -25,6 +25,9 @@
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+
+  /* 🆕 shared touch-target size so mobile controls stay tappable without hunting for one-off fixes */
+  --tap-target-min: 44px;
 }
 
 .applications-page {
@@ -32,10 +35,35 @@
   background-color: var(--admin-bg);
   color: var(--admin-text);
   font-family: var(--font-poppins), 'Poppins', sans-serif;
+  font-variant-numeric: tabular-nums; /* 🆕 dates/fees/counts align cleanly like a real registrar ledger */
 }
 
 .applications-content {
   padding: 32px clamp(16px, 3vw, 40px);
+}
+
+/* 🆕 Respect OS-level reduced-motion preference (accessibility floor for a professional site) */
+@media (prefers-reduced-motion: reduce) {
+  .applications-page *,
+  .applications-page *::before,
+  .applications-page *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 🆕 Visible keyboard focus across every interactive control */
+.row-review-btn:focus-visible,
+.decision-btn:focus-visible,
+.applications-select:focus-visible,
+.detail-drawer__close:focus-visible,
+.decision-reason-textarea:focus-visible,
+.detail-doc-item__link:focus-visible,
+.applications-table tbody tr:focus-visible {
+  outline: 2px solid var(--admin-blue);
+  outline-offset: 2px;
 }
 
 /* =========================================
@@ -179,6 +207,7 @@
 .table-container {
   background-color: var(--admin-surface);
   border: 1px solid var(--admin-border);
+  border-top: 3px solid var(--admin-navy); /* 🆕 institutional accent rule, reads as an official registrar ledger */
   border-radius: 12px;
   box-shadow: var(--shadow-sm);
   overflow-x: auto;
@@ -225,12 +254,23 @@
 .status-badge {
   display: inline-flex;
   align-items: center;
+  gap: 6px; /* 🆕 room for the status dot below */
   border-radius: 9999px;
   padding: 4px 10px;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+/* 🆕 small status dot reinforces state at a glance, especially useful once text shrinks on mobile */
+.status-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
 }
 
 .status-badge--pending {
@@ -293,6 +333,7 @@
   max-width: 520px;
   background-color: var(--admin-surface);
   height: 100%;
+  height: 100dvh; /* 🆕 dynamic viewport unit — avoids the drawer being cut off by mobile browser toolbars */
   box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
@@ -336,8 +377,9 @@
 .detail-drawer__body {
   padding: 24px;
   overflow-y: auto;
-  flex-grow: 1;
-  height: calc(100vh - 260px);
+  flex: 1 1 auto; /* 🆕 replaces the old fixed "height: calc(100vh - 260px)" */
+  min-height: 0; /* 🆕 required so a flex child actually scrolls instead of overflowing the drawer */
+  overscroll-behavior: contain; /* 🆕 stops scrolling the body from also scrolling the page behind the drawer on mobile */
 }
 
 .detail-section {
@@ -543,7 +585,8 @@
 .contact-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  flex-wrap: wrap; /* 🆕 lets long addresses/phone labels wrap instead of overflowing narrow phones */
+  gap: 6px 10px; /* 🆕 tighter row-gap once wrapped */
   font-size: 13px;
   font-weight: 600;
   color: var(--admin-text);
@@ -571,6 +614,7 @@
    ========================================= */
 .decision-block {
   padding: 24px;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom)); /* 🆕 keeps action buttons clear of the iOS home-indicator area */
   background-color: #f8fafc;
   border-top: 1px solid var(--admin-border);
 }
@@ -702,6 +746,7 @@
 
   .applications-select {
     width: 100%;
+    min-height: var(--tap-target-min); /* 🆕 44px tap target on touch devices */
   }
 
   .detail-drawer {
@@ -737,6 +782,7 @@
   .table-container {
     background: transparent;
     border: none;
+    border-top: none; /* 🆕 the navy accent rule only makes sense on the surface table, not the stacked cards */
     box-shadow: none;
     overflow: visible;
   }
@@ -764,6 +810,7 @@
   .applications-table tbody tr {
     background: var(--admin-surface);
     border: 1px solid var(--admin-border);
+    border-left: 3px solid var(--admin-navy); /* 🆕 mirrors the desktop table's accent so cards still read as "official" */
     border-radius: 10px;
     box-shadow: var(--shadow-sm);
     padding: 4px 14px;
@@ -804,15 +851,15 @@
   .row-review-btn {
     width: 100%;
     padding: 8px 12px;
+    min-height: var(--tap-target-min); /* 🆕 44px tap target */
   }
 
   .detail-drawer {
     max-width: 100%;
   }
 
-  .detail-drawer__body {
-    height: calc(100vh - 300px);
-  }
+  /* 🆕 the old fixed "height: calc(100vh - 300px)" override is gone — flexbox on
+     .detail-drawer__body now sizes it correctly at every breakpoint automatically */
 
   .status-stepper {
     padding: 14px 16px 4px;
@@ -825,11 +872,29 @@
   .decision-actions {
     flex-direction: column;
   }
+
+  .decision-btn {
+    min-height: var(--tap-target-min); /* 🆕 44px tap target once buttons stack full-width */
+  }
+
+  .detail-drawer__close {
+    min-width: var(--tap-target-min); /* 🆕 44px tap target */
+    min-height: var(--tap-target-min);
+  }
 }
 
 @media (max-width: 420px) {
   .stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* 🆕 kept only as a fallback for browsers without scroll-snap support; the 640px block below is what real phones use */
+  }
+
+  .detail-drawer__header {
+    padding: 16px; /* 🆕 tighter header padding reclaims space on very narrow phones */
+  }
+
+  .decision-block {
+    padding: 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom)); /* 🆕 matches the tighter padding above */
   }
 }
 
