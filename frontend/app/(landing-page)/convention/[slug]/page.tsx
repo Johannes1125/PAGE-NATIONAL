@@ -12,7 +12,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { CONVENTIONS_DATA } from "../mock-data";
+import { api } from "../../../lib/api-client";
 import { Convention } from "../types";
 import { Calendar, MapPin, ChevronDown, Download, AlertCircle, ArrowLeft, BookOpen, Mic, Activity, Layers, Image as ImageIcon, Search, SlidersHorizontal, ChevronLeft, ChevronRight, X, Maximize2, Minimize2 } from "lucide-react";
 import "./convention-detail.css";
@@ -457,22 +457,170 @@ export default function ConventionDetailPage({
     setGalleryViewerOpen(true);
   };
 
-  // Fetch / find convention mock data
+  // Fetch / find convention details from the database
   useEffect(() => {
-    const t1 = setTimeout(() => {
-      setLoading(true);
-    }, 0);
+    async function loadConventionDetail() {
+      try {
+        setLoading(true);
+        // 1. Fetch public list to find the convention by slug or id
+        const listRes = await api.get<{ success: boolean; data?: any[] }>("/conventions/public");
+        if (!listRes.success || !Array.isArray(listRes.data)) {
+          setConvention(null);
+          return;
+        }
 
-    const t2 = setTimeout(() => {
-      const found = CONVENTIONS_DATA.find((c) => c.slug === slug) ?? null;
-      setConvention(found);
-      setLoading(false);
-    }, 650);
+        const match = listRes.data.find((c: any) => {
+          const cleanNum = (c.convention_number || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+          const generatedSlug = `${cleanNum}-national-convention`;
+          return generatedSlug === slug || c.id === slug;
+        });
 
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
+        if (!match) {
+          setConvention(null);
+          return;
+        }
+
+        // 2. Fetch the full convention details with schedules, speakers, attachments
+        const detailRes = await api.get<{ success: boolean; data?: any }>(`/conventions/${match.id}/full`);
+        if (!detailRes.success || !detailRes.data) {
+          setConvention(null);
+          return;
+        }
+
+        const data = detailRes.data;
+
+        // 3. Map the data to the frontend Convention type
+        const startDate = new Date(data.start_date);
+        const endDate = new Date(data.end_date);
+        const year = startDate.getFullYear();
+
+        const formatDateFull = (d: Date) => d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+        const dateRange = formatDateFull(startDate) === formatDateFull(endDate)
+          ? formatDateFull(startDate)
+          : `${formatDateFull(startDate)} – ${formatDateFull(endDate)}`;
+
+        const coverImage = data.attachments?.find((a: any) => a.file_type === "image")?.file_url || 
+          "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=600&auto=format&fit=crop";
+
+        // Map schedules to program_schedule
+        const schedules = data.schedules || [];
+        const uniqueDates = Array.from(new Set(schedules.map((s: any) => s.schedule_date.split("T")[0])))
+          .sort() as string[];
+
+        const programSchedule = uniqueDates.map((dateStr, idx) => {
+          const sessionsOnDate = schedules
+            .filter((s: any) => s.schedule_date.split("T")[0] === dateStr)
+            .map((s: any) => {
+              let timeStr = "";
+              if (s.start_time) {
+                timeStr = s.start_time;
+                if (s.end_time) {
+                  timeStr += ` - ${s.end_time}`;
+                }
+              } else {
+                timeStr = "TBA";
+              }
+
+              const getSessionType = (type: string): "plenary" | "workshop" | "breakout" | "special" => {
+                const t = (type || "").toLowerCase();
+                if (t.includes("plenary")) return "plenary";
+                if (t.includes("workshop")) return "workshop";
+                if (t.includes("breakout")) return "breakout";
+                return "special";
+              };
+
+              return {
+                time: timeStr,
+                session_title: s.title,
+                session_type: getSessionType(s.event_type),
+                room_or_venue: s.location || "TBA",
+              };
+            });
+
+          return {
+            day_number: idx + 1,
+            date: new Date(dateStr).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
+            sessions: sessionsOnDate,
+          };
+        });
+
+        // Map speakers
+        const speakers = (data.speakers || []).map((sp: any) => ({
+          name: sp.name,
+          title: sp.role_position || "Speaker",
+          organization: sp.institution || "",
+          topic: sp.presentation_topic || "",
+          photo_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(sp.name)}`,
+        }));
+
+        // Map activities (derived from schedules where event_type is Workshop/Special Session/Other)
+        const activities = (data.schedules || [])
+          .filter((s: any) => s.event_type === "Workshop" || s.event_type === "Special Session" || s.event_type === "Other")
+          .map((s: any) => {
+            const getActType = (type: string): "workshop" | "forum" | "competition" | "cultural" | "other" => {
+              const t = (type || "").toLowerCase();
+              if (t.includes("workshop")) return "workshop";
+              if (t.includes("forum")) return "forum";
+              if (t.includes("competition")) return "competition";
+              if (t.includes("cultural")) return "cultural";
+              return "other";
+            };
+
+            return {
+              title: s.title,
+              description: `Part of our convention schedule. Type: ${s.event_type}`,
+              type: getActType(s.event_type),
+              date: new Date(s.schedule_date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
+              venue: s.location || "TBA",
+            };
+          });
+
+        // Map attachments (PDFs -> journals, Images -> gallery)
+        const attachments = data.attachments || [];
+        const journals = attachments
+          .filter((a: any) => a.file_type === "pdf")
+          .map((a: any) => ({
+            title: a.file_name.replace(/\.[^/.]+$/, ""),
+            authors: ["PAGE National Office"],
+            abstract_excerpt: "Download this document to view the full details, guidelines, and articles for this convention edition.",
+            volume: "Document",
+            issue: "PDF",
+            download_url: a.file_url,
+          }));
+
+        const gallery = attachments
+          .filter((a: any) => a.file_type === "image")
+          .map((a: any) => ({
+            image_url: a.file_url,
+            caption: a.file_name.replace(/\.[^/.]+$/, ""),
+          }));
+
+        const mapped: Convention = {
+          slug,
+          convention_number: data.convention_number,
+          theme: data.title,
+          year,
+          location: data.location,
+          date_range: dateRange,
+          cover_image_url: coverImage,
+          intro_paragraph: data.description,
+          program_schedule: programSchedule,
+          speakers,
+          activities,
+          journals,
+          gallery,
+        };
+
+        setConvention(mapped);
+      } catch (err) {
+        console.error("Failed to load convention detail:", err);
+        setConvention(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadConventionDetail();
   }, [slug]);
 
   if (!loading && !convention) {

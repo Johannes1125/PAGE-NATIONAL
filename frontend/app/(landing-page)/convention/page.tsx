@@ -169,7 +169,32 @@ export default function ConventionArchivesPage() {
         setLoading(true);
         const res = await api.get<{ success: boolean; data?: any[] }>("/conventions/public");
         if (res.success && Array.isArray(res.data)) {
-          setConventions(res.data);
+          const mapped = res.data.map((c: any) => {
+            const coverImage = c.attachments?.find((a: any) => a.file_type === "image")?.file_url || 
+              "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=600&auto=format&fit=crop";
+            
+            const startDate = new Date(c.start_date);
+            const endDate = new Date(c.end_date);
+            const year = startDate.getFullYear();
+            
+            const formatDateShort = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+            const dateRange = formatDateShort(startDate) === formatDateShort(endDate) 
+              ? formatDateShort(startDate) 
+              : `${formatDateShort(startDate)} – ${formatDateShort(endDate)}`;
+
+            const cleanNum = (c.convention_number || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+            const slug = `${cleanNum}-national-convention`;
+
+            return {
+              ...c,
+              slug,
+              theme: c.title,
+              year,
+              date_range: dateRange,
+              cover_image_url: coverImage,
+            };
+          });
+          setConventions(mapped);
         } else {
           setConventions([]);
         }

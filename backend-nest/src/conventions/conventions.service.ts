@@ -99,6 +99,9 @@ export class ConventionsService {
 
     const records = await this.prisma.convention.findMany({
       where,
+      include: {
+        attachments: true,
+      },
       orderBy: { created_at: 'desc' },
     });
 
