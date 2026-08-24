@@ -390,6 +390,29 @@
   color: var(--color-text-secondary);
   margin-bottom: 20px;
   flex: 1;
+  max-height: 110px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+/* Sleek scrollbar for the tagline paragraph */
+.chapters-card__tagline::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chapters-card__tagline::-webkit-scrollbar-track {
+  background: rgba(8, 23, 52, 0.04);
+  border-radius: 4px;
+}
+
+.chapters-card__tagline::-webkit-scrollbar-thumb {
+  background: rgba(8, 23, 52, 0.15);
+  border-radius: 4px;
+  transition: background var(--transition-fast);
+}
+
+.chapters-card__tagline::-webkit-scrollbar-thumb:hover {
+  background: rgba(8, 23, 52, 0.35);
 }
 
 .chapters-card__footer {

@@ -732,7 +732,7 @@ function ApplyContent() {
         } else {
           state.characterReferences.forEach((r: any, idx: number) => {
             if (!r.name?.trim()) { stepErrors[`ref_${idx}_name`] = "Name is required."; isValid = false; }
-            if (idx === 0 && !r.position?.trim()) { stepErrors[`ref_${idx}_position`] = "Position is required."; isValid = false; }
+            if (!r.position?.trim()) { stepErrors[`ref_${idx}_position`] = "Position is required."; isValid = false; }
             if (!r.address?.trim()) { stepErrors[`ref_${idx}_address`] = "Address is required."; isValid = false; }
           });
         }
@@ -1111,7 +1111,19 @@ function ApplyContent() {
       const hasLeading = clean.startsWith('+');
       clean = (hasLeading ? '+' : '') + clean.replace(/\+/g, '');
     }
-    return clean;
+    
+    // Enforce dynamic length limits based on format prefix
+    if (clean.startsWith('+63')) {
+      return clean.slice(0, 13);
+    } else if (clean.startsWith('63')) {
+      return clean.slice(0, 12);
+    } else if (clean.startsWith('0')) {
+      return clean.slice(0, 11);
+    } else if (clean.startsWith('+')) {
+      return clean.slice(0, 15); // Other countries with +
+    } else {
+      return clean.slice(0, 15); // Fallback max length
+    }
   };
 
   /* ── Input Render Helper ─────────────────────────────────────────────────── */
@@ -2084,7 +2096,7 @@ function ApplyContent() {
                           return (
                             <div key={idx} className="af-subsection" style={{ padding: "20px", border: "1px solid var(--af-border-light)", borderRadius: "12px", marginBottom: "20px", background: "var(--af-surface)" }}>
                               <h4 style={{ fontSize: "15px", fontWeight: 700, color: "var(--af-navy)", marginBottom: "12px" }}>Character Reference #{idx + 1}</h4>
-                              <div style={{ display: "grid", gridTemplateColumns: idx === 0 ? "1fr 1fr" : "1fr", gap: "16px" }}>
+                              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                                 <div>
                                   <label style={{ fontSize: "14px", fontWeight: 600, color: "var(--af-navy)", display: "block", marginBottom: "6px" }}>Full Name *</label>
                                   <input
@@ -2097,20 +2109,18 @@ function ApplyContent() {
                                   />
                                   {errors[`ref_${idx}_name`] && <span style={{ color: "var(--af-error)", fontSize: "12px", marginTop: "4px", display: "block" }}>{errors[`ref_${idx}_name`]}</span>}
                                 </div>
-                                {idx === 0 && (
-                                  <div>
-                                    <label style={{ fontSize: "14px", fontWeight: 600, color: "var(--af-navy)", display: "block", marginBottom: "6px" }}>Position / Title *</label>
-                                    <input
-                                      type="text"
-                                      placeholder="Dean / Principal / Director"
-                                      value={ref.position}
-                                      onChange={(e) => dispatch({ type: "UPDATE_CHARACTER_REF", index: idx, field: "position", value: e.target.value })}
-                                      className={`af-input ${errors[`ref_${idx}_position`] ? "af-input--error" : ""}`}
-                                      style={{ minHeight: "44px", fontSize: "15px", padding: "10px 12px" }}
-                                    />
-                                    {errors[`ref_${idx}_position`] && <span style={{ color: "var(--af-error)", fontSize: "12px", marginTop: "4px", display: "block" }}>{errors[`ref_${idx}_position`]}</span>}
-                                  </div>
-                                )}
+                                <div>
+                                  <label style={{ fontSize: "14px", fontWeight: 600, color: "var(--af-navy)", display: "block", marginBottom: "6px" }}>Position / Title *</label>
+                                  <input
+                                    type="text"
+                                    placeholder="Dean / Principal / Director"
+                                    value={ref.position}
+                                    onChange={(e) => dispatch({ type: "UPDATE_CHARACTER_REF", index: idx, field: "position", value: e.target.value })}
+                                    className={`af-input ${errors[`ref_${idx}_position`] ? "af-input--error" : ""}`}
+                                    style={{ minHeight: "44px", fontSize: "15px", padding: "10px 12px" }}
+                                  />
+                                  {errors[`ref_${idx}_position`] && <span style={{ color: "var(--af-error)", fontSize: "12px", marginTop: "4px", display: "block" }}>{errors[`ref_${idx}_position`]}</span>}
+                                </div>
                               </div>
                               <div style={{ marginTop: "12px" }}>
                                 <label style={{ fontSize: "14px", fontWeight: 600, color: "var(--af-navy)", display: "block", marginBottom: "6px" }}>Mailing/Office Address *</label>
