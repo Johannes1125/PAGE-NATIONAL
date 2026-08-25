@@ -1,5 +1,4 @@
 "use client";
-import Navbar from "../components/Navbar";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -153,7 +152,6 @@ const cardVariants: Variants = {
 };
 
 export default function ConventionArchivesPage() {
-  const [scrolled, setScrolled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [conventions, setConventions] = useState<any[]>([]);
 
@@ -161,9 +159,6 @@ export default function ConventionArchivesPage() {
   const [selectedNum, setSelectedNum] = useState<string>("All");
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener("scroll", onScroll);
-
     async function loadConventions() {
       try {
         setLoading(true);
@@ -171,7 +166,7 @@ export default function ConventionArchivesPage() {
         if (res.success && Array.isArray(res.data)) {
           const mapped = res.data.map((c: any) => {
             const coverImage = c.attachments?.find((a: any) => a.file_type === "image")?.file_url || 
-              "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=600&auto=format&fit=crop";
+              "/57th-Images/57th-International-Convention-Image-1.jpg";
             
             const startDate = new Date(c.start_date);
             const endDate = new Date(c.end_date);
@@ -207,10 +202,6 @@ export default function ConventionArchivesPage() {
     }
 
     loadConventions();
-
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-    };
   }, []);
 
   // Compute unique values for filter controls
@@ -235,7 +226,6 @@ export default function ConventionArchivesPage() {
 
   return (
     <>
-      <Navbar scrolled={scrolled} />
       <main>
         <ConventionHero />
 

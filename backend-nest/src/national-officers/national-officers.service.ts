@@ -1,5 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { SupabaseService } from '../supabase/supabase.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreateNationalOfficerDto } from './dto/create-national-officer.dto';
 import { UpdateNationalOfficerDto } from './dto/update-national-officer.dto';
 
@@ -18,7 +20,54 @@ function getSortOrder(role: string): number {
 
 @Injectable()
 export class NationalOfficersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly supabase: SupabaseService,
+    private readonly cloudinary: CloudinaryService,
+  ) {}
+
+  // Validate image file
+  private validateImageFile(file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('Image file is required.');
+    }
+
+    const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/svg+xml'];
+    if (!allowedMimes.includes(file.mimetype)) {
+      throw new BadRequestException('Invalid file format. Only JPG, JPEG, PNG, WEBP, and SVG are allowed.');
+    }
+
+    if (file.size > 8 * 1024 * 1024) {
+      throw new BadRequestException('Image size exceeds 8 MB limit.');
+    }
+  }
+
+  // Upload officer photo
+  async uploadImage(file: Express.Multer.File) {
+    this.validateImageFile(file);
+
+    let url: string | null = null;
+    try {
+      url = await this.supabase.upload(file, 'governance', 'officers');
+    } catch (err) {
+      console.warn('Supabase upload failed, attempting fallback to Cloudinary...', err);
+    }
+
+    if (!url) {
+      url = await this.cloudinary.upload(file, 'national_officers');
+    }
+
+    if (!url) {
+      throw new BadRequestException('Photo upload failed. Please try again.');
+    }
+
+    return {
+      success: true,
+      imageUrl: url,
+      data: { url },
+      message: 'Officer photo uploaded successfully.',
+    };
+  }
 
   async findAll() {
     const records = await this.prisma.nationalOfficer.findMany({
@@ -56,6 +105,7 @@ export class NationalOfficersService {
         positionCategory: dto.positionCategory,
         role: dto.role,
         description: dto.description || null,
+        imageUrl: dto.imageUrl || null,
         sortOrder,
       },
     });
@@ -94,6 +144,7 @@ export class NationalOfficersService {
         positionCategory: dto.positionCategory ?? existing.positionCategory,
         role: dto.role ?? existing.role,
         description: dto.description !== undefined ? dto.description : existing.description,
+        imageUrl: dto.imageUrl !== undefined ? dto.imageUrl : existing.imageUrl,
         sortOrder,
       },
     });

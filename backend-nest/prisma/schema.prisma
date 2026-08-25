@@ -277,6 +277,7 @@ model NationalOfficer {
   positionCategory String
   role             String
   description      String?
+  imageUrl         String?
   sortOrder        Int
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt

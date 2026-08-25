@@ -1,6 +1,5 @@
 "use client";
 
-import Navbar from "../components/Navbar";
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
@@ -142,7 +141,6 @@ export default function ChaptersPage() {
 
   return (
     <main className="chapters-main">
-      <Navbar scrolled={scrolled} />
       <ChaptersHero />
 
       <section className="cbl-content-section">
@@ -216,7 +214,7 @@ export default function ChaptersPage() {
                   animate="visible"
                 >
                   {filteredChapters.map((chapter) => {
-                    const coverImageUrl = chapter.images?.[0]?.file_url || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'><rect width='100%' height='100%' fill='%23143152'/><rect width='90%' height='90%' x='5%' y='5%' fill='none' stroke='%23ffffff' stroke-width='2' stroke-opacity='0.1'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='system-ui, sans-serif' font-weight='bold' font-size='36' fill='%23ffffff'>PAGE</text></svg>";
+                    const coverImageUrl = chapter.images?.[0]?.file_url || "/about-bg.jpg";
                     const establishedYear = new Date(chapter.created_at || new Date()).getFullYear();
                     const taglineText = chapter.short_description || "Empowering graduate education and research.";
                     const officersCount = chapter.officers?.length || 0;

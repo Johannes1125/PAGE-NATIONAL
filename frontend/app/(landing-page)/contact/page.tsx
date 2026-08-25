@@ -1,5 +1,4 @@
 "use client";
-import Navbar from "../components/Navbar";
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -147,37 +146,30 @@ const ChevronDownIcon = () => (
 );
 
 const FOOTER_QUICK_LINKS = ["About PAGE", "History", "Officers", "News & Announcements"];
-const FOOTER_RESOURCES    = ["Journals", "Articles", "Upcoming Activities", "Contact Us"];
-const FOOTER_CONTACT_ITEMS = [
-  { icon: <MapPinIconSm />,      text: "Manila, Philippines"  },
-  { icon: <MailIconContact />,   text: "page@gmail.edu.ph"    },
-  { icon: <PhoneIconSm />,       text: "+63 908 XXX XXXX"     },
-];
-
 const CONTACT_INFO = [
   {
     icon: <MapPinIcon />,
-    label: "Office Address",
-    primary: "CHED Central Office, C.P. Garcia Avenue",
-    secondary: "Diliman, Quezon City, Metro Manila",
+    label: "National Headquarters",
+    primary: "PAGE National Secretariat",
+    secondary: "c/o UP Diliman, Quezon City / Manila, Philippines",
   },
   {
     icon: <MailIcon />,
-    label: "Email Address",
-    primary: "page@gmail.edu.ph",
-    secondary: "For general inquiries & membership",
+    label: "Official Email",
+    primary: "secretariat@pagenational.org.ph",
+    secondary: "For membership, certifications & academic inquiries",
   },
   {
     icon: <PhoneIcon />,
-    label: "Phone Number",
-    primary: "+63 (02) 441-1234",
-    secondary: "+63 908-XXX-XXXX (Mobile)",
+    label: "National Secretariat",
+    primary: "Direct Secretariat Channel",
+    secondary: "Contact via official form or secretariat email",
   },
   {
     icon: <ClockIcon />,
-    label: "Office Hours",
-    primary: "Monday – Friday, 8:00 AM – 5:00 PM",
-    secondary: "Saturday – Sunday: Closed",
+    label: "Secretariat Hours",
+    primary: "Monday – Friday, 8:00 AM – 5:00 PM (PHT)",
+    secondary: "Inquiries answered within 2–3 business days",
   },
 ];
 
@@ -469,21 +461,10 @@ function ContactSection() {
 
 // ── Main Page ──────────────────────────────────────────────────────────────
 export default function ContactPage() {
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
   return (
-    <>
-      <Navbar scrolled={scrolled} />
-      <main>
-        <ContactHero />
-        <ContactSection />
-      </main>
-    </>
+    <main>
+      <ContactHero />
+      <ContactSection />
+    </main>
   );
 }

@@ -1,5 +1,4 @@
 "use client";
-import Navbar from "../components/Navbar";
 
 import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import Link from "next/link";
@@ -497,23 +496,12 @@ function ActivitiesSection() {
 
 // ── Main Page ──────────────────────────────────────────────────────────────
 export default function ActivitiesPage() {
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
   return (
-    <>
-      <Navbar scrolled={scrolled} />
-      <main>
-        <ActivitiesHero />
-        <Suspense fallback={<div className="container"><SkeletonGrid /></div>}>
-          <ActivitiesSection />
-        </Suspense>
-      </main>
-    </>
+    <main>
+      <ActivitiesHero />
+      <Suspense fallback={<div className="container"><SkeletonGrid /></div>}>
+        <ActivitiesSection />
+      </Suspense>
+    </main>
   );
 }

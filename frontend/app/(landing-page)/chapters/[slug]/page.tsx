@@ -1,5 +1,4 @@
 "use client";
-import Navbar from "../../components/Navbar";
 import { useState, useEffect, use, useMemo } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
@@ -53,7 +52,6 @@ export default function ChapterDetailPage({
 }) {
   const { slug } = use(params);
 
-  const [scrolled, setScrolled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [chapter, setChapter] = useState<any | null>(null);
   
@@ -64,12 +62,6 @@ export default function ChapterDetailPage({
   // Lightbox state
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxStart, setLightboxStart] = useState(0);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   // Fetch chapter data from NestJS API by slug
   useEffect(() => {
@@ -93,13 +85,18 @@ export default function ChapterDetailPage({
   }, [slug]);
 
   // Dynamically extract and group officers' terms from the database
-  const terms = useMemo(() => {
+  const terms: number[] = useMemo(() => {
     if (!chapter || !chapter.officers || chapter.officers.length === 0) return [];
-    const years = Array.from(new Set(chapter.officers.map((o: any) => o.year_joined || 2024))) as number[];
-    return years.sort((a, b) => b - a); // latest years first
+    const years = Array.from(
+      new Set(
+        chapter.officers
+          .map((o: any) => o.year_joined)
+          .filter((y: any): y is number => typeof y === "number" && !isNaN(y))
+      )
+    ) as number[];
+    return years.sort((a, b) => b - a);
   }, [chapter]);
 
-  // Selected term year (e.g. 2024 represents "2024-2026")
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
 
   useEffect(() => {
@@ -109,14 +106,54 @@ export default function ChapterDetailPage({
   }, [terms, selectedYear]);
 
   const currentOfficers = useMemo(() => {
-    if (!chapter || !chapter.officers || selectedYear === null) return [];
+    if (!chapter || !chapter.officers) return [];
+    if (selectedYear === null) return chapter.officers;
     return chapter.officers.filter((o: any) => o.year_joined === selectedYear);
   }, [chapter, selectedYear]);
+
+  const formatDate = (iso: string) => {
+    try {
+      return new Date(iso).toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+    } catch {
+      return iso;
+    }
+  };
+
+  const toggleActivity = (id: string) => {
+    setExpandedActivity((prev) => (prev === id ? null : id));
+  };
+
+  const toggleAnnouncement = (id: string) => {
+    setExpandedAnnouncement((prev) => (prev === id ? null : id));
+  };
+
+  const getDocIcon = (fileType: string) => {
+    const t = fileType?.toLowerCase() || "";
+    if (t.includes("image") || t.includes("png") || t.includes("jpg")) return <FileImage className="doc-icon" />;
+    if (t.includes("ppt") || t.includes("presentation")) return <Presentation className="doc-icon" />;
+    return <FileText className="doc-icon" />;
+  };
+
+  const handleOpenLightbox = (index: number) => {
+    setLightboxStart(index);
+    setLightboxOpen(true);
+  };
+
+  // Mapped values
+  const coverImageUrl = chapter?.images?.[0]?.file_url || "/about-bg.jpg";
+  const establishedYear = chapter ? new Date(chapter.created_at).getFullYear() : 2010;
+  const taglineText = chapter?.short_description || "Empowering graduate education and research.";
+  const overviewText = chapter?.overview || "";
+  const missionText = chapter?.mission || "";
+  const visionText = chapter?.vision || "";
 
   if (!loading && !chapter) {
     return (
       <>
-        <Navbar scrolled={scrolled} />
         <main className="chapter-detail-error container">
           <div className="acts-error" style={{ padding: "120px 0", textAlign: "center" }}>
             <div className="acts-error__icon" style={{ display: "inline-block", color: "var(--accent)", marginBottom: 16 }}><AlertCircle /></div>
@@ -133,41 +170,8 @@ export default function ChapterDetailPage({
     );
   }
 
-  // Format activity date
-  const formatDate = (iso: string) => {
-    return new Date(iso).toLocaleDateString("en-US", {
-      month: "long", day: "numeric", year: "numeric",
-    });
-  };
-
-  const getDocIcon = (type: string) => {
-    const t = String(type || "").toLowerCase();
-    if (t.includes("pdf")) return <FileText className="doc-icon doc-icon--pdf" />;
-    if (t.includes("doc")) return <FileText className="doc-icon doc-icon--docx" />;
-    if (t.includes("ppt")) return <Presentation className="doc-icon doc-icon--pptx" />;
-    if (t.includes("png") || t.includes("jpg") || t.includes("jpeg") || t.includes("image")) {
-      return <FileImage className="doc-icon doc-icon--image" />;
-    }
-    return <FileText className="doc-icon" />;
-  };
-
-  const handleOpenLightbox = (index: number) => {
-    setLightboxStart(index);
-    setLightboxOpen(true);
-  };
-
-  // Mapped values
-  const coverImageUrl = chapter?.images?.[0]?.file_url || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='450' viewBox='0 0 800 450'><rect width='100%' height='100%' fill='%23143152'/><rect width='90%' height='90%' x='5%' y='5%' fill='none' stroke='%23ffffff' stroke-width='2' stroke-opacity='0.1'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='system-ui, sans-serif' font-weight='bold' font-size='36' fill='%23ffffff'>PAGE</text></svg>";
-  const establishedYear = chapter ? new Date(chapter.created_at).getFullYear() : 2010;
-  const taglineText = chapter?.short_description || "Empowering graduate education and research.";
-  const overviewText = chapter?.overview || "";
-  const missionText = chapter?.mission || "";
-  const visionText = chapter?.vision || "";
-
   return (
     <>
-      <Navbar scrolled={scrolled} />
-
       {/* Hero Breadcrumb and Action Section */}
       <section className="chapter-detail-hero-bar">
         <div className="container chapter-detail-hero-bar__inner">

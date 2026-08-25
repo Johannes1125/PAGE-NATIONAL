@@ -170,24 +170,44 @@ export default function NationalOfficersManagement() {
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
+    const file = files[0];
+
+    if (file.size > 8 * 1024 * 1024) {
+      gooeyToast.error("Photo exceeds 8MB limit.");
+      return;
+    }
 
     setIsPhotoUploading(true);
     const formData = new FormData();
-    formData.append("file", files[0]);
+    formData.append("image", file);
+    formData.append("file", file);
 
     try {
-      // Upload using logo_description route (generic image container)
-      const res = await api.postMultipart("/about-page/documents/logo_description", formData);
-      if (res.success) {
-        setPhotoUrl(res.data.file_url);
+      let res: any;
+      try {
+        res = await api.postMultipart("/national-officers/upload", formData);
+      } catch {
+        res = await api.postMultipart("/about-page/documents/logo_description", formData);
+      }
+      const uploadedUrl = res?.imageUrl || res?.data?.url || res?.data?.file_url;
+      if (res?.success && uploadedUrl) {
+        setPhotoUrl(uploadedUrl);
         gooeyToast.success("Officer photo uploaded successfully!");
+      } else {
+        gooeyToast.error("Photo upload failed.");
       }
     } catch (err) {
       console.error(err);
       gooeyToast.error("Photo upload failed.");
     } finally {
       setIsPhotoUploading(false);
+      e.target.value = "";
     }
+  };
+
+  const handleRemovePhoto = () => {
+    setPhotoUrl("");
+    gooeyToast.info("Photo removed.");
   };
 
   const moveOfficer = async (index: number, direction: "up" | "down") => {
@@ -560,31 +580,68 @@ export default function NationalOfficersManagement() {
               </div>
 
               <div className="about-form-group">
-                <label className="about-form-label">Photo Upload</label>
-                <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
-                  <label
-                    className="about-btn about-btn--secondary"
-                    style={{ height: "38px", cursor: "pointer", display: "inline-flex", gap: "6px" }}
+                <label className="about-form-label">Officer Photo</label>
+                <div style={{ display: "flex", gap: "14px", alignItems: "center" }}>
+                  <div
+                    style={{
+                      width: "56px",
+                      height: "56px",
+                      borderRadius: "50%",
+                      background: "#e5e7eb",
+                      display: "grid",
+                      placeItems: "center",
+                      overflow: "hidden",
+                      border: "2px solid #cbd5e1",
+                      flexShrink: 0,
+                    }}
                   >
-                    {isPhotoUploading ? (
-                      <Loader2 className="animate-spin" size={14} />
+                    {photoUrl ? (
+                      <img
+                        src={photoUrl}
+                        alt="Officer Preview"
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
                     ) : (
-                      <Upload size={14} />
+                      <User size={24} color="#9ca3af" />
                     )}
-                    Upload Photo
-                    <input
-                      type="file"
-                      accept="image/*"
-                      style={{ display: "none" }}
-                      onChange={handlePhotoUpload}
-                      disabled={isPhotoUploading}
-                    />
-                  </label>
-                  {photoUrl && (
-                    <span style={{ fontSize: "11px", color: "var(--p-emerald)", fontWeight: 600 }}>
-                      ✔ Photo linked
-                    </span>
-                  )}
+                  </div>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+                    <label
+                      className="about-btn about-btn--secondary"
+                      style={{
+                        height: "36px",
+                        cursor: isPhotoUploading ? "not-allowed" : "pointer",
+                        display: "inline-flex",
+                        gap: "6px",
+                        alignItems: "center",
+                      }}
+                    >
+                      {isPhotoUploading ? (
+                        <Loader2 className="animate-spin" size={14} />
+                      ) : (
+                        <Upload size={14} />
+                      )}
+                      {photoUrl ? "Change Photo" : "Upload Photo"}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: "none" }}
+                        onChange={handlePhotoUpload}
+                        disabled={isPhotoUploading || isSaving}
+                      />
+                    </label>
+                    {photoUrl && (
+                      <button
+                        type="button"
+                        className="about-btn about-btn--danger"
+                        style={{ height: "36px", padding: "0 12px" }}
+                        onClick={handleRemovePhoto}
+                        disabled={isPhotoUploading || isSaving}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 

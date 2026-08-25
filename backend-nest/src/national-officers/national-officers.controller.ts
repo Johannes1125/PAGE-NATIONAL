@@ -8,9 +8,12 @@ import {
   Param,
   Req,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import type { Request } from 'express';
 import { NationalOfficersService } from './national-officers.service';
 import { CreateNationalOfficerDto } from './dto/create-national-officer.dto';
@@ -37,6 +40,28 @@ export class NationalOfficersController {
   }
 
   // ── ADMIN PROTECTED ENDPOINTS ─────────────────────────────────────────────
+
+  @UseGuards(TokenAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('image'))
+  @HttpCode(HttpStatus.OK)
+  uploadImage(
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.service.uploadImage(file);
+  }
+
+  @UseGuards(TokenAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Post('upload/image')
+  @UseInterceptors(FileInterceptor('image'))
+  @HttpCode(HttpStatus.OK)
+  uploadImageAlias(
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.service.uploadImage(file);
+  }
 
   @UseGuards(TokenAuthGuard, RolesGuard)
   @Roles('admin')

@@ -1,5 +1,4 @@
 "use client";
-import Navbar from "../../components/Navbar";
 
 import { useState, useEffect, useCallback, useRef, use } from "react";
 import Link from "next/link";
@@ -385,17 +384,10 @@ export default function ActivityDetailPage({
 }) {
   const { slug } = use(params);
 
-  const [scrolled,      setScrolled]      = useState(false);
   const [activity,      setActivity]      = useState<Activity | null>(null);
   const [status,        setStatus]        = useState<"loading" | "ok" | "error" | "notfound">("loading");
   const [lightboxOpen,  setLightboxOpen]  = useState(false);
   const [lightboxStart, setLightboxStart] = useState(0);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   useEffect(() => {
     (async () => {
@@ -426,8 +418,6 @@ export default function ActivityDetailPage({
 
   return (
     <>
-      <Navbar scrolled={scrolled} />
-
       {/* Hero nav bar */}
       <section className="act-detail-hero">
         <div className="container">

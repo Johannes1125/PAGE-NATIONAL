@@ -77,7 +77,7 @@ export default function Footer() {
                 </div>
               </div>
               <p className="footer-tagline">
-                Uniting graduate institutions. Advancing knowledge. Serving the nation since 1976.
+                Uniting graduate institutions. Advancing knowledge. Serving the nation since 1962.
               </p>
               <div className="footer-socials">
                 <a 

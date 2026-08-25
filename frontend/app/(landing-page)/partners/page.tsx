@@ -16,7 +16,6 @@ import {
   FileText,
   CheckCircle2
 } from "lucide-react";
-import Navbar from "../components/Navbar";
 import "./partners.css";
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -90,15 +89,8 @@ function PartnersHero() {
 
 function PartnershipsContent() {
   const searchParams = useSearchParams();
-  const [scrolled, setScrolled] = useState(false);
   const [activeTab, setActiveTab] = useState<"phil" | "foreign" | "industries">("phil");
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   useEffect(() => {
     const tabParam = searchParams.get("tab");
@@ -136,7 +128,6 @@ function PartnershipsContent() {
 
   return (
     <main className="partners-main">
-      <Navbar scrolled={scrolled} />
       <PartnersHero />
 
       <section className="cbl-content-section">
