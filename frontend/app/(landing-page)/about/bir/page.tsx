@@ -69,17 +69,21 @@ export default function BirCertificationPage() {
   const activeRecord = birRecords.length > 0 ? birRecords[0] : null;
 
   const displayDetails = activeRecord ? {
-    registeredName: activeRecord.registrationName,
-    tin: activeRecord.tinNumber,
-    certificateNumber: activeRecord.certificationNumber,
-    status: activeRecord.exemptionCategory,
-    dateIssued: formatDate(activeRecord.dateOfIssuance),
+    registeredName: activeRecord.registrationName || "PHILIPPINE ASSOCIATION FOR GRADUATE EDUCATION PHILIPPINES (PAGE) INC.",
+    tin: activeRecord.tinNumber || "661-807-029-00000",
+    certificateNumber: activeRecord.certificationNumber || "034RC20240000004198",
+    status: activeRecord.exemptionCategory || "85600 - Educational Support Services",
+    dateIssued: activeRecord.dateOfIssuance ? formatDate(activeRecord.dateOfIssuance) : "October 22, 2024",
+    rdoOffice: "RDO 034 - Paco-Pandacan-Sta. Ana, Manila",
+    registeredAddress: "Bldg. 2 & 3, 1113-1117 Emilio Aguinaldo College, San Marcelino cor. Gonzales Sts., Barangay 674, Paco, City of Manila",
   } : {
-    registeredName: "Philippine Association for Graduate Education, Inc.",
-    tin: "Registered TIN Active",
-    certificateNumber: "BIR Exemption Accredited",
-    status: "Tax-Exempt Educational Association",
-    dateIssued: "Est. 1962",
+    registeredName: "PHILIPPINE ASSOCIATION FOR GRADUATE EDUCATION PHILIPPINES (PAGE) INC.",
+    tin: "661-807-029-00000",
+    certificateNumber: "034RC20240000004198",
+    status: "85600 - Educational Support Services",
+    dateIssued: "October 22, 2024",
+    rdoOffice: "RDO 034 - Paco-Pandacan-Sta. Ana, Manila",
+    registeredAddress: "Bldg. 2 & 3, 1113-1117 Emilio Aguinaldo College, San Marcelino cor. Gonzales Sts., Barangay 674, Paco, City of Manila",
   };
 
   const hasDocuments = documents.length > 0 || birRecords.some(r => r.imageUrl);
@@ -138,16 +142,20 @@ export default function BirCertificationPage() {
                   <p style={{ margin: "4px 0 0", fontSize: "16px", fontWeight: 700, color: "#081734", fontFamily: "monospace" }}>{displayDetails.tin}</p>
                 </div>
                 <div>
-                  <span style={{ fontSize: "11px", fontWeight: 700, color: "#718096", textTransform: "uppercase", letterSpacing: "1px" }}>Certificate Number</span>
+                  <span style={{ fontSize: "11px", fontWeight: 700, color: "#718096", textTransform: "uppercase", letterSpacing: "1px" }}>Certificate Number / OCN</span>
                   <p style={{ margin: "4px 0 0", fontSize: "15px", fontWeight: 600, color: "#4a5568", fontFamily: "monospace" }}>{displayDetails.certificateNumber}</p>
                 </div>
                 <div>
-                  <span style={{ fontSize: "11px", fontWeight: 700, color: "#718096", textTransform: "uppercase", letterSpacing: "1px" }}>Exemption Category</span>
+                  <span style={{ fontSize: "11px", fontWeight: 700, color: "#718096", textTransform: "uppercase", letterSpacing: "1px" }}>Classification / PSIC</span>
                   <p style={{ margin: "4px 0 0", fontSize: "15px", fontWeight: 600, color: "#4a5568" }}>{displayDetails.status}</p>
                 </div>
                 <div>
                   <span style={{ fontSize: "11px", fontWeight: 700, color: "#718096", textTransform: "uppercase", letterSpacing: "1px" }}>Date of Issuance</span>
                   <p style={{ margin: "4px 0 0", fontSize: "15px", fontWeight: 600, color: "#4a5568" }}>{displayDetails.dateIssued}</p>
+                </div>
+                <div>
+                  <span style={{ fontSize: "11px", fontWeight: 700, color: "#718096", textTransform: "uppercase", letterSpacing: "1px" }}>Revenue District Office</span>
+                  <p style={{ margin: "4px 0 0", fontSize: "15px", fontWeight: 600, color: "#4a5568" }}>{displayDetails.rdoOffice}</p>
                 </div>
               </div>
             </div>

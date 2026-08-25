@@ -30,11 +30,13 @@
   --af-bg:           #f9fafb;
   --af-cream:        #ffffff;
   --af-surface:      #ffffff;
-  --af-border:       #e2e8f0;
+  --af-border:       #cbd5e1;
   --af-border-light: #e2e8f0;
+  --af-border-hover: #64748b;
+  --af-border-focus: #081734;
   --af-text:         #081734;
   --af-text-muted:   #4a5568;
-  --af-error:        #b8860b;
+  --af-error:        #dc2626;
   --af-radius:       8px;
   --af-radius-sm:    6px;
 
@@ -584,67 +586,134 @@
   border-bottom: 1px solid var(--af-border-light);
 }
 
-/* ── Inputs ──────────────────────────────────────────────── */
+/* ── Inputs & Form Controls ──────────────────────────────── */
 .af-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  margin-bottom: 24px;
+  width: 100%;
 }
 
 .af-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--af-navy);
-  letter-spacing: 0.1px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--af-navy, #081734);
+  letter-spacing: -0.1px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.4;
+  margin-bottom: 2px;
 }
 
-.af-req { color: var(--af-seal); margin-left: 2px; }
+.af-req {
+  color: var(--af-error, #dc2626);
+  font-weight: 800;
+  margin-left: 2px;
+  font-size: 15px;
+}
 
-.af-input {
+.af-input,
+.af-select,
+.af-textarea {
   width: 100%;
-  padding: 10px 12px;
-  font-size: 14.5px;
+  min-height: 48px;
+  padding: 12px 16px;
+  font-size: 15px;
   font-family: var(--sans);
-  color: var(--af-ink);
-  background: var(--af-surface);
-  border: 1px solid var(--af-border);
-  border-radius: 3px;
-  transition: border-color 0.18s, box-shadow 0.18s;
+  color: var(--af-ink, #081734);
+  background-color: #ffffff;
+  border: 1.5px solid var(--af-border, #cbd5e1);
+  border-radius: 8px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
   outline: none;
   box-sizing: border-box;
+  box-shadow: 0 1px 2px rgba(8, 23, 52, 0.04);
 }
-.af-input:focus {
-  border-color: var(--af-navy);
-  box-shadow: 0 0 0 3px rgba(20, 49, 82, 0.08);
+
+.af-input::placeholder,
+.af-textarea::placeholder {
+  color: #94a3b8;
+  font-size: 14.5px;
 }
-.af-input:focus-visible {
-  border-color: var(--af-gold);
-  box-shadow: 0 0 0 3px rgba(168, 133, 10, 0.14);
+
+.af-input:hover,
+.af-select:hover,
+.af-textarea:hover {
+  border-color: var(--af-border-hover, #64748b);
+  box-shadow: 0 2px 4px rgba(8, 23, 52, 0.06);
 }
-.af-input--error {
-  border-color: var(--af-seal);
-  background: rgba(139, 26, 26, 0.03);
+
+.af-input:focus,
+.af-select:focus,
+.af-textarea:focus {
+  border-color: var(--af-navy, #081734);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3.5px rgba(8, 23, 52, 0.12), 0 1px 2px rgba(8, 23, 52, 0.05);
 }
-.af-input--error:focus {
-  box-shadow: 0 0 0 3px rgba(139, 26, 26, 0.10);
+
+.af-input:focus-visible,
+.af-select:focus-visible,
+.af-textarea:focus-visible {
+  border-color: var(--af-gold, #d4a053);
+  box-shadow: 0 0 0 3.5px rgba(212, 160, 83, 0.22);
+}
+
+/* ── Error States ── */
+.af-input--error,
+.af-select--error,
+.af-textarea--error {
+  border-color: var(--af-error, #dc2626) !important;
+  background-color: #fff8f8 !important;
+}
+
+.af-input--error:hover,
+.af-select--error:hover,
+.af-textarea--error:hover {
+  border-color: #b91c1c !important;
+}
+
+.af-input--error:focus,
+.af-select--error:focus,
+.af-textarea--error:focus {
+  border-color: var(--af-error, #dc2626) !important;
+  box-shadow: 0 0 0 3.5px rgba(220, 38, 38, 0.14) !important;
+}
+
+.af-error,
+.af-field-error {
+  color: var(--af-error, #dc2626);
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  line-height: 1.4;
 }
 
 .af-select {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%230C1A2E' opacity='0.5'%3E%3Cpath d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23081734'%3E%3Cpath d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 12px center;
+  background-position: right 14px center;
   background-size: 18px;
-  padding-right: 36px;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+.af-textarea {
+  min-height: 120px;
+  line-height: 1.6;
+  resize: vertical;
 }
 
 /* ── Document Upload Zone ────────────────────────────────── */
-/* Dossier-inset style with ruled-paper feel */
 .af-upload {
-  border: 1px solid var(--af-border);
-  border-top: 3px solid var(--af-navy);
-  border-radius: 4px;
-  background: var(--af-ivory);
+  border: 2px dashed #94a3b8;
+  border-radius: 10px;
+  background: #f8fafc;
   padding: 28px 24px;
   display: flex;
   flex-direction: column;
@@ -654,25 +723,26 @@
   min-height: 140px;
   text-align: center;
   position: relative;
-  transition: border-color 0.2s, background 0.2s;
-  /* subtle ruled lines */
-  background-image: repeating-linear-gradient(
-    0deg,
-    transparent, transparent 27px,
-    rgba(12, 26, 46, 0.03) 27px, rgba(12, 26, 46, 0.03) 28px
-  );
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 3px rgba(8, 23, 52, 0.04);
 }
 .af-upload:hover {
-  border-color: var(--af-slate);
-  background-color: var(--af-surface);
+  border-color: var(--af-navy, #081734);
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(8, 23, 52, 0.06);
+}
+.af-upload:focus-visible {
+  outline: none;
+  border-color: var(--af-navy, #081734);
+  box-shadow: 0 0 0 3.5px rgba(8, 23, 52, 0.12);
 }
 .af-upload--success {
-  border-top-color: var(--af-success);
-  background-image: none;
-  background-color: rgba(26, 92, 59, 0.03);
+  border: 2px solid var(--af-success, #16a34a);
+  background-color: #f0fdf4;
 }
 .af-upload--error {
-  border-top-color: var(--af-seal);
+  border-color: var(--af-error, #dc2626);
+  background-color: #fff8f8;
 }
 .af-upload__icon-wrap {
   margin-bottom: 10px;

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence, type Variants } from "framer-motion";
+
 import { api } from "../../../lib/api-client";
 import "./history.css";
 
@@ -15,6 +15,11 @@ interface HistoricalRecord {
   yearStart: number;
   programType: ProgramType;
   description: string;
+}
+
+interface HistoricalRecordsResponse {
+  success: boolean;
+  data: HistoricalRecord[];
 }
 
 // Default Fallback Records (ensures a rich 60-year timeline matching verified records)
@@ -31,7 +36,7 @@ const DEFAULT_HISTORICAL_RECORDS: HistoricalRecord[] = [
     yearStart: 1962,
     programType: "Conference",
     title: "First National Conference on Graduate Education",
-    description: "PAGE held its first national conference at Philippine Women’s University with the theme 'Graduate Education Today.'"
+    description: "PAGE held its first national conference at Philippine Women's University with the theme 'Graduate Education Today.'"
   },
   {
     id: "hist-3",
@@ -240,10 +245,15 @@ const CalendarIcon = () => (
   </svg>
 );
 
-const ArrowRightIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="5" y1="12" x2="19" y2="12" />
-    <polyline points="12 5 19 12 12 19" />
+const ChevronLeftIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="15 18 9 12 15 6" />
+  </svg>
+);
+
+const ChevronRightIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="9 6 15 12 9 18" />
   </svg>
 );
 
@@ -260,6 +270,28 @@ function getMilestoneIcon(type: string) {
     default:
       return <LightbulbIcon />;
   }
+}
+
+// ── Responsive visible count hook ─────────────────────────────────────────
+function useVisibleCount(): number {
+  const [count, setCount] = useState(1);
+
+  useEffect(() => {
+    const update = () => {
+      if (window.innerWidth >= 1024) {
+        setCount(3);
+      } else if (window.innerWidth >= 768) {
+        setCount(2);
+      } else {
+        setCount(1);
+      }
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  return count;
 }
 
 // ── Hero Section ────────────────────────────────────────────────────────────
@@ -315,51 +347,92 @@ function StatStrip() {
   );
 }
 
-// ── Timeline Skeleton ──────────────────────────────────────────────────────
-function TimelineSkeleton() {
+// ── Carousel Skeleton ─────────────────────────────────────────────────────
+function CarouselSkeleton() {
   return (
-    <div className="history-timeline-wrapper">
-      <div className="history-timeline-spine" />
-      {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className={`history-timeline-row ${i % 2 === 0 ? "timeline-left" : "timeline-right"}`}>
-          <div className="history-timeline-node">
-            <div className="history-node-inner" />
-          </div>
-          <div className="history-timeline-card-wrapper">
-            <div className="history-card">
-              <div className="skeleton-pulse" style={{ width: "120px", height: "32px", marginBottom: "16px" }} />
-              <div className="skeleton-pulse" style={{ width: "70%", height: "24px", marginBottom: "12px" }} />
+    <div className="history-carousel-container">
+      <div className="history-skeleton-track">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="history-skeleton-frame">
+            <div className="history-skeleton-card">
+              <div className="skeleton-pulse" style={{ width: "90px", height: "28px", marginBottom: "16px" }} />
+              <div className="skeleton-pulse" style={{ width: "60px", height: "36px", marginBottom: "16px" }} />
+              <div className="skeleton-pulse" style={{ width: "80%", height: "22px", marginBottom: "12px" }} />
               <div className="skeleton-pulse" style={{ width: "100%", height: "16px", marginBottom: "8px" }} />
-              <div className="skeleton-pulse" style={{ width: "85%", height: "16px" }} />
+              <div className="skeleton-pulse" style={{ width: "100%", height: "16px", marginBottom: "8px" }} />
+              <div className="skeleton-pulse" style={{ width: "65%", height: "16px", marginBottom: "20px" }} />
+              <div className="skeleton-pulse" style={{ width: "140px", height: "14px" }} />
             </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
 
-// ── Framer Motion Variants ─────────────────────────────────────────────────
-const rowVariants: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
-  },
-  exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } }
-};
+// ── Milestone Card ────────────────────────────────────────────────────────
+interface MilestoneCardProps {
+  record: HistoricalRecord;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+}
+
+const DESC_CLAMP_THRESHOLD = 120;
+
+function MilestoneCard({ record, isExpanded, onToggleExpand }: MilestoneCardProps) {
+  const milestoneType = programTypeToMilestone(record.programType);
+  const isLongDesc = record.description.length > DESC_CLAMP_THRESHOLD;
+
+  return (
+    <div className="history-card">
+      <div className="history-card-header">
+        <span className="history-card-badge">{record.programType}</span>
+        <span className="history-card-year">{record.yearStart}</span>
+      </div>
+
+      <h3 className="history-card-title">{record.title}</h3>
+      <p className={`history-card-desc ${isLongDesc && !isExpanded ? "clamped" : ""}`}>
+        {record.description}
+      </p>
+      {isLongDesc && (
+        <button
+          className="history-read-more-btn"
+          onClick={onToggleExpand}
+          aria-expanded={isExpanded}
+        >
+          {isExpanded ? "Show less" : "Read more"}
+        </button>
+      )}
+
+      <div className="history-card-footer">
+        {getMilestoneIcon(milestoneType)}
+        <span>Historical Milestone</span>
+      </div>
+    </div>
+  );
+}
+
+
 
 // ── Main Component ─────────────────────────────────────────────────────────
 export default function HistoryPage() {
   const [loading, setLoading] = useState(true);
   const [records, setRecords] = useState<HistoricalRecord[]>(DEFAULT_HISTORICAL_RECORDS);
   const [activeFilter, setActiveFilter] = useState<string>("all");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [slideKey, setSlideKey] = useState(0);
+  const [slideDir, setSlideDir] = useState<"next" | "prev">("next");
+
+  const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const wheelTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const visibleCount = useVisibleCount();
 
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const res = await api.get<{ success: boolean; data: HistoricalRecord[] }>("/public/historical-records");
+        const res = await api.get<HistoricalRecordsResponse>("/public/historical-records");
         if (res.success && res.data && res.data.length > 0) {
           // Sort by yearStart ascending
           const sorted = [...res.data].sort((a, b) => a.yearStart - b.yearStart);
@@ -385,6 +458,106 @@ export default function HistoryPage() {
     if (activeFilter === "modern") return rec.yearStart >= 2000;
     return rec.programType.toLowerCase() === activeFilter.toLowerCase();
   });
+
+  // Total number of "pages" based on visible count
+  const totalPages = Math.max(1, Math.ceil(filteredRecords.length / visibleCount));
+
+  // Reset to first page when filter changes
+  useEffect(() => {
+    setCurrentIndex(0);
+    setExpandedCards({});
+  }, [activeFilter]);
+
+  // Clamp currentIndex when visibleCount or filteredRecords change
+  useEffect(() => {
+    const maxIndex = Math.max(0, totalPages - 1);
+    if (currentIndex > maxIndex) {
+      setCurrentIndex(maxIndex);
+    }
+  }, [totalPages, currentIndex]);
+
+  // Get the milestones visible in the current page
+  const startIdx = currentIndex * visibleCount;
+  const visibleRecords = filteredRecords.slice(startIdx, startIdx + visibleCount);
+
+  // Navigation callbacks
+  const goToPage = useCallback((page: number) => {
+    if (page < 0 || page >= totalPages) return;
+    setSlideDir(page > currentIndex ? "next" : "prev");
+    setSlideKey(k => k + 1);
+    setCurrentIndex(page);
+  }, [totalPages, currentIndex]);
+
+  const goNext = useCallback(() => {
+    if (currentIndex < totalPages - 1) {
+      setSlideDir("next");
+      setSlideKey(k => k + 1);
+      setCurrentIndex(prev => prev + 1);
+    }
+  }, [currentIndex, totalPages]);
+
+  const goPrev = useCallback(() => {
+    if (currentIndex > 0) {
+      setSlideDir("prev");
+      setSlideKey(k => k + 1);
+      setCurrentIndex(prev => prev - 1);
+    }
+  }, [currentIndex]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!carouselRef.current) return;
+      // Only handle when carousel is in viewport-ish focus
+      const rect = carouselRef.current.getBoundingClientRect();
+      const inView = rect.top < window.innerHeight && rect.bottom > 0;
+      if (!inView) return;
+
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        goNext();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        goPrev();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [goNext, goPrev]);
+
+  // Horizontal mouse-wheel scroll (debounced)
+  const handleWheel = useCallback((e: React.WheelEvent<HTMLDivElement>) => {
+    if (Math.abs(e.deltaX) < 10 && Math.abs(e.deltaY) < 10) return;
+
+    // Determine primary scroll direction
+    const isHorizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+    const delta = isHorizontal ? e.deltaX : e.deltaY;
+
+    if (wheelTimeoutRef.current) return; // debounce active
+
+    if (delta > 0) {
+      goNext();
+    } else if (delta < 0) {
+      goPrev();
+    }
+
+    wheelTimeoutRef.current = setTimeout(() => {
+      wheelTimeoutRef.current = null;
+    }, 400);
+  }, [goNext, goPrev]);
+
+
+
+  // Toggle expand/collapse for a card
+  const toggleExpand = useCallback((id: string) => {
+    setExpandedCards(prev => ({ ...prev, [id]: !prev[id] }));
+  }, []);
+
+  // Handle filter change with reset
+  const handleFilterChange = useCallback((filter: string) => {
+    setActiveFilter(filter);
+  }, []);
 
   return (
     <div className="history-main">
@@ -413,102 +586,105 @@ export default function HistoryPage() {
           <div className="history-filter-bar">
             <button
               className={`history-filter-btn ${activeFilter === "all" ? "active" : ""}`}
-              onClick={() => setActiveFilter("all")}
+              onClick={() => handleFilterChange("all")}
             >
               All Milestones
             </button>
             <button
               className={`history-filter-btn ${activeFilter === "founding" ? "active" : ""}`}
-              onClick={() => setActiveFilter("founding")}
+              onClick={() => handleFilterChange("founding")}
             >
               Founding Era (1962-1979)
             </button>
             <button
               className={`history-filter-btn ${activeFilter === "expansion" ? "active" : ""}`}
-              onClick={() => setActiveFilter("expansion")}
+              onClick={() => handleFilterChange("expansion")}
             >
               Expansion (1980-1999)
             </button>
             <button
               className={`history-filter-btn ${activeFilter === "modern" ? "active" : ""}`}
-              onClick={() => setActiveFilter("modern")}
+              onClick={() => handleFilterChange("modern")}
             >
               Modern Era (2000-Present)
             </button>
-            {(["Initiative", "Conference", "Seminar", "Convention", "Other"] as ProgramType[]).map((programType) => (
-              <button
-                key={programType}
-                className={`history-filter-btn ${activeFilter === programType.toLowerCase() ? "active" : ""}`}
-                onClick={() => setActiveFilter(programType.toLowerCase())}
-              >
-                {programType}
-              </button>
-            ))}
           </div>
 
-          {/* Timeline Section */}
+          {/* Carousel Section */}
           {loading ? (
-            <TimelineSkeleton />
+            <CarouselSkeleton />
           ) : filteredRecords.length === 0 ? (
             <div className="history-empty-state">
               <ClockIcon />
               <h3>No Historical Milestones Found</h3>
-              <p>No records match the selected era filter. Try selecting "All Milestones" to view full timeline.</p>
+              <p>No records match the selected era filter. Try selecting &quot;All Milestones&quot; to view full timeline.</p>
             </div>
           ) : (
-            <div className="history-timeline-wrapper">
-              <div className="history-timeline-spine" />
+            <>
+              <div
+                ref={carouselRef}
+                className="history-carousel-container"
+                role="region"
+                aria-roledescription="carousel"
+                aria-label="Historical milestones carousel"
+                onWheel={handleWheel}
+              >
+                {/* Prev Button */}
+                <button
+                  className="history-carousel-nav-btn prev"
+                  onClick={goPrev}
+                  disabled={currentIndex === 0}
+                  aria-label="Previous milestones"
+                >
+                  <ChevronLeftIcon />
+                </button>
 
-              <AnimatePresence mode="popLayout">
-                {filteredRecords.map((record, index) => {
-                  const milestoneType = programTypeToMilestone(record.programType);
-                  const isLeft = index % 2 === 0;
-
-                  return (
-                    <motion.div
-                      key={record.id}
-                      className={`history-timeline-row ${isLeft ? "timeline-left" : "timeline-right"}`}
-                      variants={rowVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                      layout
-                    >
-                      {/* Central Spine Node */}
-                      <div className="history-timeline-node" title={`${record.yearStart} Milestone`}>
-                        <div className="history-node-inner" />
+                {/* Carousel Viewport */}
+                <div className="history-carousel-viewport">
+                  <div key={slideKey} className="history-carousel-track" data-slide-dir={slideDir}>
+                    {visibleRecords.map(record => (
+                      <div key={record.id} className="history-carousel-frame">
+                        <MilestoneCard
+                          record={record}
+                          isExpanded={expandedCards[record.id] ?? false}
+                          onToggleExpand={() => toggleExpand(record.id)}
+                        />
                       </div>
-
-                      {/* Card Content */}
-                      <div className="history-timeline-card-wrapper">
-                        <div className="history-card">
-                          <div className="history-card-header">
-                            <span className="history-card-badge">{record.programType}</span>
-                            <span className="history-card-year">{record.yearStart}</span>
-                          </div>
-
-                          <h3 className="history-card-title">{record.title}</h3>
-                          <p className="history-card-desc">{record.description}</p>
-
-                          <div className="history-card-footer">
-                            {getMilestoneIcon(milestoneType)}
-                            <span>Historical Milestone</span>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
-
-              {/* End Marker */}
-              <div className="history-timeline-end">
-                <div className="history-timeline-end-pill">
-                  <div className="history-timeline-end-dot" />
-                  <span>Present Day · Empowering Future Educators</span>
+                    ))}
+                  </div>
                 </div>
+
+                {/* Next Button */}
+                <button
+                  className="history-carousel-nav-btn next"
+                  onClick={goNext}
+                  disabled={currentIndex >= totalPages - 1}
+                  aria-label="Next milestones"
+                >
+                  <ChevronRightIcon />
+                </button>
               </div>
-            </div>
+
+              {/* Dot Indicators */}
+              <div className="history-carousel-dots" role="tablist" aria-label="Carousel page indicators">
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <button
+                    key={i}
+                    className={`history-carousel-dot ${currentIndex === i ? "active" : ""}`}
+                    onClick={() => goToPage(i)}
+                    aria-label={`Go to page ${i + 1}`}
+                    aria-current={currentIndex === i ? "true" : undefined}
+                    role="tab"
+                    aria-selected={currentIndex === i}
+                  />
+                ))}
+              </div>
+
+              {/* Page Counter */}
+              <div className="history-carousel-counter">
+                <span className="current">{currentIndex + 1}</span> / {totalPages}
+              </div>
+            </>
           )}
         </div>
       </section>

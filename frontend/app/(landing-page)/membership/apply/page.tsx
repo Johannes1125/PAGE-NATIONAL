@@ -1138,10 +1138,11 @@ function ApplyContent() {
   ) => {
     const error = errors[field];
     return (
-      <div className="af-field" style={{ marginBottom: "16px" }}>
+      <div className="af-field">
         {label && (
-          <label htmlFor={id} className="af-label" style={{ fontSize: "18px", fontWeight: 600, marginBottom: "8px", display: "block" }}>
-            {label} {opts?.required && <span className="af-req" style={{ color: "var(--af-error)" }}>*</span>}
+          <label htmlFor={id} className="af-label">
+            <span>{label}</span>
+            {opts?.required && <span className="af-req">*</span>}
           </label>
         )}
         <input
@@ -1168,16 +1169,18 @@ function ApplyContent() {
             setField(field, val);
           }}
           className={`af-input ${error ? "af-input--error" : ""}`}
-          style={{ minHeight: "48px", fontSize: "16px", padding: "12px 16px" }}
+          aria-invalid={!!error}
+          aria-describedby={error ? `${id}-error` : undefined}
         />
         {error && (
           <motion.span
+            id={`${id}-error`}
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             className="af-error"
-            style={{ color: "var(--af-error)", fontSize: "14px", marginTop: "4px", display: "block" }}
           >
-            {error}
+            <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+            <span>{error}</span>
           </motion.span>
         )}
       </div>
@@ -1572,13 +1575,13 @@ function ApplyContent() {
                                       value={course}
                                       onChange={(e) => dispatch({ type: "UPDATE_EDUCATION_COURSE", index: idx, value: e.target.value })}
                                       className="af-input"
-                                      style={{ flex: 1, minHeight: "40px", fontSize: "14px", padding: "6px 10px" }}
                                     />
                                     {state.educationCoursesOffered!.length > 1 && (
                                       <button
                                         type="button"
                                         onClick={() => dispatch({ type: "REMOVE_EDUCATION_COURSE", index: idx })}
-                                        style={{ border: "none", background: "none", color: "var(--af-error)", cursor: "pointer" }}
+                                        style={{ border: "none", background: "none", color: "var(--af-error, #dc2626)", cursor: "pointer", padding: 4 }}
+                                        aria-label="Remove course"
                                       >
                                         <Trash2 size={16} />
                                       </button>
@@ -1586,7 +1589,12 @@ function ApplyContent() {
                                   </div>
                                 ))
                               )}
-                              {errors.educationCoursesOffered && <span style={{ color: "var(--af-error)", fontSize: "12px" }}>{errors.educationCoursesOffered}</span>}
+                              {errors.educationCoursesOffered && (
+                                <span className="af-error">
+                                  <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+                                  <span>{errors.educationCoursesOffered}</span>
+                                </span>
+                              )}
                             </div>
                           </div>
 
@@ -1600,7 +1608,7 @@ function ApplyContent() {
                               <button
                                 type="button"
                                 onClick={() => dispatch({ type: "ADD_GRADUATE_COURSE" })}
-                                style={{ padding: "4px 8px", background: "var(--af-navy)", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "12px", fontWeight: 600 }}
+                                style={{ padding: "6px 12px", background: "var(--af-navy, #081734)", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "12px", fontWeight: 600 }}
                               >
                                 + Add Course
                               </button>
@@ -1617,13 +1625,13 @@ function ApplyContent() {
                                       value={course}
                                       onChange={(e) => dispatch({ type: "UPDATE_GRADUATE_COURSE", index: idx, value: e.target.value })}
                                       className="af-input"
-                                      style={{ flex: 1, minHeight: "40px", fontSize: "14px", padding: "6px 10px" }}
                                     />
                                     {state.graduateCoursesOffered!.length > 1 && (
                                       <button
                                         type="button"
                                         onClick={() => dispatch({ type: "REMOVE_GRADUATE_COURSE", index: idx })}
-                                        style={{ border: "none", background: "none", color: "var(--af-error)", cursor: "pointer" }}
+                                        style={{ border: "none", background: "none", color: "var(--af-error, #dc2626)", cursor: "pointer", padding: 4 }}
+                                        aria-label="Remove course"
                                       >
                                         <Trash2 size={16} />
                                       </button>
@@ -1631,7 +1639,12 @@ function ApplyContent() {
                                   </div>
                                 ))
                               )}
-                              {errors.graduateCoursesOffered && <span style={{ color: "var(--af-error)", fontSize: "12px" }}>{errors.graduateCoursesOffered}</span>}
+                              {errors.graduateCoursesOffered && (
+                                <span className="af-error">
+                                  <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+                                  <span>{errors.graduateCoursesOffered}</span>
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1639,9 +1652,10 @@ function ApplyContent() {
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginTop: "16px" }}>
                           {renderInput("totalGraduateFaculty", "Total Graduate School Faculty", "e.g. 24", state.totalGraduateFaculty || "", "totalGraduateFaculty", { required: true })}
                           
-                          <div className="af-field" style={{ marginBottom: "16px" }}>
-                            <label htmlFor="currentEnrollmentCount" className="af-label" style={{ fontSize: "18px", fontWeight: 600, marginBottom: "8px", display: "block" }}>
-                              Current Enrollment Count *
+                          <div className="af-field">
+                            <label htmlFor="currentEnrollmentCount" className="af-label">
+                              <span>Current Enrollment Count</span>
+                              <span className="af-req">*</span>
                             </label>
                             <input
                               id="currentEnrollmentCount"
@@ -1650,13 +1664,17 @@ function ApplyContent() {
                               value={state.currentEnrollmentCount || ""}
                               onChange={(e) => setField("currentEnrollmentCount", e.target.value.replace(/\D/g, ""))}
                               className={`af-input ${errors.currentEnrollmentCount ? "af-input--error" : ""}`}
-                              style={{ minHeight: "48px", fontSize: "16px", padding: "12px 16px", width: "100%", border: "1px solid var(--af-border)", borderRadius: "8px" }}
+                              aria-invalid={!!errors.currentEnrollmentCount}
+                              aria-describedby={errors.currentEnrollmentCount ? "currentEnrollmentCount-error" : undefined}
                             />
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "6px" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "4px" }}>
                               {errors.currentEnrollmentCount ? (
-                                <span style={{ color: "var(--af-error)", fontSize: "14px" }}>{errors.currentEnrollmentCount}</span>
+                                <span id="currentEnrollmentCount-error" className="af-error">
+                                  <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+                                  <span>{errors.currentEnrollmentCount}</span>
+                                </span>
                               ) : <span />}
-                              <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--af-blue-mid)" }}>
+                              <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--af-blue-mid, #1b2a4a)" }}>
                                 Estimated fee: {getComputedFeeString().split(" (")[0]}
                               </span>
                             </div>
@@ -1754,12 +1772,12 @@ function ApplyContent() {
                                     value={affiliation}
                                     onChange={(e) => dispatch({ type: "UPDATE_AFFILIATION", index: idx, value: e.target.value })}
                                     className="af-input"
-                                    style={{ flex: 1, minHeight: "40px", fontSize: "15px", padding: "8px 12px" }}
                                   />
                                   <button
                                     type="button"
                                     onClick={() => dispatch({ type: "REMOVE_AFFILIATION", index: idx })}
-                                    style={{ border: "none", background: "none", color: "var(--af-error)", cursor: "pointer" }}
+                                    style={{ border: "none", background: "none", color: "var(--af-error, #dc2626)", cursor: "pointer", padding: 4 }}
+                                    aria-label="Remove affiliation"
                                   >
                                     <Trash2 size={18} />
                                   </button>
@@ -1773,8 +1791,8 @@ function ApplyContent() {
                       <div>
                         {/* Life: YEARS ACTIVE REQUIRED */}
                         {state.membershipType === "life" && (
-                          <div style={{ border: "1px solid #b8860b33", padding: "20px", borderRadius: "12px", background: "#b8860b08", marginBottom: "24px" }}>
-                            <h4 style={{ fontSize: "16px", fontWeight: 700, color: "#b8860b", marginBottom: "8px" }}>Life Membership Eligibility</h4>
+                          <div style={{ border: "1.5px solid #d4a05344", padding: "20px", borderRadius: "12px", background: "rgba(212, 160, 83, 0.05)", marginBottom: "24px" }}>
+                            <h4 style={{ fontSize: "16px", fontWeight: 700, color: "var(--af-navy, #081734)", marginBottom: "8px" }}>Life Membership Eligibility</h4>
                             <p style={{ fontSize: "13px", color: "var(--af-text-muted)", marginBottom: "16px" }}>
                               Requires being active in PAGE regional activities or conventions for at least 1 year.
                             </p>
@@ -1792,7 +1810,7 @@ function ApplyContent() {
                             <button
                               type="button"
                               onClick={() => dispatch({ type: "ADD_TEACHING_EXP" })}
-                              style={{ padding: "6px 12px", background: "var(--af-navy, #143152)", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontWeight: 600 }}
+                              style={{ padding: "6px 12px", background: "var(--af-navy, #081734)", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontWeight: 600 }}
                             >
                               + Add Row
                             </button>
@@ -1803,15 +1821,14 @@ function ApplyContent() {
                               <p style={{ fontSize: "14px", color: "var(--af-text-muted)", margin: 0, padding: "8px" }}>No teaching experience rows added yet.</p>
                             ) : (
                               state.teachingExperience.map((row, idx) => (
-                                <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 110px 110px 40px", gap: "12px", alignItems: "center" }}>
+                                <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 110px 110px 40px", gap: "12px", alignItems: "start" }}>
                                   <div>
                                     <input
                                       type="text"
-                                      placeholder="Role / Position (e.g. Professor)"
+                                      placeholder="Role / Position"
                                       value={row.role || ""}
                                       onChange={(e) => dispatch({ type: "UPDATE_TEACHING_EXP", index: idx, field: "role", value: e.target.value })}
                                       className="af-input"
-                                      style={{ minHeight: "40px", fontSize: "15px", padding: "8px 12px" }}
                                     />
                                   </div>
                                   <div>
@@ -1821,37 +1838,45 @@ function ApplyContent() {
                                       value={row.institution}
                                       onChange={(e) => dispatch({ type: "UPDATE_TEACHING_EXP", index: idx, field: "institution", value: e.target.value })}
                                       className="af-input"
-                                      style={{ minHeight: "40px", fontSize: "15px", padding: "8px 12px" }}
                                     />
                                   </div>
                                   <div>
                                     <input
                                       type="text"
                                       maxLength={4}
-                                      placeholder="From Year"
+                                      placeholder="From"
                                       value={row.fromYear}
                                       onChange={(e) => dispatch({ type: "UPDATE_TEACHING_EXP", index: idx, field: "fromYear", value: e.target.value.replace(/\D/g, "") })}
                                       className={`af-input ${errors[`teaching_from_${idx}`] ? "af-input--error" : ""}`}
-                                      style={{ minHeight: "40px", fontSize: "15px", padding: "8px 12px" }}
                                     />
-                                    {errors[`teaching_from_${idx}`] && <span style={{ color: "var(--af-error)", fontSize: "11px" }}>{errors[`teaching_from_${idx}`]}</span>}
+                                    {errors[`teaching_from_${idx}`] && (
+                                      <span className="af-error" style={{ fontSize: "11px" }}>
+                                        <AlertTriangle size={12} style={{ flexShrink: 0 }} />
+                                        <span>{errors[`teaching_from_${idx}`]}</span>
+                                      </span>
+                                    )}
                                   </div>
                                   <div>
                                     <input
                                       type="text"
                                       maxLength={4}
-                                      placeholder="To Year"
+                                      placeholder="To"
                                       value={row.toYear}
                                       onChange={(e) => dispatch({ type: "UPDATE_TEACHING_EXP", index: idx, field: "toYear", value: e.target.value.replace(/\D/g, "") })}
                                       className={`af-input ${errors[`teaching_to_${idx}`] ? "af-input--error" : ""}`}
-                                      style={{ minHeight: "40px", fontSize: "15px", padding: "8px 12px" }}
                                     />
-                                    {errors[`teaching_to_${idx}`] && <span style={{ color: "var(--af-error)", fontSize: "11px" }}>{errors[`teaching_to_${idx}`]}</span>}
+                                    {errors[`teaching_to_${idx}`] && (
+                                      <span className="af-error" style={{ fontSize: "11px" }}>
+                                        <AlertTriangle size={12} style={{ flexShrink: 0 }} />
+                                        <span>{errors[`teaching_to_${idx}`]}</span>
+                                      </span>
+                                    )}
                                   </div>
                                   <button
                                     type="button"
                                     onClick={() => dispatch({ type: "REMOVE_TEACHING_EXP", index: idx })}
-                                    style={{ border: "none", background: "none", color: "var(--af-error)", cursor: "pointer", display: "flex", justifyContent: "center", alignItems: "center" }}
+                                    style={{ border: "none", background: "none", color: "var(--af-error, #dc2626)", cursor: "pointer", display: "flex", justifyContent: "center", alignItems: "center", height: "48px" }}
+                                    aria-label="Remove row"
                                   >
                                     <Trash2 size={18} />
                                   </button>
@@ -1871,7 +1896,7 @@ function ApplyContent() {
                             <button
                               type="button"
                               onClick={() => dispatch({ type: "ADD_ADMIN_EXP" })}
-                              style={{ padding: "6px 12px", background: "var(--af-navy, #143152)", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontWeight: 600 }}
+                              style={{ padding: "6px 12px", background: "var(--af-navy, #081734)", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontWeight: 600 }}
                             >
                               + Add Row
                             </button>
@@ -1882,15 +1907,14 @@ function ApplyContent() {
                               <p style={{ fontSize: "14px", color: "var(--af-text-muted)", margin: 0, padding: "8px" }}>No administrative experience rows added yet.</p>
                             ) : (
                               state.administrativeExperience.map((row, idx) => (
-                                <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 110px 110px 40px", gap: "12px", alignItems: "center" }}>
+                                <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 110px 110px 40px", gap: "12px", alignItems: "start" }}>
                                   <div>
                                     <input
                                       type="text"
-                                      placeholder="Role / Position (e.g. Dean)"
+                                      placeholder="Role / Position"
                                       value={row.role || ""}
                                       onChange={(e) => dispatch({ type: "UPDATE_ADMIN_EXP", index: idx, field: "role", value: e.target.value })}
                                       className="af-input"
-                                      style={{ minHeight: "40px", fontSize: "15px", padding: "8px 12px" }}
                                     />
                                   </div>
                                   <div>
@@ -1900,37 +1924,45 @@ function ApplyContent() {
                                       value={row.institution}
                                       onChange={(e) => dispatch({ type: "UPDATE_ADMIN_EXP", index: idx, field: "institution", value: e.target.value })}
                                       className="af-input"
-                                      style={{ minHeight: "40px", fontSize: "15px", padding: "8px 12px" }}
                                     />
                                   </div>
                                   <div>
                                     <input
                                       type="text"
                                       maxLength={4}
-                                      placeholder="From Year"
+                                      placeholder="From"
                                       value={row.fromYear}
                                       onChange={(e) => dispatch({ type: "UPDATE_ADMIN_EXP", index: idx, field: "fromYear", value: e.target.value.replace(/\D/g, "") })}
                                       className={`af-input ${errors[`admin_from_${idx}`] ? "af-input--error" : ""}`}
-                                      style={{ minHeight: "40px", fontSize: "15px", padding: "8px 12px" }}
                                     />
-                                    {errors[`admin_from_${idx}`] && <span style={{ color: "var(--af-error)", fontSize: "11px" }}>{errors[`admin_from_${idx}`]}</span>}
+                                    {errors[`admin_from_${idx}`] && (
+                                      <span className="af-error" style={{ fontSize: "11px" }}>
+                                        <AlertTriangle size={12} style={{ flexShrink: 0 }} />
+                                        <span>{errors[`admin_from_${idx}`]}</span>
+                                      </span>
+                                    )}
                                   </div>
                                   <div>
                                     <input
                                       type="text"
                                       maxLength={4}
-                                      placeholder="To Year"
+                                      placeholder="To"
                                       value={row.toYear}
                                       onChange={(e) => dispatch({ type: "UPDATE_ADMIN_EXP", index: idx, field: "toYear", value: e.target.value.replace(/\D/g, "") })}
                                       className={`af-input ${errors[`admin_to_${idx}`] ? "af-input--error" : ""}`}
-                                      style={{ minHeight: "40px", fontSize: "15px", padding: "8px 12px" }}
                                     />
-                                    {errors[`admin_to_${idx}`] && <span style={{ color: "var(--af-error)", fontSize: "11px" }}>{errors[`admin_to_${idx}`]}</span>}
+                                    {errors[`admin_to_${idx}`] && (
+                                      <span className="af-error" style={{ fontSize: "11px" }}>
+                                        <AlertTriangle size={12} style={{ flexShrink: 0 }} />
+                                        <span>{errors[`admin_to_${idx}`]}</span>
+                                      </span>
+                                    )}
                                   </div>
                                   <button
                                     type="button"
                                     onClick={() => dispatch({ type: "REMOVE_ADMIN_EXP", index: idx })}
-                                    style={{ border: "none", background: "none", color: "var(--af-error)", cursor: "pointer", display: "flex", justifyContent: "center", alignItems: "center" }}
+                                    style={{ border: "none", background: "none", color: "var(--af-error, #dc2626)", cursor: "pointer", display: "flex", justifyContent: "center", alignItems: "center", height: "48px" }}
+                                    aria-label="Remove row"
                                   >
                                     <Trash2 size={18} />
                                   </button>
@@ -1950,7 +1982,7 @@ function ApplyContent() {
                             <button
                               type="button"
                               onClick={() => dispatch({ type: "ADD_PUBLICATION" })}
-                              style={{ padding: "6px 12px", background: "var(--af-navy, #143152)", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontWeight: 600 }}
+                              style={{ padding: "6px 12px", background: "var(--af-navy, #081734)", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontWeight: 600 }}
                             >
                               + Add Publication
                             </button>
@@ -1968,12 +2000,12 @@ function ApplyContent() {
                                     value={pub}
                                     onChange={(e) => dispatch({ type: "UPDATE_PUBLICATION", index: idx, value: e.target.value })}
                                     className="af-input"
-                                    style={{ flex: 1, minHeight: "40px", fontSize: "15px", padding: "8px 12px" }}
                                   />
                                   <button
                                     type="button"
                                     onClick={() => dispatch({ type: "REMOVE_PUBLICATION", index: idx })}
-                                    style={{ border: "none", background: "none", color: "var(--af-error)", cursor: "pointer" }}
+                                    style={{ border: "none", background: "none", color: "var(--af-error, #dc2626)", cursor: "pointer", padding: 4 }}
+                                    aria-label="Remove publication"
                                   >
                                     <Trash2 size={18} />
                                   </button>
@@ -1993,7 +2025,7 @@ function ApplyContent() {
                             <button
                               type="button"
                               onClick={() => dispatch({ type: "ADD_MEMBERSHIP" })}
-                              style={{ padding: "6px 12px", background: "var(--af-navy, #143152)", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontWeight: 600 }}
+                              style={{ padding: "6px 12px", background: "var(--af-navy, #081734)", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontWeight: 600 }}
                             >
                               + Add Association
                             </button>
@@ -2011,12 +2043,12 @@ function ApplyContent() {
                                     value={membership}
                                     onChange={(e) => dispatch({ type: "UPDATE_MEMBERSHIP", index: idx, value: e.target.value })}
                                     className="af-input"
-                                    style={{ flex: 1, minHeight: "40px", fontSize: "15px", padding: "8px 12px" }}
                                   />
                                   <button
                                     type="button"
                                     onClick={() => dispatch({ type: "REMOVE_MEMBERSHIP", index: idx })}
-                                    style={{ border: "none", background: "none", color: "var(--af-error)", cursor: "pointer" }}
+                                    style={{ border: "none", background: "none", color: "var(--af-error, #dc2626)", cursor: "pointer", padding: 4 }}
+                                    aria-label="Remove membership"
                                   >
                                     <Trash2 size={18} />
                                   </button>
@@ -2086,89 +2118,130 @@ function ApplyContent() {
                         <p style={{ fontSize: "14px", color: "var(--af-text-muted)", marginBottom: "16px" }}>Please input the details of two professionals who can vouch for your achievements.</p>
                         
                         {errors.characterReferences && (
-                          <div style={{ color: "var(--af-error)", fontSize: "14px", fontWeight: 600, marginBottom: "12px" }}>
-                            ⚠️ {errors.characterReferences}
+                          <div className="af-error" style={{ fontSize: "14px", fontWeight: 600, marginBottom: "16px" }}>
+                            <AlertTriangle size={16} style={{ flexShrink: 0 }} />
+                            <span>{errors.characterReferences}</span>
                           </div>
                         )}
 
                         {[0, 1].map((idx) => {
                           const ref = (state.characterReferences || [])[idx] || { name: "", position: "", address: "" };
                           return (
-                            <div key={idx} className="af-subsection" style={{ padding: "20px", border: "1px solid var(--af-border-light)", borderRadius: "12px", marginBottom: "20px", background: "var(--af-surface)" }}>
-                              <h4 style={{ fontSize: "15px", fontWeight: 700, color: "var(--af-navy)", marginBottom: "12px" }}>Character Reference #{idx + 1}</h4>
+                            <div key={idx} className="af-subsection" style={{ padding: "20px", border: "1.5px solid var(--af-border, #cbd5e1)", borderRadius: "12px", marginBottom: "20px", background: "#ffffff" }}>
+                              <h4 style={{ fontSize: "15px", fontWeight: 700, color: "var(--af-navy)", marginBottom: "16px" }}>Character Reference #{idx + 1}</h4>
                               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                                <div>
-                                  <label style={{ fontSize: "14px", fontWeight: 600, color: "var(--af-navy)", display: "block", marginBottom: "6px" }}>Full Name *</label>
+                                <div className="af-field" style={{ marginBottom: 0 }}>
+                                  <label className="af-label">
+                                    <span>Full Name</span>
+                                    <span className="af-req">*</span>
+                                  </label>
                                   <input
                                     type="text"
                                     placeholder="Dr. Character Reference"
                                     value={ref.name}
                                     onChange={(e) => dispatch({ type: "UPDATE_CHARACTER_REF", index: idx, field: "name", value: e.target.value })}
                                     className={`af-input ${errors[`ref_${idx}_name`] ? "af-input--error" : ""}`}
-                                    style={{ minHeight: "44px", fontSize: "15px", padding: "10px 12px" }}
+                                    aria-invalid={!!errors[`ref_${idx}_name`]}
                                   />
-                                  {errors[`ref_${idx}_name`] && <span style={{ color: "var(--af-error)", fontSize: "12px", marginTop: "4px", display: "block" }}>{errors[`ref_${idx}_name`]}</span>}
+                                  {errors[`ref_${idx}_name`] && (
+                                    <span className="af-error">
+                                      <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+                                      <span>{errors[`ref_${idx}_name`]}</span>
+                                    </span>
+                                  )}
                                 </div>
-                                <div>
-                                  <label style={{ fontSize: "14px", fontWeight: 600, color: "var(--af-navy)", display: "block", marginBottom: "6px" }}>Position / Title *</label>
+                                <div className="af-field" style={{ marginBottom: 0 }}>
+                                  <label className="af-label">
+                                    <span>Position / Title</span>
+                                    <span className="af-req">*</span>
+                                  </label>
                                   <input
                                     type="text"
                                     placeholder="Dean / Principal / Director"
                                     value={ref.position}
                                     onChange={(e) => dispatch({ type: "UPDATE_CHARACTER_REF", index: idx, field: "position", value: e.target.value })}
                                     className={`af-input ${errors[`ref_${idx}_position`] ? "af-input--error" : ""}`}
-                                    style={{ minHeight: "44px", fontSize: "15px", padding: "10px 12px" }}
+                                    aria-invalid={!!errors[`ref_${idx}_position`]}
                                   />
-                                  {errors[`ref_${idx}_position`] && <span style={{ color: "var(--af-error)", fontSize: "12px", marginTop: "4px", display: "block" }}>{errors[`ref_${idx}_position`]}</span>}
+                                  {errors[`ref_${idx}_position`] && (
+                                    <span className="af-error">
+                                      <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+                                      <span>{errors[`ref_${idx}_position`]}</span>
+                                    </span>
+                                  )}
                                 </div>
                               </div>
-                              <div style={{ marginTop: "12px" }}>
-                                <label style={{ fontSize: "14px", fontWeight: 600, color: "var(--af-navy)", display: "block", marginBottom: "6px" }}>Mailing/Office Address *</label>
+                              <div className="af-field" style={{ marginTop: "16px", marginBottom: 0 }}>
+                                <label className="af-label">
+                                  <span>Mailing/Office Address</span>
+                                  <span className="af-req">*</span>
+                                </label>
                                 <input
                                   type="text"
                                   placeholder="Institution Address, City"
                                   value={ref.address}
                                   onChange={(e) => dispatch({ type: "UPDATE_CHARACTER_REF", index: idx, field: "address", value: e.target.value })}
                                   className={`af-input ${errors[`ref_${idx}_address`] ? "af-input--error" : ""}`}
-                                  style={{ minHeight: "44px", fontSize: "15px", padding: "10px 12px" }}
+                                  aria-invalid={!!errors[`ref_${idx}_address`]}
                                 />
-                                {errors[`ref_${idx}_address`] && <span style={{ color: "var(--af-error)", fontSize: "12px", marginTop: "4px", display: "block" }}>{errors[`ref_${idx}_address`]}</span>}
+                                {errors[`ref_${idx}_address`] && (
+                                  <span className="af-error">
+                                    <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+                                    <span>{errors[`ref_${idx}_address`]}</span>
+                                  </span>
+                                )}
                               </div>
                             </div>
                           );
                         })}
 
                         {/* Chapter Board Member Reference */}
-                        <div className="af-subsection" style={{ padding: "20px", border: "2px solid #b8860b33", borderRadius: "12px", background: "#b8860b05", marginBottom: "32px", marginTop: "24px" }}>
-                          <h3 style={{ fontSize: "18px", fontWeight: 700, color: "#b8860b", marginBottom: "4px" }}>
-                            Regional Chapter Board Endorsement <span style={{ color: "var(--af-error)", fontSize: "14px" }}>*</span>
+                        <div className="af-subsection" style={{ padding: "20px", border: "1.5px solid #d4a05366", borderRadius: "12px", background: "rgba(212, 160, 83, 0.04)", marginBottom: "32px", marginTop: "24px" }}>
+                          <h3 style={{ fontSize: "18px", fontWeight: 700, color: "var(--af-navy, #081734)", marginBottom: "4px" }}>
+                            Regional Chapter Board Endorsement <span className="af-req">*</span>
                           </h3>
                           <p style={{ fontSize: "14px", color: "var(--af-text-muted)", marginBottom: "16px" }}>One Regional Chapter Board Member or National Officer endorsement is required.</p>
                           
                           <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }}>
-                            <div>
-                              <label style={{ fontSize: "14px", fontWeight: 600, color: "var(--af-navy)", display: "block", marginBottom: "6px" }}>Board Member / Officer Name *</label>
+                            <div className="af-field" style={{ marginBottom: 0 }}>
+                              <label className="af-label">
+                                <span>Board Member / Officer Name</span>
+                                <span className="af-req">*</span>
+                              </label>
                               <input
                                 type="text"
                                 placeholder="Full Name of regional board member"
                                 value={state.regionalChapterBoardReference?.name || ""}
                                 onChange={(e) => dispatch({ type: "UPDATE_BOARD_REF", field: "name", value: e.target.value })}
                                 className={`af-input ${errors.boardRefName ? "af-input--error" : ""}`}
-                                style={{ minHeight: "44px", fontSize: "15px", padding: "10px 12px" }}
+                                aria-invalid={!!errors.boardRefName}
                               />
-                              {errors.boardRefName && <span style={{ color: "var(--af-error)", fontSize: "12px", marginTop: "4px", display: "block" }}>{errors.boardRefName}</span>}
+                              {errors.boardRefName && (
+                                <span className="af-error">
+                                  <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+                                  <span>{errors.boardRefName}</span>
+                                </span>
+                              )}
                             </div>
-                            <div>
-                              <label style={{ fontSize: "14px", fontWeight: 600, color: "var(--af-navy)", display: "block", marginBottom: "6px" }}>Chapter / Region Address *</label>
+                            <div className="af-field" style={{ marginBottom: 0 }}>
+                              <label className="af-label">
+                                <span>Chapter / Region Address</span>
+                                <span className="af-req">*</span>
+                              </label>
                               <input
                                 type="text"
                                 placeholder="e.g. PAGE Region III Chapter Office"
                                 value={state.regionalChapterBoardReference?.address || ""}
                                 onChange={(e) => dispatch({ type: "UPDATE_BOARD_REF", field: "address", value: e.target.value })}
                                 className={`af-input ${errors.boardRefAddress ? "af-input--error" : ""}`}
-                                style={{ minHeight: "44px", fontSize: "15px", padding: "10px 12px" }}
+                                aria-invalid={!!errors.boardRefAddress}
                               />
-                              {errors.boardRefAddress && <span style={{ color: "var(--af-error)", fontSize: "12px", marginTop: "4px", display: "block" }}>{errors.boardRefAddress}</span>}
+                              {errors.boardRefAddress && (
+                                <span className="af-error">
+                                  <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+                                  <span>{errors.boardRefAddress}</span>
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -2176,9 +2249,9 @@ function ApplyContent() {
                     ) : (
                       <div>
                         <h3 style={{ fontSize: "18px", fontWeight: 700, color: "var(--af-navy)", marginBottom: "16px" }}>
-                          Endorsement References {state.membershipType !== "associate" && <span style={{ color: "var(--af-error)", fontSize: "14px" }}>* (Required)</span>}
+                          Endorsement References {state.membershipType !== "associate" && <span className="af-req">* (Required)</span>}
                         </h3>
-                        <div className="af-subsection" style={{ padding: "16px", border: "1px solid var(--af-border-light)", borderRadius: "8px" }}>
+                        <div className="af-subsection" style={{ padding: "20px", border: "1.5px solid var(--af-border, #cbd5e1)", borderRadius: "12px", background: "#ffffff" }}>
                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                             {renderInput("ref1Name", "Reference 1 Name", "Full Name", state.ref1Name || "", "ref1Name", { required: state.membershipType !== "associate" })}
                             {renderInput("ref1Position", "Reference 1 Position", "Graduate School Dean", state.ref1Position || "", "ref1Position", { required: state.membershipType !== "associate" })}
@@ -2186,7 +2259,7 @@ function ApplyContent() {
                           {renderInput("ref1Address", "Reference 1 Address", "University address location", state.ref1Address || "", "ref1Address", { required: state.membershipType !== "associate" })}
                         </div>
 
-                        <div className="af-subsection" style={{ padding: "16px", border: "1px solid var(--af-border-light)", borderRadius: "8px", marginTop: "16px", marginBottom: "32px" }}>
+                        <div className="af-subsection" style={{ padding: "20px", border: "1.5px solid var(--af-border, #cbd5e1)", borderRadius: "12px", background: "#ffffff", marginTop: "16px", marginBottom: "32px" }}>
                           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                             {renderInput("ref2Name", "Reference 2 Name", "Full Name", state.ref2Name || "", "ref2Name", { required: state.membershipType !== "associate" })}
                             {renderInput("ref2Position", "Reference 2 Position", "PAGE Board Member / Officer", state.ref2Position || "", "ref2Position", { required: state.membershipType !== "associate" })}

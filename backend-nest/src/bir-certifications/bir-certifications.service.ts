@@ -64,11 +64,11 @@ export class BirCertificationsService {
 
     const record = await this.prisma.birCertification.create({
       data: {
-        registrationName: dto.registrationName || 'Philippine Association for Graduate Education, Inc.',
-        tinNumber: dto.tinNumber || 'BIR Tax Certificate',
-        certificationNumber: dto.certificationNumber || 'BIR-CERT',
-        exemptionCategory: dto.exemptionCategory || 'Tax Exempt',
-        dateOfIssuance: dto.dateOfIssuance ? new Date(dto.dateOfIssuance) : new Date(),
+        registrationName: dto.registrationName || 'PHILIPPINE ASSOCIATION FOR GRADUATE EDUCATION PHILIPPINES (PAGE) INC.',
+        tinNumber: dto.tinNumber || '661-807-029-00000',
+        certificationNumber: dto.certificationNumber || '034RC20240000004198',
+        exemptionCategory: dto.exemptionCategory || '85600 - Educational Support Services',
+        dateOfIssuance: dto.dateOfIssuance ? new Date(dto.dateOfIssuance) : new Date('2024-10-22T00:00:00.000Z'),
         imageUrl,
         receiptUrl,
         imagePublicId,
