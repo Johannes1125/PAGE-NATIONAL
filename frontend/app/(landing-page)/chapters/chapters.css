@@ -154,7 +154,7 @@
 }
 
 /* ============================================================
-   TABS BAR
+   TABS BAR & ACCORDION REGION SELECTORS
    ============================================================ */
 .chapters-tabs-bar {
   display: flex;
@@ -166,8 +166,9 @@
 .chapters-tab-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 20px;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px 20px;
   background: var(--color-bg-white);
   border: 2px solid var(--color-border);
   border-radius: 12px;
@@ -179,12 +180,19 @@
   transition: all var(--transition-mid);
   box-shadow: 0 4px 12px rgba(8, 23, 52, 0.04);
   outline: none;
+  flex: 1 1 auto;
+  min-width: 180px;
 }
 
 .chapters-tab-btn:hover {
   border-color: var(--color-navy-light);
   box-shadow: 0 6px 16px rgba(8, 23, 52, 0.1);
   transform: translateY(-2px);
+}
+
+.chapters-tab-btn:focus-visible {
+  border-color: var(--color-navy-primary);
+  box-shadow: 0 0 0 3px rgba(8, 23, 52, 0.2);
 }
 
 .chapters-tab-btn--active {
@@ -194,6 +202,12 @@
   box-shadow: 0 8px 24px rgba(8, 23, 52, 0.18);
 }
 
+.chapters-tab-btn__label-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .chapters-tab-count {
   font-size: 11px;
   font-weight: 800;
@@ -201,11 +215,30 @@
   border-radius: 10px;
   background: rgba(8, 23, 52, 0.08);
   color: var(--color-navy-primary);
+  transition: all var(--transition-fast);
 }
 
 .chapters-tab-btn--active .chapters-tab-count {
   background: rgba(255, 255, 255, 0.2);
   color: #ffffff;
+}
+
+.chapters-tab-chevron {
+  color: var(--color-text-muted);
+  transition: transform 0.3s var(--ease-out), color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.chapters-tab-btn:hover .chapters-tab-chevron {
+  color: var(--color-navy-primary);
+}
+
+.chapters-tab-btn--active .chapters-tab-chevron {
+  color: var(--color-gold);
+}
+
+.chapters-tab-chevron--open {
+  transform: rotate(180deg);
 }
 
 /* ============================================================
@@ -216,7 +249,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 28px 32px;
+  padding: 24px 30px;
   background: var(--color-bg-white);
   border-radius: 12px;
   border: 2px solid var(--color-navy-primary);
@@ -233,14 +266,21 @@
   gap: 16px;
 }
 
-.chapters-header-left svg {
+.chapters-header-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(8, 23, 52, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--color-navy-primary);
   flex-shrink: 0;
 }
 
 .cbl-section-title {
   font-family: var(--font-sans);
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 700;
   color: var(--color-navy-primary);
   margin-bottom: 4px;
@@ -257,7 +297,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  min-width: 260px;
+  min-width: 280px;
 }
 
 .chapters-search-icon {
@@ -269,7 +309,7 @@
 
 .chapters-search-box input {
   width: 100%;
-  padding: 10px 14px 10px 38px;
+  padding: 10px 34px 10px 38px;
   border: 1.5px solid var(--color-border);
   border-radius: 8px;
   font-size: 13px;
@@ -284,6 +324,26 @@
   border-color: var(--color-navy-primary);
   background: #ffffff;
   box-shadow: 0 0 0 3px rgba(8, 23, 52, 0.08);
+}
+
+.chapters-search-clear {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.chapters-search-clear:hover {
+  color: var(--color-navy-primary);
+  background: rgba(8, 23, 52, 0.08);
 }
 
 /* ============================================================
@@ -442,30 +502,84 @@
   background: var(--color-bg-white);
   border-radius: 12px;
   border: 2px dashed var(--color-border);
-  padding: 60px 40px;
+  padding: 64px 32px;
   text-align: center;
   color: var(--color-text-muted);
 }
 
+.chapters-empty-icon-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(8, 23, 52, 0.05);
+  color: var(--color-navy-primary);
+  margin-bottom: 20px;
+}
+
 .cbl-empty-state svg {
   color: var(--color-navy-primary);
-  margin-bottom: 16px;
-  opacity: 0.7;
+  margin-bottom: 0;
+  opacity: 0.85;
 }
 
 .cbl-empty-state h3 {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   font-family: var(--font-sans);
   color: var(--color-navy-primary);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .cbl-empty-state p {
-  font-size: 14px;
+  font-size: 14.5px;
   color: var(--color-text-secondary);
-  max-width: 440px;
+  max-width: 480px;
   margin: 0 auto;
+  line-height: 1.6;
+}
+
+.chapters-empty-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.chapters-empty-btn {
+  padding: 10px 22px;
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  border-radius: 8px;
+  border: 1.5px solid var(--color-navy-primary);
+  background: var(--color-navy-primary);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.chapters-empty-btn:hover {
+  background: var(--color-navy-light);
+  border-color: var(--color-navy-light);
+  transform: translateY(-1px);
+}
+
+.chapters-empty-btn--secondary {
+  background: transparent;
+  color: var(--color-navy-primary);
+  border-color: var(--color-border);
+}
+
+.chapters-empty-btn--secondary:hover {
+  background: rgba(8, 23, 52, 0.04);
+  border-color: var(--color-navy-primary);
+  color: var(--color-navy-primary);
 }
 
 /* Skeleton Loading Card */

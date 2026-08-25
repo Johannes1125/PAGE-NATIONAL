@@ -276,8 +276,20 @@ export class ChaptersService {
 
   // ── Create ──────────────────────────────────────────────────────────────────
 
+  private validateOfficers(officers?: { name: string; year_joined: number; year_end?: number }[]) {
+    if (!officers) return;
+    for (const off of officers) {
+      if (off.year_end && Number(off.year_end) < Number(off.year_joined)) {
+        throw new BadRequestException(
+          `Officer "${off.name || 'entry'}": Term End (${off.year_end}) cannot be earlier than Term Start (${off.year_joined}).`,
+        );
+      }
+    }
+  }
+
   async create(dto: CreateChapterDto, user: { id: bigint }, ipAddress: string) {
     this.validateRegion(dto.island_group, dto.region);
+    this.validateOfficers(dto.officers);
 
     const baseSlug = this.generateSlug(dto.title);
     const slug = await this.ensureUniqueSlug(baseSlug);
@@ -315,7 +327,9 @@ export class ChaptersService {
               name: off.name,
               category_type: off.category_type,
               year_joined: Number(off.year_joined),
+              year_end: off.year_end ? Number(off.year_end) : null,
               sort_order: off.sort_order ?? idx,
+              image_url: off.image_url ?? null,
             })),
           },
           activities: {
@@ -354,6 +368,7 @@ export class ChaptersService {
     const island_group = dto.island_group ?? existing.island_group;
     const region = dto.region ?? existing.region;
     this.validateRegion(island_group, region);
+    if (dto.officers !== undefined) this.validateOfficers(dto.officers);
 
     // Re-generate slug if title changed
     let slug = existing.slug;
@@ -415,8 +430,10 @@ export class ChaptersService {
               create: dto.officers.map((off, idx) => ({
                 name: off.name,
                 category_type: off.category_type,
-                year_joined: off.year_joined,
+                year_joined: Number(off.year_joined),
+                year_end: off.year_end ? Number(off.year_end) : null,
                 sort_order: off.sort_order ?? idx,
+                image_url: off.image_url ?? null,
               })),
             },
           }),

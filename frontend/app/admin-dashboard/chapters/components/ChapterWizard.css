@@ -101,6 +101,49 @@
   color: #16a34a;
 }
 
+/* Stepper button wrapper */
+.wizard-stepper__btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  outline: none;
+}
+
+.wizard-stepper__btn--disabled {
+  cursor: default;
+}
+
+.wizard-stepper__step--clickable .wizard-stepper__circle {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.wizard-stepper__step--clickable:hover .wizard-stepper__circle {
+  border-color: #2563eb;
+  color: #2563eb;
+  background: #eff6ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.wizard-stepper__step--clickable:hover .wizard-stepper__label {
+  color: #2563eb;
+  font-weight: 700;
+}
+
+.wizard-stepper__btn:focus-visible .wizard-stepper__circle {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+}
+
 /* ── Step panel ───────────────────────────────────────────────────────────── */
 .wizard-panel {
   background: #fff;

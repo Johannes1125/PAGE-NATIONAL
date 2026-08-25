@@ -266,7 +266,10 @@ export default function ChapterDetailPage({
                     {terms.length > 0 && (
                       <div className="term-selector" role="tablist" aria-label="Filter terms">
                         {terms.map((year) => {
-                          const label = `${year}-${year + 2}`;
+                          const officerWithEnd = chapter.officers?.find((o: any) => o.year_joined === year && o.year_end);
+                          const label = officerWithEnd?.year_end
+                            ? `${year}–${officerWithEnd.year_end}`
+                            : `${year}–Present`;
                           const isActive = selectedYear === year;
                           return (
                             <button
