@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Eye, FileImage, Link2, List, ListOrdered, Send, X } from "lucide-react";
 import { api } from "../../lib/api-client";
 import "./create-post.css";
+import VersionUpdatesModal from "../../components/VersionUpdatesModal";
 
 type OrgPostStatus = "draft" | "pending";
 
@@ -32,6 +33,7 @@ export default function OrgCreatePostPage() {
   const [notice, setNotice] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchMyPosts = async () => {
@@ -157,6 +159,13 @@ export default function OrgCreatePostPage() {
             <Link href="/org-dashboard/membership-request" className="ocp-nav__link">Membership Request</Link>
             <Link href="/org-dashboard/proof-of-payment" className="ocp-nav__link">Proof of Payment</Link>
             <Link href="/org-dashboard/messaging" className="ocp-nav__link">Messaging Page</Link>
+            <button
+              type="button"
+              className="ocp-nav__link"
+              onClick={() => setIsVersionModalOpen(true)}
+            >
+              Version Updates
+            </button>
           </nav>
         </div>
       </aside>
@@ -326,6 +335,11 @@ export default function OrgCreatePostPage() {
           </article>
         </section>
       )}
+
+      <VersionUpdatesModal
+        isOpen={isVersionModalOpen}
+        onClose={() => setIsVersionModalOpen(false)}
+      />
     </main>
   );
 }

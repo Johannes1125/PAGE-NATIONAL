@@ -475,20 +475,46 @@ html, body { height: 100%; }
   cursor: not-allowed;
 }
 
-/* ── SECURITY NOTE ──────────────────────────────────── */
+/* ── SECURITY NOTE & VERSION META ───────────────────── */
+.al-footer-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: alFadeUp 0.65s ease 0.25s both;
+}
+
 .al-security-note {
   display: flex;
   align-items: center;
   gap: 10px;
   color: var(--text-mute);
   font-size: 13px;
-  animation: alFadeUp 0.65s ease 0.25s both;
 }
 
 .al-sec-icon {
   font-size: 18px;
   color: var(--text-mute);
   flex-shrink: 0;
+}
+
+.al-version-btn {
+  background: transparent;
+  border: 0;
+  color: var(--text-mute);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 6px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.al-version-btn:hover {
+  color: var(--accent);
+  background: rgba(14, 30, 60, 0.05);
 }
 
 /* ── ANIMATION ──────────────────────────────────────── */
@@ -625,6 +651,15 @@ html, body { height: 100%; }
 
   .al-sec-icon {
     color: var(--gold);
+  }
+
+  .al-version-btn {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .al-version-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
   }
 }
 

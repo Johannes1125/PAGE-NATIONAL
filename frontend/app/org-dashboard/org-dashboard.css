@@ -104,6 +104,14 @@ body {
   font-weight: 600;
   padding: 10px 12px;
   border-radius: 8px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  display: block;
+  width: 100%;
+  transition: background 0.15s ease;
 }
 
 .org-nav__link:hover,

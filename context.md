@@ -39,6 +39,7 @@ PAGE-NATIONAL/
 │   │   ├── conventions/      # Conventions, schedules, speakers, and attachments management endpoints
 │   │   ├── dashboard/        # Dashboard stats and administration data handlers
 │   │   ├── historical-records/ # Historical milestones and timeline records management
+│   │   ├── membership-applications/ # Membership application submissions, multi-step application workflow, and document verification
 │   │   ├── messages/         # Real-time messaging service between users and administrators
 │   │   ├── national-officers/ # National board officers management endpoints
 │   │   ├── page-logo/        # PAGE logos history management endpoints
@@ -76,7 +77,10 @@ PAGE-NATIONAL/
     │   │   ├── convention/   # Convention info page
     │   │   ├── journals/     # Professional journals index and access
     │   │   ├── library/      # Public library and resource documents
-    │   │   ├── membership/   # Membership sign-up information and structure
+    │   │   ├── membership/   # Membership overview & application portal
+    │   │   │   ├── apply/    # Multi-step membership application wizard & document uploads
+    │   │   │   │   └── track/# Application reference status tracker
+    │   │   │   └── page.tsx  # Membership benefits & categories overview
     │   │   ├── news/         # Blogs/Posts announcements feeds
     │   │   └── partners/     # Supporting partners
     │   ├── admin-dashboard/  # Admin Portal components and views
@@ -95,8 +99,9 @@ PAGE-NATIONAL/
     │   │   ├── create-new-post/ # Post writing / publishing interface
     │   │   ├── lib/          # Helper modules
     │   │   ├── manage-users/ # Admin view to manage users and roles
-    │   │   ├── membership-applications/ # Verification portal for new members
+    │   │   ├── membership-applications/ # Verification portal and review workflow for membership applicants
     │   │   ├── national-officers/ # Separate national officers records manager
+    │   │   ├── recent-activity/ # Activity feed and audit monitoring interface
     │   │   └── view-messages/# Dashboard communication client
     │   ├── admin-login/      # Admin authentication page
     │   ├── org-dashboard/    # Dashboard layout for organizations
@@ -106,7 +111,7 @@ PAGE-NATIONAL/
     │   ├── member-login/     # General member login page
     │   ├── create-account/   # New user registration flow
     │   ├── forgot-password/  # Password reset flow
-    │   ├── lib/              # API Client (axios instance), types, FontAwesome setup
+    │   ├── lib/              # API Client (axios/fetch instances, AcroForm PDF helpers, membership helpers), types, FontAwesome setup
     │   ├── globals.css       # Baseline styles and utility rules
     │   └── layout.tsx        # Top-level Next.js layout
     ├── public/               # Static assets (images, icons, PAGE-favicon.png, about-bg.jpg, hero-bg.jpg)
@@ -158,6 +163,7 @@ The database uses PostgreSQL via Prisma ORM. Key tables include:
 - **`BirCertification`**: Model storing official BIR tax exemption certification records and files.
 - **`Chapter` & related models** (`ChapterImage`, `ChapterDocument`, `ChapterOfficer`, `ChapterActivity`, `ChapterAnnouncement`): Models for storing regional chapter details, documents, active officers, events/activities, announcements, and image galleries.
 - **`Convention` & related models** (`ConventionAttachment`, `ConventionSchedule`, `ConventionSpeaker`): Models for scheduling, materials, announcements, and speaker profiles for PAGE national conventions.
+- **`MembershipApplication` & `MembershipApplicationDocument`**: Multi-step online membership applications (`LIFE`, `REGULAR`, `ASSOCIATE`, `INSTITUTIONAL`), review status progression (`draft`, `submitted`, `under_review`, `approved`, `rejected`), JSON payload chunks for applicant details, and associated supporting document attachments.
 - **`user_activities`**: Action audit logs for administrators.
 
 ---
@@ -193,3 +199,4 @@ The database uses PostgreSQL via Prisma ORM. Key tables include:
   - `@fortawesome/react-fontawesome`: FontAwesome icon integration.
   - `recharts`: D3-based charting layout library for dashboard usage.
   - `goey-toast` & `react-toastify`: Interface notifications and alert pop-ups.
+  - `pdf-lib`: Dynamic PDF parsing, field filling (AcroForm), and document creation on the client side.

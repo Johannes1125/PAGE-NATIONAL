@@ -100,6 +100,14 @@ body {
   padding: 10px 12px;
   border-radius: 8px;
   text-decoration: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  display: block;
+  width: 100%;
+  transition: background 0.15s ease;
 }
 
 .oas-nav__link:hover,
