@@ -109,7 +109,7 @@ const initialFormState: ApplicationFormState = {
   ref2Name: "",
   ref2Position: "",
   ref2Address: "",
-  
+
   // LIFE Specific
   name: "",
   telMobileNo: "",
@@ -123,7 +123,7 @@ const initialFormState: ApplicationFormState = {
     { name: "", position: "", address: "" },
   ],
   regionalChapterBoardReference: { name: "", address: "" },
-  
+
   // Institutional Specific
   collegeUniversityName: "",
   institutionAddress: "",
@@ -311,7 +311,7 @@ function formReducer(state: ApplicationFormState, action: Action): ApplicationFo
       const eduJob = app.educationJobData || {};
       const exp = app.experienceData || {};
       const refs = app.referencesData || {};
-      
+
       const docs: Record<string, { name: string; url: string }> = {};
       if (app.documents) {
         app.documents.forEach((d) => {
@@ -332,7 +332,7 @@ function formReducer(state: ApplicationFormState, action: Action): ApplicationFo
         region: profile.region || "",
         homeAddress: profile.homeAddress || "",
         enrolleeCount: profile.enrolleeCount !== undefined ? String(profile.enrolleeCount) : "",
-        
+
         institution: eduJob.institution || "",
         address: eduJob.address || "",
         presentPosition: eduJob.presentPosition || "",
@@ -343,7 +343,7 @@ function formReducer(state: ApplicationFormState, action: Action): ApplicationFo
         yearObtained: eduJob.yearObtained || "",
         currentEnrollmentStatus: eduJob.currentEnrollmentStatus || "",
         expectedGraduationYear: eduJob.expectedGraduationYear || "",
-        
+
         whereEmployed: eduJob.whereEmployed || eduJob.institution || "",
         businessAddress: eduJob.businessAddress || eduJob.address || "",
 
@@ -356,9 +356,9 @@ function formReducer(state: ApplicationFormState, action: Action): ApplicationFo
         characterReferences: Array.isArray(refs.characterReferences) && refs.characterReferences.length === 2
           ? refs.characterReferences
           : [
-              { name: refs.ref1Name || "", position: refs.ref1Position || "", address: refs.ref1Address || "" },
-              { name: refs.ref2Name || "", position: refs.ref2Position || "", address: refs.ref2Address || "" },
-            ],
+            { name: refs.ref1Name || "", position: refs.ref1Position || "", address: refs.ref1Address || "" },
+            { name: refs.ref2Name || "", position: refs.ref2Position || "", address: refs.ref2Address || "" },
+          ],
         regionalChapterBoardReference: refs.regionalChapterBoardReference || { name: "", address: "" },
 
         // Backward compatibility with older profiles
@@ -368,7 +368,7 @@ function formReducer(state: ApplicationFormState, action: Action): ApplicationFo
         ref2Name: refs.ref2Name || "",
         ref2Position: refs.ref2Position || "",
         ref2Address: refs.ref2Address || "",
-        
+
         // Institutional fields load
         collegeUniversityName: profile.collegeUniversityName || "",
         institutionAddress: profile.institutionAddress || "",
@@ -380,7 +380,7 @@ function formReducer(state: ApplicationFormState, action: Action): ApplicationFo
         currentEnrollmentCount: eduJob.currentEnrollmentCount !== undefined ? String(eduJob.currentEnrollmentCount) : "",
         enrollmentYearRange: eduJob.enrollmentYearRange || "",
         professionalAffiliations: Array.isArray(exp.professionalAffiliations) ? exp.professionalAffiliations : [""],
-        
+
         documents: docs as any,
       };
     }
@@ -497,7 +497,7 @@ function ApplyContent() {
   const [state, dispatch] = useReducer(formReducer, initialFormState);
   const [draftId, setDraftId] = useState<string | null>(null);
   const [isLoadingDraft, setIsLoadingDraft] = useState(true);
-  
+
   const [currentStep, setCurrentStep] = useState(1);
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const [scrolled, setScrolled] = useState(false);
@@ -575,7 +575,7 @@ function ApplyContent() {
 
     if (stepId === "profile") {
       if (!state.membershipType) { stepErrors.membershipType = "Please select a membership type."; isValid = false; }
-      
+
       if (state.membershipType === "life" || state.membershipType === "regular") {
         if (!state.name?.trim()) { stepErrors.name = "Full Name is required."; isValid = false; }
         if (!state.region?.trim()) { stepErrors.region = "Region is required."; isValid = false; }
@@ -628,7 +628,7 @@ function ApplyContent() {
         }
         if (!state.email?.trim()) { stepErrors.email = "Email is required."; isValid = false; }
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email)) { stepErrors.email = "Invalid email format."; isValid = false; }
-        
+
         if (state.membershipType === "associate") {
           if (!state.documents["photo_1x1"]) { stepErrors.photo_1x1 = "1x1 Photo is required."; isValid = false; }
         }
@@ -717,7 +717,7 @@ function ApplyContent() {
         if (state.teachingTo?.trim() && !/^\d{4}$/.test(state.teachingTo?.trim() || "")) { stepErrors.teachingTo = "Must be a 4-digit year."; isValid = false; }
         if (state.adminFrom?.trim() && !/^\d{4}$/.test(state.adminFrom?.trim() || "")) { stepErrors.adminFrom = "Must be a 4-digit year."; isValid = false; }
         if (state.adminTo?.trim() && !/^\d{4}$/.test(state.adminTo?.trim() || "")) { stepErrors.adminTo = "Must be a 4-digit year."; isValid = false; }
-        
+
         if (stepErrors.teachingFrom || stepErrors.teachingTo || stepErrors.adminFrom || stepErrors.adminTo) {
           isValid = false;
         }
@@ -1084,7 +1084,7 @@ function ApplyContent() {
       digits = "0" + digits;
     }
     if (digits.length === 0) return "";
-    
+
     if (digits.startsWith("02")) {
       if (digits.length <= 2) {
         return isDeleting ? digits : `(${digits}`;
@@ -1113,7 +1113,7 @@ function ApplyContent() {
       const hasLeading = clean.startsWith('+');
       clean = (hasLeading ? '+' : '') + clean.replace(/\+/g, '');
     }
-    
+
     // Enforce dynamic length limits based on format prefix
     if (clean.startsWith('+63')) {
       return clean.slice(0, 13);
@@ -1435,7 +1435,7 @@ function ApplyContent() {
                       <>
                         {renderInput("collegeUniversityName", "College / University Name", "PAGE National University", state.collegeUniversityName || "", "collegeUniversityName", { required: true })}
                         {renderInput("institutionAddress", "Institution Complete Address", "123 Taft Avenue, Manila", state.institutionAddress || "", "institutionAddress", { required: true })}
-                        
+
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                           {renderInput("telMobileNo", "Telephone No.", "(02) 8123-4567", state.telMobileNo || "", "telMobileNo", { type: "tel", required: true })}
                           {renderInput("phone", "Mobile No.", "09171234567", state.phone || "", "phone", { type: "tel", required: false })}
@@ -1472,7 +1472,7 @@ function ApplyContent() {
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "16px" }}>
                           {renderInput("emailAddress", "Email Address", "jane.doe@university.edu.ph", state.emailAddress || "", "emailAddress", { type: "email", required: true })}
                         </div>
-                        
+
                         <div style={{ marginTop: "24px" }}>
                           <DocumentUpload
                             draftId={draftId!}
@@ -1541,8 +1541,8 @@ function ApplyContent() {
                           {state.membershipType === "institutional"
                             ? "Provide course offerings, faculty details, and enrollment count."
                             : state.membershipType === "associate"
-                            ? "Provide details about your current graduate program."
-                            : "Provide your professional background and academic credentials."}
+                              ? "Provide details about your current graduate program."
+                              : "Provide your professional background and academic credentials."}
                         </p>
                       </div>
                     </div>
@@ -1653,7 +1653,7 @@ function ApplyContent() {
 
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginTop: "16px" }}>
                           {renderInput("totalGraduateFaculty", "Total Graduate School Faculty", "e.g. 24", state.totalGraduateFaculty || "", "totalGraduateFaculty", { required: true })}
-                          
+
                           <div className="af-field">
                             <label htmlFor="currentEnrollmentCount" className="af-label">
                               <span>Current Enrollment Count</span>
@@ -1690,7 +1690,7 @@ function ApplyContent() {
                         {renderInput("whereEmployed", "Employing Institution/School", "State University of Manila", state.whereEmployed || "", "whereEmployed", { required: true })}
                         {renderInput("businessAddress", "Business/Office Address", "456 Campus Ave, Manila", state.businessAddress || "", "businessAddress", { required: true })}
                         {renderInput("presentPosition", "Present Position/Title", "Dean of Graduate Studies", state.presentPosition || "", "presentPosition", { required: true })}
-                        
+
                         <div style={{ marginTop: "24px", paddingTop: "24px", borderTop: "1px solid var(--af-border-light)" }}>
                           <h3 style={{ fontSize: "18px", fontWeight: 700, color: "var(--af-navy)", marginBottom: "16px" }}>Academic Degree Details</h3>
                           {renderInput("degreeObtained", "Highest Degree Obtained (Doctoral / Master's)", "PhD in Education", state.degreeObtained || "", "degreeObtained", { required: true })}
@@ -1779,7 +1779,7 @@ function ApplyContent() {
                               + Add Affiliation
                             </button>
                           </div>
-                          
+
                           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                             {(!state.professionalAffiliations || state.professionalAffiliations.length === 0) ? (
                               <p style={{ fontSize: "14px", color: "var(--af-text-muted)", margin: 0 }}>No affiliations added yet.</p>
@@ -1835,7 +1835,7 @@ function ApplyContent() {
                               + Add Row
                             </button>
                           </div>
-                          
+
                           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                             {(!state.teachingExperience || state.teachingExperience.length === 0) ? (
                               <p style={{ fontSize: "14px", color: "var(--af-text-muted)", margin: 0, padding: "8px" }}>No teaching experience rows added yet.</p>
@@ -1921,7 +1921,7 @@ function ApplyContent() {
                               + Add Row
                             </button>
                           </div>
-                          
+
                           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                             {(!state.administrativeExperience || state.administrativeExperience.length === 0) ? (
                               <p style={{ fontSize: "14px", color: "var(--af-text-muted)", margin: 0, padding: "8px" }}>No administrative experience rows added yet.</p>
@@ -2007,7 +2007,7 @@ function ApplyContent() {
                               + Add Publication
                             </button>
                           </div>
-                          
+
                           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                             {(!state.recentPublications || state.recentPublications.length === 0) ? (
                               <p style={{ fontSize: "14px", color: "var(--af-text-muted)", margin: 0, padding: "8px" }}>No publications added yet.</p>
@@ -2050,7 +2050,7 @@ function ApplyContent() {
                               + Add Association
                             </button>
                           </div>
-                          
+
                           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                             {(!state.professionalMemberships || state.professionalMemberships.length === 0) ? (
                               <p style={{ fontSize: "14px", color: "var(--af-text-muted)", margin: 0, padding: "8px" }}>No professional memberships added yet.</p>
@@ -2136,7 +2136,7 @@ function ApplyContent() {
                           Character References <span style={{ color: "var(--af-error)", fontSize: "14px" }}>* (Provide exactly 2)</span>
                         </h3>
                         <p style={{ fontSize: "14px", color: "var(--af-text-muted)", marginBottom: "16px" }}>Please input the details of two professionals who can vouch for your achievements.</p>
-                        
+
                         {errors.characterReferences && (
                           <div className="af-error" style={{ fontSize: "14px", fontWeight: 600, marginBottom: "16px" }}>
                             <AlertTriangle size={16} style={{ flexShrink: 0 }} />
@@ -2223,7 +2223,7 @@ function ApplyContent() {
                             Regional Chapter Board Endorsement <span className="af-req">*</span>
                           </h3>
                           <p style={{ fontSize: "14px", color: "var(--af-text-muted)", marginBottom: "16px" }}>One Regional Chapter Board Member or National Officer endorsement is required.</p>
-                          
+
                           <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }}>
                             <div className="af-field" style={{ marginBottom: 0 }}>
                               <label className="af-label">
@@ -2295,13 +2295,13 @@ function ApplyContent() {
                     {requiredSlots.filter(slot => slot !== "photo_1x1").length > 0 && (
                       <div style={{ borderTop: "1px solid var(--af-border-light)", paddingTop: "24px" }}>
                         <h3 style={{ fontSize: "18px", fontWeight: 700, color: "var(--af-navy)", marginBottom: "16px" }}>Required Documents</h3>
-                        
+
                         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "20px" }}>
                           {requiredSlots.filter(slot => slot !== "photo_1x1").map((slot) => {
                             const file = state.documents[slot];
                             const err = fileErrors[slot] || errors[slot];
                             const uploading = isUploading[slot] || false;
-                            
+
                             return (
                               <DocumentUpload
                                 key={slot}
@@ -2498,7 +2498,7 @@ function ApplyContent() {
                         ) : state.membershipType === "life" || state.membershipType === "regular" ? (
                           <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "15px" }}>
                             {state.membershipType === "life" && <div><strong>Years Active in PAGE:</strong> {state.yearsActiveInPAGE}</div>}
-                            
+
                             {state.teachingExperience && state.teachingExperience.length > 0 && (
                               <div>
                                 <strong>Teaching Experience:</strong>
@@ -2509,7 +2509,7 @@ function ApplyContent() {
                                 </ul>
                               </div>
                             )}
-                            
+
                             {state.administrativeExperience && state.administrativeExperience.length > 0 && (
                               <div>
                                 <strong>Administrative Experience:</strong>
@@ -2753,7 +2753,7 @@ function ApplyContent() {
                   <h3 style={{ fontSize: "20px", fontWeight: 800, color: "var(--af-navy, #143152)", marginBottom: "12px" }}>
                     Discard Application Draft?
                   </h3>
-                  
+
                   <p style={{ fontSize: "15px", lineHeight: 1.6, color: "var(--af-text-muted, #64748b)", marginBottom: "28px" }}>
                     Are you sure you want to change your membership type? This will discard your current application draft and reset all fields. This action cannot be undone.
                   </p>
