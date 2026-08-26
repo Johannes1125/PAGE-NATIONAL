@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback, type KeyboardEvent } from "react";
+import { useState, useEffect, useMemo, useCallback, Suspense, type KeyboardEvent } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { chaptersApi } from "../../lib/api-client";
 import {
@@ -131,12 +132,28 @@ const REGION_OPTIONS: RegionTabOption[] = [
   },
 ];
 
-// ── Main Chapters Page Component ────────────────────────────────────────────
-export default function ChaptersPage() {
+function ChaptersPageContent() {
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [activeRegion, setActiveRegion] = useState<ActiveRegionFilter>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [chapters, setChapters] = useState<PublishedChapter[]>([]);
+
+  // Sync URL search params with active tab & search filter
+  useEffect(() => {
+    const islandParam = searchParams.get("island");
+    const regionParam = searchParams.get("region");
+    const searchParam = searchParams.get("search") || searchParams.get("q");
+
+    if (islandParam && ["All", "Luzon", "Visayas", "Mindanao"].includes(islandParam)) {
+      setActiveRegion(islandParam as ActiveRegionFilter);
+    }
+    if (regionParam) {
+      setSearchQuery(regionParam);
+    } else if (searchParam) {
+      setSearchQuery(searchParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     async function fetchChapters() {
@@ -456,6 +473,23 @@ export default function ChaptersPage() {
         </div>
       </section>
     </main>
+  );
+}
+
+export default function ChaptersPage() {
+  return (
+    <Suspense fallback={
+      <main className="chapters-main">
+        <ChaptersHero />
+        <section className="cbl-content-section">
+          <div className="cbl-container">
+            <SkeletonGrid />
+          </div>
+        </section>
+      </main>
+    }>
+      <ChaptersPageContent />
+    </Suspense>
   );
 }
 
