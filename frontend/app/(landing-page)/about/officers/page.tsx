@@ -2,70 +2,97 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { CATEGORIES, type Officer, type OfficerCategory } from "./mock-data";
 import { api } from "../../../lib/api-client";
 import "./officers.css";
 
-// ── Default Fallback Officers (Ensures full leadership list if API is empty) ──
+// ── Default Fallback Officers (Verified PAGE Leadership) ────────────────────
 
 const DEFAULT_OFFICERS: Officer[] = [
   {
-    name: "Dr. Maria Santos-Cruz",
-    position: "National President",
+    name: "Dr. Lino C. Reynoso",
+    position: "President",
     category: "National Officers",
-    bio: "Dean of Graduate Studies and Professor of Higher Education Administration with over 25 years of research leadership.",
-    photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Maria%20Santos-Cruz&backgroundColor=081734&textColor=ffffff"
+    bio: "Elected PAGE National President leading organizational reforms, hybrid learning transitions, and academic excellence.",
+    photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Lino%20Reynoso&backgroundColor=081734&textColor=ffffff"
   },
   {
-    name: "Dr. Antonio Reyes",
-    position: "National Executive Vice President",
-    category: "National Officers",
-    bio: "Pioneering researcher in curriculum development, outcomes-based education, and graduate program accreditation.",
-    photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Antonio%20Reyes&backgroundColor=081734&textColor=ffffff"
-  },
-  {
-    name: "Dr. Elena Gonzales",
+    name: "Dr. Alper V. Pineda",
     position: "Vice President for Luzon",
     category: "National Officers",
-    bio: "Overseeing regional chapters across Luzon to foster inter-university graduate research sharing.",
-    photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Elena%20Gonzales&backgroundColor=081734&textColor=ffffff"
+    bio: "Leading regional chapters and inter-institutional graduate research collaboration across Luzon.",
+    photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Alper%20Pineda&backgroundColor=081734&textColor=ffffff"
   },
   {
-    name: "Dr. Roberto Tan",
+    name: "Dr. Remedios C. Bacus",
     position: "Vice President for Visayas",
     category: "National Officers",
-    bio: "Leading academic partnership initiatives and annual research conventions throughout the Visayas.",
-    photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Roberto%20Tan&backgroundColor=081734&textColor=ffffff"
+    bio: "Advancing graduate school partnerships, research conventions, and chapter initiatives throughout the Visayas.",
+    photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Remedios%20Bacus&backgroundColor=081734&textColor=ffffff"
   },
   {
-    name: "Dr. Fatima Abdul-Malik",
+    name: "Dr. Judith C. Chavez",
     position: "Vice President for Mindanao",
     category: "National Officers",
-    bio: "Advancing graduate research symposia and regional university collaboration across Mindanao.",
-    photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Fatima%20Abdul-Malik&backgroundColor=081734&textColor=ffffff"
+    bio: "Coordinating graduate education standards advocacy and regional university symposia across Mindanao.",
+    photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Judith%20Chavez&backgroundColor=081734&textColor=ffffff"
   },
   {
-    name: "Dr. Jose Ramirez",
-    position: "Corporate Secretary",
+    name: "Dr. Arnel D. Bravo",
+    position: "Secretary",
     category: "National Officers",
-    bio: "Managing institutional records, SEC compliance, and official communications for PAGE National.",
-    photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Jose%20Ramirez&backgroundColor=081734&textColor=ffffff"
+    bio: "Managing institutional records, corporate governance documentations, and national secretariat communications.",
+    photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Arnel%20Bravo&backgroundColor=081734&textColor=ffffff"
   },
   {
-    name: "Dr. Teresa Mendoza",
-    position: "National Treasurer",
+    name: "Dr. Ma. Kathleen C. Tiglao",
+    position: "Treasurer",
     category: "National Officers",
-    bio: "Directing financial stewardship, membership accreditation auditing, and research grant funds.",
-    photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Teresa%20Mendoza&backgroundColor=081734&textColor=ffffff"
+    bio: "Directing financial stewardship, membership funds administration, and institutional compliance.",
+    photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Kathleen%20Tiglao&backgroundColor=081734&textColor=ffffff"
   },
   {
-    name: "Dr. Francisco Aquino",
-    position: "Member, Board of Directors",
+    name: "Dr. Rowena R. Abrea",
+    position: "Auditor",
+    category: "National Officers",
+    bio: "Overseeing internal auditing, financial integrity, and governance compliance standards.",
+    photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Rowena%20Abrea&backgroundColor=081734&textColor=ffffff"
+  },
+  {
+    name: "Dr. Dolores T. Quambo",
+    position: "Press Relations Officer",
+    category: "National Officers",
+    bio: "Directing public information, external media relations, and official institutional announcements.",
+    photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Dolores%20Quambo&backgroundColor=081734&textColor=ffffff"
+  },
+  {
+    name: "Rev. Dr. Jose Antonio E. Aureada, OP",
+    position: "Director & Foundation Convener",
     category: "Board of Directors",
-    bio: "Senior Director for Academic Standards advising on doctoral dissertation guidelines and journal indexing.",
-    photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Francisco%20Aquino&backgroundColor=081734&textColor=ffffff"
+    bio: "Convener for PAGE 50th Foundation Anniversary and long-standing academic leader in graduate education quality.",
+    photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Jose%20Antonio%20Aureada&backgroundColor=081734&textColor=ffffff"
+  },
+  {
+    name: "Dr. Reynaldo C. Cruz",
+    position: "Director",
+    category: "Board of Directors",
+    bio: "Former Acting President and Director guiding national graduate curriculum standards.",
+    photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Reynaldo%20Cruz&backgroundColor=081734&textColor=ffffff"
+  },
+  {
+    name: "Dr. Juliana M. Laraya",
+    position: "Corporate Secretary & Director",
+    category: "Board of Directors",
+    bio: "Corporate Secretary and Director for institutional governance and Constitution & By-Laws adoption.",
+    photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Juliana%20Laraya&backgroundColor=081734&textColor=ffffff"
+  },
+  {
+    name: "Dr. Benjamin C. Dayrit",
+    position: "Director",
+    category: "Board of Directors",
+    bio: "Director advising on higher education policy reforms and graduate research excellence.",
+    photo_url: "https://api.dicebear.com/7.x/initials/svg?seed=Benjamin%20Dayrit&backgroundColor=081734&textColor=ffffff"
   }
 ];
 
@@ -153,15 +180,24 @@ export default function OfficersPage() {
     const fetchOfficers = async () => {
       try {
         setLoading(true);
-        const res = await api.get<{ success: boolean; data: any[] }>("/national-officers");
+        let res = await api.get<{ success: boolean; data: any[] }>("/national-officers");
+        if (!res.success || !res.data || res.data.length === 0) {
+          res = await api.get<{ success: boolean; data: any[] }>("/public/about-page/officers");
+        }
         if (res.success && res.data && res.data.length > 0) {
           const mapped: Officer[] = res.data.map((off: any) => {
+            const memberName = off.memberName || off.name;
+            const role = off.role || off.position;
+            const category = (off.positionCategory === "Board of Directors" || off.chapter === "Board of Directors")
+              ? "Board of Directors"
+              : "National Officers";
+            const photoUrl = off.imageUrl || off.photoUrl || off.photo_url || off.image_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(memberName)}&backgroundColor=081734&textColor=ffffff`;
             return {
-              name: off.memberName,
-              position: off.role,
-              category: (off.positionCategory === "Board of Directors" ? "Board of Directors" : "National Officers") as "National Officers" | "Board of Directors",
-              bio: off.description || `${off.role} of PAGE National.`,
-              photo_url: off.photoUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(off.memberName)}&backgroundColor=081734&textColor=ffffff`,
+              name: memberName,
+              position: role,
+              category: category as "National Officers" | "Board of Directors",
+              bio: off.description || `${role} of PAGE National.`,
+              photo_url: photoUrl,
             };
           });
           setOfficersList(mapped);
@@ -242,12 +278,13 @@ export default function OfficersPage() {
                   >
                     <div className="officers-card__image-container">
                       <div className="officers-card__avatar">
-                        <Image
+                        <img
                           src={officer.photo_url}
-                          width={90}
-                          height={90}
                           alt={`${officer.name} profile photo`}
-                          unoptimized
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          onError={(e) => {
+                            e.currentTarget.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(officer.name)}&backgroundColor=081734&textColor=ffffff`;
+                          }}
                         />
                       </div>
                     </div>

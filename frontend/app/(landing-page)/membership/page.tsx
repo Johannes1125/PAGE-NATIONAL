@@ -21,7 +21,6 @@ import {
   Mail,
   Phone
 } from "lucide-react";
-import Navbar from "../components/Navbar";
 import { PageSeal } from "../components/PageSeal";
 import { MembershipCategory } from "../../lib/membership-types";
 import "./membership.css";

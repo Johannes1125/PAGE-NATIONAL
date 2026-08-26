@@ -254,6 +254,15 @@
   font-weight: 700;
   font-size: 16px;
   flex-shrink: 0;
+  overflow: hidden;
+  border: 1.5px solid var(--r-border-mid, #cbd5e1);
+}
+
+.avatar-circle-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 @media (max-width: 480px) {
@@ -881,3 +890,152 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ─── Officer Photo Upload & Preview UI in Modal ─── */
+.officer-photo-upload-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px;
+  background: var(--r-bg-subtle, #f8fafc);
+  border: 1.5px dashed var(--r-border-mid, #cbd5e1);
+  border-radius: 12px;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.officer-photo-upload-container:hover {
+  border-color: var(--p-blue, #1e538e);
+  background: var(--p-blue-subtle, #f0f6fc);
+}
+
+.officer-photo-preview-wrap {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #e2e8f0;
+  border: 3px solid #ffffff;
+  box-shadow: 0 4px 12px rgba(16, 42, 67, 0.12);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.officer-photo-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.officer-photo-fallback {
+  width: 100%;
+  height: 100%;
+  background: var(--p-blue-pale, #e8f1fb);
+  color: var(--p-blue, #1e538e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 24px;
+}
+
+.officer-photo-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+}
+
+.officer-photo-uploading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 42, 67, 0.65);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+}
+
+.officer-photo-actions-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.officer-photo-buttons-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.officer-upload-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  height: 38px;
+  padding: 0 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  user-select: none;
+}
+
+.officer-upload-trigger-btn.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.btn-accessible-danger-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 14px;
+  background: transparent;
+  border: 1.5px solid var(--p-rose-border, #fecdd3);
+  color: var(--p-rose, #e11d48);
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-accessible-danger-outline:hover:not(:disabled) {
+  background: var(--p-rose-pale, #ffe4e6);
+  border-color: var(--p-rose, #e11d48);
+}
+
+.btn-accessible-danger-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.officer-photo-tip {
+  font-size: 12px;
+  color: var(--r-text-muted, #64748b);
+  line-height: 1.4;
+  margin: 0;
+}
+
+@media (max-width: 540px) {
+  .officer-photo-upload-container {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    padding: 16px 12px;
+  }
+
+  .officer-photo-buttons-row {
+    justify-content: center;
+  }
+}

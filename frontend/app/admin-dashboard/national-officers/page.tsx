@@ -11,6 +11,10 @@ import {
   Search,
   ChevronDown,
   X,
+  Upload,
+  Camera,
+  User,
+  Image as ImageIcon,
 } from "lucide-react";
 import AdminSidebarLayout from "../components/AdminSidebarLayout";
 import { api } from "../../lib/api-client";
@@ -62,6 +66,8 @@ export default function NationalOfficersManagement() {
   const [positionCategory, setPositionCategory] = useState("National Officers");
   const [role, setRole] = useState("President");
   const [description, setDescription] = useState("");
+  const [imageUrl, setImageUrl] = useState<string>("");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // Validation State
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
@@ -106,6 +112,44 @@ export default function NationalOfficersManagement() {
     }
   };
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const file = files[0];
+
+    // Client-side 8MB limit check
+    if (file.size > 8 * 1024 * 1024) {
+      gooeyToast.error("Photo file exceeds 8MB size limit.");
+      return;
+    }
+
+    setIsUploadingImage(true);
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const res = await api.postMultipart("/national-officers/upload", formData);
+      const uploadedUrl = res.imageUrl || res.data?.url || (res.data?.imageUrl);
+      if (res.success && uploadedUrl) {
+        setImageUrl(uploadedUrl);
+        gooeyToast.success("Officer photo uploaded successfully!");
+      } else {
+        gooeyToast.error(res.message || "Failed to upload officer photo.");
+      }
+    } catch (err: any) {
+      console.error("Photo upload failed:", err);
+      gooeyToast.error(err.message || "Failed to upload officer photo.");
+    } finally {
+      setIsUploadingImage(false);
+      e.target.value = "";
+    }
+  };
+
+  const handleRemovePhoto = () => {
+    setImageUrl("");
+    gooeyToast.info("Officer photo removed.");
+  };
+
   const validateForm = () => {
     const errors: Record<string, string> = {};
     if (!memberName.trim()) {
@@ -140,6 +184,7 @@ export default function NationalOfficersManagement() {
       positionCategory,
       role,
       description: description.trim() || undefined,
+      imageUrl: imageUrl || null,
     };
 
     try {
@@ -180,6 +225,7 @@ export default function NationalOfficersManagement() {
     setPositionCategory(officer.positionCategory);
     setRole(officer.role);
     setDescription(officer.description || "");
+    setImageUrl(officer.imageUrl || "");
     setValidationErrors({});
     setIsFormModalOpen(true);
   };
@@ -215,6 +261,7 @@ export default function NationalOfficersManagement() {
     setPositionCategory("National Officers");
     setRole("President");
     setDescription("");
+    setImageUrl("");
     setValidationErrors({});
   };
 
@@ -342,7 +389,15 @@ export default function NationalOfficersManagement() {
                       <td data-label="Member Name">
                         <div className="name-cell-inner">
                           <div className="avatar-circle">
-                            {getInitials(off.memberName)}
+                            {off.imageUrl ? (
+                              <img
+                                src={off.imageUrl}
+                                alt={off.memberName}
+                                className="avatar-circle-img"
+                              />
+                            ) : (
+                              getInitials(off.memberName)
+                            )}
                           </div>
                           <span className="name-cell-text">{off.memberName}</span>
                         </div>
@@ -433,6 +488,75 @@ export default function NationalOfficersManagement() {
             </div>
 
             <form onSubmit={handleSave} className="officers-form" noValidate>
+              {/* Officer Photo Upload Section */}
+              <div className="form-group-accessible">
+                <label className="label-accessible">Officer Photo</label>
+                <div className="officer-photo-upload-container">
+                  <div className="officer-photo-preview-wrap">
+                    {imageUrl ? (
+                      <img
+                        src={imageUrl}
+                        alt="Officer preview"
+                        className="officer-photo-preview-img"
+                      />
+                    ) : memberName ? (
+                      <div className="officer-photo-fallback">
+                        {getInitials(memberName)}
+                      </div>
+                    ) : (
+                      <div className="officer-photo-placeholder">
+                        <User size={32} />
+                      </div>
+                    )}
+                    {isUploadingImage && (
+                      <div className="officer-photo-uploading-overlay">
+                        <Loader2 size={24} className="animate-spin" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="officer-photo-actions-block">
+                    <div className="officer-photo-buttons-row">
+                      <label className={`btn-accessible btn-accessible-secondary officer-upload-trigger-btn ${isUploadingImage ? "disabled" : ""}`}>
+                        {isUploadingImage ? (
+                          <>
+                            <Loader2 size={16} className="animate-spin" />
+                            <span>Uploading...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Upload size={16} />
+                            <span>{imageUrl ? "Change Photo" : "Upload Photo"}</span>
+                          </>
+                        )}
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/jpg,image/png,image/webp,image/svg+xml"
+                          onChange={handlePhotoUpload}
+                          disabled={isUploadingImage || isSaving}
+                          style={{ display: "none" }}
+                        />
+                      </label>
+
+                      {imageUrl && (
+                        <button
+                          type="button"
+                          className="btn-accessible btn-accessible-danger-outline"
+                          onClick={handleRemovePhoto}
+                          disabled={isUploadingImage || isSaving}
+                        >
+                          <Trash2 size={15} />
+                          <span>Remove</span>
+                        </button>
+                      )}
+                    </div>
+                    <p className="officer-photo-tip">
+                      JPG, PNG, WEBP up to 8MB. Professional square portrait recommended.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               {/* Member Name */}
               <div className="form-group-accessible">
                 <label htmlFor="memberName" className="label-accessible">

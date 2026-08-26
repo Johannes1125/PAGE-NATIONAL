@@ -4,6 +4,7 @@ export interface NationalOfficer {
   positionCategory: string;
   role: string;
   description: string | null;
+  imageUrl?: string | null;
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
@@ -14,6 +15,7 @@ export interface CreateNationalOfficerPayload {
   positionCategory: string;
   role: string;
   description?: string;
+  imageUrl?: string;
 }
 
 export interface UpdateNationalOfficerPayload {
@@ -21,4 +23,6 @@ export interface UpdateNationalOfficerPayload {
   positionCategory?: string;
   role?: string;
   description?: string;
+  imageUrl?: string | null;
 }
+

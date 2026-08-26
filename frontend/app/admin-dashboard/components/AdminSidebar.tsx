@@ -17,9 +17,11 @@ import {
   Users,
   UserCheck,
   BookOpen,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 import styles from "./AdminSidebar.module.css";
+import VersionUpdatesModal from "../../components/VersionUpdatesModal";
 
 type AdminNavItem = {
   href: string;
@@ -68,7 +70,10 @@ const adminSections: AdminSidebarSection[] = [
   },
   {
     title: "System",
-    items: [{ href: "/admin-dashboard/audit-log", label: "Audit Log", icon: ClipboardList }],
+    items: [
+      { href: "/admin-dashboard/audit-log", label: "Audit Log", icon: ClipboardList },
+      { href: "#version-updates", label: "Version Updates", icon: Sparkles },
+    ],
   },
 ];
 
@@ -91,6 +96,7 @@ export default function AdminSidebar({
 }: AdminSidebarProps) {
   const pathname = usePathname();
   const [isContentExpanded, setIsContentExpanded] = useState(false);
+  const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
 
   const isCreatePostsRoute =
     pathname.startsWith("/admin-dashboard/create-new-post") ||
@@ -232,6 +238,27 @@ export default function AdminSidebar({
                         return null;
                       }
 
+                      if (item.href === "#version-updates") {
+                        return (
+                          <button
+                            key={item.label}
+                            type="button"
+                            className={styles.navLink}
+                            onClick={() => {
+                              setIsVersionModalOpen(true);
+                              if (isMobileViewport) {
+                                onCloseMobileNav();
+                              }
+                            }}
+                          >
+                            <span className={styles.navIcon} aria-hidden="true">
+                              <item.icon size={16} strokeWidth={1.9} />
+                            </span>
+                            <span className={styles.navLabel}>{item.label}</span>
+                          </button>
+                        );
+                      }
+
                       return (
                         <Link
                           key={item.href}
@@ -254,6 +281,11 @@ export default function AdminSidebar({
           </nav>
         </div>
       </aside>
+
+      <VersionUpdatesModal
+        isOpen={isVersionModalOpen}
+        onClose={() => setIsVersionModalOpen(false)}
+      />
     </>
   );
 }

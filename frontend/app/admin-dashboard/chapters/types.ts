@@ -43,6 +43,7 @@ export interface ChapterOfficerRecord {
   name: string;
   category_type: string;
   year_joined: number;
+  year_end?: number | null;
   sort_order: number;
   image_url?: string;
   created_at: string;
@@ -121,6 +122,7 @@ export interface WizardOfficerEntry {
   name: string;
   category_type: string;
   year_joined: number | "";
+  year_end?: number | "" | null;
   sort_order: number;
   image_url?: string;
 }
@@ -184,7 +186,7 @@ export function mapChapterFullToChapter(ch: ChapterFull): Chapter {
       id: o.id,
       name: o.name,
       role: o.category_type,
-      term: String(o.year_joined),
+      term: o.year_end ? `${o.year_joined}–${o.year_end}` : `${o.year_joined}–Present`,
     })),
     createdAt: ch.created_at,
     updatedAt: ch.updated_at,
@@ -199,7 +201,7 @@ export function mapApiChapterToChapter(ch: {
   region: string;
   short_description: string;
   status: string;
-  officers?: { id: string; name: string; category_type: string; year_joined: number }[];
+  officers?: { id: string; name: string; category_type: string; year_joined: number; year_end?: number | null }[];
   created_at: string;
   updated_at: string;
 }): Chapter {
@@ -214,7 +216,7 @@ export function mapApiChapterToChapter(ch: {
       id: o.id,
       name: o.name,
       role: o.category_type,
-      term: String(o.year_joined),
+      term: o.year_end ? `${o.year_joined}–${o.year_end}` : `${o.year_joined}–Present`,
     })),
     createdAt: ch.created_at,
     updatedAt: ch.updated_at,

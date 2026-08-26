@@ -74,7 +74,6 @@ const RESOURCES_DROPDOWN_ITEMS = [
   { label: "Research & Journals",           href: "/journals" },
   { label: "Forms & Templates",             href: "/library?tab=other" },
   { label: "Member Directory",              href: "/membership" },
-  { label: "Regional Chapters",             href: "/chapters" },
   { label: "Partnerships",                  href: "/partners" },
 ];
 
@@ -194,7 +193,8 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
   const isHomeActive = pathname === "/";
   const isAboutActive = pathname?.startsWith("/about");
   const isMembershipActive = pathname?.startsWith("/membership");
-  const isResourcesActive = pathname?.startsWith("/library") || pathname?.startsWith("/journals") || pathname?.startsWith("/chapters") || pathname?.startsWith("/partners");
+  const isChaptersActive = pathname?.startsWith("/chapters");
+  const isResourcesActive = pathname?.startsWith("/library") || pathname?.startsWith("/journals") || pathname?.startsWith("/partners");
   const isNewsActive = pathname?.startsWith("/news");
   const isEventsActive = pathname?.startsWith("/activities") || pathname?.startsWith("/convention");
   const isContactActive = pathname?.startsWith("/contact");
@@ -313,6 +313,11 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
               </AnimatePresence>
             </div>
 
+            {/* Chapters Standalone Link */}
+            <Link href="/chapters" className={`navbar__link${isChaptersActive ? " navbar__link--active" : ""}`}>
+              Chapters
+            </Link>
+
             {/* Resources Dropdown */}
             <div
               className="navbar__dropdown-wrap"
@@ -430,9 +435,9 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
             </Link>
           </div>
 
-          {/* Right Action CTA Button */}
+          {/* Right Action Menu */}
           <div className="navbar__actions">
-            {user ? (
+            {user && (
               <div className="navbar__user-menu">
                 {user.role === 'admin' && (
                   <Link href="/admin-dashboard" className="navbar__dashboard-btn">Dashboard</Link>
@@ -442,10 +447,6 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
                 )}
                 <button onClick={handleSignOut} className="navbar__signout-btn">Sign Out</button>
               </div>
-            ) : (
-              <Link href="/membership" className="btn-join-page">
-                Join PAGE
-              </Link>
             )}
 
             <button className="navbar__hamburger" onClick={() => setMenuOpen(p => !p)} aria-label="Toggle menu">
@@ -476,6 +477,11 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
             </Link>
           ))}
 
+          {/* Chapters mobile */}
+          <Link href="/chapters" className={`navbar__mobile-link${isChaptersActive ? " navbar__mobile-link--active" : ""}`} onClick={() => setMenuOpen(false)}>
+            Chapters
+          </Link>
+
           {/* Resources mobile */}
           <span className="navbar__mobile-dropdown-label">Resources</span>
           {RESOURCES_DROPDOWN_ITEMS.map(item => (
@@ -504,7 +510,7 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
             Contact
           </Link>
 
-          {user ? (
+          {user && (
             <div className="navbar__mobile-user-menu">
               <div className="navbar__mobile-user-info">
                 <span className="navbar__mobile-user-name">{user.name}</span>
@@ -518,10 +524,6 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
               )}
               <button onClick={() => { handleSignOut(); setMenuOpen(false); }} className="navbar__mobile-signout">Sign Out</button>
             </div>
-          ) : (
-            <Link href="/membership" className="navbar__mobile-signin" onClick={() => setMenuOpen(false)}>
-              Join PAGE
-            </Link>
           )}
         </div>
       </header>
@@ -543,12 +545,12 @@ export default function Navbar(props: { scrolled: boolean }) {
             <span className="navbar__link">Home</span>
             <span className="navbar__link">About PAGE</span>
             <span className="navbar__link">Membership</span>
+            <span className="navbar__link">Chapters</span>
             <span className="navbar__link">Resources</span>
             <span className="navbar__link">News</span>
             <span className="navbar__link">Events</span>
             <span className="navbar__link">Contact</span>
           </div>
-          <div className="btn-join-page">Join PAGE</div>
         </nav>
       </header>
     }>

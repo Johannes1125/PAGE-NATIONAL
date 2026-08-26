@@ -1,5 +1,5 @@
 /* ============================================================
-   PAGE History Page — Refined Minimal Gold Design (~20% Gold Accents)
+   PAGE History Page — Carousel Redesign
    Dominant Navy Blue (#081734) with Clean Crisp Whites & Subtle Accents
    ============================================================ */
 
@@ -27,7 +27,7 @@
   --color-text-muted: #718096;
   --color-border: #e2e8f0;
   
-  --spacing-section: 90px;
+  --spacing-section: 48px;
   --transition-fast: 0.2s ease;
   --transition-mid: 0.3s ease;
 }
@@ -246,17 +246,17 @@
 }
 
 /* ============================================================
-   CONTENT SECTION & CONTROLS
+   CONTENT SECTION & CONTROLS (Tightened spacing)
    ============================================================ */
 .history-content-section {
   background: var(--color-bg-light);
-  padding: var(--spacing-section) 0;
-  min-height: 700px;
+  padding: var(--spacing-section) 0 56px;
+  min-height: 500px;
 }
 
 /* Intro Section */
 .history-intro-section {
-  margin-bottom: 48px;
+  margin-bottom: 24px;
 }
 
 .history-intro-card {
@@ -306,7 +306,7 @@
   justify-content: center;
   flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 60px;
+  margin-bottom: 28px;
 }
 
 .history-filter-btn {
@@ -335,104 +335,170 @@
 }
 
 /* ============================================================
-   CENTRAL SPINE TIMELINE (Clean Navy Line & Micro Gold Node Accents)
+   CAROUSEL
    ============================================================ */
-.history-timeline-wrapper {
+.history-carousel-container {
   position: relative;
-  max-width: 1060px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 20px 0;
+  padding: 0 56px;
+  user-select: none;
 }
 
-/* Solid Navy Spine Line */
-.history-timeline-spine {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 3px;
-  background: var(--color-navy-primary);
-  opacity: 0.25;
-  border-radius: 2px;
-  z-index: 1;
+.history-carousel-viewport {
+  overflow: hidden;
+  border-radius: 16px;
 }
 
-/* Item */
-.history-timeline-row {
-  position: relative;
+.history-carousel-track {
   display: flex;
-  margin-bottom: 56px;
-  z-index: 2;
+  gap: 24px;
 }
 
-.history-timeline-row:last-child {
-  margin-bottom: 30px;
+.history-carousel-track[data-slide-dir="next"] {
+  animation: slide-in-next 0.28s ease-out;
 }
 
-/* Alternating Left / Right */
-.history-timeline-row.timeline-left {
-  justify-content: flex-start;
-  padding-right: 50%;
+.history-carousel-track[data-slide-dir="prev"] {
+  animation: slide-in-prev 0.28s ease-out;
 }
 
-.history-timeline-row.timeline-right {
-  justify-content: flex-end;
-  padding-left: 50%;
+@keyframes slide-in-next {
+  from { opacity: 0.4; transform: translateX(40px); }
+  to   { opacity: 1;   transform: translateX(0); }
 }
 
-.history-timeline-row.timeline-left .history-timeline-card-wrapper {
-  padding-right: 48px;
+@keyframes slide-in-prev {
+  from { opacity: 0.4; transform: translateX(-40px); }
+  to   { opacity: 1;   transform: translateX(0); }
 }
 
-.history-timeline-row.timeline-right .history-timeline-card-wrapper {
-  padding-left: 48px;
+.history-carousel-frame {
+  flex: 0 0 100%;
+  min-width: 0;
 }
 
-.history-timeline-card-wrapper {
-  width: 100%;
+/* Desktop: 3 frames visible */
+@media (min-width: 1024px) {
+  .history-carousel-frame {
+    flex: 0 0 calc((100% - 48px) / 3);
+  }
 }
 
-/* Center Node Marker (Navy circle with small gold center dot) */
-.history-timeline-node {
+/* Tablet: 2 frames visible */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .history-carousel-frame {
+    flex: 0 0 calc((100% - 24px) / 2);
+  }
+}
+
+/* ── Carousel Navigation Arrows ────────────────────────────── */
+.history-carousel-nav-btn {
   position: absolute;
-  top: 28px;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 36px;
-  height: 36px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: var(--color-navy-primary);
-  border: 3px solid #ffffff;
-  box-shadow: 0 4px 12px rgba(8, 23, 52, 0.15);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-white);
+  color: var(--color-navy-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 5;
-  transition: transform 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(8, 23, 52, 0.08);
+  transition: all var(--transition-mid);
 }
 
-.history-timeline-row:hover .history-timeline-node {
-  transform: translate(-50%, -50%) scale(1.15);
-  background: var(--color-navy-dark);
+.history-carousel-nav-btn:hover:not(:disabled) {
+  background: var(--color-navy-primary);
+  color: #ffffff;
+  border-color: var(--color-navy-primary);
+  box-shadow: 0 6px 20px rgba(8, 23, 52, 0.18);
 }
 
-.history-node-inner {
+.history-carousel-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.history-carousel-nav-btn.prev {
+  left: 0;
+}
+
+.history-carousel-nav-btn.next {
+  right: 0;
+}
+
+.history-carousel-nav-btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* ── Carousel Dots ─────────────────────────────────────────── */
+.history-carousel-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.history-carousel-dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--color-gold);
+  border: none;
+  background: rgba(8, 23, 52, 0.15);
+  cursor: pointer;
+  padding: 0;
+  transition: all var(--transition-mid);
 }
 
-/* Timeline Card (Clean White with Dark Navy Top Border) */
+.history-carousel-dot:hover {
+  background: rgba(8, 23, 52, 0.35);
+  transform: scale(1.15);
+}
+
+.history-carousel-dot.active {
+  background: var(--color-navy-primary);
+  width: 28px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(8, 23, 52, 0.2);
+}
+
+/* ── Carousel Counter ──────────────────────────────────────── */
+.history-carousel-counter {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  letter-spacing: 0.5px;
+}
+
+.history-carousel-counter .current {
+  color: var(--color-navy-primary);
+  font-weight: 800;
+}
+
+/* ============================================================
+   MILESTONE CARD (Preserved styling, enhanced for carousel)
+   ============================================================ */
 .history-card {
   background: var(--color-bg-white);
   border-radius: 14px;
   border: 1px solid var(--color-border);
-  padding: 30px 34px;
+  padding: 30px 28px;
   box-shadow: 0 4px 16px rgba(8, 23, 52, 0.04);
   position: relative;
   transition: all var(--transition-mid);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .history-card::before {
@@ -499,6 +565,34 @@
   line-height: 1.7;
   color: var(--color-text-secondary);
   margin: 0;
+  flex: 1;
+}
+
+.history-card-desc.clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.history-read-more-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 8px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-navy-accent);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color var(--transition-fast);
+}
+
+.history-read-more-btn:hover {
+  color: var(--color-gold-dark);
 }
 
 .history-card-footer {
@@ -515,35 +609,6 @@
 
 .history-card-footer svg {
   color: var(--color-navy-primary);
-}
-
-/* Timeline End Marker */
-.history-timeline-end {
-  text-align: center;
-  position: relative;
-  z-index: 5;
-  margin-top: 40px;
-}
-
-.history-timeline-end-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--color-navy-primary);
-  color: #ffffff;
-  padding: 12px 28px;
-  border-radius: 40px;
-  font-size: 14px;
-  font-weight: 700;
-  box-shadow: 0 8px 24px rgba(8, 23, 52, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.history-timeline-end-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--color-gold);
 }
 
 /* ============================================================
@@ -575,6 +640,38 @@
   color: var(--color-text-secondary);
   max-width: 400px;
   margin: 0 auto;
+}
+
+/* Skeleton for carousel */
+.history-skeleton-track {
+  display: flex;
+  gap: 24px;
+}
+
+.history-skeleton-frame {
+  flex: 1;
+  min-width: 0;
+}
+
+.history-skeleton-card {
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 30px 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.history-skeleton-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--color-border);
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
 }
 
 .skeleton-pulse {
@@ -619,36 +716,32 @@
   }
 }
 
-@media (max-width: 868px) {
-  .history-timeline-spine {
-    left: 24px;
-    transform: none;
-  }
-  
-  .history-timeline-row.timeline-left,
-  .history-timeline-row.timeline-right {
-    justify-content: flex-start;
-    padding-left: 64px;
-    padding-right: 0;
-  }
-  
-  .history-timeline-row.timeline-left .history-timeline-card-wrapper,
-  .history-timeline-row.timeline-right .history-timeline-card-wrapper {
-    padding-left: 0;
-    padding-right: 0;
-  }
-  
-  .history-timeline-node {
-    left: 24px;
-  }
-  
-  .history-timeline-row:hover .history-timeline-node {
-    transform: translate(-50%, -50%) scale(1.1);
+@media (max-width: 768px) {
+  .history-carousel-container {
+    padding: 0 48px;
   }
   
   .history-intro-card {
     flex-direction: column;
     padding: 28px 24px;
+  }
+
+  .history-carousel-nav-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .history-carousel-nav-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .history-card-year {
+    font-size: 28px;
+  }
+
+  .history-card-title {
+    font-size: 18px;
   }
 }
 
@@ -679,16 +772,17 @@
     font-size: 28px;
   }
   
+  .history-carousel-container {
+    padding: 0 40px;
+  }
+
+  .history-carousel-nav-btn {
+    width: 34px;
+    height: 34px;
+  }
+
   .history-card {
     padding: 24px 20px;
-  }
-  
-  .history-card-year {
-    font-size: 28px;
-  }
-  
-  .history-card-title {
-    font-size: 18px;
   }
   
   .history-filter-btn {

@@ -335,10 +335,10 @@ function MissionVision() {
 // ── History Preview ───────────────────────────────────────────────────────
 function HistoryPreviewSection() {
   const MILESTONES_PREVIEW = [
-    { year: "1962", title: "Pioneer Founding", desc: "Established by graduate deans to unify academic standards and foster inter-university cooperation." },
-    { year: "1988", title: "Nationwide Chapters", desc: "Expanded into 17 regional chapters spanning Luzon, Visayas, and Mindanao." },
-    { year: "2018", title: "Digital Research Era", desc: "Launched indexed open-access digital journal repositories for thesis & dissertation publication." },
-    { year: "2024", title: "Global AI & Leadership", desc: "Pioneering AI research ethics and international academic consortiums across ASEAN." },
+    { year: "1962", title: "Foundation of PAGE", desc: "Established on September 26, 1962 by nine pioneering higher education institutions to improve graduate education quality." },
+    { year: "1994", title: "Antedating CHED", desc: "Pre-dating CHED by 32 years, actively collaborating as a key consultant and constructive policy advocate." },
+    { year: "2012", title: "Golden Anniversary", desc: "Marked 50 years of excellence with international plenary assemblies and launching the PAGE National Anthem." },
+    { year: "2024", title: "SEC Re-registration", desc: "Renewed corporate identity under PAGE Philippines, Inc., reactivating regional chapters nationwide." },
   ];
 
   return (

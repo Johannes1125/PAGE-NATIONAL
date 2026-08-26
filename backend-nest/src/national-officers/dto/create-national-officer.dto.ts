@@ -23,4 +23,8 @@ export class CreateNationalOfficerDto {
   @IsString({ message: 'Description must be a string.' })
   @IsOptional()
   description?: string;
+
+  @IsString({ message: 'Image URL must be a string.' })
+  @IsOptional()
+  imageUrl?: string;
 }

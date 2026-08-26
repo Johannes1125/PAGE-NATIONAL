@@ -5,6 +5,8 @@ import { App } from 'supertest/types';
 import { NationalOfficersController } from './national-officers.controller';
 import { NationalOfficersService } from './national-officers.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { SupabaseService } from '../supabase/supabase.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import * as crypto from 'crypto';
 
 // ── Mock PrismaService ─────────────────────────────────────────────────────
@@ -15,6 +17,7 @@ const mockOfficer = {
   positionCategory: 'National Officers',
   role: 'President',
   description: 'PAGE President description',
+  imageUrl: 'https://example.com/officer.jpg',
   sortOrder: 1,
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -39,6 +42,14 @@ const prismaMock = {
   },
 };
 
+const supabaseMock = {
+  upload: jest.fn().mockResolvedValue('https://example.com/uploaded.jpg'),
+};
+
+const cloudinaryMock = {
+  upload: jest.fn().mockResolvedValue('https://example.com/uploaded.jpg'),
+};
+
 // ── Tests ──────────────────────────────────────────────────────────────────
 
 describe('NationalOfficersController (Integration)', () => {
@@ -50,6 +61,8 @@ describe('NationalOfficersController (Integration)', () => {
       providers: [
         NationalOfficersService,
         { provide: PrismaService, useValue: prismaMock },
+        { provide: SupabaseService, useValue: supabaseMock },
+        { provide: CloudinaryService, useValue: cloudinaryMock },
       ],
     }).compile();
 
@@ -224,6 +237,7 @@ describe('NationalOfficersController (Integration)', () => {
           positionCategory: payload.positionCategory,
           role: payload.role,
           description: payload.description,
+          imageUrl: null,
           sortOrder: 3,
         },
       });
@@ -234,6 +248,17 @@ describe('NationalOfficersController (Integration)', () => {
           action: 'Created National Officer: Juan Dela Cruz (Secretary)',
         }),
       });
+    });
+
+    it('uploads officer photo successfully', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/national-officers/upload')
+        .set('Authorization', 'Bearer admin-token')
+        .attach('image', Buffer.from('fake image data'), 'officer.jpg')
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.imageUrl).toBeDefined();
     });
   });
 

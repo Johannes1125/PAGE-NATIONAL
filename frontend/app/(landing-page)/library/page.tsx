@@ -11,7 +11,6 @@ import {
   BookOpen,
   CheckCircle2
 } from "lucide-react";
-import Navbar from "../components/Navbar";
 import { gooeyToast } from "goey-toast";
 import "./library.css";
 
@@ -143,13 +142,6 @@ const cardItemVariants: Variants = {
 // ── Library Content Component ───────────────────────────────────────────────
 function LibraryContent() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   const filteredDocs = useMemo(() => {
     const cleanQuery = searchQuery.trim().toLowerCase();
@@ -174,7 +166,6 @@ function LibraryContent() {
 
   return (
     <main className="library-main">
-      <Navbar scrolled={scrolled} />
       <LibraryHero />
 
       <section className="cbl-content-section">

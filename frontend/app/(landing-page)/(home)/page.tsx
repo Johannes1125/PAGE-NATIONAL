@@ -234,7 +234,7 @@ function AboutSection() {
               <ShieldGradIcon />
             </div>
             <p className="about-text">
-              The Philippine Association for Graduate Education (PAGE) is a non-stock, non-profit organization of schools, colleges, and universities in the Philippines offering graduate programs. Founded in 1976, PAGE commits to promote excellence in graduate education, research, and public service.
+              The Philippine Association for Graduate Education (PAGE) is a non-stock, non-profit organization of schools, colleges, and universities in the Philippines offering graduate programs. Founded in 1962, PAGE commits to promote excellence in graduate education, research, and public service.
             </p>
             <Link href="/about" className="about-link">
               Learn more about PAGE <ArrowRightIcon />
@@ -418,9 +418,10 @@ function NewsEventsSection() {
     let mounted = true;
     async function loadData() {
       try {
-        const [postsRes, eventsRes] = await Promise.allSettled([
+        const [postsRes, eventsRes, conventionsRes] = await Promise.allSettled([
           api.get<{ success: boolean; posts: any[] }>("/public/posts"),
-          api.get<{ success: boolean; data?: any[]; activities?: any[] }>("/activities")
+          api.get<{ success: boolean; data?: any[]; activities?: any[] }>("/public/activities"),
+          api.get<{ success: boolean; data?: any[] }>("/conventions/public")
         ]);
 
         if (mounted) {
@@ -428,12 +429,17 @@ function NewsEventsSection() {
             setPosts(postsRes.value.posts.slice(0, 3));
           }
 
+          let combinedEvents: any[] = [];
           if (eventsRes.status === "fulfilled" && eventsRes.value) {
             const list = eventsRes.value.data || eventsRes.value.activities || [];
             if (Array.isArray(list)) {
-              setEvents(list.slice(0, 3));
+              combinedEvents = combinedEvents.concat(list);
             }
           }
+          if (conventionsRes.status === "fulfilled" && conventionsRes.value?.data && Array.isArray(conventionsRes.value.data)) {
+            combinedEvents = combinedEvents.concat(conventionsRes.value.data);
+          }
+          setEvents(combinedEvents.slice(0, 3));
         }
       } catch (err) {
         console.error("Error loading news/events for landing page:", err);

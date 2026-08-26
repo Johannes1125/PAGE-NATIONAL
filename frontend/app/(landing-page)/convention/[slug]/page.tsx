@@ -6,7 +6,6 @@
 // This allows a single reusable slug page structure to handle all conventions.
 
 "use client";
-import Navbar from "../../components/Navbar";
 import { useState, useEffect, useMemo, useRef, useCallback, use, type PointerEvent as ReactPointerEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -364,7 +363,6 @@ export default function ConventionDetailPage({
 }) {
   const { slug } = use(params);
 
-  const [scrolled, setScrolled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [convention, setConvention] = useState<Convention | null>(null);
 
@@ -381,12 +379,6 @@ export default function ConventionDetailPage({
   const galleryModalRef = useRef<HTMLDivElement | null>(null);
   const galleryCloseButtonRef = useRef<HTMLButtonElement | null>(null);
   const galleryModalFocusRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   useEffect(() => {
     if (!galleryModalOpen) return;
@@ -500,7 +492,7 @@ export default function ConventionDetailPage({
           : `${formatDateFull(startDate)} – ${formatDateFull(endDate)}`;
 
         const coverImage = data.attachments?.find((a: any) => a.file_type === "image")?.file_url || 
-          "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=600&auto=format&fit=crop";
+          "/57th-Images/57th-International-Convention-Image-1.jpg";
 
         // Map schedules to program_schedule
         const schedules = data.schedules || [];
@@ -568,23 +560,23 @@ export default function ConventionDetailPage({
 
             return {
               title: s.title,
-              description: `Part of our convention schedule. Type: ${s.event_type}`,
+              description: `Session venue: ${s.location || "Main Hall"}`,
               type: getActType(s.event_type),
               date: new Date(s.schedule_date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
-              venue: s.location || "TBA",
+              venue: s.location || "Convention Venue",
             };
           });
 
         // Map attachments (PDFs -> journals, Images -> gallery)
         const attachments = data.attachments || [];
         const journals = attachments
-          .filter((a: any) => a.file_type === "pdf")
+          .filter((a: any) => a.file_type === "pdf" || a.file_type === "document")
           .map((a: any) => ({
             title: a.file_name.replace(/\.[^/.]+$/, ""),
-            authors: ["PAGE National Office"],
-            abstract_excerpt: "Download this document to view the full details, guidelines, and articles for this convention edition.",
-            volume: "Document",
-            issue: "PDF",
+            authors: ["PAGE National Convention Archives"],
+            abstract_excerpt: `Official proceeding and documentation: ${a.file_name}.`,
+            volume: `Convention ${data.convention_number || ""}`,
+            issue: `${year}`,
             download_url: a.file_url,
           }));
 
@@ -625,21 +617,18 @@ export default function ConventionDetailPage({
 
   if (!loading && !convention) {
     return (
-      <>
-        <Navbar scrolled={scrolled} />
-        <main className="convention-detail-error container">
-          <div className="conv-error">
-            <div className="conv-error__icon"><AlertCircle /></div>
-            <h1 className="conv-error__title">Convention Not Found</h1>
-            <p className="conv-error__desc">
-              The convention archive you are requesting could not be found or has not been uploaded yet.
-            </p>
-            <Link href="/convention" className="btn-back-archive">
-              <ArrowLeft size={14} /> Back to Convention Archives
-            </Link>
-          </div>
-        </main>
-      </>
+      <main className="convention-detail-error container">
+        <div className="conv-error">
+          <div className="conv-error__icon"><AlertCircle /></div>
+          <h1 className="conv-error__title">Convention Not Found</h1>
+          <p className="conv-error__desc">
+            The convention archive you are requesting could not be found or has not been uploaded yet.
+          </p>
+          <Link href="/convention" className="btn-back-archive">
+            <ArrowLeft size={14} /> Back to Convention Archives
+          </Link>
+        </div>
+      </main>
     );
   }
 
@@ -653,8 +642,6 @@ export default function ConventionDetailPage({
 
   return (
     <>
-      <Navbar scrolled={scrolled} />
-
       {/* Hero Breadcrumb and Action Section */}
       <section className="convention-detail-hero-bar">
         <div className="container convention-detail-hero-bar__inner">

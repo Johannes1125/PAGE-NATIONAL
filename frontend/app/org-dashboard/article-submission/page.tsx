@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FileText, UploadCloud } from "lucide-react";
 import { useEffect, useState } from "react";
 import "./article-submission.css";
+import VersionUpdatesModal from "../../components/VersionUpdatesModal";
 
 import { api } from "../../lib/api-client";
 
@@ -29,6 +30,7 @@ export default function ArticleSubmissionPage() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [records, setRecords] = useState<ArticleSubmissionRecord[]>([]);
+  const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -136,6 +138,13 @@ export default function ArticleSubmissionPage() {
             <Link href="/org-dashboard/membership-request" className="oas-nav__link">Membership Request</Link>
             <Link href="/org-dashboard/proof-of-payment" className="oas-nav__link">Proof of Payment</Link>
             <Link href="/org-dashboard/messaging" className="oas-nav__link">Messaging Page</Link>
+            <button
+              type="button"
+              className="oas-nav__link"
+              onClick={() => setIsVersionModalOpen(true)}
+            >
+              Version Updates
+            </button>
           </nav>
         </div>
       </aside>
@@ -240,6 +249,11 @@ export default function ArticleSubmissionPage() {
           </section>
         </section>
       </section>
+
+      <VersionUpdatesModal
+        isOpen={isVersionModalOpen}
+        onClose={() => setIsVersionModalOpen(false)}
+      />
     </main>
   );
 }

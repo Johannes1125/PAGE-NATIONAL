@@ -6,6 +6,7 @@ import "./org-dashboard.css";
 
 import { useState, useEffect } from "react";
 import { api } from "../lib/api-client";
+import VersionUpdatesModal from "../components/VersionUpdatesModal";
 
 type PostStats = {
   pending: number;
@@ -50,6 +51,7 @@ export default function OrgDashboardPage() {
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [organizationDataLogs, setOrganizationDataLogs] = useState<OrganizationDataLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -157,6 +159,13 @@ export default function OrgDashboardPage() {
             <Link href="/org-dashboard/membership-request" className="org-nav__link">Membership Request</Link>
             <Link href="/org-dashboard/proof-of-payment" className="org-nav__link">Proof of Payment</Link>
             <Link href="/org-dashboard/messaging" className="org-nav__link">Messaging Page</Link>
+            <button
+              type="button"
+              className="org-nav__link"
+              onClick={() => setIsVersionModalOpen(true)}
+            >
+              Version Updates
+            </button>
           </nav>
         </div>
       </aside>
@@ -271,6 +280,11 @@ export default function OrgDashboardPage() {
           </section>
         </section>
       </section>
+
+      <VersionUpdatesModal
+        isOpen={isVersionModalOpen}
+        onClose={() => setIsVersionModalOpen(false)}
+      />
     </main>
   );
 }

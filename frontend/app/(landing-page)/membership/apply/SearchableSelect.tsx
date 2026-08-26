@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { ChevronDown, Search, Check, X } from "lucide-react";
+import { ChevronDown, Search, Check, X, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface SearchableSelectProps {
@@ -44,10 +44,11 @@ export default function SearchableSelect({
   );
 
   return (
-    <div className="af-field" style={{ marginBottom: "16px", position: "relative" }} ref={containerRef}>
+    <div className="af-field" style={{ position: "relative" }} ref={containerRef}>
       {label && (
-        <label className="af-label" style={{ fontSize: "18px", fontWeight: 600, marginBottom: "8px", display: "block" }}>
-          {label} {required && <span className="af-req" style={{ color: "var(--af-error)" }}>*</span>}
+        <label className="af-label">
+          <span>{label}</span>
+          {required && <span className="af-req">*</span>}
         </label>
       )}
 
@@ -56,18 +57,26 @@ export default function SearchableSelect({
         onClick={() => setIsOpen(!isOpen)}
         className={`af-input ${error ? "af-input--error" : ""}`}
         style={{
-          minHeight: "48px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "12px 16px",
           cursor: "pointer",
-          background: "#fff",
           userSelect: "none",
-          border: isOpen ? "1px solid var(--af-navy)" : "1px solid var(--af-border-light)",
+          borderColor: isOpen ? "var(--af-navy, #081734)" : undefined,
+          boxShadow: isOpen ? "0 0 0 3.5px rgba(8, 23, 52, 0.12)" : undefined,
+        }}
+        tabIndex={0}
+        role="combobox"
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setIsOpen(!isOpen);
+          }
         }}
       >
-        <span style={{ color: value ? "var(--af-text)" : "var(--af-text-muted)", fontSize: "16px" }}>
+        <span style={{ color: value ? "var(--af-ink, #081734)" : "#94a3b8", fontSize: "15px", fontWeight: value ? 500 : 400 }}>
           {value || placeholder}
         </span>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -78,7 +87,8 @@ export default function SearchableSelect({
                 e.stopPropagation();
                 onChange("");
               }}
-              style={{ border: "none", background: "none", cursor: "pointer", padding: 0, color: "var(--af-text-muted)" }}
+              style={{ border: "none", background: "none", cursor: "pointer", padding: 2, color: "#64748b" }}
+              aria-label="Clear selection"
             >
               <X size={16} />
             </button>
@@ -88,7 +98,7 @@ export default function SearchableSelect({
             style={{
               transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
               transition: "transform 0.2s ease",
-              color: "var(--af-text-muted)",
+              color: "#64748b",
             }}
           />
         </div>
@@ -108,11 +118,11 @@ export default function SearchableSelect({
               left: 0,
               right: 0,
               zIndex: 50,
-              marginTop: "4px",
-              background: "#fff",
-              border: "1px solid var(--af-border-light)",
+              marginTop: "6px",
+              background: "#ffffff",
+              border: "1.5px solid #cbd5e1",
               borderRadius: "8px",
-              boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+              boxShadow: "0 10px 25px -5px rgba(8, 23, 52, 0.12), 0 8px 10px -6px rgba(8, 23, 52, 0.08)",
               maxHeight: "300px",
               display: "flex",
               flexDirection: "column",
@@ -120,8 +130,8 @@ export default function SearchableSelect({
             }}
           >
             {/* Search Input bar */}
-            <div style={{ padding: "8px", borderBottom: "1px solid var(--af-border-light)", display: "flex", alignItems: "center", gap: "8px" }}>
-              <Search size={16} style={{ color: "var(--af-text-muted)" }} />
+            <div style={{ padding: "10px 12px", borderBottom: "1.5px solid #e2e8f0", display: "flex", alignItems: "center", gap: "8px", background: "#f8fafc" }}>
+              <Search size={16} style={{ color: "#64748b", flexShrink: 0 }} />
               <input
                 type="text"
                 placeholder="Search region..."
@@ -133,14 +143,17 @@ export default function SearchableSelect({
                   outline: "none",
                   fontSize: "14px",
                   padding: "4px",
+                  background: "transparent",
+                  color: "#081734",
                 }}
+                autoFocus
               />
             </div>
 
             {/* List options */}
-            <div style={{ overflowY: "auto", flex: 1, padding: "4px" }}>
+            <div style={{ overflowY: "auto", flex: 1, padding: "6px" }} role="listbox">
               {filteredOptions.length === 0 ? (
-                <div style={{ padding: "12px 16px", color: "var(--af-text-muted)", fontSize: "14px", textAlign: "center" }}>
+                <div style={{ padding: "14px 16px", color: "#64748b", fontSize: "14px", textAlign: "center" }}>
                   No regions found
                 </div>
               ) : (
@@ -149,26 +162,29 @@ export default function SearchableSelect({
                   return (
                     <div
                       key={option}
+                      role="option"
+                      aria-selected={isSelected}
                       onClick={() => {
                         onChange(option);
                         setIsOpen(false);
                         setSearch("");
                       }}
                       style={{
-                        padding: "10px 16px",
-                        fontSize: "15px",
+                        padding: "10px 14px",
+                        fontSize: "14.5px",
                         cursor: "pointer",
-                        borderRadius: "4px",
+                        borderRadius: "6px",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
-                        background: isSelected ? "var(--af-cream)" : "transparent",
-                        color: isSelected ? "var(--af-navy)" : "var(--af-text)",
-                        fontWeight: isSelected ? 600 : 400,
+                        background: isSelected ? "rgba(8, 23, 52, 0.06)" : "transparent",
+                        color: isSelected ? "#081734" : "#1e293b",
+                        fontWeight: isSelected ? 700 : 500,
+                        transition: "background-color 0.15s ease",
                       }}
                       onMouseEnter={(e) => {
                         if (!isSelected) {
-                          e.currentTarget.style.background = "#f3f4f6";
+                          e.currentTarget.style.background = "#f1f5f9";
                         }
                       }}
                       onMouseLeave={(e) => {
@@ -178,7 +194,7 @@ export default function SearchableSelect({
                       }}
                     >
                       <span>{option}</span>
-                      {isSelected && <Check size={16} style={{ color: "var(--af-navy)" }} />}
+                      {isSelected && <Check size={16} style={{ color: "#081734" }} />}
                     </div>
                   );
                 })
@@ -193,9 +209,9 @@ export default function SearchableSelect({
           initial={{ opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
           className="af-error"
-          style={{ color: "var(--af-error)", fontSize: "14px", marginTop: "4px", display: "block" }}
         >
-          {error}
+          <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+          <span>{error}</span>
         </motion.span>
       )}
     </div>

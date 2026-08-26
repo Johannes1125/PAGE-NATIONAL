@@ -11,6 +11,7 @@ import { gooeyToast } from "goey-toast";
 import "goey-toast/styles.css";
 import './member-login.css';
 import { api } from "../lib/api-client";
+import VersionUpdatesModal from "../components/VersionUpdatesModal";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -56,6 +57,7 @@ export default function MemberLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [formShake, setFormShake] = useState(false);
+  const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
 
   const validate = (): FormErrors => {
     const newErrors: FormErrors = {};
@@ -305,9 +307,25 @@ export default function MemberLogin() {
               New to the platform?{' '}
               <Link href="/create-account" className="ml-create-link">Create Account</Link>
             </p>
+
+            {/* Version Updates */}
+            <div className="ml-version-wrap">
+              <button
+                type="button"
+                className="ml-version-btn"
+                onClick={() => setIsVersionModalOpen(true)}
+              >
+                Version Updates (v0.3.0-dev)
+              </button>
+            </div>
           </motion.div>
         </motion.div>
       </div>
+
+      <VersionUpdatesModal
+        isOpen={isVersionModalOpen}
+        onClose={() => setIsVersionModalOpen(false)}
+      />
     </div>
   );
 }

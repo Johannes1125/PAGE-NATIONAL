@@ -114,6 +114,7 @@ function chapterToWizardData(ch: ChapterFull): WizardFormData {
         name: o.name,
         category_type: o.category_type,
         year_joined: o.year_joined,
+        year_end: o.year_end ?? "",
         sort_order: o.sort_order,
         image_url: o.image_url,
       })),
@@ -161,6 +162,7 @@ function wizardToPayload(data: WizardFormData, targetStatus: "draft" | "publishe
       name: o.name,
       category_type: o.category_type,
       year_joined: Number(o.year_joined),
+      year_end: o.year_end ? Number(o.year_end) : null,
       sort_order: idx,
       image_url: o.image_url || null,
     })),
@@ -243,10 +245,31 @@ export default function ChapterWizard({ mode, chapterId, initialData }: ChapterW
     const e: Record<string, string> = {};
     formData.step3.officers.forEach((o, i) => {
       if (!o.name.trim()) e[`officer_name_${i}`] = "Name is required.";
-      if (!o.category_type.trim()) e[`officer_cat_${i}`] = "Category/role is required.";
-      if (!o.year_joined || Number(o.year_joined) < 1900) e[`officer_year_${i}`] = "Valid year is required.";
+      if (!o.category_type.trim()) e[`officer_cat_${i}`] = "Role is required.";
+      if (!o.year_joined || Number(o.year_joined) < 1900) {
+        e[`officer_year_${i}`] = "Valid start year is required.";
+      }
+      if (o.year_end !== undefined && o.year_end !== null && o.year_end !== "") {
+        const end = Number(o.year_end);
+        const start = o.year_joined ? Number(o.year_joined) : null;
+        if (end < 1900) {
+          e[`officer_year_end_${i}`] = "Valid end year is required.";
+        } else if (start !== null && end < start) {
+          e[`officer_year_end_${i}`] = "Term End cannot be earlier than Term Start.";
+        }
+      }
     });
     return e;
+  };
+
+  const validateAll = (): { hasErrors: boolean; firstErrorStep?: number; errors: Record<string, string> } => {
+    const e1 = validateStep1();
+    if (Object.keys(e1).length > 0) return { hasErrors: true, firstErrorStep: 1, errors: e1 };
+    const e2 = validateStep2();
+    if (Object.keys(e2).length > 0) return { hasErrors: true, firstErrorStep: 2, errors: e2 };
+    const e3 = validateStep3();
+    if (Object.keys(e3).length > 0) return { hasErrors: true, firstErrorStep: 3, errors: e3 };
+    return { hasErrors: false, errors: {} };
   };
 
   const handleNext = () => {
@@ -266,6 +289,14 @@ export default function ChapterWizard({ mode, chapterId, initialData }: ChapterW
   // ── Submit ────────────────────────────────────────────────────────────────
 
   const handleSubmit = async (targetStatus: "draft" | "published") => {
+    const validation = validateAll();
+    if (validation.hasErrors) {
+      setErrors(validation.errors);
+      goTo(validation.firstErrorStep!);
+      gooeyToast.error("Please resolve the validation errors before saving.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const payload = wizardToPayload(formData, targetStatus) as Record<string, unknown>;
@@ -300,7 +331,11 @@ export default function ChapterWizard({ mode, chapterId, initialData }: ChapterW
   return (
     <div className="chapter-wizard">
       {/* Step Indicator */}
-      <StepIndicator currentStep={step} />
+      <StepIndicator
+        currentStep={step}
+        mode={mode}
+        onStepClick={goTo}
+      />
 
       {/* Step Content */}
       <AnimatePresence mode="wait" custom={direction}>
@@ -331,6 +366,7 @@ export default function ChapterWizard({ mode, chapterId, initialData }: ChapterW
             <Step3
               data={formData.step3}
               errors={errors}
+              setErrors={setErrors}
               onChange={(s3) => setFormData((f) => ({ ...f, step3: s3 }))}
             />
           )}
@@ -405,23 +441,53 @@ export default function ChapterWizard({ mode, chapterId, initialData }: ChapterW
 // ═════════════════════════════════════════════════════════════════════════════
 // Step Indicator
 // ═════════════════════════════════════════════════════════════════════════════
-function StepIndicator({ currentStep }: { currentStep: number }) {
+function StepIndicator({
+  currentStep,
+  mode,
+  onStepClick,
+}: {
+  currentStep: number;
+  mode: "create" | "edit";
+  onStepClick?: (step: number) => void;
+}) {
   return (
     <div className="wizard-stepper" role="list" aria-label="Wizard progress">
       {STEPS.map((s) => {
         const isActive = s.number === currentStep;
         const isCompleted = s.number < currentStep;
-        return (
-          <div
-            key={s.number}
-            className={`wizard-stepper__step${isActive ? " wizard-stepper__step--active" : ""}${isCompleted ? " wizard-stepper__step--completed" : ""}`}
-            role="listitem"
-            aria-current={isActive ? "step" : undefined}
-          >
+        const isClickable = mode === "edit" && !isActive;
+
+        const content = (
+          <>
             <div className="wizard-stepper__circle">
               {isCompleted ? <CheckCircle size={22} strokeWidth={2.5} /> : s.number}
             </div>
             <span className="wizard-stepper__label">{s.label}</span>
+          </>
+        );
+
+        return (
+          <div
+            key={s.number}
+            className={`wizard-stepper__step${isActive ? " wizard-stepper__step--active" : ""}${isCompleted ? " wizard-stepper__step--completed" : ""}${isClickable ? " wizard-stepper__step--clickable" : ""}`}
+            role="listitem"
+            aria-current={isActive ? "step" : undefined}
+          >
+            {isClickable ? (
+              <button
+                type="button"
+                className="wizard-stepper__btn"
+                onClick={() => onStepClick?.(s.number)}
+                aria-label={`Jump to step ${s.number}: ${s.label}`}
+                title={`Jump to ${s.label}`}
+              >
+                {content}
+              </button>
+            ) : (
+              <div className="wizard-stepper__btn wizard-stepper__btn--disabled">
+                {content}
+              </div>
+            )}
           </div>
         );
       })}
@@ -763,10 +829,12 @@ function Step2({
 function Step3({
   data,
   errors,
+  setErrors,
   onChange,
 }: {
   data: WizardStep3;
   errors: Record<string, string>;
+  setErrors?: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   onChange: (d: WizardStep3) => void;
 }) {
   const [uploadingAvatars, setUploadingAvatars] = useState<Record<number, boolean>>({});
@@ -777,6 +845,7 @@ function Step3({
       name: "",
       category_type: "",
       year_joined: "",
+      year_end: "",
       sort_order: data.officers.length,
     };
     onChange({ officers: [...data.officers, entry] });
@@ -785,6 +854,25 @@ function Step3({
   const updateOfficer = (idx: number, patch: Partial<WizardOfficerEntry>) => {
     const updated = data.officers.map((o, i) => (i === idx ? { ...o, ...patch } : o));
     onChange({ officers: updated });
+
+    if (patch.year_joined !== undefined || patch.year_end !== undefined) {
+      const off = updated[idx];
+      const start = off.year_joined ? Number(off.year_joined) : null;
+      const end = off.year_end !== "" && off.year_end !== undefined && off.year_end !== null ? Number(off.year_end) : null;
+
+      setErrors?.((prev) => {
+        const next = { ...prev };
+        if (start && start >= 1900) {
+          delete next[`officer_year_${idx}`];
+        }
+        if (end !== null && start !== null && end < start) {
+          next[`officer_year_end_${idx}`] = "Term End cannot be earlier than Term Start.";
+        } else {
+          delete next[`officer_year_end_${idx}`];
+        }
+        return next;
+      });
+    }
   };
 
   const removeOfficer = (idx: number) => {
@@ -871,7 +959,7 @@ function Step3({
                 )}
               </button>
             </div>
-            <div className="wizard-row__field">
+            <div className="wizard-row__field" style={{flex: 2, minWidth: 160}}>
               <label className="wizard-row__label" htmlFor={`off-name-${idx}`}>Name <span style={{color:"#dc2626"}}>*</span></label>
               <input
                 id={`off-name-${idx}`}
@@ -883,7 +971,7 @@ function Step3({
               />
               {errors[`officer_name_${idx}`] && <p className="wizard-row__error">{errors[`officer_name_${idx}`]}</p>}
             </div>
-            <div className="wizard-row__field">
+            <div className="wizard-row__field" style={{flex: 2, minWidth: 160}}>
               <label className="wizard-row__label" htmlFor={`off-cat-${idx}`}>Role / Category <span style={{color:"#dc2626"}}>*</span></label>
               <input
                 id={`off-cat-${idx}`}
@@ -895,8 +983,8 @@ function Step3({
               />
               {errors[`officer_cat_${idx}`] && <p className="wizard-row__error">{errors[`officer_cat_${idx}`]}</p>}
             </div>
-            <div className="wizard-row__field" style={{maxWidth:140}}>
-              <label className="wizard-row__label" htmlFor={`off-year-${idx}`}>Year Joined <span style={{color:"#dc2626"}}>*</span></label>
+            <div className="wizard-row__field" style={{flex: 1, minWidth: 110, maxWidth: 130}}>
+              <label className="wizard-row__label" htmlFor={`off-year-${idx}`}>Term Start <span style={{color:"#dc2626"}}>*</span></label>
               <input
                 id={`off-year-${idx}`}
                 type="number"
@@ -904,10 +992,24 @@ function Step3({
                 placeholder="2024"
                 value={officer.year_joined}
                 min={1900}
-                max={new Date().getFullYear()}
+                max={2099}
                 onChange={(e) => updateOfficer(idx, { year_joined: e.target.value === "" ? "" : parseInt(e.target.value, 10) })}
               />
               {errors[`officer_year_${idx}`] && <p className="wizard-row__error">{errors[`officer_year_${idx}`]}</p>}
+            </div>
+            <div className="wizard-row__field" style={{flex: 1, minWidth: 110, maxWidth: 130}}>
+              <label className="wizard-row__label" htmlFor={`off-year-end-${idx}`}>Term End</label>
+              <input
+                id={`off-year-end-${idx}`}
+                type="number"
+                className={`wizard-row__input${errors[`officer_year_end_${idx}`] ? " wizard-row__input--error" : ""}`}
+                placeholder="Present"
+                value={officer.year_end ?? ""}
+                min={officer.year_joined ? Number(officer.year_joined) : 1900}
+                max={2099}
+                onChange={(e) => updateOfficer(idx, { year_end: e.target.value === "" ? "" : parseInt(e.target.value, 10) })}
+              />
+              {errors[`officer_year_end_${idx}`] && <p className="wizard-row__error">{errors[`officer_year_end_${idx}`]}</p>}
             </div>
             <button
               type="button"
@@ -1245,7 +1347,7 @@ function Step5({
                         flexShrink: 0,
                       }}
                     />
-                    <span><strong>{o.name}</strong> — {o.category_type} (Joined {o.year_joined})</span>
+                    <span><strong>{o.name}</strong> — {o.category_type} (Term: {o.year_joined} – {o.year_end || "Present"})</span>
                   </div>
                 ))}
               </div>

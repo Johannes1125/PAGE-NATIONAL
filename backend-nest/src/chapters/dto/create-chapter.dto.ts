@@ -67,12 +67,16 @@ export class ChapterOfficerDto {
 
   @IsOptional()
   @IsInt()
+  @Min(1900)
+  year_end?: number;
+
+  @IsOptional()
+  @IsInt()
   @Min(0)
   sort_order?: number;
 
   @IsOptional()
   @IsString()
-  @IsUrl()
   image_url?: string;
 }
 

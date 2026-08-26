@@ -482,6 +482,32 @@ input[type="password"]::-ms-clear {
   text-decoration: underline;
 }
 
+/* ─── Version Updates ──────────────────────────────────────── */
+.ml-version-wrap {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+}
+
+.ml-version-btn {
+  background: transparent;
+  border: 0;
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 6px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: all 0.15s ease;
+}
+
+.ml-version-btn:hover {
+  color: #1a2744;
+  background: #f3f4f6;
+}
+
 /* ═══════════════════════════════════════════════════════════════
    RESPONSIVE — Tablet / Mobile (< 768px)
    ═══════════════════════════════════════════════════════════════ */

@@ -38,6 +38,40 @@ export interface ChapterDocument {
   download_url: string;
 }
 
+export type IslandGroup = "Luzon" | "Visayas" | "Mindanao";
+
+export interface ChapterImageItem {
+  id?: string;
+  file_url: string;
+  file_name?: string;
+  sort_order?: number;
+}
+
+export interface ChapterOfficerItem {
+  id?: string;
+  name: string;
+  position?: string;
+  role?: string;
+  term?: string;
+  avatarUrl?: string;
+  photo_url?: string;
+  university?: string;
+}
+
+export interface PublishedChapter {
+  id: string;
+  title: string;
+  slug: string;
+  short_description?: string;
+  island_group: IslandGroup;
+  region: string;
+  created_at?: string;
+  updated_at?: string;
+  status: "published" | "draft" | "archived";
+  images?: ChapterImageItem[];
+  officers?: ChapterOfficerItem[];
+}
+
 export interface Chapter {
   slug: string;
   chapter_name: string;

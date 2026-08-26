@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { FileText, CheckCircle, Trash2 } from "lucide-react";
+import { FileText, CheckCircle, Trash2, AlertTriangle } from "lucide-react";
 import { PageSeal } from "../../components/PageSeal";
 
 interface DocumentUploadProps {
@@ -52,13 +52,10 @@ export function DocumentUpload({
   };
 
   return (
-    <div className="af-field" style={{ marginBottom: "16px" }}>
+    <div className="af-field">
       {label && (
-        <label
-          className="af-label"
-          style={{ fontSize: "15px", fontWeight: 600, marginBottom: "8px", display: "block" }}
-        >
-          {label}{" "}
+        <label htmlFor={fileInputId} className="af-label">
+          <span>{label}</span>
           {required && <span className="af-req">*</span>}
         </label>
       )}
@@ -102,7 +99,7 @@ export function DocumentUpload({
           /* ── Uploading state ── */
           <div style={{ textAlign: "center" }}>
             <div className="af-spinner" style={{ width: "24px", height: "24px", margin: "0 auto 10px" }} />
-            <span style={{ fontSize: "13.5px", fontWeight: 600, color: "var(--af-navy)", fontStyle: "italic" }}>
+            <span style={{ fontSize: "13.5px", fontWeight: 600, color: "var(--af-navy, #081734)", fontStyle: "italic" }}>
               Depositing document…
             </span>
           </div>
@@ -117,15 +114,15 @@ export function DocumentUpload({
                   width: "88px",
                   height: "88px",
                   objectFit: "cover",
-                  borderRadius: "4px",
-                  border: "2px solid rgba(26,92,59,0.4)",
+                  borderRadius: "6px",
+                  border: "2px solid #16a34a",
                   boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
                   marginBottom: "10px",
                   display: "block",
                   margin: "0 auto 10px",
                 }}
               />
-              <span className="af-upload__text" style={{ fontSize: "13px", color: "var(--af-success)" }}>
+              <span className="af-upload__text" style={{ fontSize: "13px", color: "var(--af-success, #16a34a)" }}>
                 Portrait lodged — click to replace
               </span>
             </div>
@@ -133,7 +130,7 @@ export function DocumentUpload({
             <div className="af-upload__seal-confirm">
               <PageSeal size={36} variant="full" />
               <span className="af-upload__seal-confirm-label">Document lodged</span>
-              <span className="af-upload__text" style={{ fontSize: "12px", color: "var(--af-ink-60, rgba(12,26,46,0.6))" }}>
+              <span className="af-upload__text" style={{ fontSize: "12px", color: "var(--af-ink-60, #4a5568)" }}>
                 Click to replace
               </span>
             </div>
@@ -142,7 +139,7 @@ export function DocumentUpload({
           /* ── Empty state: document-register feel ── */
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
             <div className="af-upload__icon-wrap">
-              <FileText size={26} />
+              <FileText size={28} />
             </div>
             <span className="af-upload__text">
               Attach {label}
@@ -152,7 +149,7 @@ export function DocumentUpload({
                 ? "JPG · PNG — max 5 MB"
                 : "PDF · JPG · PNG — max 5 MB"}
             </span>
-            <span style={{ fontSize: "11px", color: "var(--af-ink-30, rgba(12,26,46,0.3))", marginTop: "2px" }}>
+            <span style={{ fontSize: "12px", color: "#64748b", marginTop: "2px", fontWeight: 500 }}>
               drag and drop or click to browse
             </span>
           </div>
@@ -165,7 +162,7 @@ export function DocumentUpload({
             onClick={(e) => e.stopPropagation()}
             style={{ marginTop: "14px" }}
           >
-            <CheckCircle size={14} style={{ color: "var(--af-success)", flexShrink: 0 }} />
+            <CheckCircle size={15} style={{ color: "var(--af-success, #16a34a)", flexShrink: 0 }} />
             <span
               className="af-upload__file-name"
               title={file!.name}
@@ -173,7 +170,7 @@ export function DocumentUpload({
               {file!.name}
             </span>
             {file!.size && (
-              <span style={{ fontSize: "11px", color: "var(--af-ink-60, rgba(12,26,46,0.55))", flexShrink: 0 }}>
+              <span style={{ fontSize: "11px", color: "var(--af-ink-60, #4a5568)", flexShrink: 0 }}>
                 {formatBytes(file!.size)}
               </span>
             )}
@@ -183,23 +180,16 @@ export function DocumentUpload({
               onClick={() => onFileChange(slotName, null)}
               aria-label={`Remove ${label}`}
             >
-              <Trash2 size={14} />
+              <Trash2 size={15} />
             </button>
           </div>
         )}
       </div>
 
       {error && (
-        <span
-          style={{
-            color: "var(--af-error)",
-            fontSize: "13px",
-            marginTop: "6px",
-            display: "block",
-            fontWeight: 500,
-          }}
-        >
-          {error}
+        <span className="af-error">
+          <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+          <span>{error}</span>
         </span>
       )}
     </div>

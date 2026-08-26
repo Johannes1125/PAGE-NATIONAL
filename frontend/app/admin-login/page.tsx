@@ -23,6 +23,7 @@ import {
   faUserShield,
 } from "@fortawesome/free-solid-svg-icons";
 import { api, AuthResponse } from "../lib/api-client";
+import VersionUpdatesModal from "../components/VersionUpdatesModal";
 
 const notifyError = (msg: string) => {
   if (typeof gooeyToast !== "undefined" && gooeyToast.error) {
@@ -46,6 +47,7 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("");
   const [rememberDevice, setRememberDevice] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -230,11 +232,25 @@ export default function AdminLogin() {
           </form>
         </div>
 
-        {/* Security note */}
-        <div className="al-security-note">
-          <FontAwesomeIcon icon={faShieldAlt} className="al-sec-icon" />
-          <span>Secure access. Trusted by PAGE administrators.</span>
+        {/* Security note and Version Updates */}
+        <div className="al-footer-meta">
+          <div className="al-security-note">
+            <FontAwesomeIcon icon={faShieldAlt} className="al-sec-icon" />
+            <span>Secure access. Trusted by PAGE administrators.</span>
+          </div>
+          <button
+            type="button"
+            className="al-version-btn"
+            onClick={() => setIsVersionModalOpen(true)}
+          >
+            Version Updates (v0.3.0-dev)
+          </button>
         </div>
+
+        <VersionUpdatesModal
+          isOpen={isVersionModalOpen}
+          onClose={() => setIsVersionModalOpen(false)}
+        />
       </div>
     </div>
     </>
