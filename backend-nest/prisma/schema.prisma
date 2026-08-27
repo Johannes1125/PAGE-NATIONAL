@@ -258,7 +258,6 @@ model historical_records {
   yearStart   Int
   programType String   @db.VarChar(50)
   description String   @db.Text
-  sortOrder   Int      @default(0)
   status      String   @default("active") @db.VarChar(255) // 'active' | 'archived'
   createdAt   DateTime @default(now()) @db.Timestamp(0)
   updatedAt   DateTime @default(now()) @updatedAt @db.Timestamp(0)

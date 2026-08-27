@@ -20,8 +20,6 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { GetUser } from '../auth/get-user.decorator';
 
-import { ReorderHistoricalRecordsDto } from './dto/reorder-historical-records.dto';
-
 @Controller()
 export class HistoricalRecordsController {
   constructor(private readonly service: HistoricalRecordsService) {}
@@ -30,7 +28,7 @@ export class HistoricalRecordsController {
 
   /**
    * Public — no auth required.
-   * Records returned sorted ascending by yearStart.
+   * Records returned sorted descending by yearStart (newest first).
    */
   @Get('public/historical-records')
   getPublic(
@@ -82,17 +80,6 @@ export class HistoricalRecordsController {
     @Req() req: Request,
   ) {
     return this.service.create(dto, user, req.ip || '127.0.0.1');
-  }
-
-  @UseGuards(TokenAuthGuard, RolesGuard)
-  @Roles('admin')
-  @Patch('historical-records-reorder')
-  updateSortOrder(
-    @Body() dto: ReorderHistoricalRecordsDto,
-    @GetUser() user: any,
-    @Req() req: Request,
-  ) {
-    return this.service.updateSortOrder(dto, user, req.ip || '127.0.0.1');
   }
 
   @UseGuards(TokenAuthGuard, RolesGuard)

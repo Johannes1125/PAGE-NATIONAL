@@ -27,8 +27,8 @@ export class HistoricalRecordsService {
         this.prisma.historical_records.findMany({
           where,
           orderBy: [
-            { yearStart: 'asc' },
-            { sortOrder: 'asc' },
+            { yearStart: 'desc' },
+            { createdAt: 'desc' },
           ],
           skip,
           take: limit,
@@ -52,8 +52,8 @@ export class HistoricalRecordsService {
     const records = await this.prisma.historical_records.findMany({
       where,
       orderBy: [
-        { yearStart: 'asc' },
-        { sortOrder: 'asc' },
+        { yearStart: 'desc' },
+        { createdAt: 'desc' },
       ],
     });
     return {
@@ -235,36 +235,6 @@ export class HistoricalRecordsService {
       success: true,
       data: record,
       message: 'Historical record unarchived successfully.',
-    };
-  }
-
-  async updateSortOrder(
-    dto: { records: { id: string; sortOrder: number; yearStart?: number }[] },
-    user: { id: bigint },
-    ipAddress: string,
-  ) {
-    const updates = dto.records.map((r) =>
-      this.prisma.historical_records.update({
-        where: { id: r.id },
-        data: {
-          sortOrder: r.sortOrder,
-          ...(r.yearStart !== undefined ? { yearStart: r.yearStart } : {}),
-        },
-      }),
-    );
-    await this.prisma.$transaction(updates);
-
-    await this.prisma.user_activities.create({
-      data: {
-        user_id: user.id,
-        action: 'Reordered historical records via drag-and-drop.',
-        ip_address: ipAddress,
-      },
-    });
-
-    return {
-      success: true,
-      message: 'Historical records sorted successfully.',
     };
   }
 }

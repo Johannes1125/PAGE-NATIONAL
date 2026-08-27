@@ -17,10 +17,10 @@ const mockRecord = {
 };
 
 const mockRecords = [
-  { ...mockRecord, yearStart: 1998, title: 'Early Initiative' },
-  { ...mockRecord, yearStart: 2001, title: 'Seminar Series Launched' },
-  { ...mockRecord, yearStart: 2005, title: 'National Convention Established' },
   { ...mockRecord, yearStart: 2010, title: 'Digital Transformation' },
+  { ...mockRecord, yearStart: 2005, title: 'National Convention Established' },
+  { ...mockRecord, yearStart: 2001, title: 'Seminar Series Launched' },
+  { ...mockRecord, yearStart: 1998, title: 'Early Initiative' },
 ];
 
 const prismaMock = {
@@ -59,7 +59,7 @@ describe('HistoricalRecordsService', () => {
   // ── findAll ───────────────────────────────────────────────────────────────
 
   describe('findAll', () => {
-    it('returns all records ordered by yearStart ascending', async () => {
+    it('returns all records ordered by yearStart descending', async () => {
       prismaMock.historical_records.findMany.mockResolvedValue(mockRecords);
 
       const result = await service.findAll();
@@ -67,16 +67,16 @@ describe('HistoricalRecordsService', () => {
       expect(prismaMock.historical_records.findMany).toHaveBeenCalledWith({
         where: { status: { not: 'archived' } },
         orderBy: [
-          { yearStart: 'asc' },
-          { sortOrder: 'asc' },
+          { yearStart: 'desc' },
+          { createdAt: 'desc' },
         ],
       });
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockRecords);
-      expect(result.data[0].yearStart).toBe(1998);
-      expect(result.data[1].yearStart).toBe(2001);
-      expect(result.data[2].yearStart).toBe(2005);
-      expect(result.data[3].yearStart).toBe(2010);
+      expect(result.data[0].yearStart).toBe(2010);
+      expect(result.data[1].yearStart).toBe(2005);
+      expect(result.data[2].yearStart).toBe(2001);
+      expect(result.data[3].yearStart).toBe(1998);
     });
 
     it('returns empty array when no records exist', async () => {
@@ -292,21 +292,21 @@ describe('HistoricalRecordsService', () => {
   // ── Sorting logic ─────────────────────────────────────────────────────────
 
   describe('Sorting logic', () => {
-    it('records returned by findAll are in ascending yearStart order', async () => {
+    it('records returned by findAll are in descending yearStart order with createdAt secondary sort', async () => {
       const unsortedRecords = [
-        { ...mockRecord, yearStart: 2010 },
-        { ...mockRecord, yearStart: 1998 },
-        { ...mockRecord, yearStart: 2005 },
+        { ...mockRecord, yearStart: 1998, createdAt: new Date('2020-01-01') },
+        { ...mockRecord, yearStart: 2010, createdAt: new Date('2020-01-02') },
+        { ...mockRecord, yearStart: 2005, createdAt: new Date('2020-01-03') },
       ];
-      // Backend query uses orderBy yearStart:asc — simulate what Prisma returns
-      const sortedByPrisma = [...unsortedRecords].sort((a, b) => a.yearStart - b.yearStart);
+      // Backend query uses orderBy yearStart:desc, createdAt:desc — simulate what Prisma returns
+      const sortedByPrisma = [...unsortedRecords].sort((a, b) => b.yearStart - a.yearStart);
       prismaMock.historical_records.findMany.mockResolvedValue(sortedByPrisma);
 
       const result = await service.findAll();
 
-      expect(result.data[0].yearStart).toBe(1998);
+      expect(result.data[0].yearStart).toBe(2010);
       expect(result.data[1].yearStart).toBe(2005);
-      expect(result.data[2].yearStart).toBe(2010);
+      expect(result.data[2].yearStart).toBe(1998);
     });
   });
 });
