@@ -160,6 +160,105 @@
   font-weight: 600;
 }
 
+.headActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.refreshButton {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid rgba(30, 83, 142, 0.14);
+  background: #ffffff;
+  color: #2d6ab2;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(11, 28, 48, 0.05);
+  transition: transform 140ms ease, background 140ms ease;
+}
+
+.refreshButton:hover {
+  background: #eef5ff;
+  transform: translateY(-1px);
+}
+
+.spinning {
+  animation: spin 800ms linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.sourceBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  background: #eef4fb;
+  color: #2b5680;
+}
+
+.sourceBadgeApprove {
+  background: #fff4e5;
+  color: #b25e00;
+  border: 1px solid rgba(230, 119, 0, 0.15);
+}
+
+.sourceBadgeUsers {
+  background: #eef6ff;
+  color: #1a64c4;
+  border: 1px solid rgba(26, 100, 196, 0.15);
+}
+
+.sourceBadgeMessages {
+  background: #f4eeff;
+  color: #6929c4;
+  border: 1px solid rgba(105, 41, 196, 0.15);
+}
+
+.sourceBadgeOverview {
+  background: #eaf8f4;
+  color: #0e7555;
+  border: 1px solid rgba(14, 117, 85, 0.15);
+}
+
+.actionButton {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #143152;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(20, 49, 82, 0.18);
+  transition: background 140ms ease, transform 140ms ease;
+}
+
+.actionButton:hover {
+  background: #1e4a7b;
+  transform: translateY(-1px);
+}
+
+.actionIcon {
+  line-height: 0;
+  display: grid;
+  place-items: center;
+}
+
 .markRead {
   border: 1px solid rgba(30, 83, 142, 0.14);
   background: #ffffff;
@@ -167,15 +266,15 @@
   font-size: 11px;
   font-weight: 700;
   border-radius: 999px;
-  padding: 8px 10px;
+  padding: 6px 10px;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 8px 16px rgba(11, 28, 48, 0.06);
+  box-shadow: 0 4px 10px rgba(11, 28, 48, 0.05);
 }
 
 .markRead:hover {
   background: #eef5ff;
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .toolbar {
@@ -234,6 +333,7 @@
   background: #ffffff;
   padding: 10px;
   box-shadow: 0 10px 18px rgba(11, 28, 48, 0.05);
+  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
 }
 
 .item:hover {
@@ -243,6 +343,7 @@
 
 .itemUnread {
   background: #eef5ff;
+  border-color: rgba(45, 106, 178, 0.25);
 }
 
 .itemSelected {
@@ -300,6 +401,7 @@
 .expandIcon {
   color: #6f8399;
   transition: transform 0.18s ease;
+  flex-shrink: 0;
 }
 
 .itemMain[aria-expanded="true"] .expandIcon {
@@ -345,11 +447,58 @@
   font-weight: 700;
 }
 
+.itemDeleteBtn {
+  border: none;
+  background: transparent;
+  color: #a0aec0;
+  padding: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: color 140ms ease, background 140ms ease;
+}
+
+.itemDeleteBtn:hover {
+  color: #d9364a;
+  background: rgba(217, 54, 74, 0.08);
+}
+
+.expandedActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.deleteItemTextBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  color: #a0aec0;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: color 140ms ease, background 140ms ease;
+}
+
+.deleteItemTextBtn:hover {
+  color: #d9364a;
+  background: rgba(217, 54, 74, 0.08);
+}
+
 .empty {
-  padding: 14px 12px;
+  padding: 24px 12px;
   margin: 0;
   color: #6f8399;
-  font-size: 11px;
+  font-size: 12px;
+  text-align: center;
 }
 
 @media (max-width: 980px) {
@@ -376,3 +525,5 @@
     min-width: 130px;
   }
 }
+
+

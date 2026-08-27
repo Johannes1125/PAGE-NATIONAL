@@ -549,3 +549,18 @@ model MembershipApplicationDocument {
   @@map("membership_application_documents")
 }
 
+model Notification {
+  id        String   @id @db.VarChar(255)
+  type      String   @db.VarChar(50)
+  sourceId  String   @db.VarChar(255)
+  title     String   @db.VarChar(255)
+  body      String   @db.Text
+  isRead    Boolean  @default(false)
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  @@index([type, sourceId])
+  @@index([isDeleted, isRead])
+  @@map("notifications")
+}

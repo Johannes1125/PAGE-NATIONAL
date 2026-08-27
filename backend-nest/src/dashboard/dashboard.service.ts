@@ -510,86 +510,226 @@ export class DashboardService {
   }
 
   async adminNotifications() {
-    const notifications: {
+    type NotificationItem = {
       id: string;
       title: string;
       description: string;
       source: 'overview' | 'create-post' | 'approve-post' | 'manage-users' | 'messages';
       timeLabel: string;
       href: string;
-    }[] = [];
+      rawDate: string;
+    };
 
-    // 1. Pending Posts Notification
-    const pendingPostsCount = await this.prisma.posts.count({
-      where: { status: 'pending' },
-    });
-    if (pendingPostsCount > 0) {
-      notifications.push({
-        id: `pending-posts-${pendingPostsCount}`,
-        title: 'Pending Posts Queue',
-        description: `There ${pendingPostsCount === 1 ? 'is 1 post' : `are ${pendingPostsCount} posts`} waiting for moderation review.`,
-        source: 'approve-post',
-        timeLabel: 'Active',
-        href: '/admin-dashboard/approve-post',
+    const notifications: NotificationItem[] = [];
+
+    // 1. Pending Posts (requiring admin moderation)
+    try {
+      const pendingPosts = await this.prisma.posts.findMany({
+        where: { status: 'pending' },
+        include: { users: true },
+        orderBy: { created_at: 'desc' },
+        take: 10,
       });
+
+      for (const post of pendingPosts) {
+        notifications.push({
+          id: `pending-post-${post.id.toString()}`,
+          title: `Post Pending Approval: "${post.title.length > 42 ? post.title.slice(0, 40) + '...' : post.title}"`,
+          description: `Submitted by ${post.author || post.users?.name || 'Author'} in ${post.category}. Moderation review required.`,
+          source: 'approve-post',
+          timeLabel: post.created_at ? this.diffForHumans(post.created_at) : 'Active',
+          href: '/admin-dashboard/approve-post',
+          rawDate: post.created_at ? post.created_at.toISOString() : new Date().toISOString(),
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching pending posts for admin notifications:', err);
     }
 
     // 2. Pending Membership Applications
     try {
-      const pendingAppsCount = await this.prisma.membershipApplication.count({
+      const pendingApps = await this.prisma.membershipApplication.findMany({
         where: {
           status: { in: ['submitted', 'under_review', 'draft'] },
         },
+        include: { applicant: true },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
       });
-      if (pendingAppsCount > 0) {
+
+      for (const app of pendingApps) {
+        let applicantName = app.applicant?.name;
+        if (!applicantName && app.profileData && typeof app.profileData === 'object') {
+          const pd: any = app.profileData;
+          applicantName = [pd.firstName, pd.lastName].filter(Boolean).join(' ');
+        }
+        applicantName = applicantName || 'Applicant';
+
+        const statusLabel =
+          app.status === 'submitted'
+            ? 'Submitted'
+            : app.status === 'under_review'
+            ? 'Under Review'
+            : 'Draft Incomplete';
+
         notifications.push({
-          id: `pending-apps-${pendingAppsCount}`,
-          title: 'Membership Applications',
-          description: `${pendingAppsCount} membership ${pendingAppsCount === 1 ? 'application requires' : 'applications require'} review.`,
+          id: `membership-app-${app.id}`,
+          title: `Membership Application: ${applicantName}`,
+          description: `${app.membershipType} membership application (${statusLabel}) awaiting review.`,
           source: 'manage-users',
-          timeLabel: 'Pending',
+          timeLabel: app.submittedAt ? this.diffForHumans(app.submittedAt) : this.diffForHumans(app.createdAt),
           href: '/admin-dashboard/membership-applications',
+          rawDate: (app.submittedAt || app.createdAt).toISOString(),
         });
       }
-    } catch {}
+    } catch (err) {
+      console.error('Error fetching membership applications for admin notifications:', err);
+    }
 
-    // 3. Recent activities as notifications
-    const recentActivities = await this.prisma.user_activities.findMany({
-      include: { users: true },
-      orderBy: { created_at: 'desc' },
-      take: 6,
-    });
-
-    recentActivities.forEach((act) => {
-      const actorName = act.users?.name || 'User';
-      const time = act.created_at ? this.diffForHumans(act.created_at) : 'recently';
-      let source: 'overview' | 'create-post' | 'approve-post' | 'manage-users' | 'messages' = 'overview';
-      let href = '/admin-dashboard';
-
-      if (act.action.toLowerCase().includes('post') || act.action.toLowerCase().includes('article')) {
-        source = 'approve-post';
-        href = '/admin-dashboard/approve-post';
-      } else if (act.action.toLowerCase().includes('user') || act.action.toLowerCase().includes('registered')) {
-        source = 'manage-users';
-        href = '/admin-dashboard/manage-users';
-      } else if (act.action.toLowerCase().includes('message')) {
-        source = 'messages';
-        href = '/admin-dashboard/view-messages';
-      }
-
-      notifications.push({
-        id: `activity-${act.id.toString()}`,
-        title: act.action,
-        description: `Triggered by ${actorName} (${act.users?.role || 'member'}).`,
-        source,
-        timeLabel: time,
-        href,
+    // 3. Inbound Messages & Inquiries
+    try {
+      const recentMessages = await this.prisma.messages.findMany({
+        where: {
+          users_messages_sender_idTousers: {
+            role: { not: 'admin' },
+          },
+        },
+        include: {
+          users_messages_sender_idTousers: true,
+        },
+        orderBy: { created_at: 'desc' },
+        take: 10,
       });
+
+      for (const msg of recentMessages) {
+        const senderName = msg.users_messages_sender_idTousers?.name || 'Inquirer';
+        notifications.push({
+          id: `msg-${msg.id.toString()}`,
+          title: `New Message from ${senderName}`,
+          description: `${msg.subject ? `[${msg.subject}] ` : ''}${
+            msg.text.length > 55 ? msg.text.slice(0, 52) + '...' : msg.text
+          }`,
+          source: 'messages',
+          timeLabel: msg.created_at ? this.diffForHumans(msg.created_at) : 'recently',
+          href: '/admin-dashboard/view-messages',
+          rawDate: msg.created_at ? msg.created_at.toISOString() : new Date().toISOString(),
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching messages for admin notifications:', err);
+    }
+
+    // 4. Pending Article Submissions
+    try {
+      const pendingArticles = await this.prisma.article_submissions.findMany({
+        where: { status: { in: ['pending', 'in-review', 'revision'] } },
+        orderBy: { created_at: 'desc' },
+        take: 8,
+      });
+
+      for (const art of pendingArticles) {
+        notifications.push({
+          id: `article-${art.id.toString()}`,
+          title: `Article Submission: "${art.title.length > 42 ? art.title.slice(0, 40) + '...' : art.title}"`,
+          description: `Author: ${art.author} • Status: ${art.status}.`,
+          source: 'overview',
+          timeLabel: art.created_at ? this.diffForHumans(art.created_at) : 'recently',
+          href: '/admin-dashboard',
+          rawDate: art.created_at ? art.created_at.toISOString() : new Date().toISOString(),
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching article submissions for admin notifications:', err);
+    }
+
+    // 5. Recent User Registrations
+    try {
+      const recentUsers = await this.prisma.users.findMany({
+        where: { role: { in: ['member', 'organization'] } },
+        orderBy: { created_at: 'desc' },
+        take: 8,
+      });
+
+      for (const u of recentUsers) {
+        notifications.push({
+          id: `user-reg-${u.id.toString()}`,
+          title: `New Account: ${u.name}`,
+          description: `Registered as ${u.role.charAt(0).toUpperCase() + u.role.slice(1)} • ${
+            u.university || u.email
+          }`,
+          source: 'manage-users',
+          timeLabel: u.created_at ? this.diffForHumans(u.created_at) : 'recently',
+          href: '/admin-dashboard/manage-users',
+          rawDate: u.created_at ? u.created_at.toISOString() : new Date().toISOString(),
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching recent users for admin notifications:', err);
+    }
+
+    // 6. Recent User Activities (System Audit Events)
+    try {
+      const recentActivities = await this.prisma.user_activities.findMany({
+        include: { users: true },
+        orderBy: { created_at: 'desc' },
+        take: 12,
+      });
+
+      for (const act of recentActivities) {
+        const actorName = act.users?.name || 'System';
+        const time = act.created_at ? this.diffForHumans(act.created_at) : 'recently';
+        let source: 'overview' | 'create-post' | 'approve-post' | 'manage-users' | 'messages' = 'overview';
+        let href = '/admin-dashboard';
+
+        const actionLower = act.action.toLowerCase();
+        if (actionLower.includes('post') || actionLower.includes('article')) {
+          source = 'approve-post';
+          href = '/admin-dashboard/approve-post';
+        } else if (actionLower.includes('user') || actionLower.includes('registered') || actionLower.includes('member')) {
+          source = 'manage-users';
+          href = '/admin-dashboard/manage-users';
+        } else if (actionLower.includes('message')) {
+          source = 'messages';
+          href = '/admin-dashboard/view-messages';
+        } else if (actionLower.includes('chapter')) {
+          source = 'overview';
+          href = '/admin-dashboard/chapters';
+        } else if (actionLower.includes('convention')) {
+          source = 'overview';
+          href = '/admin-dashboard/conventions';
+        }
+
+        notifications.push({
+          id: `activity-${act.id.toString()}`,
+          title: act.action,
+          description: `Triggered by ${actorName} (${act.users?.role || 'member'}).`,
+          source,
+          timeLabel: time,
+          href,
+          rawDate: act.created_at ? act.created_at.toISOString() : new Date().toISOString(),
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching recent activities for admin notifications:', err);
+    }
+
+    // Deduplicate by ID
+    const uniqueMap = new Map<string, NotificationItem>();
+    for (const item of notifications) {
+      if (!uniqueMap.has(item.id)) {
+        uniqueMap.set(item.id, item);
+      }
+    }
+
+    const sorted = Array.from(uniqueMap.values()).sort((a, b) => {
+      const timeA = new Date(a.rawDate).getTime();
+      const timeB = new Date(b.rawDate).getTime();
+      return timeB - timeA;
     });
 
     return {
       success: true,
-      data: notifications,
+      data: sorted.slice(0, 30),
     };
   }
 

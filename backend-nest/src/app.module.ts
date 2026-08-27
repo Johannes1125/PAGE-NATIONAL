@@ -19,6 +19,7 @@ import { BirCertificationsModule } from './bir-certifications/bir-certifications
 import { ChaptersModule } from './chapters/chapters.module';
 import { ConventionsModule } from './conventions/conventions.module';
 import { MembershipApplicationsModule } from './membership-applications/membership-applications.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { MembershipApplicationsModule } from './membership-applications/membersh
     ChaptersModule,
     ConventionsModule,
     MembershipApplicationsModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}
