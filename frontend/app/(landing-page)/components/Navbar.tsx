@@ -27,6 +27,12 @@ const ChevronDownIcon = () => (
   </svg>
 );
 
+const ChevronRightIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="9 18 15 12 9 6" />
+  </svg>
+);
+
 const FacebookIconHeader = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
@@ -47,6 +53,48 @@ const MailIconHeader = () => (
     <polyline points="22,6 12,13 2,6" />
   </svg>
 );
+
+// ── Island Groups & Regions Configuration ───────────────────────────────────
+const ISLAND_GROUPS_NAV = [
+  {
+    id: "Luzon",
+    label: "Luzon",
+    desc: "NCR, Northern, Central & Southern Luzon",
+    regions: [
+      "NCR",
+      "CAR",
+      "Ilocos Region",
+      "Cagayan Valley",
+      "Central Luzon",
+      "CALABARZON",
+      "MIMAROPA",
+      "Bicol Region",
+    ],
+  },
+  {
+    id: "Visayas",
+    label: "Visayas",
+    desc: "Western, Central & Eastern Visayas",
+    regions: [
+      "Western Visayas",
+      "Central Visayas",
+      "Eastern Visayas",
+    ],
+  },
+  {
+    id: "Mindanao",
+    label: "Mindanao",
+    desc: "Northern Mindanao, Davao, SOCCSKSARGEN, Caraga & BARMM",
+    regions: [
+      "Zamboanga Peninsula",
+      "Northern Mindanao",
+      "Davao Region",
+      "SOCCSKSARGEN",
+      "Caraga",
+      "BARMM",
+    ],
+  },
+];
 
 // ── Dropdown Items Configuration ──────────────────────────────────────────
 const ABOUT_DROPDOWN_ITEMS = [
@@ -99,6 +147,7 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [user, setUser] = useState<any>(null);
+  const [publishedChapters, setPublishedChapters] = useState<any[]>([]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -114,6 +163,24 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
       }
     }
   }, [pathname]);
+
+  // Fetch published chapters for real-time dynamic navbar listings
+  useEffect(() => {
+    let isMounted = true;
+    import("../../lib/api-client")
+      .then(({ chaptersApi }) => chaptersApi.list({ status: "published" }))
+      .then((res) => {
+        if (isMounted && res && res.success && Array.isArray(res.data)) {
+          setPublishedChapters(res.data);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load chapters for navbar:", err);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleSignOut = () => {
     localStorage.removeItem("page_user_token");
@@ -138,12 +205,16 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [membershipOpen, setMembershipOpen] = useState(false);
+  const [chaptersOpen, setChaptersOpen] = useState(false);
+  const [activeIsland, setActiveIsland] = useState<string>("Luzon");
+  const [mobileIslandOpen, setMobileIslandOpen] = useState<Record<string, boolean>>({});
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [newsOpen, setNewsOpen] = useState(false);
   const [eventsOpen, setEventsOpen] = useState(false);
 
   const aboutRef = useRef<HTMLDivElement>(null);
   const membershipRef = useRef<HTMLDivElement>(null);
+  const chaptersRef = useRef<HTMLDivElement>(null);
   const resourcesRef = useRef<HTMLDivElement>(null);
   const newsRef = useRef<HTMLDivElement>(null);
   const eventsRef = useRef<HTMLDivElement>(null);
@@ -151,6 +222,7 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
   const closeAll = () => {
     setAboutOpen(false);
     setMembershipOpen(false);
+    setChaptersOpen(false);
     setResourcesOpen(false);
     setNewsOpen(false);
     setEventsOpen(false);
@@ -167,6 +239,7 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
       const target = e.target as Node;
       if (aboutRef.current && !aboutRef.current.contains(target)) setAboutOpen(false);
       if (membershipRef.current && !membershipRef.current.contains(target)) setMembershipOpen(false);
+      if (chaptersRef.current && !chaptersRef.current.contains(target)) setChaptersOpen(false);
       if (resourcesRef.current && !resourcesRef.current.contains(target)) setResourcesOpen(false);
       if (newsRef.current && !newsRef.current.contains(target)) setNewsOpen(false);
       if (eventsRef.current && !eventsRef.current.contains(target)) setEventsOpen(false);
@@ -199,6 +272,11 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
   const isEventsActive = pathname?.startsWith("/activities") || pathname?.startsWith("/convention");
   const isContactActive = pathname?.startsWith("/contact");
 
+  const currentIslandData = ISLAND_GROUPS_NAV.find((ig) => ig.id === activeIsland) || ISLAND_GROUPS_NAV[0];
+  const chaptersInCurrentIsland = publishedChapters.filter(
+    (c) => c.island_group?.toLowerCase() === activeIsland.toLowerCase()
+  );
+
   return (
     <div className="navbar-wrapper">
 
@@ -228,7 +306,6 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
               <span className="navbar__logo-name">PHILIPPINE ASSOCIATION</span>
               <span className="navbar__logo-name">FOR GRADUATE EDUCATION</span>
               <span className="navbar__logo-badge">National</span>
-              {/* <span className="navbar__logo-badge">PAGE National</span> */}
             </div>
           </Link>
 
@@ -313,10 +390,135 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
               </AnimatePresence>
             </div>
 
-            {/* Chapters Standalone Link */}
-            <Link href="/chapters" className={`navbar__link${isChaptersActive ? " navbar__link--active" : ""}`}>
-              Chapters
-            </Link>
+            {/* Chapters Dropdown with Island Groups (Luzon, Visayas, Mindanao) */}
+            <div
+              className="navbar__dropdown-wrap"
+              ref={chaptersRef}
+              onMouseEnter={() => setChaptersOpen(true)}
+              onMouseLeave={() => setChaptersOpen(false)}
+            >
+              <button
+                className={`navbar__dropdown-trigger${chaptersOpen ? " navbar__dropdown-trigger--open" : ""}${isChaptersActive ? " navbar__dropdown-trigger--active" : ""}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setChaptersOpen(prev => !prev);
+                }}
+                aria-haspopup="true"
+                aria-expanded={chaptersOpen}
+              >
+                Chapters
+                <span className="navbar__dropdown-chevron"><ChevronDownIcon /></span>
+              </button>
+              <AnimatePresence>
+                {chaptersOpen && (
+                  <motion.div
+                    role="menu"
+                    className="navbar__dropdown navbar__dropdown--chapters"
+                    variants={dropdownVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                  >
+                    {/* Left Pane: All Chapters + Island Group Selectors */}
+                    <div className="navbar__chapters-left">
+                      <Link
+                        href="/chapters"
+                        className={`navbar__dropdown-item navbar__dropdown-item--all ${pathname === "/chapters" && !searchParams.get("island") ? "navbar__dropdown-item--active" : ""}`}
+                        onClick={() => setChaptersOpen(false)}
+                      >
+                        All Regional Chapters
+                      </Link>
+
+                      <span className="navbar__chapters-section-label">Island Groups</span>
+
+                      {ISLAND_GROUPS_NAV.map((ig) => {
+                        const isSelected = activeIsland === ig.id;
+                        return (
+                          <button
+                            key={ig.id}
+                            type="button"
+                            className={`navbar__chapters-island-btn ${isSelected ? "navbar__chapters-island-btn--active" : ""}`}
+                            onMouseEnter={() => setActiveIsland(ig.id)}
+                            onClick={() => setActiveIsland(ig.id)}
+                            aria-expanded={isSelected}
+                          >
+                            <span>{ig.label}</span>
+                            <span className="navbar__chapters-island-chevron">
+                              <ChevronRightIcon />
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Right Pane: Flyout showing selected Island's Chapters & Regions */}
+                    <div className="navbar__chapters-right">
+                      <div className="navbar__chapters-right-header">
+                        <div>
+                          <h4 className="navbar__chapters-right-title">{currentIslandData.label} Chapters</h4>
+                          <p className="navbar__chapters-right-desc">{currentIslandData.desc}</p>
+                        </div>
+                        <Link
+                          href={`/chapters?island=${currentIslandData.id}`}
+                          className="navbar__chapters-view-all-link"
+                          onClick={() => setChaptersOpen(false)}
+                        >
+                          View All &rarr;
+                        </Link>
+                      </div>
+
+                      {/* Published Chapters (if any) */}
+                      {chaptersInCurrentIsland.length > 0 && (
+                        <div>
+                          <div className="navbar__chapters-subheading">Active Chapters</div>
+                          <div className="navbar__chapters-published-list">
+                            {chaptersInCurrentIsland.map((ch) => (
+                              <Link
+                                key={ch.slug || ch.id}
+                                href={`/chapters/${ch.slug}`}
+                                className="navbar__chapters-pub-item"
+                                onClick={() => setChaptersOpen(false)}
+                              >
+                                <span className="navbar__chapters-pub-name">{ch.title}</span>
+                                {ch.region && <span className="navbar__chapters-pub-badge">{ch.region}</span>}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Available Regions */}
+                      <div>
+                        <div className="navbar__chapters-subheading">Regions</div>
+                        <div className="navbar__chapters-regions-grid">
+                          {currentIslandData.regions.map((region) => {
+                            const hasChapter = publishedChapters.some(
+                              (c) => c.region?.toLowerCase() === region.toLowerCase()
+                            );
+                            return (
+                              <Link
+                                key={region}
+                                href={`/chapters?island=${currentIslandData.id}&region=${encodeURIComponent(region)}`}
+                                className="navbar__chapters-region-chip"
+                                onClick={() => setChaptersOpen(false)}
+                              >
+                                <span>{region}</span>
+                                {hasChapter && (
+                                  <span
+                                    className="navbar__chapters-region-has-badge"
+                                    title="Active chapter available"
+                                  />
+                                )}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             {/* Resources Dropdown */}
             <div
@@ -478,9 +680,80 @@ function NavbarContent({ scrolled }: { scrolled: boolean }) {
           ))}
 
           {/* Chapters mobile */}
-          <Link href="/chapters" className={`navbar__mobile-link${isChaptersActive ? " navbar__mobile-link--active" : ""}`} onClick={() => setMenuOpen(false)}>
-            Chapters
+          <span className="navbar__mobile-dropdown-label">Chapters</span>
+          <Link
+            href="/chapters"
+            className={`navbar__mobile-sublink ${pathname === "/chapters" && !searchParams.get("island") ? "navbar__mobile-sublink--active" : ""}`}
+            onClick={() => setMenuOpen(false)}
+          >
+            All Regional Chapters
           </Link>
+
+          {ISLAND_GROUPS_NAV.map((ig) => {
+            const isOpen = !!mobileIslandOpen[ig.id];
+            const chaptersInIg = publishedChapters.filter(
+              (c) => c.island_group?.toLowerCase() === ig.id.toLowerCase()
+            );
+
+            return (
+              <div key={ig.id} className="navbar__mobile-island-group">
+                <button
+                  type="button"
+                  className={`navbar__mobile-accordion-toggle ${isOpen ? "navbar__mobile-accordion-toggle--open" : ""}`}
+                  onClick={() =>
+                    setMobileIslandOpen((prev) => ({
+                      ...prev,
+                      [ig.id]: !prev[ig.id],
+                    }))
+                  }
+                >
+                  <span>{ig.label} Island Group</span>
+                  <span className="navbar__mobile-accordion-icon">
+                    <ChevronDownIcon />
+                  </span>
+                </button>
+
+                {isOpen && (
+                  <div className="navbar__mobile-accordion-body">
+                    <Link
+                      href={`/chapters?island=${ig.id}`}
+                      className="navbar__mobile-nested-link navbar__mobile-nested-link--all"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Browse All {ig.label} Chapters &rarr;
+                    </Link>
+
+                    {chaptersInIg.length > 0 && (
+                      <div>
+                        {chaptersInIg.map((ch) => (
+                          <Link
+                            key={ch.slug || ch.id}
+                            href={`/chapters/${ch.slug}`}
+                            className="navbar__mobile-nested-link"
+                            onClick={() => setMenuOpen(false)}
+                          >
+                            <span>{ch.title}</span>
+                            {ch.region && <span className="navbar__mobile-nested-tag">{ch.region}</span>}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+
+                    {ig.regions.map((region) => (
+                      <Link
+                        key={region}
+                        href={`/chapters?island=${ig.id}&region=${encodeURIComponent(region)}`}
+                        className="navbar__mobile-nested-link"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        <span>{region}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
 
           {/* Resources mobile */}
           <span className="navbar__mobile-dropdown-label">Resources</span>
