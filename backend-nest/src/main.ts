@@ -15,9 +15,14 @@ async function bootstrap() {
   // Enable Global API Prefix to match Laravel route mappings (e.g. /api/login)
   app.setGlobalPrefix('api');
 
+  const configService = app.get(ConfigService);
+  const frontendUrl = configService.get<string>('FRONTEND_URL');
+
   // Enable CORS for frontend connectivity
   app.enableCors({
-    origin: true, // Allow all origins in local dev
+    origin: frontendUrl
+      ? [frontendUrl, frontendUrl.replace(/\/$/, ''), 'http://localhost:3000']
+      : true,
     credentials: true,
   });
 
@@ -32,7 +37,6 @@ async function bootstrap() {
   // Enable Custom Error Formatting Filter to match Laravel response payload schemas
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT') || 8000;
 
   await app.listen(port, '0.0.0.0');
