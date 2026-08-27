@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Patch,
-  Delete,
   Body,
   Param,
   Query,
@@ -46,13 +45,24 @@ export class HistoricalRecordsController {
 
   @UseGuards(TokenAuthGuard, RolesGuard)
   @Roles('admin')
+  @Get('historical-records/archived')
+  findArchived(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.service.findArchived(page, limit);
+  }
+
+  @UseGuards(TokenAuthGuard, RolesGuard)
+  @Roles('admin')
   @Get('historical-records')
   findAll(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('programType') programType?: string,
+    @Query('includeArchived') includeArchived?: string,
   ) {
-    return this.service.findAll(page, limit, programType);
+    return this.service.findAll(page, limit, programType, includeArchived === 'true');
   }
 
   @UseGuards(TokenAuthGuard, RolesGuard)
@@ -99,12 +109,23 @@ export class HistoricalRecordsController {
 
   @UseGuards(TokenAuthGuard, RolesGuard)
   @Roles('admin')
-  @Delete('historical-records/:id')
-  remove(
+  @Patch('historical-records/:id/archive')
+  archive(
     @Param('id') id: string,
     @GetUser() user: any,
     @Req() req: Request,
   ) {
-    return this.service.remove(id, user, req.ip || '127.0.0.1');
+    return this.service.archive(id, user, req.ip || '127.0.0.1');
+  }
+
+  @UseGuards(TokenAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Patch('historical-records/:id/unarchive')
+  unarchive(
+    @Param('id') id: string,
+    @GetUser() user: any,
+    @Req() req: Request,
+  ) {
+    return this.service.unarchive(id, user, req.ip || '127.0.0.1');
   }
 }

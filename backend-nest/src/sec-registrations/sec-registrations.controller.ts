@@ -3,7 +3,7 @@ import {
   Get,
   Post,
   Put,
-  Delete,
+  Patch,
   Body,
   Param,
   Query,
@@ -38,6 +38,13 @@ export class SecRegistrationsController {
     @Query('limit') limit?: string,
   ) {
     return this.service.findAll({ name, number, page, limit });
+  }
+
+  @Get('archived')
+  @UseGuards(TokenAuthGuard, RolesGuard)
+  @Roles('admin')
+  findArchived() {
+    return this.service.findArchived();
   }
 
   @Get(':id')
@@ -84,12 +91,23 @@ export class SecRegistrationsController {
 
   @UseGuards(TokenAuthGuard, RolesGuard)
   @Roles('admin')
-  @Delete(':id')
-  remove(
+  @Patch(':id/archive')
+  archive(
     @Param('id') id: string,
     @GetUser() user: any,
     @Req() req: Request,
   ) {
-    return this.service.remove(id, user, req.ip || '127.0.0.1');
+    return this.service.archive(id, user, req.ip || '127.0.0.1');
+  }
+
+  @UseGuards(TokenAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Patch(':id/unarchive')
+  unarchive(
+    @Param('id') id: string,
+    @GetUser() user: any,
+    @Req() req: Request,
+  ) {
+    return this.service.unarchive(id, user, req.ip || '127.0.0.1');
   }
 }

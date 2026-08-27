@@ -96,6 +96,15 @@ function IconTrash() {
     </svg>
   );
 }
+function IconArchive() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <rect x="3" y="4" width="18" height="4" rx="1" />
+      <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8" />
+      <line x1="10" y1="12" x2="14" y2="12" />
+    </svg>
+  );
+}
 function IconAlert() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -434,7 +443,7 @@ function RecordModal({ mode, initialData, onClose, onSaved }: ModalProps) {
   );
 }
 
-// ── Delete Confirm Modal ────────────────────────────────────────────────────
+// ── Archive Confirm Modal ───────────────────────────────────────────────────
 
 interface DeleteModalProps {
   record: HistoricalRecord;
@@ -456,11 +465,11 @@ function DeleteModal({ record, onClose, onDeleted }: DeleteModalProps) {
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      await api.delete(`/historical-records/${record.id}`);
-      gooeyToast.success("Historical record deleted successfully.");
+      await api.patch(`/historical-records/${record.id}/archive`, {});
+      gooeyToast.success("Historical record archived successfully.");
       onDeleted(record.id);
     } catch (err: any) {
-      gooeyToast.error(err?.message || "Failed to delete record.");
+      gooeyToast.error(err?.message || "Failed to archive record.");
     } finally {
       setDeleting(false);
     }
@@ -495,36 +504,20 @@ function DeleteModal({ record, onClose, onDeleted }: DeleteModalProps) {
         <div style={{ padding: "28px 28px 16px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
           <div style={{
             width: 56, height: 56, borderRadius: "50%",
-            background: "var(--p-rose-pale)",
+            background: "rgba(245, 158, 11, 0.12)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            color: "var(--p-rose)", marginBottom: 16,
+            color: "#d97706", marginBottom: 16,
           }}>
-            <IconAlert />
+            <IconArchive />
           </div>
           <h3 id="delete-modal-title" style={{ fontSize: 20, fontWeight: 700, color: "var(--p-navy)", margin: "0 0 8px", fontFamily: "var(--font-body)" }}>
-            Delete Historical Record?
+            Archive Historical Record?
           </h3>
           <p style={{ fontSize: 15, color: "var(--r-text-muted)", margin: 0, lineHeight: 1.6, fontFamily: "var(--font-body)" }}>
-            You are about to permanently delete{" "}
+            You are about to archive{" "}
             <strong style={{ color: "var(--r-text)" }}>"{record.title}"</strong>
-            {" "}({record.yearStart}). This action cannot be undone.
+            {" "}({record.yearStart}). This will move it to the System Archives and remove it from public pages. You can restore it anytime.
           </p>
-        </div>
-
-        {/* Warning box */}
-        <div style={{ padding: "0 28px" }}>
-          <div style={{
-            background: "var(--p-rose-pale)",
-            border: "1px solid rgba(244,63,94,0.2)",
-            borderRadius: 10,
-            padding: "10px 14px",
-            display: "flex", alignItems: "flex-start", gap: 10,
-          }}>
-            <IconAlert />
-            <p style={{ fontSize: 14, color: "var(--p-rose)", margin: 0, lineHeight: 1.5, fontFamily: "var(--font-body)", fontWeight: 500 }}>
-              This will permanently remove the record from the database and all public pages.
-            </p>
-          </div>
         </div>
 
         {/* Actions */}
@@ -551,14 +544,14 @@ function DeleteModal({ record, onClose, onDeleted }: DeleteModalProps) {
             disabled={deleting}
             style={{
               height: 42, borderRadius: 10, fontSize: 14, fontWeight: 600,
-              color: "#fff", background: deleting ? "#c85a70" : "var(--p-rose)",
+              color: "#fff", background: deleting ? "#92400e" : "#d97706",
               border: "none", cursor: deleting ? "not-allowed" : "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
               fontFamily: "var(--font-body)", opacity: deleting ? 0.8 : 1,
             }}
           >
-            {deleting ? <Loader size={16} /> : <IconTrash />}
-            {deleting ? "Deleting..." : "Delete"}
+            {deleting ? <Loader size={16} /> : <IconArchive />}
+            {deleting ? "Archiving..." : "Archive Record"}
           </button>
         </div>
       </div>
@@ -1002,16 +995,16 @@ export default function HistoryManagement() {
                               id={`delete-record-${record.id}`}
                               type="button"
                               onClick={() => setDeletingRecord(record)}
-                              title="Delete record"
+                              title="Archive record"
                               style={{
                                 height: 40, padding: "0 14px",
                                 borderRadius: 8, fontSize: 14, fontWeight: 600,
                                 display: "flex", alignItems: "center", gap: 6,
-                                background: "var(--p-rose-pale)", color: "var(--p-rose)",
+                                background: "rgba(245, 158, 11, 0.12)", color: "#92400e",
                                 border: "none", cursor: "pointer", whiteSpace: "nowrap",
                               }}
                             >
-                              <IconTrash /> Delete
+                              <IconArchive /> Archive
                             </button>
                           </div>
                         </td>
@@ -1063,9 +1056,9 @@ export default function HistoryManagement() {
                           type="button"
                           className="history-record-card__action-btn"
                           onClick={() => setDeletingRecord(record)}
-                          style={{ background: "var(--p-rose-pale)", color: "var(--p-rose)" }}
+                          style={{ background: "rgba(245, 158, 11, 0.12)", color: "#92400e" }}
                         >
-                          <IconTrash /> Delete
+                          <IconArchive /> Archive
                         </button>
                         <div className="history-record-card__reorder" title={searchQuery ? "Clear search to reorder" : "Reorder milestone"}>
                           <button

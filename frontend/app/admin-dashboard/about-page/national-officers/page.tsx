@@ -13,6 +13,7 @@ import {
   User,
   CheckCircle,
   XCircle,
+  Archive,
 } from "lucide-react";
 import AdminSidebarLayout from "../../components/AdminSidebarLayout";
 import { api, PaginatedResponse, PaginationMeta } from "../../../lib/api-client";
@@ -30,7 +31,7 @@ type Officer = {
   photo_url?: string;
   term_start?: string;
   term_end?: string;
-  status: "active" | "inactive";
+  status: "active" | "inactive" | "archived";
   sort_order: number;
 };
 
@@ -55,7 +56,7 @@ export default function NationalOfficersManagement() {
   const [photoUrl, setPhotoUrl] = useState("");
   const [termStart, setTermStart] = useState("");
   const [termEnd, setTermEnd] = useState("");
-  const [status, setStatus] = useState<"active" | "inactive">("active");
+  const [status, setStatus] = useState<"active" | "inactive" | "archived">("active");
 
   useEffect(() => {
     fetchOfficers(currentPage, itemsPerPage);
@@ -152,18 +153,18 @@ export default function NationalOfficersManagement() {
     setStatus(officer.status);
   };
 
-  const handleDeleteClick = async (id: string) => {
-    if (!window.confirm("Are you sure you want to remove this officer?")) return;
+  const handleArchiveClick = async (id: string) => {
+    if (!window.confirm("Are you sure you want to archive this officer? They will be moved to the System Archives.")) return;
 
     try {
-      const res = await api.delete(`/about-page/officers/${id}`);
+      const res = await api.patch(`/about-page/officers/${id}/archive`, {});
       if (res.success) {
         setOfficers((prev) => prev.filter((off) => off.id !== id));
-        gooeyToast.success("Officer removed successfully.");
+        gooeyToast.success("Officer archived successfully.");
       }
     } catch (err) {
       console.error(err);
-      gooeyToast.error("Failed to delete officer.");
+      gooeyToast.error("Failed to archive officer.");
     }
   };
 
@@ -395,11 +396,12 @@ export default function NationalOfficersManagement() {
                           </button>
                           <button
                             type="button"
-                            className="about-btn about-btn--danger"
-                            style={{ height: "28px", width: "28px", padding: 0 }}
-                            onClick={() => handleDeleteClick(off.id)}
+                            className="about-btn about-btn--secondary"
+                            style={{ height: "28px", width: "28px", padding: 0, color: "var(--p-gold-text, #92400e)" }}
+                            onClick={() => handleArchiveClick(off.id)}
+                            title="Archive Officer"
                           >
-                            <Trash size={12} />
+                            <Archive size={12} />
                           </button>
                         </div>
                       </td>
@@ -479,10 +481,11 @@ export default function NationalOfficersManagement() {
                     </button>
                     <button
                       type="button"
-                      className="about-btn about-btn--danger"
-                      onClick={() => handleDeleteClick(off.id)}
+                      className="about-btn about-btn--secondary"
+                      style={{ color: "var(--p-gold-text, #92400e)" }}
+                      onClick={() => handleArchiveClick(off.id)}
                     >
-                      <Trash size={14} /> Delete
+                      <Archive size={14} /> Archive
                     </button>
                   </div>
                 </div>

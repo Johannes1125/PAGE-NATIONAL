@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SupabaseService } from '../../supabase/supabase.service';
 import { CreateCblArticleDto } from './dto/create-cbl-article.dto';
@@ -15,7 +15,9 @@ export class CblService {
 
   // ── ARTICLES METHODS ──────────────────────────────────────────────────────
 
-  async getArticles(pageStr?: string, limitStr?: string) {
+  async getArticles(pageStr?: string, limitStr?: string, includeArchived = false) {
+    const where = includeArchived ? {} : { status: { not: 'archived' } };
+
     if (pageStr || limitStr) {
       const page = parseInt(pageStr || '1', 10);
       const limit = parseInt(limitStr || '10', 10);
@@ -23,11 +25,12 @@ export class CblService {
 
       const [articles, totalItems] = await Promise.all([
         this.prisma.cbl_articles.findMany({
+          where,
           orderBy: { sort_order: 'asc' },
           skip,
           take: limit,
         }),
-        this.prisma.cbl_articles.count(),
+        this.prisma.cbl_articles.count({ where }),
       ]);
 
       return {
@@ -44,6 +47,7 @@ export class CblService {
     }
 
     const articles = await this.prisma.cbl_articles.findMany({
+      where,
       orderBy: { sort_order: 'asc' },
     });
     return {
@@ -59,6 +63,44 @@ export class CblService {
     };
   }
 
+  async getArchivedArticles(pageStr?: string, limitStr?: string) {
+    const where = { status: 'archived' };
+
+    if (pageStr || limitStr) {
+      const page = parseInt(pageStr || '1', 10);
+      const limit = parseInt(limitStr || '10', 10);
+      const skip = (page - 1) * limit;
+
+      const [articles, totalItems] = await Promise.all([
+        this.prisma.cbl_articles.findMany({
+          where,
+          orderBy: { updated_at: 'desc' },
+          skip,
+          take: limit,
+        }),
+        this.prisma.cbl_articles.count({ where }),
+      ]);
+
+      return {
+        success: true,
+        data: articles,
+        meta: { page, limit, totalPages: Math.ceil(totalItems / limit) || 1, totalItems },
+        message: 'Archived articles retrieved successfully.',
+      };
+    }
+
+    const articles = await this.prisma.cbl_articles.findMany({
+      where,
+      orderBy: { updated_at: 'desc' },
+    });
+    return {
+      success: true,
+      data: articles,
+      meta: { page: 1, limit: articles.length || 10, totalPages: 1, totalItems: articles.length },
+      message: 'Archived articles retrieved successfully.',
+    };
+  }
+
   async getArticleById(id: string) {
     const article = await this.prisma.cbl_articles.findUnique({
       where: { id },
@@ -70,7 +112,7 @@ export class CblService {
   }
 
   async createArticle(dto: CreateCblArticleDto, user: any, ipAddress: string) {
-    const count = await this.prisma.cbl_articles.count();
+    const count = await this.prisma.cbl_articles.count({ where: { status: { not: 'archived' } } });
     
     // Check if article_number already exists to prevent duplicate entries
     const existing = await this.prisma.cbl_articles.findFirst({
@@ -86,6 +128,7 @@ export class CblService {
         article_name: dto.article_name,
         article_description: dto.article_description,
         sort_order: dto.sort_order ?? (count + 1),
+        status: 'active',
       },
     });
 
@@ -128,31 +171,67 @@ export class CblService {
     return { success: true, data: article, message: 'Article updated successfully.' };
   }
 
-  async deleteArticle(id: string, user: any, ipAddress: string) {
-    const existing = await this.prisma.cbl_articles.findUnique({
-      where: { id },
-    });
+  async archiveArticle(id: string, user: any, ipAddress: string) {
+    const existing = await this.prisma.cbl_articles.findUnique({ where: { id } });
     if (!existing) {
       throw new NotFoundException(`CBL Article with ID ${id} not found.`);
     }
+    if (existing.status === 'archived') {
+      throw new ConflictException('Article is already archived.');
+    }
 
-    await this.prisma.cbl_articles.delete({
+    const article = await this.prisma.cbl_articles.update({
       where: { id },
+      data: { status: 'archived' },
     });
 
-    await this.logActivity(user.id, `Deleted CBL ${existing.article_number}`, ipAddress);
+    await this.logActivity(user.id, `archived_cbl_article: ${existing.article_number}`, ipAddress);
     await this.syncToCblSection();
 
-    return { success: true, message: 'Article deleted successfully.' };
+    return { success: true, data: article, message: 'Article archived successfully.' };
+  }
+
+  async unarchiveArticle(id: string, user: any, ipAddress: string) {
+    const existing = await this.prisma.cbl_articles.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`CBL Article with ID ${id} not found.`);
+    }
+    if (existing.status !== 'archived') {
+      throw new ConflictException('Article is not archived.');
+    }
+
+    const article = await this.prisma.cbl_articles.update({
+      where: { id },
+      data: { status: 'active' },
+    });
+
+    await this.logActivity(user.id, `unarchived_cbl_article: ${existing.article_number}`, ipAddress);
+    await this.syncToCblSection();
+
+    return { success: true, data: article, message: 'Article unarchived successfully.' };
   }
 
   // ── GOVERNANCE DOCUMENT METHODS ───────────────────────────────────────────
 
   async getGovernance() {
     const document = await this.prisma.cbl_governance_documents.findFirst({
+      where: { status: { not: 'archived' } },
       orderBy: { created_at: 'desc' },
     });
     return { success: true, data: document, message: 'Governance document retrieved successfully.' };
+  }
+
+  async getArchivedGovernance() {
+    const documents = await this.prisma.cbl_governance_documents.findMany({
+      where: { status: 'archived' },
+      orderBy: { updated_at: 'desc' },
+    });
+    return {
+      success: true,
+      data: documents,
+      meta: { page: 1, limit: documents.length || 10, totalPages: 1, totalItems: documents.length },
+      message: 'Archived governance documents retrieved successfully.',
+    };
   }
 
   async createGovernance(
@@ -187,6 +266,7 @@ export class CblService {
         file_url: fileUrl ?? dto.file_url ?? null,
         file_size: fileSize ?? dto.file_size ?? null,
         uploaded_by: user.name || user.email || 'Admin',
+        status: 'active',
       },
     });
 
@@ -261,22 +341,44 @@ export class CblService {
     return { success: true, data: document, message: 'Governance document updated successfully.' };
   }
 
-  async deleteGovernance(id: string, user: any, ipAddress: string) {
-    const existing = await this.prisma.cbl_governance_documents.findUnique({
-      where: { id },
-    });
+  async archiveGovernance(id: string, user: any, ipAddress: string) {
+    const existing = await this.prisma.cbl_governance_documents.findUnique({ where: { id } });
     if (!existing) {
       throw new NotFoundException(`Governance document with ID ${id} not found.`);
     }
+    if (existing.status === 'archived') {
+      throw new ConflictException('Governance document is already archived.');
+    }
 
-    await this.prisma.cbl_governance_documents.delete({
+    const document = await this.prisma.cbl_governance_documents.update({
       where: { id },
+      data: { status: 'archived' },
     });
 
-    await this.logActivity(user.id, 'Deleted Governance Document', ipAddress);
+    await this.logActivity(user.id, `archived_cbl_governance_document: ${existing.title}`, ipAddress);
     await this.syncToCblSection();
 
-    return { success: true, message: 'Governance document deleted successfully.' };
+    return { success: true, data: document, message: 'Governance document archived successfully.' };
+  }
+
+  async unarchiveGovernance(id: string, user: any, ipAddress: string) {
+    const existing = await this.prisma.cbl_governance_documents.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`Governance document with ID ${id} not found.`);
+    }
+    if (existing.status !== 'archived') {
+      throw new ConflictException('Governance document is not archived.');
+    }
+
+    const document = await this.prisma.cbl_governance_documents.update({
+      where: { id },
+      data: { status: 'active' },
+    });
+
+    await this.logActivity(user.id, `unarchived_cbl_governance_document: ${existing.title}`, ipAddress);
+    await this.syncToCblSection();
+
+    return { success: true, data: document, message: 'Governance document unarchived successfully.' };
   }
 
   // ── HELPER METHODS ────────────────────────────────────────────────────────
@@ -296,11 +398,14 @@ export class CblService {
   }
 
   private async syncToCblSection() {
+    // Exclude archived articles from the sync
     const articleRecords = await this.prisma.cbl_articles.findMany({
+      where: { status: { not: 'archived' } },
       orderBy: { sort_order: 'asc' },
     });
 
     const govDoc = await this.prisma.cbl_governance_documents.findFirst({
+      where: { status: { not: 'archived' } },
       orderBy: { created_at: 'desc' },
     });
 

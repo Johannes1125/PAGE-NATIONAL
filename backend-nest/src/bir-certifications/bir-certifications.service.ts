@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { SupabaseService } from '../supabase/supabase.service';
@@ -72,6 +72,7 @@ export class BirCertificationsService {
         imageUrl,
         receiptUrl,
         imagePublicId,
+        status: 'active',
       },
     });
 
@@ -85,6 +86,8 @@ export class BirCertificationsService {
   }
 
   async findAll(pageStr?: string, limitStr?: string) {
+    const where = { status: { not: 'archived' } };
+
     if (pageStr || limitStr) {
       const page = parseInt(pageStr || '1', 10);
       const limit = parseInt(limitStr || '10', 10);
@@ -92,11 +95,12 @@ export class BirCertificationsService {
 
       const [records, totalItems] = await Promise.all([
         this.prisma.birCertification.findMany({
+          where,
           orderBy: { createdAt: 'desc' },
           skip,
           take: limit,
         }),
-        this.prisma.birCertification.count(),
+        this.prisma.birCertification.count({ where }),
       ]);
 
       return {
@@ -113,6 +117,7 @@ export class BirCertificationsService {
     }
 
     const records = await this.prisma.birCertification.findMany({
+      where,
       orderBy: { createdAt: 'desc' },
     });
     return {
@@ -125,6 +130,19 @@ export class BirCertificationsService {
         totalItems: records.length,
       },
       message: 'BIR certifications retrieved successfully',
+    };
+  }
+
+  async findArchived() {
+    const records = await this.prisma.birCertification.findMany({
+      where: { status: 'archived' },
+      orderBy: { updatedAt: 'desc' },
+    });
+    return {
+      success: true,
+      data: records,
+      meta: { page: 1, limit: records.length || 10, totalPages: 1, totalItems: records.length },
+      message: 'Archived BIR certifications retrieved successfully',
     };
   }
 
@@ -191,35 +209,50 @@ export class BirCertificationsService {
     };
   }
 
-  async remove(id: string, user: any, ipAddress: string) {
-    const existing = await this.prisma.birCertification.findUnique({
-      where: { id },
-    });
+  async archive(id: string, user: any, ipAddress: string) {
+    const existing = await this.prisma.birCertification.findUnique({ where: { id } });
     if (!existing) {
       throw new NotFoundException(`BIR certification record with id ${id} not found.`);
     }
-
-    if (existing.imagePublicId) {
-      await this.cloudinaryService.delete(existing.imagePublicId);
+    if (existing.status === 'archived') {
+      throw new ConflictException('BIR certification is already archived.');
     }
 
-    await this.prisma.$transaction([
-      this.prisma.birCertification.delete({
-        where: { id },
-      }),
-      this.prisma.user_activities.create({
-        data: {
-          user_id: user.id,
-          action: 'DELETE_BIR_CERTIFICATION',
-          ip_address: ipAddress,
-        },
-      }),
-    ]);
+    // Do NOT delete Cloudinary asset on archive — keep for potential unarchive
+    const record = await this.prisma.birCertification.update({
+      where: { id },
+      data: { status: 'archived' },
+    });
+
+    await this.logActivity(user.id, `archived_bir_certification: ${existing.registrationName}`, ipAddress);
 
     return {
       success: true,
-      data: null,
-      message: 'BIR certification deleted successfully',
+      data: record,
+      message: 'BIR certification archived successfully',
+    };
+  }
+
+  async unarchive(id: string, user: any, ipAddress: string) {
+    const existing = await this.prisma.birCertification.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`BIR certification record with id ${id} not found.`);
+    }
+    if (existing.status !== 'archived') {
+      throw new ConflictException('BIR certification is not archived.');
+    }
+
+    const record = await this.prisma.birCertification.update({
+      where: { id },
+      data: { status: 'active' },
+    });
+
+    await this.logActivity(user.id, `unarchived_bir_certification: ${existing.registrationName}`, ipAddress);
+
+    return {
+      success: true,
+      data: record,
+      message: 'BIR certification unarchived successfully',
     };
   }
 

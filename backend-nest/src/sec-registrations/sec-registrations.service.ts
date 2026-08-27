@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { SupabaseService } from '../supabase/supabase.service';
 import { CreateSecRegistrationDto } from './dto/create-sec-registration.dto';
@@ -51,6 +51,7 @@ export class SecRegistrationsService {
         dateOfIncorporation: dto.dateOfIncorporation ? new Date(dto.dateOfIncorporation) : new Date(),
         exemptionCategory: dto.exemptionCategory || 'Non-Stock Corporation',
         imageUrl: dto.imageUrl || null,
+        status: 'active',
       },
     });
 
@@ -63,9 +64,9 @@ export class SecRegistrationsService {
     };
   }
 
-  // Get all records sorted newest first
+  // Get all records sorted newest first (excludes archived by default)
   async findAll(query?: { name?: string; number?: string; page?: string; limit?: string }) {
-    const where: any = {};
+    const where: any = { status: { not: 'archived' } };
     if (query?.name) {
       where.registrationName = {
         contains: query.name,
@@ -104,6 +105,19 @@ export class SecRegistrationsService {
         totalPages: Math.ceil(total / limit) || 1,
       },
       message: 'SEC registrations retrieved successfully.',
+    };
+  }
+
+  async findArchived() {
+    const records = await this.prisma.secRegistration.findMany({
+      where: { status: 'archived' },
+      orderBy: { updatedAt: 'desc' },
+    });
+    return {
+      success: true,
+      data: records,
+      meta: { page: 1, limit: records.length || 10, totalPages: 1, totalItems: records.length },
+      message: 'Archived SEC registrations retrieved successfully.',
     };
   }
 
@@ -151,24 +165,51 @@ export class SecRegistrationsService {
     };
   }
 
-  // Delete record
-  async remove(id: string, user: { id: bigint }, ipAddress: string) {
-    const existing = await this.prisma.secRegistration.findUnique({
-      where: { id },
-    });
+  // Archive record
+  async archive(id: string, user: { id: bigint }, ipAddress: string) {
+    const existing = await this.prisma.secRegistration.findUnique({ where: { id } });
     if (!existing) {
       throw new NotFoundException(`SEC registration record with id ${id} not found.`);
     }
+    if (existing.status === 'archived') {
+      throw new ConflictException('SEC registration is already archived.');
+    }
 
-    await this.prisma.secRegistration.delete({
+    const record = await this.prisma.secRegistration.update({
       where: { id },
+      data: { status: 'archived' },
     });
 
-    await this.logActivity(user.id, 'Deleted SEC Registration', ipAddress);
+    await this.logActivity(user.id, `archived_sec_registration: ${existing.registrationName}`, ipAddress);
 
     return {
       success: true,
-      message: 'SEC registration deleted successfully',
+      data: record,
+      message: 'SEC registration archived successfully',
+    };
+  }
+
+  // Unarchive record
+  async unarchive(id: string, user: { id: bigint }, ipAddress: string) {
+    const existing = await this.prisma.secRegistration.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`SEC registration record with id ${id} not found.`);
+    }
+    if (existing.status !== 'archived') {
+      throw new ConflictException('SEC registration is not archived.');
+    }
+
+    const record = await this.prisma.secRegistration.update({
+      where: { id },
+      data: { status: 'active' },
+    });
+
+    await this.logActivity(user.id, `unarchived_sec_registration: ${existing.registrationName}`, ipAddress);
+
+    return {
+      success: true,
+      data: record,
+      message: 'SEC registration unarchived successfully',
     };
   }
 

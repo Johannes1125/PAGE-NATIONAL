@@ -83,15 +83,18 @@
   white-space: nowrap;
 }
 
-.about-filter-btn:hover {
+.about-filter-btn:not(.about-filter-btn--active):hover {
   background: rgba(20, 49, 82, 0.05);
   color: var(--p-navy);
 }
 
-.about-filter-btn--active {
+.about-filter-btn--active,
+.about-filter-btn--active:hover,
+.about-filter-btn--active:focus {
   background: var(--p-navy);
   border-color: var(--p-navy);
   color: #ffffff;
+  cursor: default;
 }
 
 /* ─── Management Cards Grid ───────────────────────────────────────────────── */

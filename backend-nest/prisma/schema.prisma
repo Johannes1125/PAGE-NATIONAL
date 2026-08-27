@@ -222,6 +222,7 @@ model about_page_documents {
   file_name   String    @db.VarChar(255)
   file_url    String    @db.VarChar(255)
   file_type   String    @db.VarChar(255)
+  status      String    @default("active") @db.VarChar(255) // 'active' | 'archived'
   created_at  DateTime? @default(now()) @db.Timestamp(0)
   updated_at  DateTime? @default(now()) @updatedAt @db.Timestamp(0)
 }
@@ -232,6 +233,7 @@ model cbl_articles {
   article_name        String   @db.VarChar(255)
   article_description String   @db.Text
   sort_order          Int      @default(0)
+  status              String   @default("active") @db.VarChar(255) // 'active' | 'archived'
   created_at          DateTime @default(now()) @db.Timestamp(0)
   updated_at          DateTime @default(now()) @updatedAt @db.Timestamp(0)
 }
@@ -244,6 +246,7 @@ model cbl_governance_documents {
   file_url            String?  @db.VarChar(255)
   file_size           Int?
   uploaded_by         String?  @db.VarChar(255)
+  status              String   @default("active") @db.VarChar(255) // 'active' | 'archived'
   created_at          DateTime @default(now()) @db.Timestamp(0)
   updated_at          DateTime @default(now()) @updatedAt @db.Timestamp(0)
 }
@@ -256,6 +259,7 @@ model historical_records {
   programType String   @db.VarChar(50)
   description String   @db.Text
   sortOrder   Int      @default(0)
+  status      String   @default("active") @db.VarChar(255) // 'active' | 'archived'
   createdAt   DateTime @default(now()) @db.Timestamp(0)
   updatedAt   DateTime @default(now()) @updatedAt @db.Timestamp(0)
 }
@@ -267,6 +271,7 @@ model page_logos {
   description     String    @db.Text
   imageUrl        String    @db.VarChar(255)
   imagePublicId   String?   @db.VarChar(255)
+  status          String    @default("active") @db.VarChar(255) // 'active' | 'archived'
   createdAt       DateTime  @default(now()) @db.Timestamp(0)
   updatedAt       DateTime  @default(now()) @updatedAt @db.Timestamp(0)
 }
@@ -279,6 +284,7 @@ model NationalOfficer {
   description      String?
   imageUrl         String?
   sortOrder        Int
+  status           String   @default("active") // 'active' | 'archived'
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
@@ -290,6 +296,7 @@ model SecRegistration {
   dateOfIncorporation DateTime?
   exemptionCategory   String?
   imageUrl            String?
+  status              String    @default("active") // 'active' | 'archived'
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 }
@@ -304,6 +311,7 @@ model BirCertification {
   imageUrl            String?
   receiptUrl          String?
   imagePublicId       String?
+  status              String    @default("active") // 'active' | 'archived'
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 

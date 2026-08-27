@@ -27,6 +27,7 @@ import {
   Calendar,
   Info,
   CheckCircle,
+  Archive,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import AdminSidebarLayout from "../../components/AdminSidebarLayout";
@@ -454,15 +455,15 @@ export default function CblInformationManagement() {
   const handleDeleteArticle = async (id: string) => {
     try {
       setIsSaving(true);
-      const res = await api.delete(`/about-page/cbl/articles/${id}`);
+      const res = await api.patch(`/about-page/cbl/articles/${id}/archive`, {});
       if (res.success) {
         setArticles((prev) => prev.filter((a) => a.id !== id));
         if (selectedArticleId === id) handleCloseDrawer();
         setShowDeleteArticleModal(null);
-        gooeyToast.success("Article deleted successfully!");
+        gooeyToast.success("Article archived successfully!");
       }
     } catch (err: any) {
-      gooeyToast.error("Failed to delete article.");
+      gooeyToast.error("Failed to archive article.");
     } finally { setIsSaving(false); }
   };
 
@@ -1401,16 +1402,16 @@ export default function CblInformationManagement() {
             gap: 10, flexWrap: "wrap",
           }}
         >
-          {/* Left: Delete */}
+          {/* Left: Archive */}
           <div>
             {selectedArticleId && (
               <button
                 type="button"
                 disabled={isSaving}
                 onClick={() => setShowDeleteArticleModal(selectedArticleId)}
-                className="cbl-focus-ring min-h-[40px] px-4 bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100/70 font-semibold text-[14px] rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                className="cbl-focus-ring min-h-[40px] px-4 bg-amber-50 border border-amber-200 text-amber-800 hover:bg-amber-100/70 font-semibold text-[14px] rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               >
-                <Trash size={16} /> Delete Article
+                <Archive size={16} /> Archive Article
               </button>
             )}
           </div>
@@ -1573,21 +1574,21 @@ export default function CblInformationManagement() {
                   width: 56,
                   height: 56,
                   borderRadius: "50%",
-                  background: "var(--p-rose-pale)",
+                  background: "rgba(245, 158, 11, 0.12)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: "var(--p-rose)",
+                  color: "#d97706",
                   marginBottom: 16,
                 }}
               >
-                <AlertTriangle size={26} />
+                <Archive size={26} />
               </div>
               <h3 style={{ fontSize: T.fs_lg, fontWeight: 600, color: "var(--p-navy)", margin: "0 0 8px", fontFamily: "var(--font-body)" }}>
-                Remove CBL Article
+                Archive CBL Article
               </h3>
               <p style={{ fontSize: T.fs_base, color: "var(--r-text-muted)", margin: 0, lineHeight: 1.5, fontFamily: "var(--font-body)" }}>
-                Are you sure you want to delete this article? This action cannot be undone.
+                Are you sure you want to archive this article? It will be moved to the System Archives and removed from the active list.
               </p>
             </div>
 
@@ -1607,7 +1608,7 @@ export default function CblInformationManagement() {
                       gap: 12,
                     }}
                   >
-                    <FileText size={20} color="var(--p-rose)" style={{ flexShrink: 0 }} />
+                    <FileText size={20} color="#d97706" style={{ flexShrink: 0 }} />
                     <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, textAlign: "left" }}>
                       <div style={{ fontSize: T.fs_sm, fontWeight: 600, color: "var(--r-text)", fontFamily: "var(--font-body)" }}>
                         {art.article_number}
@@ -1651,12 +1652,12 @@ export default function CblInformationManagement() {
                   height: 44,
                   fontSize: T.fs_base,
                   fontWeight: 600,
-                  background: isSaving ? "var(--p-rose-pale)" : "var(--p-rose)",
+                  background: isSaving ? "#92400e" : "#d97706",
                   color: "var(--p-white)",
                   border: "none",
                 }}
               >
-                {isSaving ? <Loader2 className="animate-spin" size={16} /> : "Remove Article"}
+                {isSaving ? <Loader2 className="animate-spin" size={16} /> : "Archive Article"}
               </button>
             </div>
           </div>
@@ -1834,12 +1835,12 @@ export default function CblInformationManagement() {
                 height: 44,
                 padding: "0 18px",
                 fontSize: T.fs_sm,
-                background: "var(--p-rose)",
+                background: "#d97706",
                 color: "#ffffff",
                 border: "none",
               }}
             >
-              <Trash size={16} /> Delete Selected
+              <Archive size={16} /> Archive Selected
             </button>
             <button
               type="button"
@@ -1860,7 +1861,7 @@ export default function CblInformationManagement() {
         </div>
       )}
 
-      {/* ── BULK DELETE CONFIRMATION MODAL ────────────────────────────────── */}
+      {/* ── BULK ARCHIVE CONFIRMATION MODAL ────────────────────────────────── */}
       {showBulkDeleteModal && (
         <>
           <div
@@ -1886,14 +1887,14 @@ export default function CblInformationManagement() {
             }}
           >
             <div style={{ padding: "28px 28px 16px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-              <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--p-rose-pale)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--p-rose)", marginBottom: 16 }}>
-                <AlertTriangle size={26} />
+              <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(245, 158, 11, 0.12)", display: "flex", alignItems: "center", justifyContent: "center", color: "#d97706", marginBottom: 16 }}>
+                <Archive size={26} />
               </div>
               <h3 style={{ fontSize: T.fs_lg, fontWeight: 700, color: "var(--p-navy)", margin: "0 0 8px", fontFamily: "var(--font-body)" }}>
-                Delete Multiple Articles
+                Archive Multiple Articles
               </h3>
               <p style={{ fontSize: T.fs_base, color: "var(--r-text-muted)", margin: 0, lineHeight: 1.5, fontFamily: "var(--font-body)" }}>
-                Are you sure you want to delete the <strong>{selectedArticleIds.length}</strong> selected articles? This action is permanent and cannot be undone.
+                Are you sure you want to archive the <strong>{selectedArticleIds.length}</strong> selected articles? They will be moved to the System Archives.
               </p>
             </div>
 
@@ -1911,13 +1912,13 @@ export default function CblInformationManagement() {
                 onClick={async () => {
                   try {
                     setIsSaving(true);
-                    await Promise.all(selectedArticleIds.map(id => api.delete(`/about-page/cbl/articles/${id}`)));
+                    await Promise.all(selectedArticleIds.map(id => api.patch(`/about-page/cbl/articles/${id}/archive`, {})));
                     setArticles(prev => prev.filter(art => !selectedArticleIds.includes(art.id)));
                     setSelectedArticleIds([]);
                     setShowBulkDeleteModal(false);
-                    gooeyToast.success("Selected articles deleted successfully!");
+                    gooeyToast.success("Selected articles archived successfully!");
                   } catch (err) {
-                    gooeyToast.error("Failed to delete some articles.");
+                    gooeyToast.error("Failed to archive some articles.");
                   } finally {
                     setIsSaving(false);
                   }
@@ -1926,10 +1927,10 @@ export default function CblInformationManagement() {
                 style={{
                   ...dangerBtn,
                   justifyContent: "center", height: 48, fontSize: T.fs_base, fontWeight: 600,
-                  background: isSaving ? "var(--p-rose-pale)" : "var(--p-rose)", color: "var(--p-white)", border: "none",
+                  background: isSaving ? "#92400e" : "#d97706", color: "var(--p-white)", border: "none",
                 }}
               >
-                {isSaving ? <Loader2 className="animate-spin" size={16} /> : "Delete Articles"}
+                {isSaving ? <Loader2 className="animate-spin" size={16} /> : "Archive Articles"}
               </button>
             </div>
           </div>

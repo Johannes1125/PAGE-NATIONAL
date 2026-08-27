@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, Globe, Upload, Trash, Eye, Plus } from "lucide-react";
+import { ArrowLeft, Save, Globe, Upload, Trash, Eye, Plus, Archive } from "lucide-react";
 import AdminSidebarLayout from "../../components/AdminSidebarLayout";
 import { api, PaginatedResponse, PaginationMeta } from "../../../lib/api-client";
 import Pagination from "../components/Pagination";
@@ -16,6 +16,7 @@ type Document = {
   file_name: string;
   file_url: string;
   file_type: string;
+  status?: string;
   created_at: string;
 };
 
@@ -315,19 +316,19 @@ export default function LogoDescriptionManagement() {
     }
   };
 
-  // Delete official logo document asset
-  const handleDeleteDocument = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this logo asset?")) return;
+  // Archive official logo document asset
+  const handleArchiveDocument = async (id: string) => {
+    if (!window.confirm("Are you sure you want to archive this logo asset? It will be moved to the System Archives.")) return;
 
     try {
-      const res = await api.delete(`/about-page/documents/${id}`);
+      const res = await api.patch(`/about-page/documents/${id}/archive`, {});
       if (res.success) {
         setDocuments(documents.filter((d) => d.id !== id));
-        gooeyToast.success("Logo asset deleted successfully.");
+        gooeyToast.success("Logo asset archived successfully.");
       }
     } catch (err) {
       console.error(err);
-      gooeyToast.error("Failed to delete asset.");
+      gooeyToast.error("Failed to archive asset.");
     }
   };
 
@@ -670,11 +671,12 @@ export default function LogoDescriptionManagement() {
                         </a>
                         <button
                           type="button"
-                          className="about-btn about-btn--danger"
-                          style={{ height: "26px", padding: "0 8px" }}
-                          onClick={() => handleDeleteDocument(doc.id)}
+                          className="about-btn about-btn--secondary"
+                          style={{ height: "26px", padding: "0 8px", color: "var(--p-gold-text, #92400e)" }}
+                          onClick={() => handleArchiveDocument(doc.id)}
+                          title="Archive asset"
                         >
-                          <Trash size={12} />
+                          <Archive size={12} />
                         </button>
                       </div>
                     </div>

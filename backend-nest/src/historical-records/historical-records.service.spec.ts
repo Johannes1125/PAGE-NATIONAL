@@ -65,6 +65,7 @@ describe('HistoricalRecordsService', () => {
       const result = await service.findAll();
 
       expect(prismaMock.historical_records.findMany).toHaveBeenCalledWith({
+        where: { status: { not: 'archived' } },
         orderBy: [
           { yearStart: 'asc' },
           { sortOrder: 'asc' },
@@ -128,6 +129,7 @@ describe('HistoricalRecordsService', () => {
           yearStart: dto.yearStart,
           programType: dto.programType,
           description: dto.description,
+          status: 'active',
         },
       });
       expect(prismaMock.user_activities.create).toHaveBeenCalledWith({
@@ -178,33 +180,68 @@ describe('HistoricalRecordsService', () => {
     });
   });
 
-  // ── remove ────────────────────────────────────────────────────────────────
+  // ── archive ───────────────────────────────────────────────────────────────
 
-  describe('remove', () => {
-    it('deletes a historical record and logs activity', async () => {
-      prismaMock.historical_records.findUnique.mockResolvedValue(mockRecord);
-      prismaMock.historical_records.delete.mockResolvedValue(mockRecord);
+  describe('archive', () => {
+    it('archives a historical record and logs activity', async () => {
+      const activeRecord = { ...mockRecord, status: 'active' };
+      prismaMock.historical_records.findUnique.mockResolvedValue(activeRecord);
+      prismaMock.historical_records.update.mockResolvedValue({ ...activeRecord, status: 'archived' });
       prismaMock.user_activities.create.mockResolvedValue({});
 
-      const result = await service.remove(mockRecord.id, mockUser, mockIp);
+      const result = await service.archive(mockRecord.id, mockUser, mockIp);
 
-      expect(prismaMock.historical_records.delete).toHaveBeenCalledWith({
+      expect(prismaMock.historical_records.update).toHaveBeenCalledWith({
         where: { id: mockRecord.id },
+        data: { status: 'archived' },
       });
       expect(prismaMock.user_activities.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          action: expect.stringContaining('Deleted Historical Record'),
+          action: expect.stringContaining('archived_historical_record'),
         }),
       });
       expect(result.success).toBe(true);
-      expect(result.message).toBe('Historical record deleted successfully.');
+      expect(result.message).toBe('Historical record archived successfully.');
     });
 
-    it('throws NotFoundException when trying to delete non-existent record', async () => {
+    it('throws NotFoundException when trying to archive non-existent record', async () => {
       prismaMock.historical_records.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.remove('non-existent-id', mockUser, mockIp),
+        service.archive('non-existent-id', mockUser, mockIp),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // ── unarchive ─────────────────────────────────────────────────────────────
+
+  describe('unarchive', () => {
+    it('unarchives a historical record and logs activity', async () => {
+      const archivedRecord = { ...mockRecord, status: 'archived' };
+      prismaMock.historical_records.findUnique.mockResolvedValue(archivedRecord);
+      prismaMock.historical_records.update.mockResolvedValue({ ...archivedRecord, status: 'active' });
+      prismaMock.user_activities.create.mockResolvedValue({});
+
+      const result = await service.unarchive(mockRecord.id, mockUser, mockIp);
+
+      expect(prismaMock.historical_records.update).toHaveBeenCalledWith({
+        where: { id: mockRecord.id },
+        data: { status: 'active' },
+      });
+      expect(prismaMock.user_activities.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          action: expect.stringContaining('unarchived_historical_record'),
+        }),
+      });
+      expect(result.success).toBe(true);
+      expect(result.message).toBe('Historical record unarchived successfully.');
+    });
+
+    it('throws NotFoundException when trying to unarchive non-existent record', async () => {
+      prismaMock.historical_records.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.unarchive('non-existent-id', mockUser, mockIp),
       ).rejects.toThrow(NotFoundException);
     });
   });

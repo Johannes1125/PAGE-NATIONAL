@@ -5,23 +5,23 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Activity,
+  Archive,
   BadgeCheck,
   Building2,
   ChevronDown,
   ClipboardList,
   Landmark,
   LayoutDashboard,
-  Menu,
   MessageSquareText,
   PlusCircle,
   Users,
   UserCheck,
   BookOpen,
-  Sparkles,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import styles from "./AdminSidebar.module.css";
-import VersionUpdatesModal from "../../components/VersionUpdatesModal";
+import { VERSION_UPDATES } from "../../lib/version-updates";
 
 type AdminNavItem = {
   href: string;
@@ -72,7 +72,7 @@ const adminSections: AdminSidebarSection[] = [
     title: "System",
     items: [
       { href: "/admin-dashboard/audit-log", label: "Audit Log", icon: ClipboardList },
-      { href: "#version-updates", label: "Version Updates", icon: Sparkles },
+      { href: "/admin-dashboard/archives", label: "Archives", icon: Archive },
     ],
   },
 ];
@@ -96,7 +96,9 @@ export default function AdminSidebar({
 }: AdminSidebarProps) {
   const pathname = usePathname();
   const [isContentExpanded, setIsContentExpanded] = useState(false);
-  const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
+
+  const currentVersion = VERSION_UPDATES[0]?.version || "v0.3.0-dev";
+  const currentVersionShort = currentVersion.split("-")[0] || "v0.3.0";
 
   const isCreatePostsRoute =
     pathname.startsWith("/admin-dashboard/create-new-post") ||
@@ -156,7 +158,7 @@ export default function AdminSidebar({
               onClick={onCloseMobileNav}
               aria-label="Close navigation menu"
             >
-              <Menu size={20} strokeWidth={2} />
+              <X size={20} strokeWidth={2} />
             </button>
           </div>
 
@@ -222,6 +224,7 @@ export default function AdminSidebar({
                                           subIsActive && styles.navLinkActive,
                                         )}
                                         aria-current={subIsActive ? "page" : undefined}
+                                        onClick={onCloseMobileNav}
                                       >
                                         <span className={styles.subItemBullet} aria-hidden="true" />
                                         <span className={styles.navLabel}>{subItem.label}</span>
@@ -236,27 +239,6 @@ export default function AdminSidebar({
 
                       if (item.isIndented) {
                         return null;
-                      }
-
-                      if (item.href === "#version-updates") {
-                        return (
-                          <button
-                            key={item.label}
-                            type="button"
-                            className={styles.navLink}
-                            onClick={() => {
-                              setIsVersionModalOpen(true);
-                              if (isMobileViewport) {
-                                onCloseMobileNav();
-                              }
-                            }}
-                          >
-                            <span className={styles.navIcon} aria-hidden="true">
-                              <item.icon size={16} strokeWidth={1.9} />
-                            </span>
-                            <span className={styles.navLabel}>{item.label}</span>
-                          </button>
-                        );
                       }
 
                       return (
@@ -279,13 +261,14 @@ export default function AdminSidebar({
               );
             })}
           </nav>
+
+          <div className={styles.footer} aria-label="System version">
+            <span className={styles.versionText}>
+              {isCollapsed ? currentVersionShort : `Version ${currentVersion}`}
+            </span>
+          </div>
         </div>
       </aside>
-
-      <VersionUpdatesModal
-        isOpen={isVersionModalOpen}
-        onClose={() => setIsVersionModalOpen(false)}
-      />
     </>
   );
 }
