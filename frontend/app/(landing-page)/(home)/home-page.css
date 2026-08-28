@@ -102,8 +102,8 @@ body {
 }
 
 .hero-bg-img {
-  width: 100%;
-  height: 100%;
+  width: 146%;
+  height: 146%;
   object-fit: cover;
   object-position: center right;
   filter: grayscale(100%) contrast(1.1) brightness(1.08);
