@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Patch,
-  Delete,
   Body,
   Param,
   Req,
@@ -36,6 +35,13 @@ export class PageLogoController {
   }
 
   // ── ADMIN-ONLY ENDPOINTS ──────────────────────────────────────────────────
+
+  @UseGuards(TokenAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Get('page-logo/archived')
+  findArchived() {
+    return this.service.findArchived();
+  }
 
   @UseGuards(TokenAuthGuard, RolesGuard)
   @Roles('admin')
@@ -81,12 +87,23 @@ export class PageLogoController {
 
   @UseGuards(TokenAuthGuard, RolesGuard)
   @Roles('admin')
-  @Delete('page-logo/:id')
-  remove(
+  @Patch('page-logo/:id/archive')
+  archive(
     @Param('id', ParseIntPipe) id: number,
     @GetUser() user: any,
     @Req() req: Request,
   ) {
-    return this.service.remove(id, user, req.ip || '127.0.0.1');
+    return this.service.archive(id, user, req.ip || '127.0.0.1');
+  }
+
+  @UseGuards(TokenAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Patch('page-logo/:id/unarchive')
+  unarchive(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser() user: any,
+    @Req() req: Request,
+  ) {
+    return this.service.unarchive(id, user, req.ip || '127.0.0.1');
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { SupabaseService } from '../supabase/supabase.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
@@ -71,6 +71,7 @@ export class NationalOfficersService {
 
   async findAll() {
     const records = await this.prisma.nationalOfficer.findMany({
+      where: { status: { not: 'archived' } },
       orderBy: [
         { positionCategory: 'desc' }, // "National Officers" before "Board of Directors"
         { sortOrder: 'asc' },
@@ -80,6 +81,19 @@ export class NationalOfficersService {
       success: true,
       data: records,
       message: 'National officers retrieved successfully.',
+    };
+  }
+
+  async findArchived() {
+    const records = await this.prisma.nationalOfficer.findMany({
+      where: { status: 'archived' },
+      orderBy: { updatedAt: 'desc' },
+    });
+    return {
+      success: true,
+      data: records,
+      meta: { page: 1, limit: records.length || 10, totalPages: 1, totalItems: records.length },
+      message: 'Archived national officers retrieved successfully.',
     };
   }
 
@@ -107,6 +121,7 @@ export class NationalOfficersService {
         description: dto.description || null,
         imageUrl: dto.imageUrl || null,
         sortOrder,
+        status: 'active',
       },
     });
 
@@ -165,22 +180,24 @@ export class NationalOfficersService {
     };
   }
 
-  async remove(id: string, user: { id: bigint }, ipAddress: string) {
-    const existing = await this.prisma.nationalOfficer.findUnique({
-      where: { id },
-    });
+  async archive(id: string, user: { id: bigint }, ipAddress: string) {
+    const existing = await this.prisma.nationalOfficer.findUnique({ where: { id } });
     if (!existing) {
       throw new NotFoundException(`National officer with id ${id} not found.`);
     }
+    if (existing.status === 'archived') {
+      throw new ConflictException('National officer is already archived.');
+    }
 
-    const record = await this.prisma.nationalOfficer.delete({
+    const record = await this.prisma.nationalOfficer.update({
       where: { id },
+      data: { status: 'archived' },
     });
 
     await this.prisma.user_activities.create({
       data: {
         user_id: user.id,
-        action: `Deleted National Officer: ${record.memberName} (${record.role})`,
+        action: `archived_national_officer: ${existing.memberName} (${existing.role})`,
         ip_address: ipAddress,
         created_at: new Date(),
       },
@@ -189,7 +206,37 @@ export class NationalOfficersService {
     return {
       success: true,
       data: record,
-      message: 'Officer deleted successfully.',
+      message: 'National officer archived successfully.',
+    };
+  }
+
+  async unarchive(id: string, user: { id: bigint }, ipAddress: string) {
+    const existing = await this.prisma.nationalOfficer.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`National officer with id ${id} not found.`);
+    }
+    if (existing.status !== 'archived') {
+      throw new ConflictException('National officer is not archived.');
+    }
+
+    const record = await this.prisma.nationalOfficer.update({
+      where: { id },
+      data: { status: 'active' },
+    });
+
+    await this.prisma.user_activities.create({
+      data: {
+        user_id: user.id,
+        action: `unarchived_national_officer: ${existing.memberName} (${existing.role})`,
+        ip_address: ipAddress,
+        created_at: new Date(),
+      },
+    });
+
+    return {
+      success: true,
+      data: record,
+      message: 'National officer unarchived successfully.',
     };
   }
 }

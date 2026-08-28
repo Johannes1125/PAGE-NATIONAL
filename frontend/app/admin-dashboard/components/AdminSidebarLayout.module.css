@@ -14,6 +14,7 @@
 :global(.messages-page).shellCollapsed,
 :global(.audit-page).shellCollapsed,
 :global(.approve-page).shellCollapsed,
+:global(.archives-page).shellCollapsed,
 :global(.chapters-management-page).shellCollapsed {
   padding-left: var(--admin-sidebar-collapsed-width);
 }
@@ -42,6 +43,7 @@
   :global(.messages-page),
   :global(.audit-page),
   :global(.approve-page),
+  :global(.archives-page),
   :global(.chapters-management-page) {
     padding-left: 0;
   }
@@ -51,6 +53,7 @@
   :global(.messages-page).shellCollapsed,
   :global(.audit-page).shellCollapsed,
   :global(.approve-page).shellCollapsed,
+  :global(.archives-page).shellCollapsed,
   :global(.chapters-management-page).shellCollapsed {
     padding-left: 0;
   }

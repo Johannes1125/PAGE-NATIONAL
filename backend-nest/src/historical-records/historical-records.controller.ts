@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Patch,
-  Delete,
   Body,
   Param,
   Query,
@@ -21,8 +20,6 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { GetUser } from '../auth/get-user.decorator';
 
-import { ReorderHistoricalRecordsDto } from './dto/reorder-historical-records.dto';
-
 @Controller()
 export class HistoricalRecordsController {
   constructor(private readonly service: HistoricalRecordsService) {}
@@ -31,7 +28,7 @@ export class HistoricalRecordsController {
 
   /**
    * Public — no auth required.
-   * Records returned sorted ascending by yearStart.
+   * Records returned sorted descending by yearStart (newest first).
    */
   @Get('public/historical-records')
   getPublic(
@@ -46,13 +43,24 @@ export class HistoricalRecordsController {
 
   @UseGuards(TokenAuthGuard, RolesGuard)
   @Roles('admin')
+  @Get('historical-records/archived')
+  findArchived(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.service.findArchived(page, limit);
+  }
+
+  @UseGuards(TokenAuthGuard, RolesGuard)
+  @Roles('admin')
   @Get('historical-records')
   findAll(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('programType') programType?: string,
+    @Query('includeArchived') includeArchived?: string,
   ) {
-    return this.service.findAll(page, limit, programType);
+    return this.service.findAll(page, limit, programType, includeArchived === 'true');
   }
 
   @UseGuards(TokenAuthGuard, RolesGuard)
@@ -76,17 +84,6 @@ export class HistoricalRecordsController {
 
   @UseGuards(TokenAuthGuard, RolesGuard)
   @Roles('admin')
-  @Patch('historical-records-reorder')
-  updateSortOrder(
-    @Body() dto: ReorderHistoricalRecordsDto,
-    @GetUser() user: any,
-    @Req() req: Request,
-  ) {
-    return this.service.updateSortOrder(dto, user, req.ip || '127.0.0.1');
-  }
-
-  @UseGuards(TokenAuthGuard, RolesGuard)
-  @Roles('admin')
   @Patch('historical-records/:id')
   update(
     @Param('id') id: string,
@@ -99,12 +96,23 @@ export class HistoricalRecordsController {
 
   @UseGuards(TokenAuthGuard, RolesGuard)
   @Roles('admin')
-  @Delete('historical-records/:id')
-  remove(
+  @Patch('historical-records/:id/archive')
+  archive(
     @Param('id') id: string,
     @GetUser() user: any,
     @Req() req: Request,
   ) {
-    return this.service.remove(id, user, req.ip || '127.0.0.1');
+    return this.service.archive(id, user, req.ip || '127.0.0.1');
+  }
+
+  @UseGuards(TokenAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Patch('historical-records/:id/unarchive')
+  unarchive(
+    @Param('id') id: string,
+    @GetUser() user: any,
+    @Req() req: Request,
+  ) {
+    return this.service.unarchive(id, user, req.ip || '127.0.0.1');
   }
 }

@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Patch,
-  Delete,
   Body,
   Param,
   Query,
@@ -32,12 +31,21 @@ export class CblController {
 
   // ── ARTICLES ENDPOINTS ───────────────────────────────────────────────────
 
+  @Get('articles/archived')
+  getArchivedArticles(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.cblService.getArchivedArticles(page, limit);
+  }
+
   @Get('articles')
   getArticles(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('includeArchived') includeArchived?: string,
   ) {
-    return this.cblService.getArticles(page, limit);
+    return this.cblService.getArticles(page, limit, includeArchived === 'true');
   }
 
   @Get('articles/:id')
@@ -64,16 +72,30 @@ export class CblController {
     return this.cblService.updateArticle(id, dto, user, req.ip || '127.0.0.1');
   }
 
-  @Delete('articles/:id')
-  deleteArticle(
+  @Patch('articles/:id/archive')
+  archiveArticle(
     @Param('id') id: string,
     @GetUser() user: any,
     @Req() req: Request,
   ) {
-    return this.cblService.deleteArticle(id, user, req.ip || '127.0.0.1');
+    return this.cblService.archiveArticle(id, user, req.ip || '127.0.0.1');
+  }
+
+  @Patch('articles/:id/unarchive')
+  unarchiveArticle(
+    @Param('id') id: string,
+    @GetUser() user: any,
+    @Req() req: Request,
+  ) {
+    return this.cblService.unarchiveArticle(id, user, req.ip || '127.0.0.1');
   }
 
   // ── GOVERNANCE DOCUMENT ENDPOINTS ────────────────────────────────────────
+
+  @Get('governance/archived')
+  getArchivedGovernance() {
+    return this.cblService.getArchivedGovernance();
+  }
 
   @Get('governance')
   getGovernance() {
@@ -103,12 +125,21 @@ export class CblController {
     return this.cblService.updateGovernance(id, dto, file, user, req.ip || '127.0.0.1');
   }
 
-  @Delete('governance/:id')
-  deleteGovernance(
+  @Patch('governance/:id/archive')
+  archiveGovernance(
     @Param('id') id: string,
     @GetUser() user: any,
     @Req() req: Request,
   ) {
-    return this.cblService.deleteGovernance(id, user, req.ip || '127.0.0.1');
+    return this.cblService.archiveGovernance(id, user, req.ip || '127.0.0.1');
+  }
+
+  @Patch('governance/:id/unarchive')
+  unarchiveGovernance(
+    @Param('id') id: string,
+    @GetUser() user: any,
+    @Req() req: Request,
+  ) {
+    return this.cblService.unarchiveGovernance(id, user, req.ip || '127.0.0.1');
   }
 }

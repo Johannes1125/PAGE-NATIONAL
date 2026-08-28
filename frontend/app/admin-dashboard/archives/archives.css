@@ -1,0 +1,345 @@
+/* ─── System Archives Stylesheet (Consistent with About Page Design) ─── */
+
+.archives-page-container {
+  display: grid;
+  gap: 24px;
+}
+
+/* ─── Stats Row ───────────────────────────────────────────────────────────── */
+.archives-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .archives-stats-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── Toolbar (Search & Filter) ───────────────────────────────────────────── */
+.archives-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: var(--r-surface, #ffffff);
+  border: 1px solid var(--r-border, #e2e8f0);
+  border-radius: 14px;
+  padding: 14px 18px;
+  flex-wrap: wrap;
+  box-shadow: 0 1px 3px rgba(20, 49, 82, 0.03);
+}
+
+.archives-search-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 240px;
+}
+
+.archives-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--r-text-muted, #64748b);
+  pointer-events: none;
+}
+
+.archives-search-input {
+  width: 100%;
+  height: 40px;
+  background: var(--r-bg, #f8fafc);
+  border: 1px solid var(--r-border, #e2e8f0);
+  border-radius: 8px;
+  padding: 0 0.875rem 0 2.375rem;
+  color: var(--r-text, #0f172a);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.archives-search-input:focus {
+  outline: none;
+  border-color: var(--p-blue, #1e538e);
+  box-shadow: 0 0 0 3px rgba(30, 83, 142, 0.12);
+}
+
+.archives-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.archives-filter-btn {
+  height: 40px;
+  padding: 0 1rem;
+  background: transparent;
+  border: 1px solid var(--r-border, #e2e8f0);
+  border-radius: 8px;
+  color: var(--r-text-mid, #475569);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.archives-filter-btn:not(.archives-filter-btn--active):hover {
+  background: rgba(20, 49, 82, 0.05);
+  color: var(--p-navy, #1e3a5f);
+}
+
+.archives-filter-btn--active,
+.archives-filter-btn--active:hover,
+.archives-filter-btn--active:focus {
+  background: var(--p-navy, #1e3a5f);
+  border-color: var(--p-navy, #1e3a5f);
+  color: #ffffff;
+  cursor: default;
+}
+
+.archives-filter-count {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  font-weight: 700;
+}
+
+.archives-filter-btn:not(.archives-filter-btn--active) .archives-filter-count {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+/* ─── Archive Cards Grid ─────────────────────────────────────────────────── */
+.archives-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 640px) {
+  .archives-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── Archive Card (Consistent with about-section-card) ──────────────────── */
+.archive-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #e6eef8;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 4px 18px rgba(30, 83, 142, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.archive-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(30, 83, 142, 0.08);
+  border-color: #1e538e;
+}
+
+.archive-card-top {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.archive-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.archive-icon-wrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--p-blue-pale, #eef5ff);
+  color: var(--p-blue, #1e538e);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(30, 83, 142, 0.06);
+}
+
+.archive-badge-archived {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.archive-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--p-navy, #1e3a5f);
+  line-height: 1.35;
+  margin: 0;
+}
+
+.archive-card-subtitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--p-blue, #1e538e);
+  margin: 0;
+}
+
+.archive-card-desc {
+  font-size: 13.5px;
+  color: var(--r-text-mid, #475569);
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.archive-thumbnail-container {
+  width: 100%;
+  height: 120px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.archive-thumbnail-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 8px;
+}
+
+/* ─── Card Middle Metadata ───────────────────────────────────────────────── */
+.archive-card-middle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #f1f5f9;
+  font-size: 12.5px;
+  color: #64748b;
+}
+
+.archive-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.archive-meta-label {
+  font-weight: 500;
+}
+
+.archive-meta-value {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* ─── Card Footer Actions ────────────────────────────────────────────────── */
+.archive-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.archive-restore-btn {
+  width: 100%;
+  height: 42px;
+  background: #1e3a5f;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 2px 6px rgba(30, 58, 95, 0.15);
+  transition: all 0.2s ease;
+}
+
+.archive-restore-btn:hover:not(:disabled) {
+  background: #152943;
+  box-shadow: 0 4px 12px rgba(30, 58, 95, 0.25);
+  transform: translateY(-1px);
+}
+
+.archive-restore-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ─── Empty State ────────────────────────────────────────────────────────── */
+.archives-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  background: #ffffff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 18px;
+  text-align: center;
+  gap: 14px;
+}
+
+.archives-empty-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--p-blue-pale, #eef5ff);
+  color: var(--p-blue, #1e538e);
+  display: grid;
+  place-items: center;
+}
+
+.archives-empty-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--p-navy, #1e3a5f);
+  margin: 0;
+}
+
+.archives-empty-desc {
+  font-size: 14px;
+  color: var(--r-text-muted, #64748b);
+  margin: 0;
+  max-width: 440px;
+  line-height: 1.5;
+}

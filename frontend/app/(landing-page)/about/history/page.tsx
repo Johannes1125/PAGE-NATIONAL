@@ -25,144 +25,11 @@ interface HistoricalRecordsResponse {
 // Default Fallback Records (ensures a rich 60-year timeline matching verified records)
 const DEFAULT_HISTORICAL_RECORDS: HistoricalRecord[] = [
   {
-    id: "hist-1",
-    yearStart: 1962,
+    id: "hist-22",
+    yearStart: 2024,
     programType: "Initiative",
-    title: "Founding of PAGE",
-    description: "PAGE was established on September 26, 1962, through the efforts of Dr. Jesus E. Perpiñan and Atty. Pablo T. Mateo Jr. to improve graduate education standards in the Philippines."
-  },
-  {
-    id: "hist-2",
-    yearStart: 1962,
-    programType: "Conference",
-    title: "First National Conference on Graduate Education",
-    description: "PAGE held its first national conference at Philippine Women's University with the theme 'Graduate Education Today.'"
-  },
-  {
-    id: "hist-3",
-    yearStart: 1963,
-    programType: "Initiative",
-    title: "Graduate Education Standards Advocacy",
-    description: "PAGE contributed to the development of the first government regulations for graduate education through BPS Circular No. 4, Series of 1963."
-  },
-  {
-    id: "hist-4",
-    yearStart: 1964,
-    programType: "Initiative",
-    title: "Improved Graduate Education Policies",
-    description: "PAGE recommendations influenced Department Order No. 15, Series of 1964, improving standards and procedures for graduate education."
-  },
-  {
-    id: "hist-5",
-    yearStart: 1969,
-    programType: "Convention",
-    title: "First Convention Outside Manila",
-    description: "PAGE expanded beyond Metro Manila through its 8th Annual Convention in Cebu City."
-  },
-  {
-    id: "hist-6",
-    yearStart: 1974,
-    programType: "Initiative",
-    title: "Research-Oriented Graduate Education Reform",
-    description: "PAGE recommendations influenced Circular No. 10, Series of 1974, emphasizing functional research and national development."
-  },
-  {
-    id: "hist-7",
-    yearStart: 1980,
-    programType: "Convention",
-    title: "First Mindanao Convention",
-    description: "PAGE held its first annual convention in Mindanao at Zamboanga City."
-  },
-  {
-    id: "hist-8",
-    yearStart: 1984,
-    programType: "Initiative",
-    title: "SOTARE Research Project",
-    description: "PAGE collaborated with PRODED to produce SOTARE I, a landmark review of educational research in the Philippines."
-  },
-  {
-    id: "hist-9",
-    yearStart: 1994,
-    programType: "Initiative",
-    title: "Partnership with Higher Education Reforms",
-    description: "PAGE continued its role as consultant and critic following the creation of CHED through RA 7722."
-  },
-  {
-    id: "hist-10",
-    yearStart: 2000,
-    programType: "Initiative",
-    title: "Strategic Plan 2001–2006",
-    description: "PAGE launched a strategic blueprint focusing on organizational development, quality assurance, innovation, and access."
-  },
-  {
-    id: "hist-11",
-    yearStart: 2003,
-    programType: "Initiative",
-    title: "Launch of PAGE Website",
-    description: "Under Fr. José Antonio E. Aureada, PAGE established its first official website to strengthen communication and coordination nationwide."
-  },
-  {
-    id: "hist-12",
-    yearStart: 2005,
-    programType: "Initiative",
-    title: "Expansion of Membership Categories",
-    description: "PAGE introduced Associate Membership through constitutional amendments."
-  },
-  {
-    id: "hist-13",
-    yearStart: 2012,
-    programType: "Convention",
-    title: "Golden Anniversary Celebration",
-    description: "PAGE celebrated its 50th anniversary and reaffirmed its commitment to graduate education excellence."
-  },
-  {
-    id: "hist-14",
-    yearStart: 2012,
-    programType: "Initiative",
-    title: "Establishment of PAGE National Headquarters",
-    description: "PAGE opened a permanent national headquarters in Manila."
-  },
-  {
-    id: "hist-15",
-    yearStart: 2015,
-    programType: "Initiative",
-    title: "Launch of Philippine Journal of Graduate Education",
-    description: "PAGE transformed its journal into a refereed publication known as the Philippine Journal of Graduate Education (PJGE)."
-  },
-  {
-    id: "hist-16",
-    yearStart: 2017,
-    programType: "Convention",
-    title: "50th Annual National Convention",
-    description: "PAGE hosted its Golden Convention featuring international plenary speakers, founding institution awards, and the launch of the PAGE National Anthem."
-  },
-  {
-    id: "hist-17",
-    yearStart: 2019,
-    programType: "Convention",
-    title: "Fourth Industrial Revolution Focus",
-    description: "PAGE's 51st Convention addressed the opportunities and challenges of the Fourth Industrial Revolution for graduate education."
-  },
-  {
-    id: "hist-18",
-    yearStart: 2020,
-    programType: "Convention",
-    title: "52nd Annual Convention",
-    description: "Dr. Lino C. Reynoso was elected President during the convention themed 'New Policies and Standards: Transforming the Landscape of Graduate Education.'"
-  },
-  {
-    id: "hist-19",
-    yearStart: 2022,
-    programType: "Convention",
-    title: "Post-Pandemic Graduate Education Transformation",
-    description: "PAGE conducted its hybrid 53rd Annual Convention focused on resilience and responsiveness in graduate education after COVID-19."
-  },
-  {
-    id: "hist-20",
-    yearStart: 2023,
-    programType: "Convention",
-    title: "Graduate Education Reform Convention",
-    description: "PAGE's 54th Annual Convention focused on implementing CHED CMO No. 15, Series of 2019."
+    title: "Chapter Reactivation Program",
+    description: "PAGE began reactivating regional chapters nationwide to strengthen organizational presence and support graduate education initiatives."
   },
   {
     id: "hist-21",
@@ -172,11 +39,144 @@ const DEFAULT_HISTORICAL_RECORDS: HistoricalRecord[] = [
     description: "PAGE successfully renewed its SEC registration and adopted the corporate name 'Philippine Association for Graduate Education Philippines, Inc. (PAGE).'"
   },
   {
-    id: "hist-22",
-    yearStart: 2024,
+    id: "hist-20",
+    yearStart: 2023,
+    programType: "Convention",
+    title: "Graduate Education Reform Convention",
+    description: "PAGE's 54th Annual Convention focused on implementing CHED CMO No. 15, Series of 2019."
+  },
+  {
+    id: "hist-19",
+    yearStart: 2022,
+    programType: "Convention",
+    title: "Post-Pandemic Graduate Education Transformation",
+    description: "PAGE conducted its hybrid 53rd Annual Convention focused on resilience and responsiveness in graduate education after COVID-19."
+  },
+  {
+    id: "hist-18",
+    yearStart: 2020,
+    programType: "Convention",
+    title: "52nd Annual Convention",
+    description: "Dr. Lino C. Reynoso was elected President during the convention themed 'New Policies and Standards: Transforming the Landscape of Graduate Education.'"
+  },
+  {
+    id: "hist-17",
+    yearStart: 2019,
+    programType: "Convention",
+    title: "Fourth Industrial Revolution Focus",
+    description: "PAGE's 51st Convention addressed the opportunities and challenges of the Fourth Industrial Revolution for graduate education."
+  },
+  {
+    id: "hist-16",
+    yearStart: 2017,
+    programType: "Convention",
+    title: "50th Annual National Convention",
+    description: "PAGE hosted its Golden Convention featuring international plenary speakers, founding institution awards, and the launch of the PAGE National Anthem."
+  },
+  {
+    id: "hist-15",
+    yearStart: 2015,
     programType: "Initiative",
-    title: "Chapter Reactivation Program",
-    description: "PAGE began reactivating regional chapters nationwide to strengthen organizational presence and support graduate education initiatives."
+    title: "Launch of Philippine Journal of Graduate Education",
+    description: "PAGE transformed its journal into a refereed publication known as the Philippine Journal of Graduate Education (PJGE)."
+  },
+  {
+    id: "hist-14",
+    yearStart: 2012,
+    programType: "Initiative",
+    title: "Establishment of PAGE National Headquarters",
+    description: "PAGE opened a permanent national headquarters in Manila."
+  },
+  {
+    id: "hist-13",
+    yearStart: 2012,
+    programType: "Convention",
+    title: "Golden Anniversary Celebration",
+    description: "PAGE celebrated its 50th anniversary and reaffirmed its commitment to graduate education excellence."
+  },
+  {
+    id: "hist-12",
+    yearStart: 2005,
+    programType: "Initiative",
+    title: "Expansion of Membership Categories",
+    description: "PAGE introduced Associate Membership through constitutional amendments."
+  },
+  {
+    id: "hist-11",
+    yearStart: 2003,
+    programType: "Initiative",
+    title: "Launch of PAGE Website",
+    description: "Under Fr. José Antonio E. Aureada, PAGE established its first official website to strengthen communication and coordination nationwide."
+  },
+  {
+    id: "hist-10",
+    yearStart: 2000,
+    programType: "Initiative",
+    title: "Strategic Plan 2001–2006",
+    description: "PAGE launched a strategic blueprint focusing on organizational development, quality assurance, innovation, and access."
+  },
+  {
+    id: "hist-9",
+    yearStart: 1994,
+    programType: "Initiative",
+    title: "Partnership with Higher Education Reforms",
+    description: "PAGE continued its role as consultant and critic following the creation of CHED through RA 7722."
+  },
+  {
+    id: "hist-8",
+    yearStart: 1984,
+    programType: "Initiative",
+    title: "SOTARE Research Project",
+    description: "PAGE collaborated with PRODED to produce SOTARE I, a landmark review of educational research in the Philippines."
+  },
+  {
+    id: "hist-7",
+    yearStart: 1980,
+    programType: "Convention",
+    title: "First Mindanao Convention",
+    description: "PAGE held its first annual convention in Mindanao at Zamboanga City."
+  },
+  {
+    id: "hist-6",
+    yearStart: 1974,
+    programType: "Initiative",
+    title: "Research-Oriented Graduate Education Reform",
+    description: "PAGE recommendations influenced Circular No. 10, Series of 1974, emphasizing functional research and national development."
+  },
+  {
+    id: "hist-5",
+    yearStart: 1969,
+    programType: "Convention",
+    title: "First Convention Outside Manila",
+    description: "PAGE expanded beyond Metro Manila through its 8th Annual Convention in Cebu City."
+  },
+  {
+    id: "hist-4",
+    yearStart: 1964,
+    programType: "Initiative",
+    title: "Improved Graduate Education Policies",
+    description: "PAGE recommendations influenced Department Order No. 15, Series of 1964, improving standards and procedures for graduate education."
+  },
+  {
+    id: "hist-3",
+    yearStart: 1963,
+    programType: "Initiative",
+    title: "Graduate Education Standards Advocacy",
+    description: "PAGE contributed to the development of the first government regulations for graduate education through BPS Circular No. 4, Series of 1963."
+  },
+  {
+    id: "hist-2",
+    yearStart: 1962,
+    programType: "Conference",
+    title: "First National Conference on Graduate Education",
+    description: "PAGE held its first national conference at Philippine Women's University with the theme 'Graduate Education Today.'"
+  },
+  {
+    id: "hist-1",
+    yearStart: 1962,
+    programType: "Initiative",
+    title: "Founding of PAGE",
+    description: "PAGE was established on September 26, 1962, through the efforts of Dr. Jesus E. Perpiñan and Atty. Pablo T. Mateo Jr. to improve graduate education standards in the Philippines."
   }
 ];
 
@@ -193,24 +193,6 @@ function programTypeToMilestone(pt: ProgramType): string {
 }
 
 // ── Icons ─────────────────────────────────────────────────────────────────
-
-const ClockIcon = () => (
-  <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" />
-    <polyline points="12 6 12 12 16 14" />
-  </svg>
-);
-
-const LandmarkIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="2" y1="22" x2="22" y2="22" />
-    <polyline points="12 2 20 7 4 7 12 2" />
-    <rect x="5" y="11" width="3" height="11" />
-    <rect x="10" y="11" width="4" height="11" />
-    <rect x="15" y="11" width="3" height="11" />
-    <line x1="4" y1="11" x2="20" y2="11" />
-  </svg>
-);
 
 const UsersIcon = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -229,10 +211,27 @@ const LightbulbIcon = () => (
   </svg>
 );
 
+const LandmarkIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="2" y1="22" x2="22" y2="22" />
+    <polyline points="12 2 20 7 4 7 12 2" />
+    <rect x="5" y="11" width="3" height="11" />
+    <rect x="10" y="11" width="4" height="11" />
+    <rect x="15" y="11" width="3" height="11" />
+    <line x1="4" y1="11" x2="20" y2="11" />
+  </svg>
+);
+
 const GraduationCapIcon = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
     <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" />
+  </svg>
+);
+
+const ChevronLeftIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="15 18 9 12 15 6" />
   </svg>
 );
 
@@ -245,15 +244,16 @@ const CalendarIcon = () => (
   </svg>
 );
 
-const ChevronLeftIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="15 18 9 12 15 6" />
+const ClockIcon = () => (
+  <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
   </svg>
 );
 
 const ChevronRightIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="9 6 15 12 9 18" />
+    <polyline points="9 18 15 12 9 6" />
   </svg>
 );
 
@@ -434,9 +434,7 @@ export default function HistoryPage() {
       try {
         const res = await api.get<HistoricalRecordsResponse>("/public/historical-records");
         if (res.success && res.data && res.data.length > 0) {
-          // Sort by yearStart ascending
-          const sorted = [...res.data].sort((a, b) => a.yearStart - b.yearStart);
-          setRecords(sorted);
+          setRecords(res.data);
         } else {
           setRecords(DEFAULT_HISTORICAL_RECORDS);
         }

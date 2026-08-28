@@ -3,7 +3,7 @@ import {
   Get,
   Post,
   Put,
-  Delete,
+  Patch,
   Body,
   Param,
   Req,
@@ -110,6 +110,18 @@ export class AboutPageController {
     return this.aboutPageService.unpublishSection(key, user, req.ip || '127.0.0.1');
   }
 
+  // ── OFFICERS ──────────────────────────────────────────────────────────────
+
+  @UseGuards(TokenAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Get('about-page/officers/archived')
+  getArchivedOfficers(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.aboutPageService.getArchivedOfficers(page, limit);
+  }
+
   @UseGuards(TokenAuthGuard, RolesGuard)
   @Roles('admin')
   @Get('about-page/officers')
@@ -146,13 +158,24 @@ export class AboutPageController {
 
   @UseGuards(TokenAuthGuard, RolesGuard)
   @Roles('admin')
-  @Delete('about-page/officers/:id')
-  deleteOfficer(
+  @Patch('about-page/officers/:id/archive')
+  archiveOfficer(
     @Param('id') id: string,
     @GetUser() user: any,
     @Req() req: Request,
   ) {
-    return this.aboutPageService.deleteOfficer(id, user, req.ip || '127.0.0.1');
+    return this.aboutPageService.archiveOfficer(id, user, req.ip || '127.0.0.1');
+  }
+
+  @UseGuards(TokenAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Patch('about-page/officers/:id/unarchive')
+  unarchiveOfficer(
+    @Param('id') id: string,
+    @GetUser() user: any,
+    @Req() req: Request,
+  ) {
+    return this.aboutPageService.unarchiveOfficer(id, user, req.ip || '127.0.0.1');
   }
 
   @UseGuards(TokenAuthGuard, RolesGuard)
@@ -164,6 +187,18 @@ export class AboutPageController {
     @Req() req: Request,
   ) {
     return this.aboutPageService.reorderOfficers(ids, user, req.ip || '127.0.0.1');
+  }
+
+  // ── DOCUMENTS ─────────────────────────────────────────────────────────────
+
+  @UseGuards(TokenAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Get('about-page/documents/archived')
+  getArchivedDocuments(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.aboutPageService.getArchivedDocuments(page, limit);
   }
 
   @UseGuards(TokenAuthGuard, RolesGuard)
@@ -192,12 +227,23 @@ export class AboutPageController {
 
   @UseGuards(TokenAuthGuard, RolesGuard)
   @Roles('admin')
-  @Delete('about-page/documents/:id')
-  deleteDocument(
+  @Patch('about-page/documents/:id/archive')
+  archiveDocument(
     @Param('id') id: string,
     @GetUser() user: any,
     @Req() req: Request,
   ) {
-    return this.aboutPageService.deleteDocument(id, user, req.ip || '127.0.0.1');
+    return this.aboutPageService.archiveDocument(id, user, req.ip || '127.0.0.1');
+  }
+
+  @UseGuards(TokenAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Patch('about-page/documents/:id/unarchive')
+  unarchiveDocument(
+    @Param('id') id: string,
+    @GetUser() user: any,
+    @Req() req: Request,
+  ) {
+    return this.aboutPageService.unarchiveDocument(id, user, req.ip || '127.0.0.1');
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreatePageLogoDto } from './dto/create-page-logo.dto';
@@ -53,12 +53,26 @@ export class PageLogoService {
 
   async findAll() {
     const records = await this.prisma.page_logos.findMany({
+      where: { status: { not: 'archived' } },
       orderBy: { id: 'asc' },
     });
     return {
       success: true,
       data: records,
       message: 'PAGE logos retrieved successfully',
+    };
+  }
+
+  async findArchived() {
+    const records = await this.prisma.page_logos.findMany({
+      where: { status: 'archived' },
+      orderBy: { updatedAt: 'desc' },
+    });
+    return {
+      success: true,
+      data: records,
+      meta: { page: 1, limit: records.length || 10, totalPages: 1, totalItems: records.length },
+      message: 'Archived PAGE logos retrieved successfully',
     };
   }
 
@@ -101,6 +115,7 @@ export class PageLogoService {
         description: dto.description,
         imageUrl: uploadResult.imageUrl,
         imagePublicId: uploadResult.imagePublicId,
+        status: 'active',
       },
     });
 
@@ -181,28 +196,25 @@ export class PageLogoService {
     };
   }
 
-  async remove(id: number, user: { id: bigint }, ipAddress: string) {
-    const existing = await this.prisma.page_logos.findUnique({
-      where: { id },
-    });
+  async archive(id: number, user: { id: bigint }, ipAddress: string) {
+    const existing = await this.prisma.page_logos.findUnique({ where: { id } });
     if (!existing) {
       throw new NotFoundException(`PAGE logo with id ${id} not found.`);
     }
-
-    // Delete Cloudinary asset first
-    if (existing.imagePublicId) {
-      await this.cloudinary.delete(existing.imagePublicId);
+    if (existing.status === 'archived') {
+      throw new ConflictException('PAGE logo is already archived.');
     }
 
-    const record = await this.prisma.page_logos.delete({
+    // Do NOT delete Cloudinary asset on archive — keep for potential unarchive
+    const record = await this.prisma.page_logos.update({
       where: { id },
+      data: { status: 'archived' },
     });
 
-    // Log Activity
     await this.prisma.user_activities.create({
       data: {
         user_id: user.id,
-        action: `Deleted PAGE Logo: ${existing.title}`,
+        action: `archived_page_logo: ${existing.title}`,
         ip_address: ipAddress,
       },
     });
@@ -210,7 +222,36 @@ export class PageLogoService {
     return {
       success: true,
       data: record,
-      message: 'PAGE logo deleted successfully',
+      message: 'PAGE logo archived successfully',
+    };
+  }
+
+  async unarchive(id: number, user: { id: bigint }, ipAddress: string) {
+    const existing = await this.prisma.page_logos.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`PAGE logo with id ${id} not found.`);
+    }
+    if (existing.status !== 'archived') {
+      throw new ConflictException('PAGE logo is not archived.');
+    }
+
+    const record = await this.prisma.page_logos.update({
+      where: { id },
+      data: { status: 'active' },
+    });
+
+    await this.prisma.user_activities.create({
+      data: {
+        user_id: user.id,
+        action: `unarchived_page_logo: ${existing.title}`,
+        ip_address: ipAddress,
+      },
+    });
+
+    return {
+      success: true,
+      data: record,
+      message: 'PAGE logo unarchived successfully',
     };
   }
 }

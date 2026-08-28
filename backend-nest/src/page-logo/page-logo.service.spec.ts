@@ -88,6 +88,7 @@ describe('PageLogoService', () => {
       const result = await service.findAll();
 
       expect(prismaMock.page_logos.findMany).toHaveBeenCalledWith({
+        where: { status: { not: 'archived' } },
         orderBy: { id: 'asc' },
       });
       expect(result.success).toBe(true);
@@ -155,6 +156,7 @@ describe('PageLogoService', () => {
           description: dto.description,
           imageUrl: 'https://cloudinary.com/page_logo/pl_003.jpg',
           imagePublicId: 'about_page/page_logo/pl_003',
+          status: 'active',
         },
       });
       expect(prismaMock.user_activities.create).toHaveBeenCalledWith({
@@ -271,33 +273,64 @@ describe('PageLogoService', () => {
     });
   });
 
-  // ── remove ────────────────────────────────────────────────────────────────
+  // ── archive ───────────────────────────────────────────────────────────────
 
-  describe('remove', () => {
-    it('deletes logo record and removes associated Cloudinary asset', async () => {
-      prismaMock.page_logos.findUnique.mockResolvedValue(mockLogoRecord);
-      cloudinaryMock.delete.mockResolvedValue(true);
-      prismaMock.page_logos.delete.mockResolvedValue(mockLogoRecord);
+  describe('archive', () => {
+    it('archives logo record without deleting Cloudinary asset', async () => {
+      const activeLogo = { ...mockLogoRecord, status: 'active' };
+      prismaMock.page_logos.findUnique.mockResolvedValue(activeLogo);
+      prismaMock.page_logos.update.mockResolvedValue({ ...activeLogo, status: 'archived' });
       prismaMock.user_activities.create.mockResolvedValue({});
 
-      const result = await service.remove(1, mockUser, mockIp);
+      const result = await service.archive(1, mockUser, mockIp);
 
-      expect(cloudinaryMock.delete).toHaveBeenCalledWith(mockLogoRecord.imagePublicId);
-      expect(prismaMock.page_logos.delete).toHaveBeenCalledWith({
+      expect(cloudinaryMock.delete).not.toHaveBeenCalled();
+      expect(prismaMock.page_logos.update).toHaveBeenCalledWith({
         where: { id: 1 },
+        data: { status: 'archived' },
       });
       expect(prismaMock.user_activities.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          action: 'Deleted PAGE Logo: Official Shield Logo',
+          action: 'archived_page_logo: Official Shield Logo',
         }),
       });
       expect(result.success).toBe(true);
     });
 
-    it('throws NotFoundException when trying to delete non-existent logo', async () => {
+    it('throws NotFoundException when trying to archive non-existent logo', async () => {
       prismaMock.page_logos.findUnique.mockResolvedValue(null);
 
-      await expect(service.remove(99, mockUser, mockIp)).rejects.toThrow(NotFoundException);
+      await expect(service.archive(99, mockUser, mockIp)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // ── unarchive ─────────────────────────────────────────────────────────────
+
+  describe('unarchive', () => {
+    it('unarchives logo record and logs activity', async () => {
+      const archivedLogo = { ...mockLogoRecord, status: 'archived' };
+      prismaMock.page_logos.findUnique.mockResolvedValue(archivedLogo);
+      prismaMock.page_logos.update.mockResolvedValue({ ...archivedLogo, status: 'active' });
+      prismaMock.user_activities.create.mockResolvedValue({});
+
+      const result = await service.unarchive(1, mockUser, mockIp);
+
+      expect(prismaMock.page_logos.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: { status: 'active' },
+      });
+      expect(prismaMock.user_activities.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          action: 'unarchived_page_logo: Official Shield Logo',
+        }),
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('throws NotFoundException when trying to unarchive non-existent logo', async () => {
+      prismaMock.page_logos.findUnique.mockResolvedValue(null);
+
+      await expect(service.unarchive(99, mockUser, mockIp)).rejects.toThrow(NotFoundException);
     });
   });
 });

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Loader2, ArrowLeft, AlertTriangle, FileText, Shield, Edit, Trash2 } from "lucide-react";
+import { Plus, Loader2, ArrowLeft, AlertTriangle, FileText, Shield, Edit, Archive } from "lucide-react";
 import AdminSidebarLayout from "../../components/AdminSidebarLayout";
 import { api } from "../../../lib/api-client";
 import { gooeyToast } from "goey-toast";
@@ -21,6 +21,7 @@ interface SecRegistration {
   dateOfIncorporation: string;
   exemptionCategory: string;
   imageUrl?: string | null;
+  status?: string;
   createdAt: string;
 }
 
@@ -33,8 +34,8 @@ export default function SecRegistrationsPage() {
 
   // Modals state
   const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isArchiving, setIsArchiving] = useState(false);
+  const [showArchiveModal, setShowArchiveModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch single active record (first item of list)
@@ -174,24 +175,24 @@ export default function SecRegistrationsPage() {
     }
   };
 
-  // Handle Delete Confirmation
-  const handleDeleteConfirm = async () => {
+  // Handle Archive Confirmation
+  const handleArchiveConfirm = async () => {
     if (!record) return;
-    setIsDeleting(true);
+    setIsArchiving(true);
     try {
-      const res = await api.delete(`/sec-registrations/${record.id}`);
+      const res = await api.patch(`/sec-registrations/${record.id}/archive`, {});
       if (res.success) {
-        gooeyToast.success("SEC registration deleted successfully");
-        setShowDeleteModal(false);
+        gooeyToast.success("SEC registration archived successfully");
+        setShowArchiveModal(false);
         setRecord(null);
       } else {
-        gooeyToast.error("Failed to delete record");
+        gooeyToast.error("Failed to archive record");
       }
     } catch (err) {
       console.error(err);
-      gooeyToast.error("Failed to delete record");
+      gooeyToast.error("Failed to archive record");
     } finally {
-      setIsDeleting(false);
+      setIsArchiving(false);
     }
   };
 
@@ -246,11 +247,11 @@ export default function SecRegistrationsPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowDeleteModal(true)}
+                  onClick={() => setShowArchiveModal(true)}
                   className="about-btn about-btn--danger"
-                  style={{ height: "40px", padding: "0 16px" }}
+                  style={{ height: "40px", padding: "0 16px", background: "var(--p-gold-bg, #fef3c7)", color: "var(--p-gold-text, #92400e)", borderColor: "var(--p-gold-border, #fcd34d)" }}
                 >
-                  <Trash2 size={16} /> Delete
+                  <Archive size={16} /> Archive
                 </button>
               </div>
             </div>
@@ -349,32 +350,32 @@ export default function SecRegistrationsPage() {
         />
       </SecRegistrationModal>
 
-      {/* Delete Confirmation Modal */}
+      {/* Archive Confirmation Modal */}
       <SecRegistrationModal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        title="Confirm Delete"
+        isOpen={showArchiveModal}
+        onClose={() => setShowArchiveModal(false)}
+        title="Confirm Archive"
         contentPadding="24px"
         scrollable={false}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           <div style={{
-            background: "var(--p-rose-pale)",
-            border: "1px solid rgba(244,63,94,0.2)",
+            background: "rgba(245, 158, 11, 0.08)",
+            border: "1px solid rgba(245, 158, 11, 0.25)",
             borderRadius: "10px",
             padding: "14px 18px",
             display: "flex",
             alignItems: "flex-start",
             gap: "10px",
           }}>
-            <AlertTriangle size={20} style={{ color: "var(--p-rose)", flexShrink: 0, marginTop: "2px" }} />
+            <Archive size={20} style={{ color: "#d97706", flexShrink: 0, marginTop: "2px" }} />
             <div>
-              <h4 style={{ fontSize: "15px", fontWeight: 700, color: "var(--p-rose)", margin: "0 0 4px 0" }}>
-                Warning: Permanent Action
+              <h4 style={{ fontSize: "15px", fontWeight: 700, color: "#92400e", margin: "0 0 4px 0" }}>
+                Archive SEC Registration
               </h4>
-              <p style={{ fontSize: "13px", color: "var(--p-rose)", margin: 0, lineHeight: 1.5 }}>
-                Are you sure you want to delete the active SEC registration record?
-                This action is permanent and will delete the document file from storage.
+              <p style={{ fontSize: "13px", color: "#78350f", margin: 0, lineHeight: 1.5 }}>
+                Are you sure you want to archive the active SEC registration record?
+                This will move it to the System Archives and remove it from the public landing page. You can restore it anytime.
               </p>
             </div>
           </div>
@@ -382,8 +383,8 @@ export default function SecRegistrationsPage() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
             <button
               type="button"
-              onClick={() => setShowDeleteModal(false)}
-              disabled={isDeleting}
+              onClick={() => setShowArchiveModal(false)}
+              disabled={isArchiving}
               className="focus-ring"
               style={{
                 height: "42px",
@@ -393,7 +394,7 @@ export default function SecRegistrationsPage() {
                 color: "var(--r-text-mid)",
                 background: "var(--r-surface-2)",
                 border: "1px solid var(--r-border-mid)",
-                cursor: isDeleting ? "not-allowed" : "pointer",
+                cursor: isArchiving ? "not-allowed" : "pointer",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -403,8 +404,8 @@ export default function SecRegistrationsPage() {
             </button>
             <button
               type="button"
-              onClick={handleDeleteConfirm}
-              disabled={isDeleting}
+              onClick={handleArchiveConfirm}
+              disabled={isArchiving}
               className="focus-ring"
               style={{
                 height: "42px",
@@ -412,17 +413,17 @@ export default function SecRegistrationsPage() {
                 fontSize: "14px",
                 fontWeight: 600,
                 color: "#fff",
-                background: isDeleting ? "#c85a70" : "var(--p-rose)",
+                background: isArchiving ? "#92400e" : "#d97706",
                 border: "none",
-                cursor: isDeleting ? "not-allowed" : "pointer",
+                cursor: isArchiving ? "not-allowed" : "pointer",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "8px",
               }}
             >
-              {isDeleting && <Loader2 className="animate-spin" size={16} />}
-              {isDeleting ? "Deleting..." : "Delete Record"}
+              {isArchiving && <Loader2 className="animate-spin" size={16} />}
+              {isArchiving ? "Archiving..." : "Archive Record"}
             </button>
           </div>
         </div>

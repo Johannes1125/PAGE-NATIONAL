@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, OnModuleInit } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreateSectionDto } from './dto/create-section.dto';
@@ -149,10 +149,12 @@ export class AboutPageService implements OnModuleInit {
 
   // Officer Methods
   async getOfficers(activeOnly: boolean = false, pageStr?: string, limitStr?: string, chapter?: string) {
-    const where = {
+    const where: any = {
+      status: { not: 'archived' },
       ...(activeOnly ? { status: 'active' } : {}),
       ...(chapter && chapter !== 'all' ? { chapter } : {}),
     };
+
     if (pageStr || limitStr) {
       const page = parseInt(pageStr || '1', 10);
       const limit = parseInt(limitStr || '10', 10);
@@ -198,8 +200,46 @@ export class AboutPageService implements OnModuleInit {
     };
   }
 
+  async getArchivedOfficers(pageStr?: string, limitStr?: string) {
+    const where = { status: 'archived' };
+
+    if (pageStr || limitStr) {
+      const page = parseInt(pageStr || '1', 10);
+      const limit = parseInt(limitStr || '10', 10);
+      const skip = (page - 1) * limit;
+
+      const [officers, totalItems] = await Promise.all([
+        this.prisma.about_page_officers.findMany({
+          where,
+          orderBy: { updated_at: 'desc' },
+          skip,
+          take: limit,
+        }),
+        this.prisma.about_page_officers.count({ where }),
+      ]);
+
+      return {
+        success: true,
+        data: officers,
+        meta: { page, limit, totalPages: Math.ceil(totalItems / limit) || 1, totalItems },
+        message: 'Archived officers retrieved successfully.',
+      };
+    }
+
+    const officers = await this.prisma.about_page_officers.findMany({
+      where,
+      orderBy: { updated_at: 'desc' },
+    });
+    return {
+      success: true,
+      data: officers,
+      meta: { page: 1, limit: officers.length || 10, totalPages: 1, totalItems: officers.length },
+      message: 'Archived officers retrieved successfully.',
+    };
+  }
+
   async createOfficer(dto: CreateOfficerDto, user: any, ipAddress: string) {
-    const count = await this.prisma.about_page_officers.count();
+    const count = await this.prisma.about_page_officers.count({ where: { status: { not: 'archived' } } });
     const officer = await this.prisma.about_page_officers.create({
       data: {
         name: dto.name,
@@ -250,18 +290,54 @@ export class AboutPageService implements OnModuleInit {
     return { success: true, data: officer, message: 'Officer updated successfully.' };
   }
 
-  async deleteOfficer(id: string, user: any, ipAddress: string) {
-    const officer = await this.prisma.about_page_officers.delete({ where: { id } });
+  async archiveOfficer(id: string, user: any, ipAddress: string) {
+    const existing = await this.prisma.about_page_officers.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`Officer with ID ${id} not found.`);
+    }
+    if (existing.status === 'archived') {
+      throw new ConflictException('Officer is already archived.');
+    }
+
+    const officer = await this.prisma.about_page_officers.update({
+      where: { id },
+      data: { status: 'archived' },
+    });
 
     await this.prisma.user_activities.create({
       data: {
         user_id: user.id,
-        action: `Deleted National Officer: ${officer.name}`,
+        action: `archived_about_page_officer: ${existing.name}`,
         ip_address: ipAddress,
       },
     });
 
-    return { success: true, data: officer, message: 'Officer deleted successfully.' };
+    return { success: true, data: officer, message: 'Officer archived successfully.' };
+  }
+
+  async unarchiveOfficer(id: string, user: any, ipAddress: string) {
+    const existing = await this.prisma.about_page_officers.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`Officer with ID ${id} not found.`);
+    }
+    if (existing.status !== 'archived') {
+      throw new ConflictException('Officer is not archived.');
+    }
+
+    const officer = await this.prisma.about_page_officers.update({
+      where: { id },
+      data: { status: 'active' },
+    });
+
+    await this.prisma.user_activities.create({
+      data: {
+        user_id: user.id,
+        action: `unarchived_about_page_officer: ${existing.name}`,
+        ip_address: ipAddress,
+      },
+    });
+
+    return { success: true, data: officer, message: 'Officer unarchived successfully.' };
   }
 
   async reorderOfficers(ids: string[], user: any, ipAddress: string) {
@@ -287,7 +363,7 @@ export class AboutPageService implements OnModuleInit {
 
   // Document / Upload Methods
   async getDocuments(section_key: string, pageStr?: string, limitStr?: string) {
-    const where = { section_key };
+    const where: any = { section_key, status: { not: 'archived' } };
     if (pageStr || limitStr) {
       const page = parseInt(pageStr || '1', 10);
       const limit = parseInt(limitStr || '10', 10);
@@ -330,6 +406,41 @@ export class AboutPageService implements OnModuleInit {
     };
   }
 
+  async getArchivedDocuments(pageStr?: string, limitStr?: string) {
+    const where = { status: 'archived' };
+
+    if (pageStr || limitStr) {
+      const page = parseInt(pageStr || '1', 10);
+      const limit = parseInt(limitStr || '10', 10);
+      const skip = (page - 1) * limit;
+
+      const [docs, totalItems] = await Promise.all([
+        this.prisma.about_page_documents.findMany({
+          where,
+          orderBy: { updated_at: 'desc' },
+          skip,
+          take: limit,
+        }),
+        this.prisma.about_page_documents.count({ where }),
+      ]);
+
+      return {
+        success: true,
+        data: docs,
+        meta: { page, limit, totalPages: Math.ceil(totalItems / limit) || 1, totalItems },
+        message: 'Archived documents retrieved successfully.',
+      };
+    }
+
+    const docs = await this.prisma.about_page_documents.findMany({ where, orderBy: { updated_at: 'desc' } });
+    return {
+      success: true,
+      data: docs,
+      meta: { page: 1, limit: docs.length || 10, totalPages: 1, totalItems: docs.length },
+      message: 'Archived documents retrieved successfully.',
+    };
+  }
+
   async uploadDocument(section_key: string, file: Express.Multer.File, user: any, ipAddress: string) {
     const folder = `about_page/${section_key}`;
     const url = await this.cloudinary.upload(file, folder);
@@ -344,6 +455,7 @@ export class AboutPageService implements OnModuleInit {
         file_name: file.originalname,
         file_url: url,
         file_type: file.mimetype.split('/')[1] || 'pdf',
+        status: 'active',
       },
     });
 
@@ -368,12 +480,23 @@ export class AboutPageService implements OnModuleInit {
     return { success: true, data: doc, message: 'Document uploaded successfully.' };
   }
 
-  async deleteDocument(id: string, user: any, ipAddress: string) {
-    const doc = await this.prisma.about_page_documents.delete({ where: { id } });
+  async archiveDocument(id: string, user: any, ipAddress: string) {
+    const doc = await this.prisma.about_page_documents.findUnique({ where: { id } });
+    if (!doc) {
+      throw new NotFoundException(`Document with ID ${id} not found.`);
+    }
+    if (doc.status === 'archived') {
+      throw new ConflictException('Document is already archived.');
+    }
 
-    let actionLabel = 'Deleted branding asset';
-    if (doc.section_key === 'sec_registration') actionLabel = 'Deleted SEC Registration';
-    if (doc.section_key === 'bir_certification') actionLabel = 'Deleted BIR Certification';
+    const updated = await this.prisma.about_page_documents.update({
+      where: { id },
+      data: { status: 'archived' },
+    });
+
+    let actionLabel = 'Archived branding asset';
+    if (doc.section_key === 'sec_registration') actionLabel = 'archived_sec_document';
+    if (doc.section_key === 'bir_certification') actionLabel = 'archived_bir_document';
 
     await this.prisma.user_activities.create({
       data: {
@@ -383,6 +506,35 @@ export class AboutPageService implements OnModuleInit {
       },
     });
 
-    return { success: true, data: doc, message: 'Document deleted successfully.' };
+    return { success: true, data: updated, message: 'Document archived successfully.' };
+  }
+
+  async unarchiveDocument(id: string, user: any, ipAddress: string) {
+    const doc = await this.prisma.about_page_documents.findUnique({ where: { id } });
+    if (!doc) {
+      throw new NotFoundException(`Document with ID ${id} not found.`);
+    }
+    if (doc.status !== 'archived') {
+      throw new ConflictException('Document is not archived.');
+    }
+
+    const updated = await this.prisma.about_page_documents.update({
+      where: { id },
+      data: { status: 'active' },
+    });
+
+    let actionLabel = 'Unarchived branding asset';
+    if (doc.section_key === 'sec_registration') actionLabel = 'unarchived_sec_document';
+    if (doc.section_key === 'bir_certification') actionLabel = 'unarchived_bir_document';
+
+    await this.prisma.user_activities.create({
+      data: {
+        user_id: user.id,
+        action: `${actionLabel}: ${doc.file_name}`,
+        ip_address: ipAddress,
+      },
+    });
+
+    return { success: true, data: updated, message: 'Document unarchived successfully.' };
   }
 }

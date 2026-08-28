@@ -112,6 +112,7 @@ describe('NationalOfficersController (Integration)', () => {
       expect(response.body.success).toBe(true);
       expect(response.body.data).toHaveLength(2);
       expect(prismaMock.nationalOfficer.findMany).toHaveBeenCalledWith({
+        where: { status: { not: 'archived' } },
         orderBy: [
           { positionCategory: 'desc' },
           { sortOrder: 'asc' },
@@ -239,6 +240,7 @@ describe('NationalOfficersController (Integration)', () => {
           description: payload.description,
           imageUrl: null,
           sortOrder: 3,
+          status: 'active',
         },
       });
 
@@ -315,27 +317,57 @@ describe('NationalOfficersController (Integration)', () => {
     });
   });
 
-  // ── DELETE /national-officers/:id ────────────────────────────────────────
+  // ── PATCH /national-officers/:id/archive ─────────────────────────────────
 
-  describe('DELETE /national-officers/:id', () => {
-    it('deletes the officer and logs user activity', async () => {
-      prismaMock.nationalOfficer.findUnique.mockResolvedValue(mockOfficer);
-      prismaMock.nationalOfficer.delete.mockResolvedValue(mockOfficer);
+  describe('PATCH /national-officers/:id/archive', () => {
+    it('archives the officer and logs user activity', async () => {
+      const activeOfficer = { ...mockOfficer, status: 'active' };
+      prismaMock.nationalOfficer.findUnique.mockResolvedValue(activeOfficer);
+      prismaMock.nationalOfficer.update.mockResolvedValue({ ...activeOfficer, status: 'archived' });
 
       const response = await request(app.getHttpServer())
-        .delete('/national-officers/officer-1')
+        .patch('/national-officers/officer-1/archive')
         .set('Authorization', 'Bearer admin-token')
         .expect(200);
 
       expect(response.body.success).toBe(true);
-      expect(prismaMock.nationalOfficer.delete).toHaveBeenCalledWith({
+      expect(prismaMock.nationalOfficer.update).toHaveBeenCalledWith({
         where: { id: 'officer-1' },
+        data: { status: 'archived' },
       });
 
       expect(prismaMock.user_activities.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           user_id: BigInt(1),
-          action: 'Deleted National Officer: Dr. Lino Reynoso (President)',
+          action: 'archived_national_officer: Dr. Lino Reynoso (President)',
+        }),
+      });
+    });
+  });
+
+  // ── PATCH /national-officers/:id/unarchive ───────────────────────────────
+
+  describe('PATCH /national-officers/:id/unarchive', () => {
+    it('unarchives the officer and logs user activity', async () => {
+      const archivedOfficer = { ...mockOfficer, status: 'archived' };
+      prismaMock.nationalOfficer.findUnique.mockResolvedValue(archivedOfficer);
+      prismaMock.nationalOfficer.update.mockResolvedValue({ ...archivedOfficer, status: 'active' });
+
+      const response = await request(app.getHttpServer())
+        .patch('/national-officers/officer-1/unarchive')
+        .set('Authorization', 'Bearer admin-token')
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(prismaMock.nationalOfficer.update).toHaveBeenCalledWith({
+        where: { id: 'officer-1' },
+        data: { status: 'active' },
+      });
+
+      expect(prismaMock.user_activities.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          user_id: BigInt(1),
+          action: 'unarchived_national_officer: Dr. Lino Reynoso (President)',
         }),
       });
     });

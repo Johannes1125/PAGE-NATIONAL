@@ -17,10 +17,10 @@ const mockRecord = {
 };
 
 const mockRecords = [
-  { ...mockRecord, yearStart: 1998, title: 'Early Initiative' },
-  { ...mockRecord, yearStart: 2001, title: 'Seminar Series Launched' },
-  { ...mockRecord, yearStart: 2005, title: 'National Convention Established' },
   { ...mockRecord, yearStart: 2010, title: 'Digital Transformation' },
+  { ...mockRecord, yearStart: 2005, title: 'National Convention Established' },
+  { ...mockRecord, yearStart: 2001, title: 'Seminar Series Launched' },
+  { ...mockRecord, yearStart: 1998, title: 'Early Initiative' },
 ];
 
 const prismaMock = {
@@ -59,23 +59,24 @@ describe('HistoricalRecordsService', () => {
   // ── findAll ───────────────────────────────────────────────────────────────
 
   describe('findAll', () => {
-    it('returns all records ordered by yearStart ascending', async () => {
+    it('returns all records ordered by yearStart descending', async () => {
       prismaMock.historical_records.findMany.mockResolvedValue(mockRecords);
 
       const result = await service.findAll();
 
       expect(prismaMock.historical_records.findMany).toHaveBeenCalledWith({
+        where: { status: { not: 'archived' } },
         orderBy: [
-          { yearStart: 'asc' },
-          { sortOrder: 'asc' },
+          { yearStart: 'desc' },
+          { createdAt: 'desc' },
         ],
       });
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockRecords);
-      expect(result.data[0].yearStart).toBe(1998);
-      expect(result.data[1].yearStart).toBe(2001);
-      expect(result.data[2].yearStart).toBe(2005);
-      expect(result.data[3].yearStart).toBe(2010);
+      expect(result.data[0].yearStart).toBe(2010);
+      expect(result.data[1].yearStart).toBe(2005);
+      expect(result.data[2].yearStart).toBe(2001);
+      expect(result.data[3].yearStart).toBe(1998);
     });
 
     it('returns empty array when no records exist', async () => {
@@ -128,6 +129,7 @@ describe('HistoricalRecordsService', () => {
           yearStart: dto.yearStart,
           programType: dto.programType,
           description: dto.description,
+          status: 'active',
         },
       });
       expect(prismaMock.user_activities.create).toHaveBeenCalledWith({
@@ -178,33 +180,68 @@ describe('HistoricalRecordsService', () => {
     });
   });
 
-  // ── remove ────────────────────────────────────────────────────────────────
+  // ── archive ───────────────────────────────────────────────────────────────
 
-  describe('remove', () => {
-    it('deletes a historical record and logs activity', async () => {
-      prismaMock.historical_records.findUnique.mockResolvedValue(mockRecord);
-      prismaMock.historical_records.delete.mockResolvedValue(mockRecord);
+  describe('archive', () => {
+    it('archives a historical record and logs activity', async () => {
+      const activeRecord = { ...mockRecord, status: 'active' };
+      prismaMock.historical_records.findUnique.mockResolvedValue(activeRecord);
+      prismaMock.historical_records.update.mockResolvedValue({ ...activeRecord, status: 'archived' });
       prismaMock.user_activities.create.mockResolvedValue({});
 
-      const result = await service.remove(mockRecord.id, mockUser, mockIp);
+      const result = await service.archive(mockRecord.id, mockUser, mockIp);
 
-      expect(prismaMock.historical_records.delete).toHaveBeenCalledWith({
+      expect(prismaMock.historical_records.update).toHaveBeenCalledWith({
         where: { id: mockRecord.id },
+        data: { status: 'archived' },
       });
       expect(prismaMock.user_activities.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          action: expect.stringContaining('Deleted Historical Record'),
+          action: expect.stringContaining('archived_historical_record'),
         }),
       });
       expect(result.success).toBe(true);
-      expect(result.message).toBe('Historical record deleted successfully.');
+      expect(result.message).toBe('Historical record archived successfully.');
     });
 
-    it('throws NotFoundException when trying to delete non-existent record', async () => {
+    it('throws NotFoundException when trying to archive non-existent record', async () => {
       prismaMock.historical_records.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.remove('non-existent-id', mockUser, mockIp),
+        service.archive('non-existent-id', mockUser, mockIp),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  // ── unarchive ─────────────────────────────────────────────────────────────
+
+  describe('unarchive', () => {
+    it('unarchives a historical record and logs activity', async () => {
+      const archivedRecord = { ...mockRecord, status: 'archived' };
+      prismaMock.historical_records.findUnique.mockResolvedValue(archivedRecord);
+      prismaMock.historical_records.update.mockResolvedValue({ ...archivedRecord, status: 'active' });
+      prismaMock.user_activities.create.mockResolvedValue({});
+
+      const result = await service.unarchive(mockRecord.id, mockUser, mockIp);
+
+      expect(prismaMock.historical_records.update).toHaveBeenCalledWith({
+        where: { id: mockRecord.id },
+        data: { status: 'active' },
+      });
+      expect(prismaMock.user_activities.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          action: expect.stringContaining('unarchived_historical_record'),
+        }),
+      });
+      expect(result.success).toBe(true);
+      expect(result.message).toBe('Historical record unarchived successfully.');
+    });
+
+    it('throws NotFoundException when trying to unarchive non-existent record', async () => {
+      prismaMock.historical_records.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.unarchive('non-existent-id', mockUser, mockIp),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -255,21 +292,21 @@ describe('HistoricalRecordsService', () => {
   // ── Sorting logic ─────────────────────────────────────────────────────────
 
   describe('Sorting logic', () => {
-    it('records returned by findAll are in ascending yearStart order', async () => {
+    it('records returned by findAll are in descending yearStart order with createdAt secondary sort', async () => {
       const unsortedRecords = [
-        { ...mockRecord, yearStart: 2010 },
-        { ...mockRecord, yearStart: 1998 },
-        { ...mockRecord, yearStart: 2005 },
+        { ...mockRecord, yearStart: 1998, createdAt: new Date('2020-01-01') },
+        { ...mockRecord, yearStart: 2010, createdAt: new Date('2020-01-02') },
+        { ...mockRecord, yearStart: 2005, createdAt: new Date('2020-01-03') },
       ];
-      // Backend query uses orderBy yearStart:asc — simulate what Prisma returns
-      const sortedByPrisma = [...unsortedRecords].sort((a, b) => a.yearStart - b.yearStart);
+      // Backend query uses orderBy yearStart:desc, createdAt:desc — simulate what Prisma returns
+      const sortedByPrisma = [...unsortedRecords].sort((a, b) => b.yearStart - a.yearStart);
       prismaMock.historical_records.findMany.mockResolvedValue(sortedByPrisma);
 
       const result = await service.findAll();
 
-      expect(result.data[0].yearStart).toBe(1998);
+      expect(result.data[0].yearStart).toBe(2010);
       expect(result.data[1].yearStart).toBe(2005);
-      expect(result.data[2].yearStart).toBe(2010);
+      expect(result.data[2].yearStart).toBe(1998);
     });
   });
 });
