@@ -158,6 +158,7 @@ function AdminSidebarLayoutShell({ children }: { children: ReactNode }) {
           eyebrow={headerConfig.eyebrow}
           seniorFriendlyHeader={headerConfig.seniorFriendlyHeader}
           headerActions={headerConfig.headerActions}
+          centerHeaderActions={headerConfig.centerHeaderActions}
           titleIcon={headerConfig.titleIcon}
           premiumHeader={headerConfig.premiumHeader}
         />

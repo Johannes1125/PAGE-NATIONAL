@@ -14,6 +14,7 @@ type AdminSidebarLayoutProps = {
   children: ReactNode;
   seniorFriendlyHeader?: boolean;
   headerActions?: ReactNode;
+  centerHeaderActions?: boolean;
   titleIcon?: ReactNode;
   premiumHeader?: boolean;
 };
@@ -27,6 +28,7 @@ export default function AdminSidebarLayout({
   children,
   seniorFriendlyHeader = false,
   headerActions,
+  centerHeaderActions = false,
   titleIcon,
   premiumHeader = false,
 }: AdminSidebarLayoutProps) {
@@ -39,6 +41,7 @@ export default function AdminSidebarLayout({
       eyebrow,
       seniorFriendlyHeader,
       headerActions,
+      centerHeaderActions,
       titleIcon,
       premiumHeader,
       pageClassName,
@@ -50,6 +53,7 @@ export default function AdminSidebarLayout({
     eyebrow,
     seniorFriendlyHeader,
     headerActions,
+    centerHeaderActions,
     titleIcon,
     premiumHeader,
     pageClassName,

@@ -517,6 +517,10 @@
   z-index: 1;
 }
 
+.introActionsCentered {
+  align-self: center;
+}
+
 .introSeniorFriendly .introActions,
 .introActionsSeniorFriendly {
   margin-top: 34px;
@@ -559,6 +563,10 @@
     margin-top: 0;
     width: 100%;
   }
+
+  .introActionsCentered {
+    align-self: stretch;
+  }
   
   .introIllustration {
     align-self: center;
@@ -566,5 +574,4 @@
     height: 190px;
   }
 }
-
 

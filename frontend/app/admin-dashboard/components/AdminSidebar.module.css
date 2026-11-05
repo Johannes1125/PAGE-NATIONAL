@@ -420,9 +420,26 @@
   flex-shrink: 0;
 }
 
+.subItemBadge {
+  margin-left: auto;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
 .subItemLink.navLinkActive .subItemBullet {
   background: #5ba3e8;
   box-shadow: 0 0 0 4px rgba(91, 163, 232, 0.14);
+}
+
+.subItemLink.navLinkActive .subItemBadge {
+  background: rgba(123, 184, 255, 0.16);
+  color: rgba(255, 255, 255, 0.82);
 }
 
 .navbarCollapsed .navLink {

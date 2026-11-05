@@ -8,6 +8,7 @@ export type AdminHeaderConfig = {
   eyebrow?: string;
   seniorFriendlyHeader?: boolean;
   headerActions?: ReactNode;
+  centerHeaderActions?: boolean;
   titleIcon?: ReactNode;
   premiumHeader?: boolean;
   pageClassName?: string;

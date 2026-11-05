@@ -22,6 +22,10 @@ import {
 } from "lucide-react";
 import styles from "./AdminSidebar.module.css";
 import { VERSION_UPDATES } from "../../lib/version-updates";
+import {
+  DOCUMENT_LIBRARY_STATE_EVENT,
+  getDocumentLibraryState,
+} from "../documents/document-library-state";
 
 type AdminNavItem = {
   href: string;
@@ -38,6 +42,152 @@ type AdminSidebarSection = {
   items: AdminSidebarItem[];
 };
 
+type SidebarDropdownItem = {
+  href: string;
+  label: string;
+  badgeCount?: number;
+};
+
+type SidebarDropdownProps = {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+  items: SidebarDropdownItem[];
+  pathname: string;
+  isExpanded: boolean;
+  isActive: boolean;
+  shouldShowDetails: boolean;
+  arrowNavigation?: boolean;
+  onToggle: () => void;
+  onCloseMobileNav: () => void;
+};
+
+function SidebarDropdown({
+  id,
+  label,
+  icon: Icon,
+  items,
+  pathname,
+  isExpanded,
+  isActive,
+  shouldShowDetails,
+  arrowNavigation = false,
+  onToggle,
+  onCloseMobileNav,
+}: SidebarDropdownProps) {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!arrowNavigation || (event.key !== "ArrowDown" && event.key !== "ArrowUp")) {
+      return;
+    }
+
+    const group = event.currentTarget;
+    const focusableItems = Array.from(group.querySelectorAll<HTMLElement>("button, a[href]"));
+    const activeItem = event.target instanceof HTMLElement
+      ? event.target.closest<HTMLElement>("button, a[href]")
+      : null;
+    const currentIndex = activeItem
+      ? focusableItems.indexOf(activeItem)
+      : -1;
+
+    if (event.key === "ArrowDown" && !isExpanded && currentIndex === 0) {
+      event.preventDefault();
+      onToggle();
+      window.requestAnimationFrame(() => {
+        group.querySelector<HTMLElement>(`#${id} a[href]`)?.focus();
+      });
+      return;
+    }
+
+    if (currentIndex < 0 || focusableItems.length < 2) {
+      return;
+    }
+
+    event.preventDefault();
+    const nextIndex =
+      event.key === "ArrowDown"
+        ? (currentIndex + 1) % focusableItems.length
+        : (currentIndex - 1 + focusableItems.length) % focusableItems.length;
+    focusableItems[nextIndex].focus();
+  };
+
+  return (
+    <div
+      className={joinClasses(styles.groupRow, isExpanded && styles.groupRowExpanded)}
+      onKeyDown={handleKeyDown}
+    >
+      <button
+        type="button"
+        className={joinClasses(
+          styles.navLink,
+          styles.groupTrigger,
+          isActive && styles.navLinkActive,
+        )}
+        onClick={onToggle}
+        aria-expanded={isExpanded}
+        aria-controls={id}
+        aria-current={isActive ? "page" : undefined}
+        aria-label={label}
+      >
+        <span className={styles.navIcon} aria-hidden="true">
+          <Icon size={16} strokeWidth={1.9} />
+        </span>
+        <span className={styles.navLabel}>{label}</span>
+        {shouldShowDetails ? (
+          <span className={styles.groupChevron} aria-hidden="true">
+            <ChevronDown size={16} strokeWidth={2} />
+          </span>
+        ) : null}
+      </button>
+
+      {isExpanded ? (
+        <div id={id} className={styles.subItems}>
+          {items.map((subItem) => {
+            const subIsActive = pathname.startsWith(subItem.href);
+
+            return (
+              <Link
+                key={subItem.href}
+                href={subItem.href}
+                className={joinClasses(
+                  styles.navLink,
+                  styles.subItemLink,
+                  styles.subItemIndented,
+                  subIsActive && styles.navLinkActive,
+                )}
+                aria-current={subIsActive ? "page" : undefined}
+                onClick={onCloseMobileNav}
+              >
+                <span className={styles.subItemBullet} aria-hidden="true" />
+                <span className={styles.navLabel}>{subItem.label}</span>
+                {subItem.badgeCount !== undefined ? (
+                  <span className={styles.subItemBadge}>{subItem.badgeCount}</span>
+                ) : null}
+              </Link>
+            );
+          })}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+const documentMenuItems: SidebarDropdownItem[] = [
+  {
+    href: "/admin-dashboard/documents/library",
+    label: "Document Library",
+    badgeCount: 128,
+  },
+  {
+    href: "/admin-dashboard/documents/bulk-upload",
+    label: "Bulk Upload",
+  },
+  {
+    href: "/admin-dashboard/documents/archive",
+    label: "Archive",
+    badgeCount: 24,
+  },
+];
+
 const adminSections: AdminSidebarSection[] = [
   {
     title: "Dashboard",
@@ -52,6 +202,7 @@ const adminSections: AdminSidebarSection[] = [
       { href: "/admin-dashboard/chapters", label: "Chapters", icon: Building2, isIndented: true },
       { href: "/admin-dashboard/conventions", label: "Conventions", icon: Landmark, isIndented: true },
       { href: "/admin-dashboard/approve-post", label: "Approve Posts", icon: BadgeCheck },
+      { href: "#documents", label: "Documents", icon: BookOpen },
     ],
   },
   {
@@ -96,6 +247,8 @@ export default function AdminSidebar({
 }: AdminSidebarProps) {
   const pathname = usePathname();
   const [isContentExpanded, setIsContentExpanded] = useState(false);
+  const [isDocumentsExpanded, setIsDocumentsExpanded] = useState(false);
+  const [documentCounts, setDocumentCounts] = useState({ libraryCount: 128, archiveCount: 24 });
 
   const currentVersion = VERSION_UPDATES[0]?.version || "v0.3.0-dev";
   const currentVersionShort = currentVersion.split("-")[0] || "v0.3.0";
@@ -106,12 +259,34 @@ export default function AdminSidebar({
     pathname.startsWith("/admin-dashboard/chapters") ||
     pathname.startsWith("/admin-dashboard/conventions");
   const isCreatePostsActive = isCreatePostsRoute;
+  const isDocumentsRoute = documentMenuItems.some((item) => pathname.startsWith(item.href));
 
   useEffect(() => {
     if (isCreatePostsRoute) {
       setIsContentExpanded(true);
     }
   }, [isCreatePostsRoute]);
+
+  useEffect(() => {
+    if (isDocumentsRoute) {
+      setIsDocumentsExpanded(true);
+    }
+  }, [isDocumentsRoute]);
+
+  useEffect(() => {
+    const syncCounts = () => {
+      const { libraryCount, archiveCount } = getDocumentLibraryState();
+      setDocumentCounts({ libraryCount, archiveCount });
+    };
+
+    syncCounts();
+    window.addEventListener("storage", syncCounts);
+    window.addEventListener(DOCUMENT_LIBRARY_STATE_EVENT, syncCounts);
+    return () => {
+      window.removeEventListener("storage", syncCounts);
+      window.removeEventListener(DOCUMENT_LIBRARY_STATE_EVENT, syncCounts);
+    };
+  }, []);
 
   const shouldShowDetails = !isCollapsed || isMobileViewport;
 
@@ -178,62 +353,49 @@ export default function AdminSidebar({
                         : item.href !== "#create-posts" && pathname.startsWith(item.href);
 
                       if (item.href === "#create-posts") {
+                        const createPostsItems = section.items
+                          .filter((subItem) => subItem.isIndented)
+                          .map(({ href, label }) => ({ href, label }));
+
                         return (
-                          <div
+                          <SidebarDropdown
                             key={item.label}
-                            className={joinClasses(styles.groupRow, isExpanded && styles.groupRowExpanded)}
-                          >
-                            <button
-                              type="button"
-                              className={joinClasses(
-                                styles.navLink,
-                                styles.groupTrigger,
-                                isCreatePostsActive && styles.navLinkActive,
-                              )}
-                              onClick={() => setIsContentExpanded((current) => !current)}
-                              aria-expanded={isExpanded}
-                              aria-controls="content-subitems"
-                              aria-current={isCreatePostsActive ? "page" : undefined}
-                            >
-                              <span className={styles.navIcon} aria-hidden="true">
-                                <item.icon size={16} strokeWidth={1.9} />
-                              </span>
-                              <span className={styles.navLabel}>{item.label}</span>
-                              {shouldShowDetails ? (
-                                <span className={styles.groupChevron} aria-hidden="true">
-                                  <ChevronDown size={16} strokeWidth={2} />
-                                </span>
-                              ) : null}
-                            </button>
+                            id="content-subitems"
+                            label={item.label}
+                            icon={item.icon}
+                            items={createPostsItems}
+                            pathname={pathname}
+                            isExpanded={isExpanded}
+                            isActive={isCreatePostsActive}
+                            shouldShowDetails={shouldShowDetails}
+                            onToggle={() => setIsContentExpanded((current) => !current)}
+                            onCloseMobileNav={onCloseMobileNav}
+                          />
+                        );
+                      }
 
-                            {isExpanded ? (
-                              <div id="content-subitems" className={styles.subItems}>
-                                {section.items
-                                  .filter((subItem) => subItem.isIndented)
-                                  .map((subItem) => {
-                                    const subIsActive = pathname.startsWith(subItem.href);
-
-                                    return (
-                                      <Link
-                                        key={subItem.href}
-                                        href={subItem.href}
-                                        className={joinClasses(
-                                          styles.navLink,
-                                          styles.subItemLink,
-                                          subItem.isIndented && styles.subItemIndented,
-                                          subIsActive && styles.navLinkActive,
-                                        )}
-                                        aria-current={subIsActive ? "page" : undefined}
-                                        onClick={onCloseMobileNav}
-                                      >
-                                        <span className={styles.subItemBullet} aria-hidden="true" />
-                                        <span className={styles.navLabel}>{subItem.label}</span>
-                                      </Link>
-                                    );
-                                  })}
-                              </div>
-                            ) : null}
-                          </div>
+                      if (item.href === "#documents") {
+                        return (
+                          <SidebarDropdown
+                            key={item.label}
+                            id="documents-subitems"
+                            label={item.label}
+                            icon={item.icon}
+                            items={documentMenuItems.map((menuItem) => ({
+                              ...menuItem,
+                              badgeCount:
+                                menuItem.href.endsWith("/library")
+                                  ? documentCounts.libraryCount
+                                  : documentCounts.archiveCount,
+                            }))}
+                            pathname={pathname}
+                            isExpanded={isDocumentsExpanded}
+                            isActive={isDocumentsRoute}
+                            shouldShowDetails={shouldShowDetails}
+                            arrowNavigation
+                            onToggle={() => setIsDocumentsExpanded((current) => !current)}
+                            onCloseMobileNav={onCloseMobileNav}
+                          />
                         );
                       }
 
