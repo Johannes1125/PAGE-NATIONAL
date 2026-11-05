@@ -26,6 +26,7 @@ import ActivityHeatMap from "./components/ActivityHeatMap";
 import MiniBarChart from "./components/MiniBarChart";
 import "./admin-dashboard.css";
 import { api } from "../lib/api-client";
+import AdminHeroMetricCard from "./components/AdminHeroMetricCard";
 
 /* ── Types ─────────────────────────────────────────────────────────────────── */
 
@@ -474,25 +475,17 @@ export default function AdminDashboardPage() {
             Section 1 — Hero Metric Cards (6 cards)
             ═══════════════════════════════════════════════════════════════════ */}
         <section className="admin-hero-metrics admin-summary-grid--6">
-          {metrics.map((metric) => (
-            <article
+          {metrics.map((metric, index) => (
+            <AdminHeroMetricCard
               key={metric.label}
-              className={`admin-hero-card admin-hero-card--${metric.tone} admin-hero-card--animated`}
-            >
-              <div className="admin-hero-card__top">
-                <div className="admin-hero-card__icon" aria-hidden="true">
-                  <metric.icon size={16} strokeWidth={2} />
-                </div>
-                <p className="admin-hero-card__title">{metric.label}</p>
-              </div>
-              <p className="admin-hero-card__value">
-                {metric.value.toLocaleString()}
-                {metric.label === "Security Score" && (
-                  <span className="admin-hero-card__unit">/ 100</span>
-                )}
-              </p>
-              <p className="admin-hero-card__meta">{metric.meta}</p>
-            </article>
+              label={metric.label}
+              value={metric.value}
+              meta={metric.meta}
+              tone={metric.tone}
+              icon={metric.icon}
+              delay={Math.min(index * 0.05, 0.25)}
+              suffix={metric.label === "Security Score" ? "/ 100" : undefined}
+            />
           ))}
         </section>
 

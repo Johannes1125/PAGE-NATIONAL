@@ -32,6 +32,7 @@ type AdminHeaderProps = {
   eyebrow?: string;
   seniorFriendlyHeader?: boolean;
   headerActions?: React.ReactNode;
+  centerHeaderActions?: boolean;
   titleIcon?: React.ReactNode;
   premiumHeader?: boolean;
 };
@@ -52,6 +53,7 @@ export default function AdminHeader({
   eyebrow = "Admin panel",
   seniorFriendlyHeader = false,
   headerActions,
+  centerHeaderActions = false,
   titleIcon,
   premiumHeader = false,
 }: AdminHeaderProps) {
@@ -267,7 +269,13 @@ export default function AdminHeader({
             )}
           </div>
           {headerActions && !premiumHeader && (
-            <div className={joinClasses(styles.introActions, seniorFriendlyHeader && styles.introActionsSeniorFriendly)}>
+            <div
+              className={joinClasses(
+                styles.introActions,
+                seniorFriendlyHeader && styles.introActionsSeniorFriendly,
+                centerHeaderActions && styles.introActionsCentered,
+              )}
+            >
               {headerActions}
             </div>
           )}
