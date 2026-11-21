@@ -551,7 +551,7 @@ export default function DocumentLibrary() {
                         </span>
                       </div>
                     </td>
-                    <td><span className={styles.typeBadge}>{document.type}</span></td>
+                    <td><span className={styles.typeBadge} data-type={document.type}>{document.type}</span></td>
                     <td>
                       <span className={styles.accessStatus}>
                         <LockKeyhole size={14} aria-hidden="true" />
@@ -563,11 +563,12 @@ export default function DocumentLibrary() {
                       <div className={styles.rowActions}>
                         <button
                           type="button"
-                          className={styles.iconButton}
+                          className={`${styles.iconButton} ${styles.viewButton}`}
                           aria-label={`Open ${document.title} in secure viewer`}
                           onClick={() => setDialog({ type: "viewer", document })}
                         >
-                          <Eye size={17} />
+                          <Eye size={17} aria-hidden="true" />
+                          View
                         </button>
                         <div className={styles.popoverWrap}>
                           <button

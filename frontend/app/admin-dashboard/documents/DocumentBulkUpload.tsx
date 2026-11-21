@@ -471,7 +471,7 @@ export default function DocumentBulkUpload() {
           </span>
           <strong>Drag and drop your PDF files here</strong>
           <span className={styles.dropGuidance}>
-            PDF files only · Up to 50 MB per file · Up to 20 files per batch
+            PDF files only. Up to 50 MB per file and 20 files per batch.
           </span>
           <PillButton
             type="button"
@@ -717,16 +717,16 @@ export default function DocumentBulkUpload() {
           <footer className={styles.footerBar}>
             <div className={styles.footerActions}>
               <PillButton type="button" variant="outline" size="sm" onClick={cancelBatch}>
-                Clear
+                Clear all
               </PillButton>
               <PillButton
                 type="button"
                 variant="primary"
                 size="sm"
                 disabled={readyFiles.length === 0 || isPublishing}
-                onClick={publishReadyFiles}
+              onClick={publishReadyFiles}
               >
-                Submit
+              Publish to library
               </PillButton>
             </div>
           </footer>
