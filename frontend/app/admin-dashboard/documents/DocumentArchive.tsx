@@ -581,8 +581,7 @@ export default function DocumentArchive() {
                         </span>
                       </div>
                     </td>
-                    <td><span className={styles.typeBadge}>{record.type}</span></td>
-                    <td className={styles.archivedBy}>{record.archivedBy}</td>
+                    <td><span className={styles.typeBadge} data-type={record.type}>{record.type}</span></td>                    <td className={styles.archivedBy}>{record.archivedBy}</td>
                     <td className={styles.archivedDate}>{record.archivedAt}</td>
                     <td>
                       <div className={styles.rowActions}>
@@ -596,7 +595,8 @@ export default function DocumentArchive() {
                             setRestoreDialogCount(1);
                           }}
                         >
-                          <RotateCcw size={16} />
+                        <RotateCcw size={16} aria-hidden="true" />
+                          Restore
                         </button>
                         <div className={styles.popoverWrap}>
                           <button

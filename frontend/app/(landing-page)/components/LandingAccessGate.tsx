@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 function getRedirectPath(role?: string) {
@@ -17,13 +17,11 @@ function getRedirectPath(role?: string) {
 
 export default function LandingAccessGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     const payloadStr = localStorage.getItem("page_user_payload");
 
     if (!payloadStr) {
-      setIsReady(true);
       return;
     }
 
@@ -35,13 +33,8 @@ export default function LandingAccessGate({ children }: { children: React.ReactN
       console.error(error);
       localStorage.removeItem("page_user_token");
       localStorage.removeItem("page_user_payload");
-      setIsReady(true);
     }
   }, [router]);
-
-  if (!isReady) {
-    return null;
-  }
 
   return children;
 }

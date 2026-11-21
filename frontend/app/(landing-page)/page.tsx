@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { api } from "../../lib/api-client";
-import "./home-page.css";
+import { api } from "../lib/api-client";
+import "./(home)/home-page.css";
 
 // ── Icons ─────────────────────────────────────────────────────────
 
